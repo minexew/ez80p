@@ -1,0 +1,4 @@
+
+EZ80P PCB V1.1 has errors (RX/TX, RTS/CTS transposed, FT232 VccIO supply should
+be connected to board's 3.3v (not chip's 3.3v), 5v supply needs to be supplied
+via a diode.)

@@ -1,0 +1,58 @@
+
+How to write assembly language programs for PROSE/AMOEBA using Zilog's ZDS II IDE
+---------------------------------------------------------------------------------
+
+1. Download/install ZDS II from zilog.com (you need to register to download files)
+
+2. Start ZDS II and click "file -> new project"
+
+3. Use the following settings:
+
+   Project name: Choose some location for your project
+   Project Type: Assembly only
+   CPU Family: eZ80
+   CPU: EZ80L92
+   Build type: Executable
+
+4. Click continue, tick "EZ80L92 RAM platform", click next, click finish
+
+
+
+The following section is for general guidance only, the ordering is not critical..
+
+ 5. Click "open" and load the Z80_header or ADL_header .asm file from the "code/templates"
+    folder of the project archive. Adjust the parameters in the source if required.
+
+ 6. click "save as", make a new subfolder in your project's folder called "source"
+    and save the file as "some_name.asm"
+ 
+ 6. Right click "Assembly Only Project Files" in the left panel of ZDS II and add
+    the previously saved .asm file to the project.
+
+ 7. Click "Project -> Settings", click the "assembler" options, and on the includes
+    box browse to the PROSE includes folder.
+
+
+
+To assemble a program:
+----------------------
+
+In ZDS II, click "build" from the title bar, then "compile/assemble", if assembly
+completes OK, chose "build" below ("compile/assemble") to output an Intel .hex file
+in a subfolder called Debug.
+
+The .hex file must be converted into a raw binary to run under PROSE. This can
+be acheived by dragging it to the Purebasic Windows program "_hex_to_ezp.exe".
+this outputs a binary version of the file with the same filename but with an
+".ezp" extension (required for PROSE to recognize exectuables). 
+
+You can find the converter program in the "PC_Apps" folder of the project
+archive  (I normally copy it to the debug folder of each new project).
+There are undoubtedly other "Intel .hex to raw binary" programs around
+which will do the same job, however I could not find one that removed
+padding bytes from $0 to the program's origin so I made my own. Purebasic
+source is provided allowing conversion to Linux etc if desired.
+
+
+
+

@@ -1,0 +1,11 @@
+
+* NMI button sometimes doesn't work.
+
+* Many of the the programs in the PROSE_BASED_APPS/TEST folder are dodgy.
+
+
+Previously addressed:
+---------------------
+
+* Some mice initialize but return bad data packets. (Fixed in PROSE v0.26)
+

@@ -1,0 +1,36 @@
+
+014 - Upon cold start sets small stack pointer to $ffff (top of MBASE: page)
+
+015 - Added internal "Mouse" Command to activate mouse driver
+
+016 - Updated mouse routines
+
+01A - Updated for AMOEBA v81
+
+01B - Lots of changes: File system error codes, kernal calls fixed / registers swapped etc
+
+01C - Fixed format in SD card routines, other odd and ends.
+
+01D - Joystick port pins configured as inputs
+
+01E - VMODE command added (made display code more flexible to suit).
+
+01F - Changed font system, default font now unpacked to VRAM and full 32-255 ASCII
+      character codes available
+    - Added "FONT" command
+
+023 - Kernal routine "kr_get_font_info" added
+
+024 - "RX" command updated. When argument = ">" the file is copied to the current
+      disk directory (and not loaded to RAM in its entirity. Warning: uses a 32KB
+      buffer at top of OS) - Requires Serial Link V3.0+
+
+025 - Bugfix: Minimum PROSE version from program header did not work.
+
+026 - Mouse driver updated:
+
+      Allow MS Intellimouse style mice (scroll wheel) that use 4-byte packets (untested).
+
+      If incompatible mouse is connected, an error is now reported.
+
+      Mouse initialization now skips ACK wait, and instead waits for $AA "POST OK" response.

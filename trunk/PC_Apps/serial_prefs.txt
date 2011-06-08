@@ -1,0 +1,2 @@
+baud_rate = 9600
+com_port = COM5

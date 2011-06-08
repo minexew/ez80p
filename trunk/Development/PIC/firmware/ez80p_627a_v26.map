@@ -1,0 +1,252 @@
+MPLINK 4.31, Linker
+Linker Map File - Created Fri May 06 12:01:52 2011
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_1       code   0x000000    program   0x000002
+                   .org_2       code   0x000004    program   0x0007dc
+.config_2007_EZ80P_627A_V26.O       code   0x002007    program   0x000002
+                   .org_3       code   0x002100    program   0x000006
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000000      
+                            0x000004    0x0003f1      
+                            0x002007    0x002007      
+                            0x002100    0x002102      
+            1011 out of 1158 program addresses used, program memory utilization is 87%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+        allow_programming   0x00038a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              bad_command   0x0002a6    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                busyw_end   0x0002ec    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                butrelcnt   0x0003b9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             cant_program   0x0002ab    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 cap_loop   0x00031a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               check_jtag   0x000031    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 chk_done   0x000037    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 chkjtag2   0x000044    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           configure_fpga   0x00002a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      configure_fpga_test   0x00010f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               db_timeout   0x0001fa    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          deselect_eeprom   0x00038f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     disallow_programming   0x000388    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 done_low   0x00003e    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       erase_eeprom_block   0x000210    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+    exit_programming_mode   0x00020d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               flash_leds   0x0002b5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                flashloop   0x0002b6    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             fpga_done_hi   0x0000aa    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                gbfe_loop   0x0002f1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              gbff_clk_hi   0x000341    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              gbff_clk_lo   0x000355    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     get_byte_from_eeprom   0x0002ee    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       get_byte_from_fpga   0x00032d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       get_eeprom_address   0x000320    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             go_configure   0x000073    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  id_done   0x00031e    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                init_code   0x000005    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               long_pause   0x000392    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  lp_loop   0x000394    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               main_start   0x000013    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      make_slot_permanent   0x000176    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                mset_slot   0x000048    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   msplp1   0x0003a8    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                next_byte   0x0001e2    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               next_fcbit   0x000331    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   no_gap   0x000058    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 no_reset   0x0000bd    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 not_25vf   0x000315    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                pause_1ms   0x0003a5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          pic_eeprom_read   0x000380    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         pic_eeprom_write   0x00036f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                psb_bloop   0x0003db    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           read_eeprom_id   0x0002ff    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                read_loop   0x000088    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     read_status_register   0x000120    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               readb_loop   0x000233    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         report_boot_slot   0x00015b    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           report_chip_id   0x00014f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+report_configured_from_slot   0x000162    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+   report_eeprom_capacity   0x000153    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       report_eeprom_type   0x000157    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     report_firmware_vers   0x00014b    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              reset_pulse   0x0003bf    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+return_programming_permission   0x00011c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              rom_read_lp   0x0001c5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                rombit_lp   0x0001e4    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 s2_ledfl   0x00004d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  sb_loop   0x000363    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                sebbit_lp   0x0003c7    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+            select_eeprom   0x00038c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      send_byte_to_eeprom   0x000360    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+   send_databurst_to_fpga   0x0001ab    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      send_eeprom_address   0x000359    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+ send_eeprom_byte_to_fpga   0x0003c5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              send_ok_ack   0x0003ef    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           send_w_to_fpga   0x0003d1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          set_config_slot   0x000165    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     set_databurst_length   0x00019d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+set_databurst_start_address   0x00018f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     set_programming_mode   0x0001fe    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      set_protection_bits   0x00012a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 set_slot   0x000067    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              short_pause   0x000398    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+  short_pause_esc_if_done   0x0003ae    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 shpeidlp   0x0003b1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                slot_loop   0x000049    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          sst_write_bytes   0x00025c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         sst_write_enable   0x00028c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+        sst_write_protect   0x000299    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               sstwr_loop   0x000273    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                    swlp1   0x00039a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                sysrescnt   0x0000b3    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                vsh_pause   0x0003a1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             vshort_pause   0x0003a0    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wait_bffch   0x000339    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wait_bffcl   0x00034d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wait_but   0x00005c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      wait_button_release   0x0003b8    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              wait_cmd_lp   0x0000b2    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             wait_command   0x0000ae    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         wait_eeprom_busy   0x0002d3    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          wait_eeprom_wel   0x0002bf    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                wait_epwr   0x00037a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              wait_init_1   0x000077    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                wait_jtag   0x000034    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               waitdatalo   0x0001d5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                    wdbhi   0x0001cc    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   wdbilo   0x0001d9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wel_high   0x0002d1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wel_loop   0x0002c7    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wip_loop   0x0002de    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  wip_low   0x0002e9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wip_pdelay   0x0002d5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+    write_bytes_to_eeprom   0x00022c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          write_timed_out   0x0002b0    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              writeb_loop   0x000251    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                init_code   0x000005    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               main_start   0x000013    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           configure_fpga   0x00002a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               check_jtag   0x000031    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                wait_jtag   0x000034    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 chk_done   0x000037    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 done_low   0x00003e    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 chkjtag2   0x000044    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                mset_slot   0x000048    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                slot_loop   0x000049    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 s2_ledfl   0x00004d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   no_gap   0x000058    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wait_but   0x00005c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 set_slot   0x000067    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             go_configure   0x000073    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              wait_init_1   0x000077    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                read_loop   0x000088    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             fpga_done_hi   0x0000aa    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             wait_command   0x0000ae    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              wait_cmd_lp   0x0000b2    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                sysrescnt   0x0000b3    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 no_reset   0x0000bd    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      configure_fpga_test   0x00010f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+return_programming_permission   0x00011c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     read_status_register   0x000120    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      set_protection_bits   0x00012a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     report_firmware_vers   0x00014b    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           report_chip_id   0x00014f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+   report_eeprom_capacity   0x000153    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       report_eeprom_type   0x000157    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         report_boot_slot   0x00015b    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+report_configured_from_slot   0x000162    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          set_config_slot   0x000165    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      make_slot_permanent   0x000176    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+set_databurst_start_address   0x00018f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     set_databurst_length   0x00019d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+   send_databurst_to_fpga   0x0001ab    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              rom_read_lp   0x0001c5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                    wdbhi   0x0001cc    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               waitdatalo   0x0001d5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   wdbilo   0x0001d9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                next_byte   0x0001e2    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                rombit_lp   0x0001e4    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               db_timeout   0x0001fa    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     set_programming_mode   0x0001fe    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+    exit_programming_mode   0x00020d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       erase_eeprom_block   0x000210    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+    write_bytes_to_eeprom   0x00022c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               readb_loop   0x000233    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              writeb_loop   0x000251    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          sst_write_bytes   0x00025c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               sstwr_loop   0x000273    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         sst_write_enable   0x00028c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+        sst_write_protect   0x000299    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              bad_command   0x0002a6    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             cant_program   0x0002ab    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          write_timed_out   0x0002b0    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               flash_leds   0x0002b5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                flashloop   0x0002b6    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          wait_eeprom_wel   0x0002bf    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wel_loop   0x0002c7    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wel_high   0x0002d1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         wait_eeprom_busy   0x0002d3    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wip_pdelay   0x0002d5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 wip_loop   0x0002de    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  wip_low   0x0002e9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                busyw_end   0x0002ec    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     get_byte_from_eeprom   0x0002ee    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                gbfe_loop   0x0002f1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           read_eeprom_id   0x0002ff    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 not_25vf   0x000315    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 cap_loop   0x00031a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  id_done   0x00031e    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       get_eeprom_address   0x000320    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+       get_byte_from_fpga   0x00032d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               next_fcbit   0x000331    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wait_bffch   0x000339    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              gbff_clk_hi   0x000341    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               wait_bffcl   0x00034d    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              gbff_clk_lo   0x000355    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      send_eeprom_address   0x000359    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      send_byte_to_eeprom   0x000360    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  sb_loop   0x000363    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+         pic_eeprom_write   0x00036f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                wait_epwr   0x00037a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          pic_eeprom_read   0x000380    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+     disallow_programming   0x000388    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+        allow_programming   0x00038a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+            select_eeprom   0x00038c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+          deselect_eeprom   0x00038f    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+               long_pause   0x000392    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                  lp_loop   0x000394    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              short_pause   0x000398    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                    swlp1   0x00039a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+             vshort_pause   0x0003a0    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                vsh_pause   0x0003a1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                pause_1ms   0x0003a5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                   msplp1   0x0003a8    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+  short_pause_esc_if_done   0x0003ae    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                 shpeidlp   0x0003b1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+      wait_button_release   0x0003b8    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                butrelcnt   0x0003b9    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              reset_pulse   0x0003bf    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+ send_eeprom_byte_to_fpga   0x0003c5    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                sebbit_lp   0x0003c7    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+           send_w_to_fpga   0x0003d1    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+                psb_bloop   0x0003db    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+              send_ok_ack   0x0003ef    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\firmware\ez80p_627a_v26.asm
+
+

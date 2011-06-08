@@ -1,0 +1,484 @@
+
+AMOEBA 1.02 Features
+--------------------
+
+ Video Display Modes
+ -------------------
+
+ Bitmap chunky mode: 640x480, 320x480, 640x240, 320x240 in 16 or 256 colours
+ Tile map mode     : 640x480, 320x480, 640x240, 320x240 in 256 colours
+
+ 256 colour mode is a linear "chunky" VGA style where each byte of the
+ display is an index in the colour palette. There are four palettes available.
+ 
+ 16 colour mode is similar to the above, except each byte read from VRAM holds the
+ colour indexes for two pixels. Bits [7:4] = Leftmost pixel index, [3:0] = Rightmost
+ pixel index. Naturally only the first 16 colours of a palette are used (The four
+ individual palettes are still available.)
+
+ The following parameters allow control of the video window:
+
+  + Start Location
+  + Width of the video datafetch (granularity of 8 bytes)
+  + Modulo (bytes to add to location count at the right side of scanlines)
+  + Pixel count increment
+
+ Tilemap mode uses 8x8 pixel tiles with two bytes per map entry (13-bit indexing
+ allowing theoretical maximum of 8192 tile definitions). The tile data uses 256
+ colour index mode. The size of the tilemap can be set with following parameters:
+
+  + Start address of tilemap in VRAM  
+  + Horizontal tile increment (Normally 2, two bytes per map entry) 
+  + Modulo (the number of bytes to skip at the end of each row of tiles)
+  + Data fetch length
+  + Horizontal pixel scroll position (0-7)
+  + Vertical line scroll position (0-7)
+
+ It is possible to set the position of the right border (to 8 pixel granularity) to hide
+ new map data when scrolling horizontally.
+
+
+ Sprites
+ -------
+
+ Sprites are 16 pixels wide each and can be any height (scanline granularity).
+ They use 256 colour chunky colour index mode and always use 640x480 resolution.
+ The same four colour palettes as used for background data are available to sprites.
+
+
+ Misc
+ ----
+
+ Video Output is 60Hz VGA standard (25MHz pixel clock)
+
+
+ Audio: 
+ ------
+
+ There are 8 sound channels (0-3 to left stereo side, 4-7 to right stereo side) each
+ plays 8-bit signed sample. There are individual frequency, volume, start location
+ and length registers. Once a channel is playing, its location and length registers
+ can be changed allowing looped or play-once operation.
+
+ The control registers are at $ff1400-$ff14ff and each channel is assigned the
+ following registers:
+
+ $00 - Location of sample (in Audio RAM)
+ $04 - Length of sample
+ $08 - Frequency constant
+ $0C - Volume 
+ $10 - Loop Location
+ $14 - Loop Length
+
+ The control registers are write only and it is necessary to access them with 24-bit
+ writes (when the MSB is written, the whole register is updated). Additionally, it is
+ important to write to the audio registers only when the hardware has finished reading
+ from them (see info below).
+
+ "Location" is a 19 bit address in VRAM_B. (The full 24 bit address can be written if
+  desired - only the lowest 19 bits are used.)
+
+ "Length" is a 19 bit value, the length in bytes of the sound sample.
+
+ "Frequency constant" is a 16 bit value (see below)
+
+ "Volume" is a 7 bit value, linear range $40-$00, $40 is full volume.
+
+ The audio system is set up so that after starting a sample playing on a channel, it
+ will run to the end and then switch to the values stored in the LOOP LOCATION and
+ LOOP LENGTH registers. Writing to the location register resets the loop
+ flag and starts a sample playing from the start.
+
+ There is one extra control register which enables the entire Audio Hardware. This
+ is a write only register at $ff1403, when bit 0 is set the audio system becomes
+ active. This address should be written with a single byte operand. 
+
+
+ Audio Frequency
+ ---------------
+
+ The audio hardware has a native playback speed of 48828Hz and buffers four new 8-bit
+ samples per channel (using the control values in the hardware registers) at the start
+ of scan lines when new data is required.
+
+ Each channel's "Frequency Constant" register determines the speed at which a sample
+ clip is played: It is a 16-bit fractional proportion of the maximum sampling rate of
+ 48828Hz. It's calculated as follows:
+
+((sample rate)
+((-----------) X 65556) - 1
+((   48828   )
+
+
+ Mixing:
+ -------
+
+ The outputs of the 8 channels are mixed and sent to the left and right audio signals.
+ Channels 0-3 are mixed and sent to the left channel, channels 4-7 are mixed and sent
+ to the right channel. Due to the nature of the mixing, the volume of the individual
+ channels on each side is halved, so if using only 4 channels, optimal quality can be
+ achieved by copying the four groups of control data to two channels each:
+ 0&1, 2&3, 4&6 and 6&7.
+
+
+ Updating the Audio registers:
+------------------------------
+
+ It is required that the audio registers are updated at a time
+ when the hardware is not also accessing them. To help with this,
+ bit 6 of "PORT_HW_FLAGS" can be read to determine when this should be.
+
+ This flag becomes set as soon as the audio hardware has finished reading
+ its registers (64 50MHz CPU cycles after the start of a scanline on
+ which the sample buffer was reloaded). Writing to any of the audio register
+ resets this flag.
+
+ Note: This flag will never become set if the audio system is disabled
+ so it is best to enable the sound system just prior to testing the flag,
+ this also has the effect of reseting it, ready for a precise read.
+
+ There are a maximum of 4032 50MHz CPU cycles between buffer refills.
+ It is normally best to update all the audio registers in one go.
+
+
+********************
+* Memory locations *
+********************
+
+----------------------------------------------------------------------------------------
+SYSTEM:                          LABEL:                 LOCATION:
+-----------------------------------------------------------------------------------------
+
+System RAM 			"sysram_addr"	 	000000h - 07ffffh
+Video RAM A (Background) 	"vram_a_addr"		800000h - 87ffffh
+Video RAM B (Sprites/audio) 	"vram_b_addr"		c00000h - c7ffffh
+
+Colour Palette			"palette_regs"		ff0000h - ff07ffh
+Sprite registers 		"sprite_regs"		ff0800h - ff0fffh
+Video Window Settings		"video_mode_regs"	ff1000h - ff1030h
+Sound control registers		"audio_regs"		ff1400h - ff14ffh
+General video control		"video_control_regs"	ff1800h - ff1804h
+
+---------------------------------------------------------------------------------------
+Colour Palette @ $ff0000
+---------------------------------------------------------------------------------------
+
+There are 4 colour palettes, each is 512 bytes long.
+
+Each palette is 256 words: $0RGB (4 bits for red, green and blue)
+
+Viewed as bytes, LSB: [7:4]=GREEN, [3:0]=BLUE, and MSB: [7:4]=Zero, [3:0]=RED
+
+
+----------------------------------------------------------------------------------------
+Sprite Registers @ $ff0800
+-----------------------------------------------------------------------------------------
+
+Each sprite has the following 16 bit registers:
+
+$0 - x coordinate [9:0]
+
+$2 - y coordinate [9:0]
+
+$4 - Height / Control bits
+
+	Bits: [8:0] = Height of sprite in lines
+
+$6 - definition start [14:0] (IE: Location in Sprite RAM / 16)
+
+
+
+-----------------------------------------------------------------------------------------
+Bitmap mode parameters @ $ff1020h
+-----------------------------------------------------------------------------------------
+
+The tilemap registers ar located at $fc0020
+
+a) $00 - Start address of bitmap in VRAM 
+
+b) $04 - Horizontal pixel address increment (Normally 0001h)
+
+c) $08 - Unused: Set to 0
+
+d) $0c - Modulo (the number of bytes to skip at the end of each line of pixels)
+         (Note: This depends on the data fetch size)
+
+e) $10 - Data fetch length: (Number of bytes to read) / 8 - 1
+
+
+Values written to registers A - D are 19 bit values
+
+
+-----------------------------------------------------------------------------------------
+EZ80P Tilemap Registers @ $ff1000h
+-----------------------------------------------------------------------------------------
+
+The tilemap registers ar located at $fc0000
+
+a) $00 - Start address of tilemap in VRAM 
+
+b) $04 - Horizontal tile increment (Normally 0002h)
+
+c) $08 - Set to (80000h - (tilemap data fetch length * 2)), Normally 07ff60h
+
+d) $0c - Modulo (the number of bytes to skip at the end of each row of tiles)
+         This depends on the overall width of the user's tile map and the data fetch)
+
+e) $10 - Data fetch length
+
+e) $11 - Horizontal-fine pixel scroll position (0-7)
+
+f) $12 - Vertical-fine line scroll position (0-7)
+
+
+Values written to registers A - D are 19 bit values
+
+Each map entry is two bytes long (little endian), and refers to the location of
+the tiles in VRAM / 64 (as each tile is 64 bytes in size)
+
+
+-----------------------------------------------------------------------------------------
+Video control registers @ $ff1800
+-----------------------------------------------------------------------------------------
+
+$00 - W - "video_control"
+
+	0 - 16 colour mode when set, 256 color mode when zero.
+	1 - Line doubling (240 lines when set, 480 when zero) 
+        2 - Pixel doubling (320 pixels horizontally when set, 640 when zero)
+        3 - Tilemap Mode (on when set)
+
+
+$01 - W - "sprite_control"
+
+	0 - Sprites on / off
+
+
+$02 - W - "bgnd_palette_select"
+
+	0:1 = Palette 0-3 used for background
+
+
+$03 - W - "sprite_palette_select"
+
+	0:1 = Palette 0-3 used for sprites
+
+
+$04 - W - "right_border_position"
+
+	0:5 = Set position of right border (cosmetic mask, does not affect datafetch)
+
+
+-----------------------------------------------------------------------------------------
+AMOEBA Peripheral Ports
+-----------------------------------------------------------------------------------------
+
+Control of systems such as keyboard, mouse, SD card, EEPROM is acheived via eZ80
+port addresses (the following ports access architecture within the FPGA. Peripherals
+internal to the EZ80 joystick (IO), RS232, RTC etc use the standard eZ80 ports as
+listed in the EZ80 user guide)
+
+Port:
+
+$00 - R/W "port_pic_data"
+
+	0:7 - Write data for, or read data from the PIC/EEPROM sub-system
+
+
+-----------------------------------------------------------------------------
+
+$01 - R "port_hw_flags"
+
+	Bit 0 - An EEPROM byte has been received when set
+	    1 - PIC comms clock line status
+	    2 - PIC (output) serializer is busy when set
+	    3 - n/u
+     	    4 - SD card output serializer is busy when set
+	    5 - VRT Latch. The last scan line of display sets this flip-flop.
+	    6 - Audio HW has finished reading registers when set
+	    7 - H/W config ID bit
+
+
+$01 - W "port_pic_ctrl"
+
+	0 - Force pic comms data line high when set (for databurst clocking)
+
+
+-----------------------------------------------------------------------------
+
+
+
+$02 - R - "port_keyboard_data"
+
+	0:7 - scancode byte
+	
+
+$02 - W - "port_sdc_ctrl"
+
+This is a set/reset type register, bit 7 controls whether bit positions
+in 6-0 written with ones are set or cleared (Other bits are unchanged).
+
+	Bit 0: sdc_power (active high)				
+	    1: sdc_cs (active low)					
+	    2: sdc_speed (full speed when set)				
+	    7: Set/Reset control
+
+-----------------------------------------------------------------------------
+        
+
+$03 - R - "port_sdc_data"
+
+	0:7 - byte from SD card
+
+
+-----------------------------------------------------------------------------
+
+$04 - W - "port_memory_paging"
+
+	0 - ROM paged out of 0-7ff when set
+
+-----------------------------------------------------------------------------
+
+
+$05 - W - "port_irq_ctrl"  
+
+This is a set/reset type register, bit 7 controls whether bit positions in
+6-0 written with ones are set or cleared (other bits are unchanged).
+
+          0 - Allow Keyboard interrupt when set
+          1 - Allow mouse interrupt when set
+          7 - Set / Reset control
+
+-----------------------------------------------------------------------------
+
+$06 - W - "port_nmi_ack"
+
+	0:7 write anything to acknowledge NMI
+
+
+$06 - R - "port_mouse_data" 
+
+	 0:7 packet byte 
+
+-----------------------------------------------------------------------------
+
+
+$07 - W - "port_ps2_ctrl"
+
+          0 - Keyboard clock output (set to 1 to pull signal low)
+          1 - Keyboard data output  ("")
+          2 - Mouse clock output    ("")
+          3 - Mouse data output     ("")
+
+$07 - R - "port_ps2_ctrl"
+
+	0 - Read Keyboard clock state (controlled by device or by writing to this port)
+	1 - Read Keyboard data current state ("")
+	2 - Read Mouse clock current state   ("")
+	3 - Read Mouse data current state    ("")
+        4 - Keyboard buffer status
+        5 - Mouse buffer status
+          
+-----------------------------------------------------------------------------
+
+
+$08 - W - "port_selector"
+	
+	0:3 - multiple usage: EG: selects HW ID databit in "port_hw_flags"
+          
+      
+-----------------------------------------------------------------------------
+
+
+$09 - W - "Clear flags"
+	
+	0 - Clears the VRT latch (bit 5 of port 1)
+          
+
+------------------------------------------------------------------------------
+Native EZ80 CPU ports
+------------------------------------------------------------------------------
+
+The EZ80 port pins are initialized to inputs by the ROM for their normal EZ80P
+usage but can be freely reconfigured by user code.
+
+Joysticks / I.O pins:
+
+ ------------------------------------------
+|eZ80 port [bit]  | DB9 Pin* | Joystick    |
+|------------------------------------------|
+|PC_DR [0]        | JoyA  1  | up          |
+|PC_DR [1]        | JoyA  2  | down        |
+|PC_DR [2]        | JoyA  3  | left        | 
+|PC_DR [3]        | JoyA  4  | right       |
+|PC_DR [4]        | JOyB  1  | up          |
+|PC_DR [5]        | JOyB  2  | down        |
+|PC_DR [6]        | JOyB  3  | left        |
+|PC_DR [7]        | JOyB  4  | right       |
+|------------------------------------------|
+|PD_DR [4]        | JOyB  9  | button 2    |
+|PD_DR [5]        | JOyB  6  | button 1    |
+|PD_DR [6]        | JoyA  9  | button 2    |
+|PD_DR [7]        | JoyA  6  | button 1    |
+ ------------------------------------------
+
+(*All these pins are pulled up via 10K resistors (there is a jumper to select which
+ voltage the pins are pulled up to: 3.3v or 5.0v)
+
+
+Spare IO:
+---------
+
+The EZ80's PB[7:1] pins are connected directly to a pin header on the PCB. They are not
+pulled high or low.
+
+
+RS232:
+------
+
+The pins shown below are connected to an FT232R serial-to-USB chip, RX->TX / RTS->CTS
+and vice versa.
+
+ -----------------
+|eZ80 port [bit]  |
+|-----------------|
+|PD_DR [0] = TX0  | 
+|PD_DR [1] = RX0  | 
+|PD_DR [2] = RTS0 |  
+|PD_DR [3] = CTS0 | 
+ -----------------
+
+
+Interrupt:
+----------
+
+EZ80 pin: PB0 is configured as a maskable interrupt input by the ROM code. It is
+connected to FPGA pin [p67]. The EZ80'S NMI line is connected direct to FPGA pin [p2]
+
+
+-------------------------------------------------------------------------------     
+Power-on boot sequence
+-------------------------------------------------------------------------------
+
+Upon power up, the ROM (part of the FPGA config) copies itself to system RAM 0h-7efh and
+then switches itself out of memory space. This code then looks for a file called "BOOT.EZO"
+on the root of an SD card, if this is found then the code next looks for a file with the 
+name specified by "BOOT.EZO" and loads this to 0a00h onwards (may extend to FFFFh max).
+A jump is then made to 0a00h (JP.LIL 0a00h - so the OS starts in ADL mode). If either
+file is not found an OS can be downloaded via serial link. 
+
+Error reports:
+
+Screen flashes blue = "BOOT.EZO" was not found.
+
+"NO OS" displayed = OS file or "BOOT.EZO" was not found: Download an OS via serial link.
+
+
+-----------------------------------------------------------------------------
+
+
+
+
+
+
+

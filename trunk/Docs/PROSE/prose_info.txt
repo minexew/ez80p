@@ -1,0 +1,129 @@
+
+PROSE (Phil's Rudimentary Operating System Experiment)
+------------------------------------------------------
+
+
+PROSE runs in ADL mode and can launch ADL or Z80 mode programs from the command line.
+PROSE-executable programs must have the file extension ".ezp" and start with a file header
+with the format:
+
+ $00 - Z80 JR instruction to jump over header data
+ $02 - ASCII "PRO" = PROSE executable program ID
+ $05 - Desired Load location (24 bit) 
+ $08 - If > 0, truncate load to n bytes
+ $0B - If > 0, minimum PROSE version requird
+ $0D - If > 0, minimum AMOEBA version required
+ $0F - Z80 (0) or ADL mode (1) program.
+
+Z80 mode programs should set the MBASE register upon start-up to bits 23:16 of the load
+location.  The easiest way to handle all the above is to begin programs with the following
+source:
+
+;----------------------------------------------------------------------------------------------
+
+amoeba_version_req	equ 0			; 0 = dont care about HW version, else minimum version allowed
+prose_version_req	equ 0			; 0 = dont care about OS version, else minimum version allowed
+ADL_mode		equ 1			; 0 = user program is Z80 mode type, 1 if not
+load_location		equ 10000h		; anywhere in system ram ($10000 upwards suggested)
+
+			include	'PROSE_header.asm'
+
+;----------------------------------------------------------------------------------------------
+
+The Small Stack Pointer for Z80 programs is set to $FFFF by default.
+Remember to set the includes directory in your ZDS II project.
+
+
+
+Calling PROSE kernal routines:
+------------------------------
+
+Load the accumulator with the routine label (see kernal_routines.txt for descriptions)
+and set the other registers as appropriate for the routine in question. Then do an ADL
+mode call to "prose.kernal"
+
+EG: To print a line of text:
+
+	ld hl,message_txt			; ADL mode program
+	ld a,kr_print_string			; desired kernal routine
+	call.lil prose_kernal			; call PROSE routine
+
+This applies to both Z80 mode and ADL mode programs. (When a Z80 mode program
+calls the PROSE kernal, registers used as location pointers have their MSB [23:16] 
+set (by the kernal) to the MBASE register).
+
+
+----------------------------------------------------------------------------------------------
+
+
+PROSE Internal Commands: 
+------------------------
+
+Change the look/settings of PROSE:
+----------------------------------
+
+VMODE   x     		- Set video resolution 0-3 (320x240 to 640x480)
+FONT    x.fnt 		- Change font (see "fonts" folder)
+KEYMAP  x.bin 		- Change from default UK keymap (see "keymaps" folder)
+PEN     xy z  		- Change character attributes (x=background,y=foreground z = window colour)
+PALETTE abc,def.. 	- Set the colour palette (up to 16 $0RGB values) 
+CLS			- Clear screen
+
+(The default video mode used by PROSE is 16 colour mode bitmap, 640x480)
+
+
+
+LOAD / SAVE (SD card)
+---------------------
+
+LB filename address		- load raw data bytes to memory
+SB filename address length      - save raw data bytes from memory to SD card
+CD foldername			- change directory (if no folder name, show path)
+VOLx:				- change volume (for partitioned cards)
+DEL filename			- delete file
+MD  foldername			- make directory
+RD  foldername			- remove (empty) folder
+RN filename1 filename2		- rename file
+DIR				- show directory 
+FORMAT				- FAT16 format an SD card
+MOUNT				- Rescan for drives (EG: if swapped SD card)
+
+
+
+Serial Comms:
+-------------
+
+RX filename address		- receive file from PC over serial link and place in memory.
+
+ Notes:  If filename is "*"  any file will be accepted. 
+
+	 If filename is "!" the file will be treated as an executable, loaded to the
+	 address in the file header and immediately run.
+
+	 If the filename is ">" the file will be written to the SD card (not loaded to memory)
+
+TX filename address length 	- send a file to the PC over serial link.
+
+
+
+Debug:
+------
+
+C address1 address2 address3	- Copy bytes from address1->address2 to address3
+: address ab,cd.. 		- Place bytes at address
+F address1 address2 x		- Fill memory with x from address1 to address2
+H address1 address2 ab,cd	- Hunt in memory for bytes from address1 to address2
+M address			- Show memory as hex bytes (if no address continue from previous)
+T address			- Show memory as ascii (if no address continue from previous)
+R 				- Show registers (as set on exit of last program / NMI freeze)
+
+
+
+Misc:
+-----
+
+MOUSE				- Enable mouse driver
+EXEC filename			- Run a batch file (note: scripts cannot run other scripts)
+
+-----------------------------------------------------------------------------------------------
+

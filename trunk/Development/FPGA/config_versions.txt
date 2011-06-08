@@ -1,0 +1,99 @@
+
+Release versions of AMOEBA
+---------------------------
+
+V102 - Swapped Spare_IO1/IO2 pin functions. IO1 is now NMI, IO2 is unused (input)
+
+v101 - First AMOEBA release, same as v91 pre-release
+ 
+
+Pre-release versions
+--------------------
+
+017 - VGA16/256/ROM2.01 - no known problems. Last version before Audio added.
+
+020 - Simple audio system added: Left channel outputs 1024 byte 8bit signed waveform
+      from $f80000, right channel outputs 8 bit signed waveform from $f80400.
+      
+      
+021 - Not a config, just creating new sound system (8 channel)
+
+022 - Not a config, just converting original sound system to ez80p (4 channel)
+
+030 - First version with new sound system (8 channel)
+
+035 - Changed sound system to use small 8 byte buffer for each channel
+      automatically filled at start of scanlines
+
+036 - Added line_count_lsb to hw_flags port allowing audio reg writes
+      at "safe" times.
+
+036b - HW flags bit 6 changed: Now set after system has created a new 4-byte buffer.
+       Cleared when CPU writes to (or attempts to read from) any audio register.
+
+038 - Fixed: Period accumulator was not cleared when writing to period reg.
+      Swapped left and right audio channels.
+
+
+042 - Added control of KB and mouse clock / data
+      (KB outputs also currently connected to JP2 and JP3, keyboard stopped working
+       previously?????)
+      Switched ports 7 and 8
+      Re-arranged the port input multiplexing - now have spare inputs for future.
+
+048 - Updated PS2 interface (now have FIFO buffers) Added mouse ps/2 interface.
+      Changed PS/2 port assignments.
+ 
+050 - Fixed bug in above (mouse buffer read still at port4.. changed to 6)
+
+053 - First version with working sprite system
+
+064 - Tilemap added, still work in progress
+
+066 - Added wide border mode, corrected map count values
+
+067 - Changed VRT flag to a latch, cleared by writing 1 to port 9
+
+070 - Wait states added for VRAM_B, sprite below line 512 fixed
+
+071 - Fixed noise on Channel 7 (releasing bus to early - on a 50mhz cycle)
+      Audio mixer changed: 10bit DSM used for both channels.
+
+073 - IRQ enable port is now a SET/RESET type register
+
+074 - VRAM B is now readable by CPU
+
+075 - Sprites have own palette
+    - Sprite enable moved to bit 0 of Port 41
+    - Port 42 0:1 selects between alternative palettes for background and sprites
+
+078 - Combined tilemap and bitmap modules.
+    - Added Start/Modulo/Step controls to bitmap mode (and subpixel bits)
+    - Added datafetch widthcontrol to tilemap and bitmap modes.
+    - Glitch in tilemap update to fix
+
+081 - Glitched fixed
+      Video registers reorganized.
+      Port 40+ is now a video register.
+
+082 - ROM 0.03 installed.
+
+085 - Added pixel and line doubling - effect on sprites not sorted yet.
+    - Added palette 0-3 select for sprites and background
+
+087 - Sprite priority control (per sprite) added
+    - Right  border position control added ("wide border" control removed)
+    - Rearranged vreg bits
+    - Sprites now ignore pixel/line doubling
+
+088 - PS/2 Interrupts (previously using NMI) have been switched to IRQ
+      on PB0 of EZ80. NMI now sourced from JP3.
+
+089 - "JP2" and "JP3" renamed "Spare_IO1" and "Spare_IO2"
+      Both spare IOs are now pulled up in constraints.
+      "ez80_instrd" is no longer connected and has been removed.
+
+090 - Updated to ROM 0.06
+
+091 - Ext_RAM /CS is pulled low when MREQ is active and 080000-7FFFFF is addressed
+

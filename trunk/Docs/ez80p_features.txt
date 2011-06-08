@@ -1,0 +1,67 @@
+EZ80P: A completely open source 8-bit computer project based on the Zilog EZ80L92 CPU
+and a Spartan 3 FPGA. Created by Phil Ruston 2010-2011.
+
+EZ80P Features:
+---------------
+
+Spartan3 XC3S200 FPGA
+EZ80L92 CPU running at 50MHz
+25MHz system clock (doubled by FPGA for CPU)
+512KB CPU bus SRAM #1 10ns
+512KB SRAM #2 10ns (independant bus 1, direct connection to FPGA)
+512KB SRAM #3 10ns (independant bus 2, direct connection to FPGA)
+4MB EEPROM (for up to 32 FPGA configs or other data)
+
+Connectors:
+
+15 pin VGA connector (12bit RGB colour)
+Stereo 3.5mm audio socket
+SD Card connector with access LED
+PS/2 Mouse Connector
+PS/2 Keyboard Connector
+USB Connector (FT232RL Virtual Com Port: RX,TX,CTS,RTS implemented)
+2 x DSUB-9 Joystick connectors / General purpose eZ80 IO ports (each: 6 pins IO, 5V/3.3V and GND)
+2032 lithium battery holder for RTC backup
+
+Pin Headers:
+
+40 pin : Main bus / memory expansion (MREQ,IOREQ,RD,WR,control line from FPGA,A0-A23,D0-D7 plus 3.3v & GND)
+14 pin : EZ80 unused ports (PB1-PB7,SDA,SCK,PHI, plus 3.3v + GND)
+16 pin : 14 FPGA IO pins (also used for SRAM3) plus 3.3v & GND
+20 pin : 16 FPGA IO pins (also used for SRAM3) plus 3.3v & GND * 2
+2 pin  : Spare FPGA IO pin 1 plus GND
+2 pin  : Spare FPGA IO pin 2 plus GND
+6 pin  : External Reset/Status LEDs
+2 pin  : External Soft power button.
+2 pin  : SD card access external LED
+6 pin  : Standard JTAG connector (TMS,TDI,TDO,TCK,GND,3.3v)
+3 pin  : Joystick / IO pin voltage/pull-up select: 3.3v or 5v
+
+
+Misc:
+
+CPU clock, NMI, WAIT, BUSREQ, BUSREQ controlled direct from FPGA pins.
+Maskable interrupt line connected from FPGA to eZ80P PB0.
+
+
+Default Operating System PROSE - "Phil's Rudimentary Operating System Experiment" 
+-------------------------------------------------------------------------------
+
+A command line / freezer-cartridge-like OS (based on the V6Z80P's FLOS)
+Supports Z80/ADL code (Z80 code: 64KB pages)
+
+
+
+Default Architecture: AMOEBA - "Another (of) My Original Eight Bit Architectures"
+---------------------------------------------------------------------------------
+
+Video Output: VGA 60Hz
+
+Bitmap chunky mode: 640x480, 320x480, 640x240, 320x240 in 16 or 256 colours
+Tile map mode     : 640x480, 320x480, 640x240, 320x240 in 256 colours
+Sprites           : 640x480, 256 colours (32 x 16 pixels wide, any height)
+
+
+Audio: 8 sound channels (4 to left side, 4 to right side) plays 8-bit signed samples
+(individual frequency, volume, start, length registers)
+
