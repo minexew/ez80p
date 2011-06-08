@@ -1,0 +1,46 @@
+MPLINK 4.31, Linker
+Linker Map File - Created Tue Apr 19 17:24:32 2011
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_1       code   0x000000    program   0x000002
+                   .org_2       code   0x000004    program   0x000054
+.config_2007_POWER_CONTROL.O       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000000      
+                            0x000004    0x00002d      
+                            0x002007    0x002007      
+            44 out of 1168 program addresses used, program memory utilization is 3%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                 mainloop   0x000012    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                mainstart   0x000005    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                    swlp1   0x00001c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                    swlp2   0x000026    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+         waitbutton_press   0x00001a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+       waitbutton_release   0x000024    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                mainstart   0x000005    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                 mainloop   0x000012    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+         waitbutton_press   0x00001a    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                    swlp1   0x00001c    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+       waitbutton_release   0x000024    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+                    swlp2   0x000026    program     static E:\My_Own_Files\Coding\Ez80 Project\PIC\soft_power\power_control.asm
+
+

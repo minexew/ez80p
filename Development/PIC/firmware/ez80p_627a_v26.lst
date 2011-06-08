@@ -1,0 +1,2798 @@
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ; -------------------------------------------------------
+                      00002 ; PIC 16F627A Spartan3 XC3S200 FPGA config code for EZ80P
+                      00003 ; -------------------------------------------------------
+                      00004 ;
+                      00005 ; By Phil Ruston 2010
+                      00006 ;
+                      00007 ;           v.26....... SST25VF chip support added (32MB)
+                      00008 ;                       New command: $88,$5c = "Send eeprom capacity" (should be used in favour of "Get 
+                            EEPROM ID")
+                      00009 ;                       New command: $88,$71 = "Request PIC sends the slot it last configured from" (MSB
+                             of the config base address/2)
+                      00010 ;                       New command: $88,$79  = "Request PIC sends the EEPROM type byte" ($00 = 25X, $01
+                             = 25VF)
+                      00011 ;                       Removed 128-byte write command
+                      00012 ;
+                      00013 ; ------------------------------------------------------------------------------------------------------
+                            ----------------
+                      00014 ;
+                      00015 ;  Pin connections:
+                      00016 ;  ----------------
+                      00017 ;
+                      00018 ;                                                       16F627/8A
+                      00019 ;                            ___   __
+                      00020 ;                                                       |   '-'  |
+                      00021 ;                EEPROM /CS   <- A2 |1     18| A1 -> EEPROM CLK
+                      00022 ;         FPGA CCLK   <- A3 |2     17| A0 -> EEPROM D_IN
+                      00023 ;                 FPGA DONE   -> A4 |3     16| XTAL 20MHz
+                      00024 ;    FPGA p81 COM CLK -> A5 |4     15| XTAL 20MHz
+                      00025 ;                                           GND |5     14| 3.3V
+                      00026 ;           EEPROM D_OUT  -> B0 |6     13| B7 -> FPGA PROGRAM
+                      00027 ;                  FPGA INIT  -> B1 |7     12| B6 -> RED LED
+                      00028 ; FPGA p65 COMMS CLK  <- B2 |8     11| B5 -> GREEN LED
+                      00029 ;            /BUTTON  -> B3 |9     10| B4 -> SYSTEM /RESET OUT
+                      00030 ;                                               |________|
+                      00031 ;
+                      00032 ;  Notes: 
+                      00033 ;
+                      00034 ; * Connections to dedicated FPGA pins (DONE, PROGRAM, CCLK) must have current limit resistors 
+                      00035 ;   (270 ohm) as these pins are powered from VCCAUX (2.5v) on the Spartan 3. 
+                      00036 ;
+                      00037 ; * The data direction of B0 is temporarily switched to output when the PIC needs to send data
+                      00038 ;   to the FPGA
+                      00039 ;
+                      00040 ; * "/BUTTON" pulls the pin low.
+                      00041 ;
+                      00042 ;
+                      00043 ;                                   25X-- SPI EEPROM
+                      00044 ;                                              .---_----.
+                      00045 ;                                  /CS |1      8| 3.3V              
+                      00046 ;                                D_OUT |2      7| /HOLD           
+                      00047 ;                                   WP |3      6| CLK     
+                      00048 ;                                          GND |4      5| D_IN     
+                      00049 ;                                      |________|
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00050 ;
+                      00051 ;  Notes:
+                      00052 ;  
+                      00053 ;  * "/HOLD" and "WP" tied to Vcc.
+                      00054 ;
+                      00055 ;  * "/CS" to VCC via 10K resistor (to ensure good start-up, as per datasheet)
+                      00056 ; 
+                      00057 ; * "D_OUT" becomes hi-impedance when chip is unselected so weak pull-up advised to prevent floating inp
+                            ut at FPGA.
+                      00058 ;
+                      00059 ;-------------------------------------------------------------------------------------------------------
+                            ----------------
+                      00060 ; Post configuration commands: Send commands using "COMMS_CLOCK_IN" (clock) and "INIT" (data) - bytes sh
+                            ould be sent MSB
+                      00061 ; first, bits are clocked by the PIC on the rising edge of the clock. Max bitrate ~ 100KHz, min bitrate 
+                            ~ 7 Hz  
+                      00062 ; ------------------------------------------------------------------------------------------------------
+                            ----------------
+                      00063 
+                      00064 ; CONFIG:
+                      00065 ; -------
+                      00066 ; $88, $a1, $3f, $62 = Reconfigure FPGA from current config address base (and reset cpu)
+                      00067 ; $88, $b8, $16, $slot = Change config slot
+                      00068 ; $88, $37, $d8, $06 = make current FPGA config base address permanent (in PIC's EEPROM)*
+                      00069 
+                      00070 
+                      00071 ; DATABURST:
+                      00072 ; ----------
+                      00073 ; $88, $d4, $low, $middle, $high address bytes = Set databurst start address
+                      00074 ; $88, $e2, $low, $middle, $high count bytes = Set databurst length
+                      00075 ; $88, $c0 = send databurst to FPGA using current databurst base address and length
+                      00076 
+                      00077 
+                      00078 ; CONTROL:
+                      00079 ; --------
+                      00080 ; $88, $25, $fa, $99 = Enable EEPROM programming (set programming permission to 1)
+                      00081 ; $88, $1f = Disable EEPROM programming (set programming permission to 0) 
+                      00082 
+                      00083 
+                      00084 ; WRITE TO EEPROM:
+                      00085 ; ----------------
+                      00086 ; $88, $f5, $low, $middle, $high address bytes = Erase 64KB block of EEPROM ($middle and $low = 00)*
+                      00087 ; $88, $98, $low, $middle, $high address bytes, 64 data bytes = Program bytes into EEPROM #*
+                      00088 ; $88, $8b, $xx = write $xx to EEPROM's Status Register (IE: Set protection bits: Irrelevant on SST25VF)
+                            *
+                      00089 
+                      00090 
+                      00091 ; GET INFO:
+                      00092 ; ---------
+                      00093 ; $88, $5c = Request PIC sends EEPROM capacity (in 128K slots)
+                      00094 ; $88, $76 = Request PIC sends the power-on boot slot
+                      00095 ; $88, $71 = Request PIC sends the slot it last configured from (MSB of the config base address used/2)
+                      00096 ; $88, $4e = Request PIC sends the firmware version
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00097 ; $88, $06 = Request EEPROM sends its Status Register (read the protection bits, bit 7 always reported a
+                            s zero)
+                      00098 ; $88, $69 = Request PIC sends the "programming permission" status (0= programming disallowed, 1 = allow
+                            ed)
+                      00099 ; $88, $79 = Request PIC sends the EEPROM type byte ($00 = original 25Xabc, $01 = SST25VFabc)
+                      00100 ; $88, $53 = Request EEPROM sends its ID byte [OBSOLETE! use capacity request command instead: $88,$5c]
+                      00101 
+                      00102 ; * - Programming mode must be enabled first
+                      00103 ; # - The 64KB EEPROM block in which the bytes are to be located must be erased prior to programming new
+                             data
+                      00104 
+                      00105 ;-------------------------------------------------------------------------------------------------------
+                            ----
+                      00106 
+                      00107 ; Comms protocol:
+                      00108 
+                      00109 ; Databurst:
+                      00110 ; ----------
+                      00111 
+                      00112 ; First, set up read length / location with appropriate commands..
+                      00113 
+                      00114 ; 1. Host clears receive buffer
+                      00115 ; 2. Host sends command code sequence
+                      00116 ; 3. Host waits for "OK" command acknowledge byte from PIC
+                      00117 ; 4. Host sets com data_out high
+                      00118 ; 5. Host waits for data byte in receive buffer - reads/stores it
+                      00119 ; 6. Host sets com data_out low
+                      00120 ; 7. Host waits for data byte in receive buffer - reads/stores it
+                      00121 ; 8. Loop to step 4 until all bytes received.
+                      00122 
+                      00123 ; All other commands:
+                      00124 ; -------------------
+                      00125 ; 1. Host clears receive buffer
+                      00126 ; 2. Host sends command code sequence (incl any arguments)
+                      00127 ; 3. Host wait for byte in receive buffer - reads it
+                      00128 ; 4. If MSB of byte is set - there was an error:
+                      00129 ;     0x8c = "Bad command" 
+                      00130 ;     0x8b = "Write timed out"
+                      00131 ;     0x8f = "Writes are disabled"  
+                      00132 ;    Else OK / data in [6:0]
+                      00133 
+                      00134 ;--- GENERIC HEADER AND CLOCK OPTIONS ------------------------------------------------------------------
+                            ----
+                      00135 
+                      00136         list    p=16f627A                                        ; list directive to define processor
+                      00137         list    r=decimal
+                      00138 
+                      00139         #include <p16f627A.inc>                                  ; processor specific variable definitio
+                            ns
+                      00001         LIST
+                      00002 ; P16F627A.INC  Standard Header File, Version 1.10    Microchip Technology, Inc.
+                      00265         LIST
+                      00140 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00141         #define skipifzero        btfss STATUS,Z        
+                      00142         #define skipifnotzero     btfsc STATUS,Z
+                      00143         #define skipifcarry       btfss STATUS,C        
+                      00144         #define skipifnotcarry    btfsc STATUS,C
+                      00145         #define skipifborrow      btfsc STATUS,C        
+                      00146         #define skipifnotborrow   btfss STATUS,C
+                      00147 
+2007   3F02           00148         __CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _MCLRE_OFF & _LVP_OFF
+                      00149 
+                      00150 
+                      00151 ;-----Defaults ----------------------------------------------------------------------------------------
+                      00152 
+  00000026            00153 firmware_vers           equ 0x26
+                      00154 
+  0001FF88            00155 fpga_config_length      equ 130952                                      ; Length of FPGA's .bin config f
+                            ile (FPGA: XC3S200)
+                      00156                                                 
+  00000000            00157 databurst_address       equ 0x0                                         ; Default location of databurst 
+                            in EEPROM
+  00000800            00158 databurst_length        equ 2048                                        ; Default length of databurst (2
+                            KB)
+                      00159 
+                      00160 ;----- Project Variables -------------------------------------------------------------------------------
+                      00161 
+  00000020            00162 temp1                           EQU     0x20
+  00000021            00163 temp2                           EQU             0x21
+  00000022            00164 temp3                           EQU             0x22
+  00000023            00165 bitcount                        EQU     0x23
+  00000024            00166 bytecount_h                     EQU             0x24
+  00000025            00167 bytecount_m                     EQU             0x25
+  00000026            00168 bytecount_l                     EQU             0x26
+                      00169 
+  00000027            00170 config_base_low         EQU             0x27
+  00000028            00171 config_base_med         EQU             0x28
+  00000029            00172 config_base_high        EQU             0x29
+                      00173 
+  0000002A            00174 eeprom_address_low      EQU             0x2a
+  0000002B            00175 eeprom_address_med      EQU             0x2b
+  0000002C            00176 eeprom_address_high     EQU             0x2c
+                      00177 
+  0000002D            00178 databurst_base_low      EQU             0x2d
+  0000002E            00179 databurst_base_med      EQU             0x2e
+  0000002F            00180 databurst_base_high     EQU             0x2f
+  00000030            00181 databurst_len_low       EQU     0x30
+  00000031            00182 databurst_len_med       EQU             0x31
+  00000032            00183 databurst_len_high      EQU     0x32
+                      00184 
+  00000033            00185 received_byte           EQU             0x33
+  00000034            00186 allow_program           EQU     0x34
+  00000035            00187 time_out                        EQU     0x35
+  00000036            00188 buffer_count            EQU     0x36
+  00000037            00189 flash_count                     EQU     0x37
+  00000038            00190 slot_cycle                      EQU     0x38
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  00000039            00191 temp4                           EQU     0x39
+  0000003A            00192 byte_to_send            EQU     0x3a
+  0000003B            00193 protection_bits         EQU     0x3b
+  0000003C            00194 ready_flip                      EQU     0x3c
+  0000003D            00195 packet_size                     EQU             0x3d
+  0000003E            00196 led_flash_accum         EQU             0x3e
+  0000003F            00197 clock_out_value         EQU             0x3f
+                      00198 
+  00000070            00199 pic_eeprom_addr                 EQU             0x70
+  00000071            00200 eeprom_size                             EQU             0x71
+  00000072            00201 salvo                                   EQU             0x72
+  00000073            00202 eeprom_id                               EQU     0x73
+  00000074            00203 configured_from_slot    EQU             0x74
+  00000075            00204 eeprom_type                             EQU             0x75
+                      00205 
+                      00206 ;-----------------------------------------------------------------------------
+                      00207 ; NOTE: SRAM Locations 0xA0-0xEF used for a data buffer when writing to EEPROM
+                      00208 ;-----------------------------------------------------------------------------
+                      00209 
+                      00210 
+                      00211 ;---  Project constants ---------------------------------------------------------------------
+                      00212 
+  00000000            00213 eeprom_data_in          equ 0   ;out                    Port A bit assignments
+  00000001            00214 eeprom_clock            equ 1   ;out
+  00000002            00215 eeprom_cs                       equ     2       ;out                             
+  00000003            00216 fpga_cclk                       equ 3   ;out                             
+  00000004            00217 fpga_done                       equ 4   ;in
+  00000005            00218 comms_clock_in          equ 5   ;in
+                      00219 
+  00000000            00220 eeprom_data_out         equ 0   ;in                             Port B bit assignments
+  00000001            00221 fpga_init                       equ 1   ;in
+  00000002            00222 comms_clock_out         equ 2   ;out
+  00000003            00223 button                          equ 3   ;in
+  00000004            00224 reset_out                       equ 4   ;out
+  00000005            00225 green_led                       equ 5   ;out
+  00000006            00226 red_led                         equ 6   ;out
+  00000007            00227 fpga_program            equ 7   ;out                             
+                      00228 
+                      00229 ;25X series eeprom commands:
+                      00230 
+  00000001            00231 spi_write_sr_cmd        equ 0x01
+  00000002            00232 spi_write_page_cmd      equ 0x02
+  00000003            00233 spi_read_cmd            equ 0x03
+  00000005            00234 spi_read_status_cmd     equ 0x05
+  00000006            00235 spi_write_en_cmd        equ 0x06
+  000000AB            00236 spi_id_cmd                      equ 0xab
+  000000D8            00237 spi_erase_cmd           equ 0xd8
+                      00238 
+                      00239 ; 25VF series eeprom commands:
+                      00240 
+  000000AD            00241 sst_aai_write_cmd       equ 0xad        
+  00000004            00242 sst_wrdi_cmd            equ 0x04
+                      00243 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  00000004            00244 porta_default           equ (1<<eeprom_cs)                                              ; EEPROM /CS ina
+                            ctive
+  00000090            00245 portb_default           equ (1<<fpga_program)+(1<<reset_out)    ; FPGA program high (inactive) / reset h
+                            igh (inactive)
+                      00246 
+                      00247 ;*****************************************************************************************************
+                      00248 
+0000                  00249         ORG     0x000                                                                                   
+                            ; processor reset vector
+                      00250 
+0000   2805           00251                         goto init_code                                                                  
+                            ; go to beginning of program
+                      00252 
+0004                  00253         ORG     0x004                                                                           ; interr
+                            upt vector location
+                      00254 
+0004   0009           00255                         retfie                                                                          
+                            ; return from interrupt
+                      00256 
+                      00257 ;---------- INITIALIZE PIC FOR THIS PROJECT ----------------------------------------------------------
+                      00258 
+0005   3007           00259 init_code       movlw b'00000111'               
+0006   009F           00260                         movwf CMCON                                                                     
+                                    ; use digital mode for PORTA (disable comparitors)
+0007   1683 1303      00261                         banksel TRISA
+0009   3030           00262                         movlw b'00110000'                                                               
+                            ; set data direction for port A
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000A   0085           00263                         movwf TRISA
+000B   300B           00264                         movlw b'00001011'                                                               
+                            ; set data direction for port B
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000C   0086           00265                         movwf TRISB
+000D   1283 1303      00266                         banksel PORTA
+                      00267 
+000F   3004           00268                         movlw porta_default                                                     
+0010   0085           00269                         movwf PORTA
+0011   3090           00270                         movlw portb_default                                                             
+0012   0086           00271                         movwf PORTB                                                                     
+                                            
+                      00272 
+                      00273 ;-------------------------------------------------------------------------------------------------------
+                            --------
+                      00274 ; Init code
+                      00275 ;-------------------------------------------------------------------------------------------------------
+                            --------
+                      00276 
+0013                  00277 main_start
+0013   3000           00278                         movlw 0                                                                         
+                                            ; get default values for FPGA config location from PIC's flash RAM
+0014   2380           00279                         call pic_eeprom_read
+0015   00A7           00280                         movwf config_base_low
+0016   3001           00281                         movlw 1                                                                         
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0017   2380           00282                         call pic_eeprom_read
+0018   00A8           00283                         movwf config_base_med
+0019   3002           00284                         movlw 2                                                                         
+                                    
+001A   2380           00285                         call pic_eeprom_read
+001B   00A9           00286                         movwf config_base_high
+                      00287 
+001C   3000           00288                         movlw databurst_address & 0xff                                          ; set de
+                            fault values for databurst loc/len      
+001D   00AD           00289                         movwf databurst_base_low
+001E   3000           00290                         movlw (databurst_address >> 8) & 0xff
+001F   00AE           00291                         movwf databurst_base_med
+0020   3000           00292                         movlw (databurst_address >> 16) & 0xff                                  
+0021   00AF           00293                         movwf databurst_base_high
+0022   3000           00294                         movlw (0x1000000-databurst_length) & 0xff               
+0023   00B0           00295                         movwf  databurst_len_low
+0024   30F8           00296                         movlw ((0x1000000-databurst_length) >> 8) & 0xff
+0025   00B1           00297                         movwf databurst_len_med
+0026   30FF           00298                         movlw ((0x1000000-databurst_length) >> 16) & 0xff
+0027   00B2           00299                         movwf databurst_len_high
+                      00300 
+0028   01B4           00301                         clrf allow_program
+0029   01BE           00302                         clrf led_flash_accum
+                      00303 
+                      00304 
+002A                  00305 configure_fpga
+                      00306                 
+002A   2388           00307                         call disallow_programming                                                       
+                            ; PIC/EEPROM programming disabled by default (software flag)    
+                      00308 
+002B   3004           00309                         movlw porta_default                                                             
+                                    ; deselect the EEPROM (set its /CS = high)
+002C   0085           00310                         movwf PORTA
+002D   3090           00311                         movlw portb_default                                                             
+                                    ; set FPGA program and sys_reset lines inactive
+002E   0086           00312                         movwf PORTB                                                                     
+                                            
+                      00313 
+002F   2398           00314                         call short_pause
+                      00315 
+0030   22FF           00316                         call read_eeprom_id
+                      00317 
+                      00318 
+                      00319 ;----------- JTAG Mode? --------------------------------------------------------------------------------
+                            ----------------------
+                      00320 
+0031   1986           00321 check_jtag      btfsc PORTB,button                                                                      
+                            ; Button held = JTAG CONFIG, else configure as normal
+0032   2873           00322                         goto go_configure                                                               
+                                    
+                      00323                         
+0033   23B8           00324                         call wait_button_release                                                        
+                            ; wait for button to be released (debounced)
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00325 
+0034   30F8           00326 wait_jtag       movlw 0xf8                                                                              
+                                    ; JTAG mode: Flash green LED quickly until JTAG config completed
+0035   00A1           00327                         movwf temp2                                                                     
+                                            ; ie: DONE is high
+0036   01A0           00328                         clrf temp1
+0037   1E05           00329 chk_done        btfss PORTA,fpga_done                                                           
+0038   283E           00330                         goto done_low
+0039   0FA0           00331                         incfsz temp1,f                                                                  
+                                    ; resample "done" - ensure it is permanently high
+003A   2837           00332                         goto chk_done
+003B   0FA1           00333                         incfsz temp2,f
+003C   2837           00334                         goto chk_done
+003D   28AA           00335                         goto fpga_done_hi                                                               
+                                    ; when JTAG config complete, reset CPU and wait for commands.
+                      00336 
+003E   30B0           00337 done_low        movlw portb_default+(1<<green_led)                                      ; flash green LE
+                            D when waiting for JTAG config                  
+003F   0086           00338                         movwf PORTB                                                                     
+                                            ; LED: on
+0040   23AE           00339                         call short_pause_esc_if_done
+0041   3090           00340                         movlw portb_default                                                             
+                                    ; LED: off
+0042   0086           00341                         movwf PORTB                             
+0043   23AE           00342                         call short_pause_esc_if_done
+                      00343 
+0044   1986           00344 chkjtag2        btfsc PORTB,button                                                                      
+                            ; if button pressed (again) in JTAG config mode, go to manual slot setting
+0045   2834           00345                         goto wait_jtag                                                                  
+                                    ; procedure
+                      00346 
+                      00347 
+                      00348 ;---------- Manual active slot setting system ----------------------------------------------------------
+                            ----------------------
+                      00349 
+0046   23B8           00350                         call wait_button_release                                                        
+                            ; wait for button to be released (debounced)
+0047   2392           00351                         call long_pause                                                                 
+                                    
+                      00352                                         
+0048   01B8           00353 mset_slot       clrf slot_cycle
+0049   01F2           00354 slot_loop       clrf salvo
+004A   0838           00355                         movf slot_cycle,w               
+004B   3E01           00356                         addlw 1
+004C   00B9           00357                         movwf temp4
+004D   2392           00358 s2_ledfl        call long_pause                                                                         
+                            ; flash the LED "SLOT" number of times
+004E   1706           00359                         bsf PORTB,red_led                                                               
+004F   2392           00360                         call long_pause
+0050   1306           00361                         bcf PORTB,red_led                       
+0051   0AF2           00362                         incf salvo,f                                                                    
+                                    ; put a extra pause between groups of 4 flashes to make interpretation easier
+0052   0872           00363                         movf salvo,w
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0053   3A04           00364                         xorlw 4
+0054   1D03           00365                         skipifzero
+0055   2858           00366                         goto no_gap
+0056   01F2           00367                         clrf salvo
+0057   2392           00368                         call long_pause
+0058   0BB9           00369 no_gap          decfsz temp4,f
+0059   284D           00370                         goto s2_ledfl
+                      00371 
+005A   304B           00372                         movlw 75
+005B   00A2           00373                         movwf temp3                                                                     
+                                            
+005C   1D86           00374 wait_but        btfss PORTB,button                                                                      
+                            ; wait about 4 seconds - if button pressed, set the slot
+005D   2867           00375                         goto set_slot                                                                   
+005E   2398           00376                         call short_pause
+005F   0BA2           00377                         decfsz temp3,f
+0060   285C           00378                         goto wait_but
+                      00379 
+0061   0AB8           00380                         incf slot_cycle,f                                                               
+                                    
+0062   0871           00381                         movf eeprom_size,w
+0063   0638           00382                         xorwf slot_cycle,w
+0064   1D03           00383                         skipifzero              
+0065   2849           00384                         goto slot_loop
+0066   2848           00385                         goto mset_slot
+                      00386 
+                      00387 
+0067   01F0           00388 set_slot        clrf pic_eeprom_addr                                                            ; write 
+                            the slot number to PIC flashram
+0068   3000           00389                         movlw 0                                                                         
+                                    
+0069   236F           00390                         call pic_eeprom_write                                                   
+006A   0AF0           00391                         incf pic_eeprom_addr,f                                                          
+006B   3000           00392                         movlw 0
+006C   236F           00393                         call pic_eeprom_write
+006D   0AF0           00394                         incf pic_eeprom_addr,f
+006E   0838           00395                         movf slot_cycle,w
+006F   236F           00396                         call pic_eeprom_write
+                      00397 
+0070   23B8           00398                         call wait_button_release                                                        
+                            ; wait for button to be released. Config from select slot then takes place.
+0071   2392           00399                         call long_pause
+0072   2813           00400                         goto main_start                                                                 
+                      00401 
+                      00402 
+                      00403 ;----------- Configure FPGA - Slave Serial mode via PIC and EEPROM -------------------------------------
+                            ---------------------------------
+                      00404 
+0073                  00405 go_configure
+                      00406 
+0073   1386           00407                         bcf PORTB,fpga_program                                                          
+                            ; force reload config on FPGA
+0074   2398           00408                         call short_pause                                                                
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                    ; IE: pulse "Program" low
+0075   1786           00409                         bsf PORTB,fpga_program
+0076   2398           00410                         call short_pause
+                      00411 
+0077   1C86           00412 wait_init_1     btfss PORTB,fpga_init                                                           ; wait f
+                            or FPGA to be ready (fpga_init = high)
+0078   2877           00413                         goto wait_init_1                                                                
+                                    ; before sending data
+                      00414 
+0079   30FE           00415                         movlw ((0x1000000-fpga_config_length) >> 16) & 0xff                             
+                                    
+007A   00A4           00416                         movwf  bytecount_h
+007B   3000           00417                         movlw ((0x1000000-fpga_config_length) >> 8) & 0xff
+007C   00A5           00418                         movwf  bytecount_m
+007D   3078           00419                         movlw (0x1000000-fpga_config_length) & 0xff                     
+007E   00A6           00420                         movwf  bytecount_l
+                      00421 
+                      00422 
+                      00423 ;---------- Send sequential read command to SPI EEPROM -------------------------------------------------
+                            ----------------------------------
+                      00424 
+                      00425 
+007F   238C           00426                         call select_eeprom                                                              
+                                    ; select EEPROM (new instruction)
+0080   3003           00427                         movlw spi_read_cmd                                                              
+                                    ; send read data command ($03) to SPI EEPROM 
+0081   2360           00428                         call send_byte_to_eeprom                                                
+0082   0829           00429                         movf config_base_high,w                                                         
+                            ; send 24 bit start address to SPI EEPROM, MSB first    
+0083   2360           00430                         call send_byte_to_eeprom
+0084   0828           00431                         movf config_base_med,w
+0085   2360           00432                         call send_byte_to_eeprom
+0086   0827           00433                         movf config_base_low,w          
+0087   2360           00434                         call send_byte_to_eeprom
+                      00435 
+                      00436 
+                      00437 ;---------- Read the data from EEPROM and configure the FPGA  ------------------------------------------
+                            ------------------------------------
+                      00438 
+                      00439 
+0088   300A           00440 read_loop       movlw (1<<eeprom_clock)+(1<<fpga_cclk)                          ;W = EEPROM and FPGA clo
+                            cks = high
+0089   0085           00441                         movwf PORTA                                                                     
+                                            ;fpga latches bit 7
+008A   0185           00442                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 6
+008B   0085           00443                         movwf PORTA                                                                     
+                                            ;fpga latches bit 6             
+008C   0185           00444                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 5    
+008D   0085           00445                         movwf PORTA                                                                     
+                                            ;fpga latches bit 5
+008E   0185           00446                         CLRF PORTA                                                                      
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                            ;spi eeprom shifts out bit 4
+008F   0085           00447                         movwf PORTA                                                                     
+                                            ;fpga latches bit 4
+0090   0185           00448                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 3
+0091   0085           00449                         movwf PORTA                                                                     
+                                            ;fpga latches bit 3
+0092   0185           00450                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 2
+0093   0085           00451                         movwf PORTA                                                                     
+                                            ;fpga latches bit 2
+0094   0185           00452                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 1
+0095   0085           00453                         movwf PORTA                                                                     
+                                            ;fpga latches bit 1
+0096   0185           00454                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 0
+0097   0085           00455                         movwf PORTA                                                                     
+                                            ;fpga latches bit 0
+0098   0185           00456                         CLRF PORTA                                                                      
+                                            ;spi eeprom shifts out bit 7
+                      00457 
+0099   0FA6           00458                         incfsz bytecount_l,f                                                            
+                            ;count bytes sent - loop if more to go
+009A   2888           00459                         goto read_loop                                  
+009B   0FA5           00460                         incfsz bytecount_m,f                    
+009C   2888           00461                         goto read_loop                                  
+009D   0FA4           00462                         incfsz bytecount_h,f
+009E   2888           00463                         goto read_loop
+                      00464 
+                      00465 
+                      00466 ;---------- Check FPGA configured OK -------------------------------------------------------------------
+                            ------------------------------------------------
+                      00467 
+009F   238F           00468                         call deselect_eeprom                                                            
+                            ;  Deselect the EEPROM (set its /CS = high)
+                      00469 
+00A0   23A0           00470                         call vshort_pause
+                      00471 
+00A1   1A05           00472                         btfsc PORTA,fpga_done                                                           
+                            ; All bytes sent - Check that the FPGA started up 
+00A2   28AA           00473                         goto fpga_done_hi                                                               
+                                    ; (Its "DONE" line should be high now)
+                      00474 
+00A3   1686           00475                         bsf PORTB,green_led                                                             
+                                    ; If not,flash the green LED once and re-try                                            
+00A4   2392           00476                         call long_pause
+00A5   2392           00477                         call long_pause
+00A6   1286           00478                         bcf PORTB,green_led
+00A7   2392           00479                         call long_pause
+00A8   2392           00480                         call long_pause
+00A9   282A           00481                         goto configure_fpga                             
+                      00482 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00AA                  00483 fpga_done_hi
+                      00484 
+00AA   23BF           00485                         call reset_pulse                                                                
+                                    ; FPGA configured, reset the CPU
+                      00486                         
+00AB   1003           00487                         bcf STATUS,C
+00AC   0C29           00488                         rrf config_base_high,w
+00AD   00F4           00489                         movwf configured_from_slot                                                      
+                            ; note the slot that the FPGA last configured from
+                      00490 
+                      00491 ;-------------------------------------------------------------------------------------------------------
+                            -------------                   
+                      00492 ; After config, wait for commands from CPU (via FPGA) - At the same time check button (which now acts as
+                             system reset)
+                      00493 ;-------------------------------------------------------------------------------------------------------
+                            -------------
+                      00494 
+00AE                  00495 wait_command
+                      00496 
+00AE   30B0           00497                         movlw portb_default+(1<<green_led)                                      ; Normal
+                            ly, GREEN LED on = FPGA configured / PIC waiting for command..  
+00AF   1834           00498                         btfsc allow_program,0
+00B0   30D0           00499                         movlw portb_default+(1<<red_led)                                        ; (if PI
+                            C/EEPROM programming enabled, RED LED is on instead)
+00B1   0086           00500                         movwf PORTB
+                      00501 
+00B2   01A0           00502 wait_cmd_lp     clrf temp1                                                                              
+                                    ; pressed button? Button must be held for 256 loops to do a system reset
+00B3   1986           00503 sysrescnt       btfsc PORTB,button
+00B4   28BD           00504                         goto no_reset
+00B5   0FA0           00505                         incfsz temp1,f
+00B6   28B3           00506                         goto sysrescnt
+00B7   23BF           00507                         call reset_pulse
+00B8   2388           00508                         call disallow_programming
+00B9   30B0           00509                         movlw portb_default+(1<<green_led)                                              
+00BA   0086           00510                         movwf PORTB
+00BB   23B8           00511                         call wait_button_release                                                        
+                            ; after reset pulse, wait for button to be released
+00BC   28AE           00512                         goto wait_command
+                      00513 
+00BD   232D           00514 no_reset        call get_byte_from_fpga                                                         ; all co
+                            mmands must begin with $88
+00BE   3A88           00515                         xorlw 0x88
+00BF   1D03           00516                         skipifzero
+00C0   28B2           00517                         goto wait_cmd_lp
+                      00518 
+00C1   232D           00519                         call get_byte_from_fpga                                                         
+                            ; next byte is the actual command code
+                      00520                 
+00C2   0833           00521                         movf received_byte,w
+00C3   3AA1           00522                         xorlw 0xa1
+00C4   1903           00523                         skipifnotzero
+00C5   290F           00524                         goto configure_fpga_test
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00525 
+00C6   0833           00526                         movf received_byte,w
+00C7   3AB8           00527                         xorlw 0xb8
+00C8   1903           00528                         skipifnotzero
+00C9   2965           00529                         goto set_config_slot
+                      00530 
+00CA   0833           00531                         movf received_byte,w
+00CB   3A37           00532                         xorlw 0x37
+00CC   1903           00533                         skipifnotzero
+00CD   2976           00534                         goto make_slot_permanent
+                      00535 
+00CE   0833           00536                         movf received_byte,w
+00CF   3AC0           00537                         xorlw 0xc0
+00D0   1903           00538                         skipifnotzero
+00D1   29AB           00539                         goto send_databurst_to_fpga
+                      00540                         
+00D2   0833           00541                         movf received_byte,w
+00D3   3AD4           00542                         xorlw 0xd4
+00D4   1903           00543                         skipifnotzero
+00D5   298F           00544                         goto set_databurst_start_address
+                      00545 
+00D6   0833           00546                         movf received_byte,w
+00D7   3AE2           00547                         xorlw 0xe2
+00D8   1903           00548                         skipifnotzero
+00D9   299D           00549                         goto set_databurst_length
+                      00550 
+00DA   0833           00551                         movf received_byte,w
+00DB   3AF5           00552                         xorlw 0xf5
+00DC   1903           00553                         skipifnotzero
+00DD   2A10           00554                         goto erase_eeprom_block
+                      00555 
+00DE   0833           00556                         movf received_byte,w
+00DF   3A98           00557                         xorlw 0x98
+00E0   1903           00558                         skipifnotzero
+00E1   2A2C           00559                         goto write_bytes_to_eeprom
+                      00560 
+00E2   0833           00561                         movf received_byte,w
+00E3   3A25           00562                         xorlw 0x25
+00E4   1903           00563                         skipifnotzero
+00E5   29FE           00564                         goto set_programming_mode
+                      00565 
+00E6   0833           00566                         movf received_byte,w
+00E7   3A1F           00567                         xorlw 0x1f
+00E8   1903           00568                         skipifnotzero
+00E9   2A0D           00569                         goto exit_programming_mode
+                      00570 
+00EA   0833           00571                         movf received_byte,w
+00EB   3A53           00572                         xorlw 0x53
+00EC   1903           00573                         skipifnotzero
+00ED   294F           00574                         goto report_chip_id
+                      00575 
+00EE   0833           00576                         movf received_byte,w
+00EF   3A76           00577                         xorlw 0x76
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00F0   1903           00578                         skipifnotzero
+00F1   295B           00579                         goto report_boot_slot
+                      00580 
+00F2   0833           00581                         movf received_byte,w
+00F3   3A4E           00582                         xorlw 0x4e
+00F4   1903           00583                         skipifnotzero
+00F5   294B           00584                         goto report_firmware_vers
+                      00585 
+00F6   0833           00586                         movf received_byte,w
+00F7   3A8B           00587                         xorlw 0x8b
+00F8   1903           00588                         skipifnotzero
+00F9   292A           00589                         goto set_protection_bits
+                      00590 
+00FA   0833           00591                         movf received_byte,w
+00FB   3A06           00592                         xorlw 0x06
+00FC   1903           00593                         skipifnotzero
+00FD   2920           00594                         goto read_status_register
+                      00595 
+00FE   0833           00596                         movf received_byte,w
+00FF   3A69           00597                         xorlw 0x69
+0100   1903           00598                         skipifnotzero
+0101   291C           00599                         goto return_programming_permission
+                      00600 
+0102   0833           00601                         movf received_byte,w
+0103   3A5C           00602                         xorlw 0x5c
+0104   1903           00603                         skipifnotzero
+0105   2953           00604                         goto report_eeprom_capacity
+                      00605 
+0106   0833           00606                         movf received_byte,w
+0107   3A71           00607                         xorlw 0x71
+0108   1903           00608                         skipifnotzero
+0109   2962           00609                         goto report_configured_from_slot
+                      00610 
+010A   0833           00611                         movf received_byte,w
+010B   3A79           00612                         xorlw 0x79
+010C   1903           00613                         skipifnotzero
+010D   2957           00614                         goto report_eeprom_type
+                      00615 
+010E   28B2           00616                         goto wait_cmd_lp
+                      00617 
+                      00618 ;=======================================================================================================
+                            ==============
+                      00619 
+010F                  00620 configure_fpga_test
+                      00621 
+010F   232D           00622                         call get_byte_from_fpga                                                         
+0110   1835           00623                         btfsc time_out,0
+0111   2AA6           00624                         goto bad_command
+0112   3A3F           00625                         xorlw 0x3f                                                                      
+                                            ; next command code byte should be $3f..
+0113   1D03           00626                         skipifzero
+0114   2AA6           00627                         goto bad_command
+0115   232D           00628                         call get_byte_from_fpga                                                         
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0116   1835           00629                         btfsc time_out,0
+0117   2AA6           00630                         goto bad_command
+0118   3A62           00631                         xorlw 0x62                                                                      
+                                            ; next command code byte should be $62..
+0119   1D03           00632                         skipifzero
+011A   2AA6           00633                         goto bad_command
+011B   282A           00634                         goto configure_fpga
+                      00635 
+                      00636 ;=======================================================================================================
+                            ==============
+                      00637 
+011C                  00638 return_programming_permission
+                      00639 
+011C   0834           00640                         movf allow_program,w                                                            
+                            ; returns value of "program permission" flag (as set by
+011D   3901           00641                         andlw 0x01
+011E   23D1           00642                         call send_w_to_fpga                                                             
+                            ; allow/disallow programming commands)
+011F   28AE           00643                         goto wait_command
+                      00644 
+                      00645 ;=======================================================================================================
+                            ==============
+                      00646 
+0120                  00647 read_status_register
+                      00648 
+0120   238C           00649                         call select_eeprom
+0121   3005           00650                         movlw spi_read_status_cmd                                                       
+                            ; send EEPROM "READ STATUS" command
+0122   2360           00651                         call send_byte_to_eeprom
+                      00652 
+0123   22EE           00653                         call get_byte_from_eeprom                                                       
+                            ; read the EEPROM's Status Register
+0124   00B3           00654                         movwf received_byte
+0125   238F           00655                         call deselect_eeprom                                                            
+                            ; deselect the EEPROM (set its /CS = high)
+                      00656 
+0126   0833           00657                         movf received_byte,w                                                            
+                                                                            
+0127   397F           00658                         andlw 0x7f                                                                      
+                                            ; ensure MSB is clear to avoid being interpreted as an error code
+0128   23D1           00659                         call send_w_to_fpga                                                             
+                                ; send ID byte to FPGA
+0129   28AE           00660                         goto wait_command
+                      00661 
+                      00662 ;=======================================================================================================
+                            ==============
+                      00663 
+012A                  00664 set_protection_bits
+                      00665 
+012A   232D           00666                         call get_byte_from_fpga                                                         
+012B   1835           00667                         btfsc time_out,0
+012C   2AA6           00668                         goto bad_command
+012D   3A8B           00669                         xorlw 0x8b                                                                      
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                            ; next command code byte should be $8b..
+012E   1D03           00670                         skipifzero
+012F   2AA6           00671                         goto bad_command
+                      00672 
+0130   232D           00673                         call get_byte_from_fpga                                                         
+                            ; wait for the new protection setting byte from the FPGA
+0131   1835           00674                         btfsc time_out,0
+0132   2AA6           00675                         goto bad_command
+0133   39FC           00676                         andlw 0xfc
+0134   00BB           00677                         movwf protection_bits
+                      00678 
+0135   1C34           00679                         btfss allow_program,0                                                           
+                            ; cannot proceed if host has not previously sent command to unlock writes
+0136   2AAB           00680                         goto cant_program                                                               
+                                    
+                      00681 
+0137   30F0           00682                         movlw portb_default+(1<<red_led)+(1<<green_led)         ; both LEDs on during ee
+                            prom write command
+0138   0086           00683                         movwf PORTB                                                                     
+                                            
+                      00684 
+0139   238C           00685                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+013A   3006           00686                         movlw spi_write_en_cmd                                                          
+                            ; send EEPROM "WRITE ENABLE" command
+013B   2360           00687                         call send_byte_to_eeprom
+013C   238F           00688                         call deselect_eeprom
+                      00689 
+013D   22BF           00690                         call wait_eeprom_wel                                                            
+                            ; ensure the WRITE ENABLE LATCH is set
+013E   1835           00691                         btfsc time_out,0
+013F   2AB0           00692                         goto write_timed_out
+                      00693                         
+0140   238C           00694                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+0141   3001           00695                         movlw spi_write_sr_cmd                                                          
+                            ; send EEPROM "Write to status register" command 
+0142   2360           00696                         call send_byte_to_eeprom
+0143   083B           00697                         movf protection_bits,w                                                          
+                            ; send the protection settings byte 
+0144   2360           00698                         call send_byte_to_eeprom
+0145   238F           00699                         call deselect_eeprom                                                            
+                            ; deselecting the SPI EEPROM initiates the EEPROM's internal programming operation
+                      00700         
+0146   22D3           00701                         call wait_eeprom_busy                                                           
+                            ; wait for write to finish
+0147   1835           00702                         btfsc time_out,0
+0148   2AB0           00703                         goto write_timed_out
+0149   23EF           00704                         call send_ok_ack
+014A   28AE           00705                         goto wait_command
+                      00706 
+                      00707 ;=======================================================================================================
+                            ==============
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 17
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00708 
+014B                  00709 report_firmware_vers
+                      00710 
+014B   3026           00711                         movlw firmware_vers             
+014C   397F           00712                         andlw 0x7f                                                                      
+                                            ; ensure MSB is clear to avoid being interpreted as an error code               
+014D   23D1           00713                         call send_w_to_fpga                                                             
+                                    ; send to FPGA
+014E   28AE           00714                         goto wait_command
+                      00715 
+                      00716 ;=======================================================================================================
+                            ==============
+                      00717 
+014F                  00718 report_chip_id
+                      00719 
+014F   0873           00720                         movf eeprom_id,w                                                                
+                                    ; THIS IS NOW OBSOLETE - DONT USE THIS                                  
+0150   397F           00721                         andlw 0x7f                                                                      
+                                            ; ensure MSB is clear to avoid being interpreted as an error code
+0151   23D1           00722                         call send_w_to_fpga                                                             
+                                ; send ID byte to FPGA
+0152   28AE           00723                         goto wait_command
+                      00724 
+                      00725 ;=======================================================================================================
+                            ===============
+                      00726 
+0153                  00727 report_eeprom_capacity
+                      00728 
+0153   0871           00729                         movf eeprom_size,w                                                              
+                                                                            
+0154   397F           00730                         andlw 0x7f                                                                      
+                                            ; ensure MSB is clear to avoid being interpreted as an error code
+0155   23D1           00731                         call send_w_to_fpga                                                             
+                                ; send ID byte to FPGA
+0156   28AE           00732                         goto wait_command
+                      00733 
+                      00734 ;=======================================================================================================
+                            ===============
+                      00735 
+0157                  00736 report_eeprom_type
+                      00737 
+0157   0875           00738                         movf eeprom_type,w                                                              
+                                                                            
+0158   397F           00739                         andlw 0x7f                                                                      
+                                            ; ensure MSB is clear to avoid being interpreted as an error code
+0159   23D1           00740                         call send_w_to_fpga                                                             
+                                ; send ID byte to FPGA
+015A   28AE           00741                         goto wait_command
+                      00742 
+                      00743 ;=======================================================================================================
+                            ==============
+                      00744 
+015B                  00745 report_boot_slot
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00746 
+015B   3002           00747                         movlw 2                                                                         
+                                    
+015C   2380           00748                         call pic_eeprom_read                                                            
+                            ; get MSB of config base (slot * 2)
+015D   00A0           00749                         movwf temp1
+015E   1003           00750                         bcf STATUS,C
+015F   0C20           00751                         rrf temp1,w                                                                     
+                                            ; divide by 2 to give slot number
+0160   23D1           00752                         call send_w_to_fpga
+0161   28AE           00753                         goto wait_command
+                      00754 
+                      00755 ;=======================================================================================================
+                            ==============
+                      00756 
+0162                  00757 report_configured_from_slot
+                      00758 
+0162   0874           00759                         movf configured_from_slot,w
+0163   23D1           00760                         call send_w_to_fpga
+0164   28AE           00761                         goto wait_command
+                      00762 
+                      00763 ;=======================================================================================================
+                            ==============
+                      00764 
+0165                  00765 set_config_slot
+                      00766 
+0165   232D           00767                         call get_byte_from_fpga                                                         
+0166   1835           00768                         btfsc time_out,0
+0167   2AA6           00769                         goto bad_command
+0168   3A16           00770                         xorlw 0x16                                                                      
+                                            ; next command code byte should be $16..
+0169   1D03           00771                         skipifzero
+016A   2AA6           00772                         goto bad_command
+                      00773 
+016B   232D           00774                         call get_byte_from_fpga                                                         
+                            ; next byte is slot number
+016C   1835           00775                         btfsc time_out,0
+016D   2AA6           00776                         goto bad_command
+016E   00A0           00777                         movwf temp1
+016F   0D20           00778                         rlf temp1,w
+0170   39FE           00779                         andlw 0xfe
+0171   00A9           00780                         movwf config_base_high
+0172   01A8           00781                         clrf config_base_med
+0173   01A7           00782                         clrf config_base_low
+                      00783 
+0174   23EF           00784                         call send_ok_ack
+0175   28AE           00785                         goto wait_command
+                      00786 
+                      00787 ;=======================================================================================================
+                            ==============
+                      00788 
+0176                  00789 make_slot_permanent
+                      00790 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0176   232D           00791                         call get_byte_from_fpga                                                         
+0177   1835           00792                         btfsc time_out,0
+0178   2AA6           00793                         goto bad_command
+0179   3AD8           00794                         xorlw 0xd8                                                                      
+                                            ; op requires code $d8..
+017A   1D03           00795                         skipifzero
+017B   2AA6           00796                         goto bad_command
+017C   232D           00797                         call get_byte_from_fpga
+017D   1835           00798                         btfsc time_out,0
+017E   2AA6           00799                         goto bad_command
+017F   3A06           00800                         xorlw 0x06                                                                      
+                                            ; ...followed by $06
+0180   1D03           00801                         skipifzero
+0181   2AA6           00802                         goto bad_command
+                      00803 
+0182   1C34           00804                         btfss allow_program,0                                                           
+                            ; cannot proceed if host has not sent special code
+0183   2AAB           00805                         goto cant_program                                                               
+                                    
+                      00806 
+0184   01F0           00807                         clrf pic_eeprom_addr                                                            
+                            ; write the received address to PIC's EEPROM memory.    
+0185   0827           00808                         movf config_base_low,w                                                          
+                            ; upon power on, the FPGA will get its config code from
+0186   236F           00809                         call pic_eeprom_write                                                           
+                            ; this address
+0187   0AF0           00810                         incf pic_eeprom_addr,f                                                          
+0188   0828           00811                         movf config_base_med,w
+0189   236F           00812                         call pic_eeprom_write
+018A   0AF0           00813                         incf pic_eeprom_addr,f
+018B   0829           00814                         movf config_base_high,w
+018C   236F           00815                         call pic_eeprom_write
+                      00816 
+018D   23EF           00817                         call send_ok_ack
+018E   28AE           00818                         goto wait_command
+                      00819 
+                      00820 ;=======================================================================================================
+                            ==============
+                      00821 
+018F                  00822 set_databurst_start_address
+                      00823 
+018F   232D           00824                         call get_byte_from_fpga
+0190   1835           00825                         btfsc time_out,0
+0191   2AA6           00826                         goto bad_command
+0192   00AD           00827                         movwf databurst_base_low
+                      00828 
+0193   232D           00829                         call get_byte_from_fpga
+0194   1835           00830                         btfsc time_out,0
+0195   2AA6           00831                         goto bad_command
+0196   00AE           00832                         movwf databurst_base_med
+                      00833 
+0197   232D           00834                         call get_byte_from_fpga
+0198   1835           00835                         btfsc time_out,0
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 20
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0199   2AA6           00836                         goto bad_command
+019A   00AF           00837                         movwf databurst_base_high
+                      00838 
+019B   23EF           00839                         call send_ok_ack
+019C   28AE           00840                         goto wait_command
+                      00841 
+                      00842 ;=======================================================================================================
+                            ==============
+                      00843 
+019D                  00844 set_databurst_length
+                      00845 
+019D   232D           00846                         call get_byte_from_fpga
+019E   1835           00847                         btfsc time_out,0
+019F   2AA6           00848                         goto bad_command
+01A0   00B0           00849                         movwf databurst_len_low
+                      00850 
+01A1   232D           00851                         call get_byte_from_fpga
+01A2   1835           00852                         btfsc time_out,0
+01A3   2AA6           00853                         goto bad_command
+01A4   00B1           00854                         movwf databurst_len_med
+                      00855 
+01A5   232D           00856                         call get_byte_from_fpga
+01A6   1835           00857                         btfsc time_out,0
+01A7   2AA6           00858                         goto bad_command
+01A8   00B2           00859                         movwf databurst_len_high
+                      00860 
+01A9   23EF           00861                         call send_ok_ack
+01AA   28AE           00862                         goto wait_command
+                      00863 
+                      00864 ;=======================================================================================================
+                            ==============
+                      00865 
+01AB                  00866 send_databurst_to_fpga
+                      00867 
+01AB   23EF           00868                         call send_ok_ack
+                      00869         
+01AC   01A6           00870                         clrf bytecount_l                                                                
+                                    ; subtract length from $1000000 for loop
+01AD   01A5           00871                         clrf bytecount_m
+01AE   01A4           00872                         clrf bytecount_h
+01AF   0830           00873                 movf databurst_len_low,w                                                        
+01B0   02A6           00874                 subwf bytecount_l,f                                                              
+01B1   0831           00875                 movf databurst_len_med,w                                                         
+01B2   1C03           00876                 skipifcarry                                                      
+01B3   0F31           00877                 incfsz databurst_len_med,w                                                       
+01B4   02A5           00878             subwf bytecount_m,f                                                                  
+01B5   0832           00879                 movf databurst_len_high,w                                                
+01B6   1C03           00880                 skipifcarry
+01B7   0F32           00881                 incfsz databurst_len_high,w
+01B8   02A4           00882             subwf bytecount_h,f
+                      00883 
+01B9   238C           00884                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 21
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01BA   3003           00885                         movlw spi_read_cmd                                                              
+                                    ; send read data command (0x03) to EEPROM 
+01BB   2360           00886                         call send_byte_to_eeprom                                                
+01BC   082F           00887                         movf databurst_base_high,w                                                  ; se
+                            nd 24 bit start address to SPI EEPROM, MSB first        
+01BD   2360           00888                         call send_byte_to_eeprom
+01BE   082E           00889                         movf databurst_base_med,w
+01BF   2360           00890                         call send_byte_to_eeprom
+01C0   082D           00891                         movf databurst_base_low,w                       
+01C1   2360           00892                         call send_byte_to_eeprom
+                      00893 
+01C2   01BC           00894                         clrf ready_flip
+                      00895 
+01C3   30B4           00896                         movlw portb_default+(1<<comms_clock_out)+(1<<green_led)
+01C4   00BF           00897                         movwf clock_out_value                   
+                      00898 
+01C5   0ABC           00899 rom_read_lp     incf ready_flip,f                                                                       
+                            ; PIC requires INIT to change state between bytes
+01C6   1C3C           00900                         btfss ready_flip,0
+01C7   29D5           00901                         goto waitdatalo
+                      00902         
+01C8   30FB           00903                         movlw 0xfb                                                                      
+                                            ; this is the wait INIT = high routine for even bytes
+01C9   00A2           00904                         movwf temp3
+01CA   01A1           00905                         clrf temp2                                                                      
+                                            
+01CB   01A0           00906                         clrf temp1                                                                      
+                                            ; PIC will wait about 0.5 seconds for this before timing out
+01CC   1886           00907 wdbhi           btfsc PORTB,fpga_init                                   
+01CD   29E2           00908                         goto next_byte
+01CE   0FA0           00909                         incfsz temp1,f                                                                  
+                                    
+01CF   29CC           00910                         goto wdbhi                                                                      
+                                    
+01D0   0FA1           00911                         incfsz temp2,f
+01D1   29CC           00912                         goto wdbhi
+01D2   0FA2           00913                         incfsz temp3,f
+01D3   29CC           00914                         goto wdbhi
+01D4   29FA           00915                         goto db_timeout
+                      00916 
+01D5   30FB           00917 waitdatalo      movlw 0xfb                                                                              
+                                    ; this is the wait INIT = low routine for odd bytes
+01D6   00A2           00918                         movwf temp3
+01D7   01A1           00919                         clrf temp2                                                                      
+                                            
+01D8   01A0           00920                         clrf temp1                                                                      
+                                            ; PIC will wait about 0.5 seconds for this before timing out
+01D9   1C86           00921 wdbilo          btfss PORTB,fpga_init                           
+01DA   29E2           00922                         goto next_byte
+01DB   0FA0           00923                         incfsz temp1,f                                                                  
+                                    
+01DC   29D9           00924                         goto wdbilo                                                                     
+                                    
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 22
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01DD   0FA1           00925                         incfsz temp2,f
+01DE   29D9           00926                         goto wdbilo
+01DF   0FA2           00927                         incfsz temp3,f
+01E0   29D9           00928                         goto wdbilo
+01E1   29FA           00929                         goto db_timeout
+                      00930 
+01E2   3008           00931 next_byte       movlw 8                                                                                 
+                                    ; Clock out a byte from the EEPROM                                                      
+01E3   00A0           00932                         movwf temp1                                                                     
+                                            
+01E4   083F           00933 rombit_lp       movfw clock_out_value                                                   ; set com clock 
+                            hi = FPGA latches data bit 
+01E5   0086           00934                         movwf PORTB
+01E6   3A04           00935                         xorlw (1<<comms_clock_out)                                                      
+                            ; return clock low
+01E7   0086           00936                         movwf PORTB
+01E8   3002           00937                         movlw (1<<eeprom_clock)                                                         
+                            ; set EEPROM clock high
+01E9   0085           00938                         movwf PORTA                                                                     
+                                                            
+01EA   3000           00939                         movlw 0
+01EB   0085           00940                         movwf PORTA                                                                     
+                                            ; set EEPROM clock low = EEPROM shifts out a new bit                            
+01EC   0BA0           00941                         decfsz temp1,f
+01ED   29E4           00942                         goto rombit_lp
+                      00943                                         
+01EE   0FA6           00944                         incfsz bytecount_l,f                                                            
+                            ; count bytes sent - loop if more to go
+01EF   29C5           00945                         goto rom_read_lp                                        
+                      00946 
+01F0   12BF           00947                         bcf clock_out_value,green_led                                           ; handle
+                             led flash
+01F1   0ABE           00948                         incf led_flash_accum,f                                                          
+01F2   19BE           00949                         btfsc led_flash_accum,3
+01F3   16BF           00950                         bsf clock_out_value,green_led
+                      00951 
+01F4   0FA5           00952                         incfsz bytecount_m,f                    
+01F5   29C5           00953                         goto rom_read_lp                                        
+01F6   0FA4           00954                         incfsz bytecount_h,f
+01F7   29C5           00955                         goto rom_read_lp
+01F8   238F           00956                         call deselect_eeprom                                                            
+                            ; all done - Deselect the EEPROM (set its /CS = high)
+01F9   28AE           00957                         goto wait_command                                                               
+                                    ; and wait for next command
+                      00958 
+01FA   238F           00959 db_timeout      call deselect_eeprom                                                            ; desele
+                            ct the EEPROM (set its /CS = high)
+01FB   3004           00960                         movlw 4
+01FC   22B5           00961                         call flash_leds                                                                 
+                                    ; flash leds 4 times to signify time out error
+01FD   28AE           00962                         goto wait_command
+                      00963 
+                      00964 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 23
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00965 ;=======================================================================================================
+                            ==============
+                      00966 
+01FE                  00967 set_programming_mode
+                      00968 
+01FE   232D           00969                         call get_byte_from_fpga                         
+01FF   1835           00970                         btfsc time_out,0
+0200   2AA6           00971                         goto bad_command
+0201   3AFA           00972                         xorlw 0xfa                                                                      
+                                            ; command code requires 0xfa...
+0202   1D03           00973                         skipifzero
+0203   2AA6           00974                         goto bad_command
+                      00975 
+0204   232D           00976                         call get_byte_from_fpga
+0205   1835           00977                         btfsc time_out,0
+0206   2AA6           00978                         goto bad_command
+0207   3A99           00979                         xorlw 0x99                                                                      
+                                            ; then 0x99..                                                           
+0208   1D03           00980                         skipifzero
+0209   2AA6           00981                         goto bad_command
+020A   238A           00982                         call allow_programming
+                      00983                         
+020B   23EF           00984                         call send_ok_ack
+020C   28AE           00985                         goto wait_command
+                      00986 
+                      00987 ;=======================================================================================================
+                            ==============
+                      00988 
+020D                  00989 exit_programming_mode
+                      00990 
+020D   2388           00991                         call disallow_programming
+020E   23EF           00992                         call send_ok_ack
+020F   28AE           00993                         goto wait_command
+                      00994 
+                      00995 
+                      00996 ;=======================================================================================================
+                            ==============
+                      00997 
+0210                  00998 erase_eeprom_block
+                      00999 
+0210   2320           01000                         call get_eeprom_address                                                         
+                            ; read in 3 bytes
+0211   1835           01001                         btfsc time_out,0
+0212   2AA6           01002                         goto bad_command
+                      01003 
+0213   1C34           01004                         btfss allow_program,0                                                           
+                            ; cannot proceed if host has not sent special code
+0214   2AAB           01005                         goto cant_program                                                               
+                                    ; host should check clock line before sending 3 byte address
+                      01006 
+0215   30F0           01007                         movlw portb_default+(1<<red_led)+(1<<green_led)         ; both LEDs on during er
+                            ase command
+0216   0086           01008                         movwf PORTB                                                                     
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 24
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                            
+                      01009         
+0217   228C           01010                         call sst_write_enable
+0218   238C           01011                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+0219   3006           01012                         movlw spi_write_en_cmd                                                          
+                            ; send EEPROM "WRITE ENABLE" command
+021A   2360           01013                         call send_byte_to_eeprom
+021B   238F           01014                         call deselect_eeprom
+                      01015 
+021C   22BF           01016                         call wait_eeprom_wel                                                            
+                            ; ensure the WRITE ENABLE LATCH is set
+021D   1835           01017                         btfsc time_out,0
+021E   2AB0           01018                         goto write_timed_out
+                      01019 
+021F   238C           01020                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+0220   30D8           01021                         movlw spi_erase_cmd                                                             
+                                    ; send EEPROM "Erase Block" command 
+0221   2360           01022                         call send_byte_to_eeprom
+0222   2359           01023                         call send_eeprom_address                                                        
+                            ; send the 3 address bytes
+0223   238F           01024                         call deselect_eeprom                                                            
+                            ; deselecting the SPI EEPROM initiates the EEPROM's internal programming operation
+                      01025         
+0224   2398           01026                         call short_pause
+                      01027 
+0225   22D3           01028                         call wait_eeprom_busy                                                           
+                            ; wait for EEPROMS's block erase to finish
+0226   1835           01029                         btfsc time_out,0
+0227   2AB0           01030                         goto write_timed_out
+                      01031         
+0228   2398           01032                         call short_pause
+                      01033 
+0229   2299           01034                         call sst_write_protect
+022A   23EF           01035                         call send_ok_ack
+022B   28AE           01036                         goto wait_command
+                      01037 
+                      01038 
+                      01039 ;=======================================================================================================
+                            ==============
+                      01040 
+022C                  01041 write_bytes_to_eeprom
+                      01042 
+022C   2320           01043                         call get_eeprom_address                                                         
+                            ; get 3 bytes for write address
+022D   1835           01044                         btfsc time_out,0
+022E   2AA6           01045                         goto bad_command
+                      01046 
+022F   3040           01047                         movlw 64
+0230   00B6           01048                         movwf buffer_count                                                              
+                                    ; get 64 bytes to program into EEPROM
+0231   30A0           01049                         movlw 0xa0                                                                      
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 25
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                            
+0232   0084           01050                         movwf FSR                                                                       
+                                            ; temporarily store them in PIC RAM $a0-$df
+0233   232D           01051 readb_loop      call get_byte_from_fpga
+0234   1835           01052                         btfsc time_out,0
+0235   2AA6           01053                         goto bad_command
+0236   0080           01054                         movwf INDF
+0237   0A84           01055                         incf FSR,f
+0238   0BB6           01056                         decfsz buffer_count,f
+0239   2A33           01057                         goto readb_loop
+                      01058 
+023A   1C34           01059                         btfss allow_program,0                                                           
+                            ; cannot proceed if host has not sent special code
+023B   2AAB           01060                         goto cant_program                                                               
+                                    ; host should check clock line before sending 3 byte address/datapacket
+                      01061         
+023C   30F0           01062                         movlw portb_default+(1<<red_led)+(1<<green_led)         ; flash LEDs during writ
+                            e command
+023D   0ABE           01063                         incf led_flash_accum,f
+023E   19BE           01064                         btfsc led_flash_accum,3
+023F   0086           01065                         movwf PORTB                                                                     
+                                            
+                      01066 
+0240   1875           01067                         btfsc eeprom_type,0                                                             
+                                    ; if EEPROM is SST type switch to appropriate programming code
+0241   2A5C           01068                         goto sst_write_bytes
+                      01069 
+0242   238C           01070                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+0243   3006           01071                         movlw spi_write_en_cmd                                                          
+                            ; send "WRITE ENABLE" command
+0244   2360           01072                         call send_byte_to_eeprom
+0245   238F           01073                         call deselect_eeprom                                                            
+                            ; EEPROM /CS = High = End of instruction
+                      01074                                                                                                         
+                                    
+0246   22BF           01075                         call wait_eeprom_wel                                                            
+                            ; ensure the WRITE ENABLE LATCH is set
+0247   1835           01076                         btfsc time_out,0
+0248   2AB0           01077                         goto write_timed_out
+                      01078 
+0249   238C           01079                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+024A   3002           01080                         movlw spi_write_page_cmd                                                        
+                            ; send "Write Page" EEPROM command 
+024B   2360           01081                         call send_byte_to_eeprom
+024C   2359           01082                         call send_eeprom_address                                                        
+                            ; send the destination address
+024D   3040           01083                         movlw 64
+024E   00B6           01084                         movwf buffer_count                                                              
+                                    ; write the 64 bytes from PIC RAM to the EEPROM
+024F   30A0           01085                         movlw 0xa0                                                                      
+                                                            
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 26
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0250   0084           01086                         movwf FSR                                                                       
+                                            ; read them from PIC RAM addresses $a0-$bf
+0251   0800           01087 writeb_loop     movf INDF,w
+0252   2360           01088                         call send_byte_to_eeprom
+0253   0A84           01089                         incf FSR,f
+0254   0BB6           01090                         decfsz buffer_count,f
+0255   2A51           01091                         goto writeb_loop
+                      01092 
+0256   238F           01093                         call deselect_eeprom                                                            
+                            ; deselecting the EEPROM initiates its internal programming operation
+0257   22D3           01094                         call wait_eeprom_busy                                                           
+                            ; wait for EEPROM's internal write operation to complete
+0258   1835           01095                         btfsc time_out,0
+0259   2AB0           01096                         goto write_timed_out
+025A   23EF           01097                         call send_ok_ack
+025B   28AE           01098                         goto wait_command
+                      01099 
+                      01100 
+                      01101 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+                      01102 
+025C                  01103 sst_write_bytes
+                      01104                         
+025C   228C           01105                         call sst_write_enable                                                           
+                            ; clear SR [5:2] 
+                      01106 
+025D   238C           01107                         call select_eeprom
+025E   3006           01108                         movlw spi_write_en_cmd                                                          
+                            ; send WRITE ENABLE command
+025F   2360           01109                         call send_byte_to_eeprom
+0260   238F           01110                         call deselect_eeprom
+                      01111                                                                                                         
+                                    
+0261   238C           01112                         call select_eeprom
+0262   30AD           01113                         movlw sst_aai_write_cmd                                                         
+                            ; send SST style write bytes command 
+0263   2360           01114                         call send_byte_to_eeprom
+                      01115 
+0264   2359           01116                         call send_eeprom_address                                                        
+                            ; and send the destination address
+                      01117 
+0265   30A0           01118                         movlw 0xa0                                                                      
+                                                            
+0266   0084           01119                         movwf FSR                                                                       
+                                            ; send first two bytes from $a0 and $a1
+0267   0800           01120                         movf INDF,w
+0268   2360           01121                         call send_byte_to_eeprom                                                        
+                            ; send byte 0
+0269   0A84           01122                         incf FSR,f
+026A   0800           01123                         movf INDF,w
+026B   2360           01124                         call send_byte_to_eeprom                                                        
+                            ; send byte 1
+026C   0A84           01125                         incf FSR,f
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 27
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01126 
+026D   238F           01127                         call deselect_eeprom                                                            
+                            ; deselect the SPI EEPROM (set its /CS = high)
+                      01128                                                                                 
+026E   22D3           01129                         call wait_eeprom_busy                                                           
+                            ; check EEPROM is not busy
+026F   1835           01130                         btfsc time_out,0
+0270   2AB0           01131                         goto write_timed_out
+                      01132 
+0271   301F           01133                         movlw 31
+0272   00B6           01134                         movwf buffer_count                                                              
+                                    ; write the next 31 words from PIC RAM to the EEPROM
+                      01135 
+0273   238C           01136 sstwr_loop      call select_eeprom
+0274   30AD           01137                         movlw sst_aai_write_cmd                                                         
+                            ; send sst write bytes command again - no address this time 
+0275   2360           01138                         call send_byte_to_eeprom                                                        
+                      01139 
+0276   0800           01140                         movf INDF,w
+0277   2360           01141                         call send_byte_to_eeprom                                                        
+                            ; send byte 0
+0278   0A84           01142                         incf FSR,f
+0279   0800           01143                         movf INDF,w
+027A   2360           01144                         call send_byte_to_eeprom                                                        
+                            ; send byte 1
+027B   0A84           01145                         incf FSR,f
+                      01146 
+027C   238F           01147                         call deselect_eeprom                                                            
+                      01148 
+027D   22D3           01149                         call wait_eeprom_busy                                                           
+                            ; check EEPROM busy is clear
+027E   1835           01150                         btfsc time_out,0
+027F   2AB0           01151                         goto write_timed_out
+                      01152 
+0280   0BB6           01153                         decfsz buffer_count,f
+0281   2A73           01154                         goto sstwr_loop
+                      01155 
+0282   238C           01156                         call select_eeprom
+0283   3004           01157                         movlw sst_wrdi_cmd                                                              
+                                    ; terminate AAI command
+0284   2360           01158                         call send_byte_to_eeprom                                                        
+0285   238F           01159                         call deselect_eeprom                                                            
+                                                                    
+                      01160 
+0286   22D3           01161                         call wait_eeprom_busy                                                           
+                            ; check EEPROM busy is clear
+0287   1835           01162                         btfsc time_out,0
+0288   2AB0           01163                         goto write_timed_out
+                      01164 
+0289   2299           01165                         call sst_write_protect
+028A   23EF           01166                         call send_ok_ack
+028B   28AE           01167                         goto wait_command
+                      01168 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 28
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01169 
+                      01170 ;-------------------------------------------------------------------------------------------------------
+                            -----------------
+                      01171 
+                      01172 
+028C                  01173 sst_write_enable
+                      01174 
+028C   1C75           01175                         btfss eeprom_type,0                                                             
+                                    ; is EEPROM an SST type? If so clear bits 5:2 of SR
+028D   0008           01176                         return                                                                          
+                                            ; These bits are volatile on SST EEPROMS not flash
+                      01177 
+028E   238C           01178                         call select_eeprom                                                              
+                                    ; send EEPROM "WRITE ENABLE" command
+028F   3006           01179                         movlw spi_write_en_cmd                                                          
+0290   2360           01180                         call send_byte_to_eeprom
+0291   238F           01181                         call deselect_eeprom
+                      01182 
+0292   238C           01183                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+0293   3001           01184                         movlw spi_write_sr_cmd                                                          
+                            ; send EEPROM "Write to status register" command 
+0294   2360           01185                         call send_byte_to_eeprom
+0295   3000           01186                         movlw 0x00                                                                      
+                                            ; clear the SR protection bits [5:2] 
+0296   2360           01187                         call send_byte_to_eeprom
+0297   238F           01188                         call deselect_eeprom                                                            
+                             
+0298   0008           01189                         return
+                      01190 
+                      01191 
+                      01192 ;-------------------------------------------------------------------------------------------------------
+                            -----------------
+                      01193 
+                      01194 
+0299                  01195 sst_write_protect
+                      01196 
+0299   1C75           01197                         btfss eeprom_type,0                                                             
+                                    ; is EEPROM an SST type? If so set bits 5:2 of SR
+029A   0008           01198                         return                                                                          
+                                            ; These bits are volatile on SST EEPROMS not flash
+                      01199 
+029B   238C           01200                         call select_eeprom                                                              
+                                    ; NOTE: THE SR protect bits are VOLATILE on the SST
+029C   3006           01201                         movlw spi_write_en_cmd                                                          
+                            ; send EEPROM "WRITE ENABLE" command
+029D   2360           01202                         call send_byte_to_eeprom
+029E   238F           01203                         call deselect_eeprom
+                      01204 
+029F   238C           01205                         call select_eeprom                                                              
+                                    ; Bring EEPROM /CS = Low (new instruction)
+02A0   3001           01206                         movlw spi_write_sr_cmd                                                          
+                            ; send EEPROM "Write to status register" command 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 29
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+02A1   2360           01207                         call send_byte_to_eeprom
+02A2   303C           01208                         movlw 0x3c                                                                      
+                                            ; set all block protect bits [5:2] 
+02A3   2360           01209                         call send_byte_to_eeprom
+02A4   238F           01210                         call deselect_eeprom                                                            
+02A5   0008           01211                         return
+                      01212 
+                      01213                         
+                      01214 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+                      01215 
+02A6                  01216 bad_command
+                      01217 
+02A6   308C           01218                         movlw 0x8c                                                                      
+                                            ; send "bad command" error code (0x8c) to FPGA
+02A7   23D1           01219                         call send_w_to_fpga
+02A8   3001           01220                         movlw 1
+02A9   22B5           01221                         call flash_leds
+02AA   28AE           01222                         goto wait_command                                                               
+                                    
+                      01223 
+                      01224 
+                      01225 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+                      01226 
+                      01227 
+02AB                  01228 cant_program
+                      01229 
+02AB   308F           01230                         movlw 0x8f                                                                      
+                                            ; send "programming disabled" error code (0x8f) to FPGA
+02AC   23D1           01231                         call send_w_to_fpga
+02AD   3002           01232                         movlw 2
+02AE   22B5           01233                         call flash_leds
+02AF   28AE           01234                         goto wait_command
+                      01235 
+                      01236 
+                      01237 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+                      01238 
+                      01239 
+02B0                  01240 write_timed_out
+                      01241 
+                      01242 
+02B0   308B           01243                         movlw 0x8b                                                                      
+                                            ; send "write timed out" error code (0x8b) to FPGA
+02B1   23D1           01244                         call send_w_to_fpga
+02B2   3003           01245                         movlw 3
+02B3   22B5           01246                         call flash_leds
+02B4   28AE           01247                         goto wait_command
+                      01248 
+                      01249 
+                      01250 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 30
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01251 
+02B5                  01252 flash_leds
+                      01253 
+02B5   00B7           01254                         movwf flash_count                                                               
+                                    ; flash both leds W times
+                      01255                         
+02B6   30F0           01256 flashloop       movlw portb_default+(1<<green_led)+(1<<red_led)         
+02B7   0086           01257                         movwf PORTB
+02B8   2392           01258                         call long_pause
+02B9   3090           01259                         movlw portb_default             
+02BA   0086           01260                         movwf PORTB
+02BB   2392           01261                         call long_pause
+                      01262                         
+02BC   0BB7           01263                         decfsz flash_count,f
+02BD   2AB6           01264                         goto flashloop
+02BE   0008           01265                         return
+                      01266 
+                      01267 
+                      01268 ;********** Called routines ****************************************************************************
+                            **********
+                      01269 
+02BF                  01270 wait_eeprom_wel
+                      01271 
+02BF   01B5           01272                         clrf time_out
+02C0   238C           01273                         call select_eeprom                                                              
+                                    ; New EEPROM instruction
+02C1   3005           01274                         movlw spi_read_status_cmd                                                       
+                            ; send EEPROM "READ STATUS" command
+02C2   2360           01275                         call send_byte_to_eeprom
+                      01276 
+02C3   01A0           01277                         clrf temp1
+02C4   01A1           01278                         clrf temp2
+02C5   30FA           01279                         movlw 0xfa              
+02C6   00A2           01280                         movwf temp3
+                      01281 
+02C7   22EE           01282 wel_loop        call get_byte_from_eeprom                                                       ; read s
+                            tatus byte from EEPROM
+02C8   18B3           01283                         btfsc received_byte,1                                                           
+                            ; loop until write enable flag (WEL: bit 1) is set
+02C9   2AD1           01284                         goto wel_high
+02CA   0FA0           01285                         incfsz temp1,f
+02CB   2AC7           01286                         goto wel_loop
+02CC   0FA1           01287                         incfsz temp2,f
+02CD   2AC7           01288                         goto wel_loop
+02CE   0FA2           01289                         incfsz temp3,f
+02CF   2AC7           01290                         goto wel_loop
+02D0   1435           01291                         bsf time_out,0                                                                  
+                                    ; time out if waited more than ~5 seconds
+                      01292                         
+02D1   238F           01293 wel_high        call deselect_eeprom                                                            ; desele
+                            ct the EEPROM - end of instruction      
+02D2   0008           01294                         return
+                      01295 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 31
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01296 ;-------------------------------------------------------------------------------------------------------
+                            ------------
+                      01297                                                 
+02D3                  01298 wait_eeprom_busy
+                      01299 
+02D3   01B5           01300                         clrf time_out
+                      01301                 
+02D4   01A0           01302                         clrf temp1                                                                      
+                                            ; short delay before first test
+02D5   0FA0           01303 wip_pdelay      incfsz temp1,f
+02D6   2AD5           01304                         goto wip_pdelay
+                      01305                                                 
+02D7   238C           01306                         call select_eeprom                                                              
+                                    ; Select EEPROM - New instruction
+02D8   3005           01307                         movlw spi_read_status_cmd                                                       
+                            ; send EEPROM "READ STATUS" command
+02D9   2360           01308                         call send_byte_to_eeprom
+                      01309 
+02DA   01A0           01310                         clrf temp1
+02DB   01A1           01311                         clrf temp2
+02DC   30FA           01312                         movlw 0xfa              
+02DD   00A2           01313                         movwf temp3
+                      01314 
+02DE   22EE           01315 wip_loop        call get_byte_from_eeprom                                                       ; read s
+                            tatus byte from EEPROM
+02DF   1C33           01316                         btfss received_byte,0                                                           
+                            ; until "write in progress busy" flag (BSY: bit 0) is clear
+02E0   2AE9           01317                         goto wip_low
+02E1   0FA0           01318                         incfsz temp1,f
+02E2   2ADE           01319                         goto wip_loop
+02E3   0FA1           01320                         incfsz temp2,f
+02E4   2ADE           01321                         goto wip_loop
+02E5   0FA2           01322                         incfsz temp3,f
+02E6   2ADE           01323                         goto wip_loop
+02E7   1435           01324                         bsf time_out,0                                                                  
+                                    ; time out if waited more than ~5 seconds
+02E8   2AEC           01325                         goto busyw_end
+                      01326 
+02E9   22EE           01327 wip_low         call get_byte_from_eeprom                                                       ; double
+                             check WIP flag is indeed low
+02EA   1833           01328                         btfsc received_byte,0
+02EB   2ADE           01329                         goto wip_loop
+                      01330 
+02EC   238F           01331 busyw_end       call deselect_eeprom                                                            ; desele
+                            ct the EEPROM - end of instruction
+02ED   0008           01332                         return
+                      01333 
+                      01334                                                                                 
+                      01335 ;-------------------------------------------------------------------------------------------------------
+                            ------------
+                      01336 
+02EE                  01337 get_byte_from_eeprom
+                      01338 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 32
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+02EE   01B3           01339                         clrf received_byte
+02EF   3008           01340                         movlw 8
+02F0   00A3           01341                         movwf bitcount                                                                  
+02F1   1003           01342 gbfe_loop       bcf STATUS,0                                                                            
+                            ; clear carry flag
+02F2   0DB3           01343                         rlf received_byte,f
+02F3   1806           01344                         btfsc PORTB,eeprom_data_out
+02F4   1433           01345                         bsf received_byte,0
+02F5   3002           01346                         movlw (1<<eeprom_clock)                                                         
+                            ; raise the EEPROM clock line
+02F6   0085           01347                         movwf PORTA
+02F7   0000           01348                         nop
+02F8   0000           01349                         nop
+02F9   0000           01350                         nop
+02FA   0185           01351                         clrf PORTA                                                                      
+                                            ; drop EEPROM clock line
+02FB   0BA3           01352                         decfsz bitcount,f
+02FC   2AF1           01353                         goto gbfe_loop
+02FD   0833           01354                         movf received_byte,w
+02FE   0008           01355                         return
+                      01356 
+                      01357 ;-------------------------------------------------------------------------------------------------------
+                            ------------
+                      01358 
+02FF                  01359 read_eeprom_id
+                      01360 
+02FF   01F5           01361                         clrf eeprom_type
+0300   3001           01362                         movlw 1
+0301   00F1           01363                         movwf eeprom_size
+                      01364 
+0302   238C           01365                         call select_eeprom                                                              
+                                    ; Bring SPI EEPROM /CS = Low (new instruction)
+0303   30AB           01366                         movlw spi_id_cmd                                                                
+                                    
+0304   2360           01367                         call send_byte_to_eeprom                                                        
+                            ; send eeprom ID command (0xab) to SPI EEPROM                                                   
+0305   3000           01368                         movlw 0
+0306   2360           01369                         call send_byte_to_eeprom                                                        
+                            ; send 3 dummy bytes
+0307   3000           01370                         movlw 0
+0308   2360           01371                         call send_byte_to_eeprom
+0309   3000           01372                         movlw 0
+030A   2360           01373                         call send_byte_to_eeprom
+030B   22EE           01374                         call get_byte_from_eeprom                                                       
+                            ; 25X IDs: $10 = 128KB, $11 = 256KB, $12 = 512KB, $13 = 1MB, $14 = 2MB, $15 = 4MB, $16=8MB
+030C   00F3           01375                         movwf eeprom_id                                                                 
+                                    ; If $BF, chip is SST25VF type
+                      01376                         
+030D   3ABF           01377                         xorlw 0xbf
+030E   1D03           01378                         skipifzero                                                                      
+                                            ; is a an SST 25vf chip?
+030F   2B15           01379                         goto not_25vf
+0310   3020           01380                         movlw 0x20
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 33
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0311   00F1           01381                         movwf eeprom_size                                                               
+                                    ; if so, set size as 32MBit
+0312   3001           01382                         movlw 0x01
+0313   00F5           01383                         movwf eeprom_type                                                               
+                                    ; and note the type as SST 25vf
+0314   2B1E           01384                         goto id_done
+                      01385 
+0315   0873           01386 not_25vf        movf eeprom_id,w
+0316   3EF0           01387                         addlw 0xf0                                                                      
+                                            ; convert EEPROM ID to available slots
+0317   1903           01388                         skipifnotzero
+0318   2B1E           01389                         goto id_done
+0319   00A0           01390                         movwf temp1
+031A   1003           01391 cap_loop        bcf STATUS,C
+031B   0DF1           01392                         rlf eeprom_size,f
+031C   0BA0           01393                         decfsz temp1,f
+031D   2B1A           01394                         goto cap_loop
+                      01395 
+031E   238F           01396 id_done         call deselect_eeprom                                                            ; desele
+                            ct the EEPROM (set its /CS = high)
+031F   0008           01397                         return
+                      01398 
+                      01399 ;-------------------------------------------------------------------------------------------------------
+                            --------------
+                      01400 
+0320                  01401 get_eeprom_address
+                      01402 
+0320   232D           01403                         call get_byte_from_fpga                                                         
+                            ; get 3 bytes for address
+0321   1835           01404                         btfsc time_out,0
+0322   0008           01405                         return
+0323   00AA           01406                         movwf eeprom_address_low
+                      01407                         
+0324   232D           01408                         call get_byte_from_fpga
+0325   1835           01409                         btfsc time_out,0
+0326   0008           01410                         return
+0327   00AB           01411                         movwf eeprom_address_med
+                      01412                         
+0328   232D           01413                         call get_byte_from_fpga
+0329   1835           01414                         btfsc time_out,0
+032A   0008           01415                         return
+032B   00AC           01416                         movwf eeprom_address_high
+032C   0008           01417                         return
+                      01418 
+                      01419 ;-------------------------------------------------------------------------------------------------------
+                            -----------
+                      01420 
+032D                  01421 get_byte_from_fpga
+                      01422 
+032D   3008           01423                         movlw 8                                                                         
+                                            ; This routine has transmission speed limits
+032E   00A3           01424                         movwf bitcount                                                                  
+                                    ; Minimum speed ~ 7 Hz  
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 34
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+032F   01B5           01425                         clrf time_out                                                                   
+                                    ; Max recommended speed ~ 100 KHz
+0330   01B3           01426                         clrf received_byte
+                      01427 
+0331   1003           01428 next_fcbit      bcf STATUS,0                                                                            
+                            ; clear carry flag
+0332   0DB3           01429                         rlf received_byte,f                                                             
+                                    ; rotate serial register
+0333   0000           01430                         nop
+0334   0000           01431                         nop
+0335   0000           01432                         nop
+0336   0000           01433                         nop
+0337   01A0           01434                         clrf temp1
+0338   01A1           01435                         clrf temp2      
+0339   1A85           01436 wait_bffch      btfsc PORTA,comms_clock_in                                                      ; wait f
+                            or clock high
+033A   2B41           01437                         goto gbff_clk_hi
+033B   0FA0           01438                         incfsz temp1,f                                                                  
+                                    ; loop 65536 times and then time out
+033C   2B39           01439                         goto wait_bffch                                                                 
+                                    
+033D   0FA1           01440                         incfsz temp2,f
+033E   2B39           01441                         goto wait_bffch
+033F   1435           01442                         bsf time_out,0
+0340   0008           01443                         return
+                      01444 
+0341   0000           01445 gbff_clk_hi     nop
+0342   0000           01446                         nop
+0343   0000           01447                         nop
+0344   0000           01448                         nop
+0345   1886           01449                         btfsc PORTB,fpga_init                                                           
+                            ; read bit from FPGA init line
+0346   1433           01450                         bsf received_byte,0
+0347   0000           01451                         nop
+0348   0000           01452                         nop
+0349   0000           01453                         nop
+034A   0000           01454                         nop
+034B   01A0           01455                         clrf temp1
+034C   01A1           01456                         clrf temp2
+034D   1E85           01457 wait_bffcl      btfss PORTA,comms_clock_in                                                      ; wait f
+                            or clock low
+034E   2B55           01458                         goto gbff_clk_lo
+034F   0FA0           01459                         incfsz temp1,f                                                                  
+                                    ; loop 65536 times and then time out
+0350   2B4D           01460                         goto wait_bffcl                                                                 
+                                    
+0351   0FA1           01461                         incfsz temp2,f
+0352   2B4D           01462                         goto wait_bffcl
+0353   1435           01463                         bsf time_out,0
+0354   0008           01464                         return
+                      01465                         
+0355   0BA3           01466 gbff_clk_lo     decfsz bitcount,f                                                                       
+                            ; loop for 8 bits
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 35
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0356   2B31           01467                         goto next_fcbit
+                      01468 
+0357   0833           01469                         movf received_byte,w                                                            
+                            ; return byte in W
+0358   0008           01470                         return
+                      01471 
+                      01472 ;-------------------------------------------------------------------------------------------------------
+                            ------------
+                      01473 
+0359                  01474 send_eeprom_address
+                      01475 
+0359   082C           01476                         movf eeprom_address_high,w                                                      
+                            ; send 24 bit start address to SPI EEPROM, MSB first    
+035A   2360           01477                         call send_byte_to_eeprom
+035B   082B           01478                         movf eeprom_address_med,w
+035C   2360           01479                         call send_byte_to_eeprom
+035D   082A           01480                         movf eeprom_address_low,w                       
+035E   2360           01481                         call send_byte_to_eeprom
+035F   0008           01482                         return
+                      01483 
+                      01484 ;-------------------------------------------------------------------------------------------------------
+                            ------------
+                      01485 
+0360                  01486 send_byte_to_eeprom
+                      01487 
+0360   00A0           01488                         movwf temp1                                                                     
+                                            ; send byte in W to SPI EEPROM
+0361   3008           01489                         movlw 8
+0362   00A3           01490                         movwf bitcount                                                                  
+0363   3000           01491 sb_loop         movlw 0                 
+0364   0DA0           01492                         rlf temp1,f
+0365   1803           01493                         skipifnotcarry
+0366   3001           01494                         movlw (1<<eeprom_data_in)                                                       
+                            ; present data bit to EEPROM
+0367   0085           01495                         movwf PORTA
+0368   3802           01496                         iorlw (1<<eeprom_clock)                                                         
+                            ; raise the EEPROM clock line
+0369   0085           01497                         movwf PORTA
+036A   3A02           01498                         xorlw (1<<eeprom_clock)                                                         
+                            ; drop the EEPROM clock line
+036B   0085           01499                         movwf PORTA
+036C   0BA3           01500                         decfsz bitcount,f                                                               
+                                    ; loop to next bit
+036D   2B63           01501                         goto sb_loop
+036E   0008           01502                         return
+                      01503 
+                      01504 ;----------------------------------------------------------------------------------------------------
+                      01505 
+036F                  01506 pic_eeprom_write
+                      01507 
+036F   1683 1303      01508                         banksel EEADR                                                                   
+                                    ;Bank 1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 36
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0371   009A           01509                         movwf EEDATA                                                                    
+                                    ;put byte to write in W
+0372   0870           01510                         movf pic_eeprom_addr,w
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0373   009B           01511                         movwf EEADR                                                                     
+                                            ;address to write to
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0374   151C           01512                         BSF EECON1, WREN                                                                
+                                    ;Enable write
+0375   3055           01513                         MOVLW 0x55                                                                      
+                                            ;
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0376   009D           01514                         MOVWF EECON2                                                                    
+                                    ;Write 55h
+0377   30AA           01515                         MOVLW 0xAA                                                                      
+                                            ;
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0378   009D           01516                         MOVWF EECON2                                                                    
+                                    ;Write AAh
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0379   149C           01517                         BSF EECON1,WR                                                                   
+                                    ;Set WR bit
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+037A   189C           01518 wait_epwr       btfsc EECON1,WR                                                                         
+                            ;wait for WR bit to be cleared by HW
+037B   2B7A           01519                         goto wait_epwr  
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+037C   111C           01520                         BCF EECON1, WREN                                                                
+                                    ;disable EE writes
+037D   1283 1303      01521                         banksel PORTA
+037F   0008           01522                         return
+                      01523 
+                      01524 
+0380                  01525 pic_eeprom_read
+                      01526 
+0380   1683 1303      01527                     banksel EEADR                                                                       
+                                    ; bank 1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0382   009B           01528                         MOVWF EEADR                                                                     
+                                    ; Put address to read in W
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0383   141C           01529                         BSF EECON1, RD                                                                  
+                                    ; EE Read
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0384   081A           01530                         MOVF EEDATA, W                                                                  
+                                    ; W = EEDATA
+0385   1283 1303      01531                         banksel PORTA                                                                   
+                                    ; Bank 0
+0387   0008           01532                         return
+                      01533 
+                      01534 ;-----------------------------------------------------------------------------------------------------
+                      01535 
+0388                  01536 disallow_programming
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 37
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01537 
+0388   1034           01538                         bcf allow_program,0                                                             
+                                    
+0389   0008           01539                         return
+                      01540 
+                      01541 
+038A                  01542 allow_programming
+                      01543 
+038A   1434           01544                         bsf allow_program,0
+038B   0008           01545                         return
+                      01546 
+                      01547 
+                      01548 ;-------------------------------------------------------------------------------------------------------
+                            -------------------------
+                      01549 
+038C                  01550 select_eeprom
+                      01551 
+038C   3000           01552                         movlw porta_default-(1<<eeprom_cs)
+038D   0085           01553                         movwf PORTA                                                                     
+                                            ; Bring SPI EEPROM /CS Low (select EEPROM, new instruction)
+038E   0008           01554                         return
+                      01555 
+                      01556 
+038F                  01557 deselect_eeprom
+                      01558 
+038F   3004           01559                         movlw porta_default
+0390   0085           01560                         movwf PORTA                                                                     
+                                            ; Bring SPI EEPROM /CS High (deselect EEPROM)
+0391   0008           01561                         return
+                      01562 
+                      01563 ;-------------------------------------------------------------------------------------------------------
+                            --------------------------
+                      01564 
+                      01565 
+0392   3005           01566 long_pause      movlw 5                                                                                 
+                                    ; approx 0.25 seconds (20MHz clock)
+0393   00A2           01567                         movwf temp3
+0394   2398           01568 lp_loop         call short_pause
+0395   0BA2           01569                         decfsz temp3,f
+0396   2B94           01570                         goto lp_loop
+0397   0008           01571                         return
+                      01572 
+                      01573 
+0398   01A1           01574 short_pause     clrf temp2                                                                              
+                                    ; approx 0.052 seconds (20MHz clock)                                                    
+0399   01A0           01575                         clrf temp1                                                                      
+039A   0000           01576 swlp1           nop
+039B   0FA0           01577                         incfsz temp1,f                  
+039C   2B9A           01578                         goto swlp1                      
+039D   0FA1           01579                         incfsz temp2,f                  
+039E   2B9A           01580                         goto swlp1
+039F   0008           01581                         return
+                      01582 
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 38
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01583 
+03A0                  01584 vshort_pause
+                      01585 
+03A0   01A0           01586                         clrf temp1                                                                      
+                                            ; approx 200 microseconds (20MHz Clock)
+03A1   0000           01587 vsh_pause       nop
+03A2   0BA0           01588                         decfsz temp1,f
+03A3   2BA1           01589                         goto vsh_pause
+03A4   0008           01590                         return
+                      01591 
+                      01592 
+03A5   3005           01593 pause_1ms       movlw 5
+03A6   00A1           01594                         movwf temp2                                                                     
+                                            ; approx 1 millisecond (20MHz clock)                                            
+03A7   01A0           01595                         clrf temp1                                                                      
+03A8   0000           01596 msplp1          nop
+03A9   0FA0           01597                         incfsz temp1,f                  
+03AA   2BA8           01598                         goto msplp1                     
+03AB   0BA1           01599                         decfsz temp2,f                  
+03AC   2BA8           01600                         goto msplp1
+03AD   0008           01601                         return
+                      01602 
+                      01603 
+03AE                  01604 short_pause_esc_if_done
+                      01605 
+03AE   30A0           01606                         movlw 160
+03AF   00A1           01607                         movwf temp2                                                                     
+                                            ; approx 0.05 seconds (20MHz clock)                                             
+03B0   01A0           01608                         clrf temp1                                                                      
+                                            ; quits immediately if done is high
+03B1   1A05           01609 shpeidlp        btfsc PORTA,fpga_done
+03B2   0008           01610                         return
+03B3   0FA0           01611                         incfsz temp1,f                  
+03B4   2BB1           01612                         goto shpeidlp                   
+03B5   0BA1           01613                         decfsz temp2,f                  
+03B6   2BB1           01614                         goto shpeidlp
+03B7   0008           01615                         return
+                      01616 
+                      01617 
+                      01618 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01619 
+03B8                  01620 wait_button_release
+                      01621 
+03B8   01A2           01622                         clrf temp3                                                                      
+                                            ;button must be released for ~0.25 seconds for loop exit
+03B9   23A5           01623 butrelcnt       call pause_1ms                                                                  
+03BA   1D86           01624                         btfss PORTB,button                                                              
+                                    
+03BB   2BB8           01625                         goto wait_button_release                
+03BC   0FA2           01626                         incfsz temp3,f
+03BD   2BB9           01627                         goto butrelcnt
+03BE   0008           01628                         return
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 39
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01629 
+                      01630 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01631 
+03BF                  01632 reset_pulse
+                      01633 
+03BF   3080           01634                         movlw portb_default-(1<<reset_out)                                      ; pulse 
+                            reset line low
+03C0   0086           01635                         movwf PORTB
+03C1   2398           01636                         call short_pause
+03C2   3090           01637                         movlw portb_default
+03C3   0086           01638                         movwf PORTB
+03C4   0008           01639                         return
+                      01640 
+                      01641 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01642 
+03C5                  01643 send_eeprom_byte_to_fpga
+                      01644 
+03C5   3008           01645                         movlw 8                                                                         
+                                                            ; Clock out the byte from the EEPROM                            
+03C6   00A0           01646                         movwf temp1                                                                     
+                                            
+03C7   30B4           01647 sebbit_lp       movlw portb_default+(1<<comms_clock_out)+(1<<green_led)         ; set com clock hi = FPG
+                            A latches data bit
+03C8   0086           01648                         movwf PORTB
+03C9   3090           01649                         movlw portb_default                                                             
+                                                    ; return clock low
+03CA   0086           01650                         movwf PORTB
+03CB   3002           01651                         movlw (1<<eeprom_clock)                                                         
+                                            ; set EEPROM clock high
+03CC   0085           01652                         movwf PORTA                                                                     
+                                                            
+03CD   0185           01653                         clrf PORTA                                                                      
+                                                            ; set EEPROM clock low = EEPROM shifts out a new bit            
+03CE   0BA0           01654                         decfsz temp1,f
+03CF   2BC7           01655                         goto sebbit_lp
+03D0   0008           01656                         return
+                      01657 
+                      01658 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01659 
+03D1                  01660 send_w_to_fpga
+                      01661 
+03D1   00BA           01662                         movwf byte_to_send                                                              
+                                    ; Sends byte in W from PIC to FPGA
+03D2   238F           01663                         call deselect_eeprom                                                            
+                            ; ensure eeprom's D_OUT pin is hi-impedence to avoid clash
+                      01664 
+03D3   1683 1303      01665                         banksel TRISA
+03D5   300A           01666                         movlw b'00001010'                                                               
+                                    ; temp change data direction for port B bit 0 to output 
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 40
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+03D6   0086           01667                         movwf TRISB
+03D7   1283 1303      01668                         banksel PORTA
+                      01669 
+03D9   3008           01670                         movlw 8
+03DA   00A3           01671                         movwf bitcount
+03DB   3090           01672 psb_bloop       movlw portb_default                                                                     
+03DC   1BBA           01673                         btfsc byte_to_send,7
+03DD   3801           01674                         iorlw (1<<eeprom_data_out)
+03DE   0086           01675                         movwf PORTB                                                                     
+                                            ; present data bit 
+03DF   3804           01676                         iorlw (1<<comms_clock_out)
+03E0   0086           01677                         movwf PORTB                                                                     
+                                            ; clock high
+03E1   3A04           01678                         xorlw (1<<comms_clock_out)
+03E2   0086           01679                         movwf PORTB                                                                     
+                                            ; clock low
+03E3   0DBA           01680                         rlf byte_to_send,f
+03E4   0BA3           01681                         decfsz bitcount,f
+03E5   2BDB           01682                         goto psb_bloop
+                      01683 
+03E6   1683 1303      01684                         banksel TRISA
+03E8   300B           01685                         movlw b'00001011'                                                               
+                                    ; change data direction for port B bit 0 back to input 
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+03E9   0086           01686                         movwf TRISB
+03EA   1283 1303      01687                         banksel PORTA
+                      01688 
+03EC   3090           01689                         movlw portb_default
+03ED   0086           01690                         movwf PORTB
+03EE   0008           01691                         return
+                      01692 
+                      01693 ;-------------------------------------------------------------------------------------------------------
+                            -----------------------
+                      01694 
+03EF                  01695 send_ok_ack
+                      01696 
+03EF   3000           01697                         movlw 0x00
+03F0   23D1           01698                         call send_w_to_fpga
+03F1   0008           01699                         return
+                      01700 
+                      01701 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01702 ;------ EEPROM DATA ------------------------------------------------------------------------------------
+                            ----------------------
+                      01703 ;-------------------------------------------------------------------------------------------------------
+                            ----------------------
+                      01704 
+                      01705 
+2100                  01706                         ORG 0x2100
+                      01707 
+2100   0000 0000 0000 01708             DE 0x00,0x00,0x00                                                                   ; defaul
+                            t FPGA config base address low,mid,high
+                      01709                                                                                                         
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 41
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                                    ; 0x00000 ("slot 0")
+                      01710 
+                      01711 ;*******************************************************************************************************
+                            **********************
+                      01712 
+                      01713                         END                                                                         ; di
+                            rective 'end of program'
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ADEN                              00000003
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CIS                               00000003
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             0000001F
+CMIE                              00000006
+CMIF                              00000006
+CREN                              00000004
+CSRC                              00000007
+DC                                00000001
+EEADR                             0000009B
+EECON1                            0000009C
+EECON2                            0000009D
+EEDATA                            0000009A
+EEIE                              00000007
+EEIF                              00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GIE                               00000007
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+NOT_BO                            00000000
+NOT_BOD                           00000000
+NOT_BOR                           00000000
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+OERR                              00000001
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+OPTION_REG                        00000081
+OSCF                              00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PIE1                              0000008C
+PIR1                              0000000C
+PORTA                             00000005
+PORTB                             00000006
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RBIE                              00000003
+RBIF                              00000000
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+RP0                               00000005
+RP1                               00000006
+RX9                               00000006
+RX9D                              00000000
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRMT                              00000001
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+VR0                               00000000
+VR1                               00000001
+VR2                               00000002
+VR3                               00000003
+VRCON                             0000009F
+VREN                              00000007
+VROE                              00000006
+VRR                               00000005
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_BOREN_OFF                        00003FBF
+_BOREN_ON                         00003FFF
+_CP_OFF                           00003FFF
+_CP_ON                            00001FFF
+_DATA_CP_OFF                      00003FFF
+_DATA_CP_ON                       00003EFF
+_ER_OSC_CLKOUT                    00003FFF
+_ER_OSC_NOCLKOUT                  00003FFE
+_EXTCLK_OSC                       00003FEF
+_HS_OSC                           00003FEE
+_INTOSC_OSC_CLKOUT                00003FFD
+_INTOSC_OSC_NOCLKOUT              00003FFC
+_INTRC_OSC_CLKOUT                 00003FFD
+_INTRC_OSC_NOCLKOUT               00003FFC
+_LP_OSC                           00003FEC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_MCLRE_OFF                        00003FDF
+_MCLRE_ON                         00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC_CLKOUT                    00003FFF
+_RC_OSC_NOCLKOUT                  00003FFE
+_WDT_OFF                          00003FFB
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FED
+__16F627A                         00000001
+allow_program                     00000034
+allow_programming                 0000038A
+bad_command                       000002A6
+bitcount                          00000023
+buffer_count                      00000036
+busyw_end                         000002EC
+butrelcnt                         000003B9
+button                            00000003
+byte_to_send                      0000003A
+bytecount_h                       00000024
+bytecount_l                       00000026
+bytecount_m                       00000025
+cant_program                      000002AB
+cap_loop                          0000031A
+check_jtag                        00000031
+chk_done                          00000037
+chkjtag2                          00000044
+clock_out_value                   0000003F
+comms_clock_in                    00000005
+comms_clock_out                   00000002
+config_base_high                  00000029
+config_base_low                   00000027
+config_base_med                   00000028
+configure_fpga                    0000002A
+configure_fpga_test               0000010F
+configured_from_slot              00000074
+databurst_address                 00000000
+databurst_base_high               0000002F
+databurst_base_low                0000002D
+databurst_base_med                0000002E
+databurst_len_high                00000032
+databurst_len_low                 00000030
+databurst_len_med                 00000031
+databurst_length                  00000800
+db_timeout                        000001FA
+deselect_eeprom                   0000038F
+disallow_programming              00000388
+done_low                          0000003E
+eeprom_address_high               0000002C
+eeprom_address_low                0000002A
+eeprom_address_med                0000002B
+eeprom_clock                      00000001
+eeprom_cs                         00000002
+eeprom_data_in                    00000000
+eeprom_data_out                   00000000
+eeprom_id                         00000073
+eeprom_size                       00000071
+eeprom_type                       00000075
+erase_eeprom_block                00000210
+exit_programming_mode             0000020D
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+firmware_vers                     00000026
+flash_count                       00000037
+flash_leds                        000002B5
+flashloop                         000002B6
+fpga_cclk                         00000003
+fpga_config_length                0001FF88
+fpga_done                         00000004
+fpga_done_hi                      000000AA
+fpga_init                         00000001
+fpga_program                      00000007
+gbfe_loop                         000002F1
+gbff_clk_hi                       00000341
+gbff_clk_lo                       00000355
+get_byte_from_eeprom              000002EE
+get_byte_from_fpga                0000032D
+get_eeprom_address                00000320
+go_configure                      00000073
+green_led                         00000005
+id_done                           0000031E
+init_code                         00000005
+led_flash_accum                   0000003E
+long_pause                        00000392
+lp_loop                           00000394
+main_start                        00000013
+make_slot_permanent               00000176
+mset_slot                         00000048
+msplp1                            000003A8
+next_byte                         000001E2
+next_fcbit                        00000331
+no_gap                            00000058
+no_reset                          000000BD
+not_25vf                          00000315
+packet_size                       0000003D
+pause_1ms                         000003A5
+pic_eeprom_addr                   00000070
+pic_eeprom_read                   00000380
+pic_eeprom_write                  0000036F
+porta_default                     00000004
+portb_default                     00000090
+protection_bits                   0000003B
+psb_bloop                         000003DB
+read_eeprom_id                    000002FF
+read_loop                         00000088
+read_status_register              00000120
+readb_loop                        00000233
+ready_flip                        0000003C
+received_byte                     00000033
+red_led                           00000006
+report_boot_slot                  0000015B
+report_chip_id                    0000014F
+report_configured_from_slot       00000162
+report_eeprom_capacity            00000153
+report_eeprom_type                00000157
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+report_firmware_vers              0000014B
+reset_out                         00000004
+reset_pulse                       000003BF
+return_programming_permission     0000011C
+rom_read_lp                       000001C5
+rombit_lp                         000001E4
+s2_ledfl                          0000004D
+salvo                             00000072
+sb_loop                           00000363
+sebbit_lp                         000003C7
+select_eeprom                     0000038C
+send_byte_to_eeprom               00000360
+send_databurst_to_fpga            000001AB
+send_eeprom_address               00000359
+send_eeprom_byte_to_fpga          000003C5
+send_ok_ack                       000003EF
+send_w_to_fpga                    000003D1
+set_config_slot                   00000165
+set_databurst_length              0000019D
+set_databurst_start_address       0000018F
+set_programming_mode              000001FE
+set_protection_bits               0000012A
+set_slot                          00000067
+short_pause                       00000398
+short_pause_esc_if_done           000003AE
+shpeidlp                          000003B1
+skipifborrow                      btfsc STATUS,C
+skipifcarry                       btfss STATUS,C
+skipifnotborrow                   btfss STATUS,C
+skipifnotcarry                    btfsc STATUS,C
+skipifnotzero                     btfsc STATUS,Z
+skipifzero                        btfss STATUS,Z
+slot_cycle                        00000038
+slot_loop                         00000049
+spi_erase_cmd                     000000D8
+spi_id_cmd                        000000AB
+spi_read_cmd                      00000003
+spi_read_status_cmd               00000005
+spi_write_en_cmd                  00000006
+spi_write_page_cmd                00000002
+spi_write_sr_cmd                  00000001
+sst_aai_write_cmd                 000000AD
+sst_wrdi_cmd                      00000004
+sst_write_bytes                   0000025C
+sst_write_enable                  0000028C
+sst_write_protect                 00000299
+sstwr_loop                        00000273
+swlp1                             0000039A
+sysrescnt                         000000B3
+temp1                             00000020
+temp2                             00000021
+temp3                             00000022
+temp4                             00000039
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 48
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+time_out                          00000035
+vsh_pause                         000003A1
+vshort_pause                      000003A0
+wait_bffch                        00000339
+wait_bffcl                        0000034D
+wait_but                          0000005C
+wait_button_release               000003B8
+wait_cmd_lp                       000000B2
+wait_command                      000000AE
+wait_eeprom_busy                  000002D3
+wait_eeprom_wel                   000002BF
+wait_epwr                         0000037A
+wait_init_1                       00000077
+wait_jtag                         00000034
+waitdatalo                        000001D5
+wdbhi                             000001CC
+wdbilo                            000001D9
+wel_high                          000002D1
+wel_loop                          000002C7
+wip_loop                          000002DE
+wip_low                           000002E9
+wip_pdelay                        000002D5
+write_bytes_to_eeprom             0000022C
+write_timed_out                   000002B0
+writeb_loop                       00000251
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : X---XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+01C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0200 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0240 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0280 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+02C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0300 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0340 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0380 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+03C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XX--------------
+2000 : -------X-------- ---------------- ---------------- ----------------
+MPASM  5.31                EZ80P_627A_V26.ASM   5-6-2011  12:01:51         PAGE 49
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+2100 : XXX------------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:  1007
+Program Memory Words Free:    17
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    15 reported,     0 suppressed
+
+
