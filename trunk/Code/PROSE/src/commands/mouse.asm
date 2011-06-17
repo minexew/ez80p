@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------------------------------
-; "Mouse" = Reset / Enable Mouse Driver v0.04 - ADL mode
+; "Mouse" = Reset / Enable Mouse Driver v0.05 - ADL mode
 ;-----------------------------------------------------------------------------------------------
 
 window_width_pixels		equ 640
@@ -11,17 +11,13 @@ default_scaling			equ 0e6h		; valid commands 0e6h (1:1) / 0e7h (2:1)
 
 os_cmd_mouse
 
-				ld a,default_sample_rate
-				ld (mouse_sample_rate),a
-				ld a,default_resolution
-				ld (mouse_resolution),a
-				ld a,default_scaling
-				ld (mouse_scaling),a
+		
+				call disable_ms_irq
 
 				ld hl,devices_connected
 				res 1,(hl)
 		
-				call reset_mouse
+				call init_mouse
 				ret nz
 			
 				xor a

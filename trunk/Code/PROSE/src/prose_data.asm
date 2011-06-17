@@ -483,6 +483,7 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 							db 066h,067h,068h,0							;$2f Out of range
 							db 0bdh,01ah,0								;$30 Unsupported device
 							db 01ah,062h,0b3h,0							;$31 Device not detected
+							db 01ah,07ch,0								;$32 Device error
 							
 							db 0ffh										;END MARKER
 
@@ -490,7 +491,7 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 
 kernal_error_code_translation
 
-					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h		; begins at $80
+					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h		; begins at $80
 					
 fs_error_code_translation
 
@@ -570,6 +571,17 @@ serial_transfer_started	db 0
 
 anim_wait_count			db 0
 
+;==================================================================================
+
+intellimouse_seq	db 0f3h,200
+					db 0f3h,100
+					db 0f3h,80
+
+mouse_settings_seq	db 0e8h,default_resolution
+					db default_scaling
+					db 0f3h,default_sample_rate
+					db 0f4h
+					
 ;----------------------------------------------------------------------------------
 ; FILE SYSTEM RELATED VARIABLES
 ;----------------------------------------------------------------------------------
@@ -782,10 +794,6 @@ mouse_disp_y_old		dw24 0
 mouse_disp_x_buffer		dw24 0
 mouse_disp_y_buffer		dw24 0
 mouse_new_window		db 0
-
-mouse_sample_rate		db 0
-mouse_resolution		db 0
-mouse_scaling			db 0
 
 ;======================================================================================
 last_os_var				db 0 
