@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 26h
+prose_version	equ 29h
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -91,8 +91,8 @@ os_cold_start
 				ld a,(first_run)						; reset keyboard first time PROSE loads
 				or a
 				jr z,dont_resetkb
-				call reset_keyboard
-				jr nc,kb_ok
+				call init_keyboard
+				jr z,kb_ok
 				ld hl,devices_connected
 				res 0,(hl)
 kb_ok			xor a
@@ -1645,7 +1645,7 @@ os_set_mouse_window
 			
 os_get_mouse_motion
 			
-; Returns: ZF = Set: Relative X coord in HL, Relative y coord in DE, buttons in A
+; Returns: ZF = Set: Relative X coord in HL, Relative y coord in DE, buttons in A, Wheel in B
 ;          ZF = Not set: Mouse driver not initialized.
 			
 				ld a,(devices_connected)
@@ -1660,13 +1660,15 @@ ms_reread		xor a
 				or a
 				jr nz,ms_reread
 mouse_end		xor a
+				ld a,(mouse_wheel)
+				ld b,a
 				ld a,(mouse_buttons)
 				ret
 			
 			
 os_get_mouse_position
 
-; Returns: ZF = Set: Abolute X coord in HL, Absolute Y coord in DE, buttons in A
+; Returns: ZF = Set: Abolute X coord in HL, Absolute Y coord in DE, buttons in A, Wheel in B
 ;          ZF = Not set: Mouse driver not initialized.
 				
 				call os_get_mouse_motion
@@ -1731,8 +1733,7 @@ ms_nmw			ld hl,(mouse_disp_x_buffer)
 				
 				xor a
 				ld (mouse_new_window),a
-				ld a,(mouse_buttons)
-				ret
+				jp mouse_end
 				
 	
 ;====================================================================================================

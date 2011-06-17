@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSE\Release
+WORKDIR = E:\My_Own_Files\Coding\ez80p\Code\PROSE\Release
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSE;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"E:\MY_OWN~1\Coding\ez80p\Code\PROSE;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -NOdebug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\prose_Release.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSE\Release
+OUTDIR = E:\My_Own_Files\Coding\ez80p\Code\PROSE\Release
 
 build: prose
 
@@ -68,6 +68,6 @@ prose: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\prose_main.obj :  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSE\src\prose_main.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSE\src\prose_main.asm
+            E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSE\src\prose_main.asm
 

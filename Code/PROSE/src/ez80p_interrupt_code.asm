@@ -13,9 +13,6 @@ set_irq_vector
 				ret
 
 
-disable_irqs	ld a,00111111b
-				out0 (port_irq_ctrl),a					;disable all IRQs (except NMI)
-				ret
 
 enable_os_irqs	ld hl,devices_connected					;enable the IRQ sources of the devices connected
 				bit 0,(hl)
@@ -23,7 +20,8 @@ enable_os_irqs	ld hl,devices_connected					;enable the IRQ sources of the device
 				bit 1,(hl)
 				call nz,enable_ms_irq
 				ret
-				
+
+
 enable_kb_irq	ld a,10000001b
 				out0 (port_irq_ctrl),a					;enable keyboard IRQ (leave other IRQs intact)
 				ret
@@ -32,6 +30,14 @@ enable_ms_irq	ld a,10000010b
 				out0 (port_irq_ctrl),a					;enable mouse IRQ (leave others IRQs intact)
 				ret
 
+disable_ms_irq	ld a,00000010b
+				out0 (port_irq_ctrl),a					;disable mouse IRQ (leave others IRQs intact)
+				ret
+
+disable_irqs	ld a,00111111b
+				out0 (port_irq_ctrl),a					;disable all IRQs (except NMI)
+				ret
+			
 ;----------------------------------------------------------------------------------------------
 
 
@@ -202,7 +208,7 @@ ms_loop			ld de,0
 				ld (hl),a
 								
 				ld hl,mouse_packet_size
-				inc e							; was this the last byte of packet?
+				inc e							; was this the last byte of the mouse packet?
 				ld a,e
 				cp (hl)
 				jr nz,msubpkt
@@ -233,7 +239,9 @@ mysignpos		ld a,(mouse_packet+2)
 				sbc hl,de
 				ld (mouse_disp_y),hl
 				
-				ld a,(mouse_packet+3)			; scroll wheel data for 4-byte packet mice (where available)
+				ld hl,mouse_packet+3			; scroll wheel data for 4-byte packet mice (where available)
+				ld a,(mouse_wheel)
+				add a,(hl)
 				ld (mouse_wheel),a
 				
 				ld a,1

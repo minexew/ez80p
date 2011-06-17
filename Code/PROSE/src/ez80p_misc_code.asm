@@ -143,107 +143,134 @@ hwsc_write_rtc
 
 
 ;----------------------------------------------------------------------------------------------
-; RESET KEYBOARD ROUTINE 
+; INIT KEYBOARD ROUTINE 
 ;----------------------------------------------------------------------------------------------
 
-reset_keyboard
+; ZF set and A = 0 if all OK, else error code in A
 
-; If on return carry flag is set, keyboard init failed
+init_keyboard
 
-			ld a,0001b						; pull clock line low
+			ld de,16384								; wait for any scancodes to cease
+			call hwsc_time_delay
+			di
+			call purge_keyboard
+			call rs_keyboard
+			ei
+			ret nc
+			ld a,08bh								; "device error" 
+			or a
+			ret
+			
+			
+rs_keyboard
+
+			ld a,0ffh
+			call write_to_keyboard
+			jr nc,kb_connected
+			ld a,08ah							;no keyboard ("device not detected") error
+			or a
+			ret
+
+kb_connected
+			
+			ld b,5
+kb_initlp	push bc
+			call wait_kb_byte					;wait for response $AA = Self test complete
+			pop bc
+			ret c
+			cp 0aah
+			jr z,kb_postok
+			djnz kb_initlp						
+			scf									;force "device error" if no POST OK returned
+			ret
+			
+			
+kb_postok	xor a
+			ret
+	
+	
+;-----------------------------------------------------------------------------------------------
+				
+write_to_keyboard
+
+; Put byte to send to keyboard in A
+
+			ld c,a								; copy output byte to c
+			ld a,01b							; pull clock line low
 			out0 (port_ps2_ctrl),a
 
-			ld de,8							; wait 250 microseconds
-			call hwsc_time_delay
-						
-			ld a,0011b
-			out0 (port_ps2_ctrl),a			; pull data line low 
-			ld a,0010b
-			out0 (port_ps2_ctrl),a			; release clock line
+			ld de,10
+			call hwsc_time_delay				; wait at least 100 microseconds
 
-			ld l,9							; 8 data bits + 1 parity bit	
-kb_byte		call wait_kb_clk_low	
+			ld a,11b
+			out0 (port_ps2_ctrl),a				; pull data line low also
+			
+			ld a,10b
+			out0 (port_ps2_ctrl),a				; release clock line
+			
+			call wait_kb_clk_high
+			
+			ld d,1								; initial parity count
+			ld b,8								; loop for 8 bits of data
+kdoloop		call wait_kb_clk_low	
 			ret c
 			xor a
-			out0 (port_ps2_ctrl),a			; KB data line = 1 (command = $FF)
+			set 1,a
+			bit 0,c
+			jr z,kdbzero
+			res 1,a
+			inc d
+kdbzero		out0 (port_ps2_ctrl),a				; set data line according to output byte
 			call wait_kb_clk_high
 			ret c
-			dec l
-			jr nz,kb_byte
+			rr c
+			djnz kdoloop
 
-			call wait_kb_clk_low			; wait for keyboard to pull clock low (ack)	
+			call wait_kb_clk_low
 			ret c
-			call wait_kb_data_low			; wait for keyboard to pull data low (ack)
-			ret c
-			call wait_kb_clk_high			; wait for keyboard to release data and clock
-			ret c
-			call wait_kb_data_high
-			ret c
-
 			xor a
+			bit 0,d
+			jr nz,kparone
+			set 1,a
+kparone		out0 (port_ps2_ctrl),a				; set data line according to parity of byte
+			call wait_kb_clk_high
+			ret c
+			
+			call wait_kb_clk_low
+			ret c
+			xor a
+			out0 (port_ps2_ctrl),a				; release data line
+
+			call wait_kb_data_low				; wait for mouse to pull data low (ack)
+			ret c
+			call wait_kb_clk_low				; wait for mouse to pull clock low
+			ret c
+				
+			call wait_kb_data_high				; wait for mouse to release data
+			ret c
+			call wait_kb_clk_high				; wait for mouse to release clock
+			ret 
+
+
+;-----------------------------------------------------------------------------------------------
+
+
+wait_kb_byte
+
+			ld de,8000h
+			call set_timeout					; Allow 1 second for kb response
+
+wait_kloop	in0 a,(port_ps2_ctrl)
+			bit 4,a
+			jr nz,rec_kbyte
+			
+			call test_timeout
+			jr z,wait_kloop
+			scf									; carry flag set = timed out
 			ret
 			
-
-
-wait_kb_clk_low
-
-			ld a,1
-			jr ps2_test_lo
-
-wait_kb_data_low
-		
-			ld a,2
-
-ps2_test_lo	push bc
-			push de
-			ld c,a
-			ld de,04000h					; allow 0.5 seconds before time out
-			call set_timeout
-kb_lw		ld b,4							; must be steady for a few loops (noise immunity)
-kb_lnlp		call test_timeout				; timer reached zero?
-			jr z,kb_lnto
-			pop de
-			pop bc
-			scf								; carry set = timed out
-			ret
-kb_lnto		in0 a,(port_ps2_ctrl)
-			and c
-			jr nz,kb_lw
-			djnz kb_lnlp		
-			pop de
-			pop bc
-			xor a
-			ret								; carry clear = op was ok
-
-
-wait_kb_clk_high
-
-			ld a,1
-			jr ps2_test_hi
-
-wait_kb_data_high
-		
-			ld a,2
-			
-ps2_test_hi	push bc
-			push de
-			ld c,a
-			ld de,04000h					; allow 0.5 seconds before time out
-			call set_timeout
-kb_hw		ld b,4							; must be steady for a few loops (noise immunity)
-kb_hnlp		call test_timeout				; timer reached zero?
-			jr z,kb_hnto
-			pop de
-			pop bc
-			scf								; carry set = timed out
-			ret
-kb_hnto		in0 a,(port_ps2_ctrl)
-			and c
-			jr z,kb_hw
-			djnz kb_hnlp		
-			pop de
-			pop bc
-			xor a							; carry clear = op was ok
+rec_kbyte	in0 a,(port_keyboard_data)			; get byte sent by mouse
+			or a
 			ret
 
 
@@ -254,36 +281,39 @@ purge_keyboard
 			in0 a,(port_ps2_ctrl)
 			bit 4,a
 			ret z
-			in0 a,(port_keyboard_data)				;read the keyboard port to purge buffer
+			in0 a,(port_keyboard_data)			; read the keyboard port to purge buffer
 			jr purge_keyboard
 
-;-----------------------------------------------------------------------------------------------
 
-reset_mouse
-			
-			call mouse_init
+
+;----------------------------------------------------------------------------------------------
+; INIT MOUSE ROUTINE 
+;----------------------------------------------------------------------------------------------
+
+; ZF set and A = 0 if all OK, else error code in A
+
+init_mouse		
+			di
+			call purge_mouse
+			call rs_mouse
+			ei
 			ret nc
-			ld a,08ah								;device not detected error
+			ld a,08bh								; "device error"
 			or a
 			ret
 
 
-mouse_init			
-
-; Returns with carry flag set if mouse did not initialize
-
-			ld a,00000010b
-			out0 (port_irq_ctrl),a					;disable mouse interrupts
-
-			ld a,3
-			ld (mouse_packet_size),a
-			xor a
-			ld (mouse_id),a
-			
-
+rs_mouse
 			ld a,0ffh								;send "reset" command to mouse
-			call write_to_mouse_absorb_loopback		
-			ret c
+			call write_to_mouse		
+			jr nc,mouse_connected
+			ld a,08ah								;no mouse ("device not detected") error
+			or a
+			ret
+
+
+mouse_connected
+
 			ld b,5
 ms_initlp	push bc
 			call wait_mouse_byte					;wait for response $AA = Self test complete
@@ -299,44 +329,16 @@ ms_postok	call wait_mouse_byte					;response = Mouse ID ($00 if standard mouse)
 			or a
 			jr nz,bad_mouse							;error return if not standard mouse
 			
-			
-			ld a,0f3h								;attempt to activate (Intellimouse) wheel with special sequence
-			call write_to_mouse_absorb_loopback		;send "set sample rate"
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-			ld a,200								;srate = 200
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;should be FA: ACK
+			ld a,3
+			ld (mouse_packet_size),a
+
+			ld hl,intellimouse_seq
+			ld b,6
+			call mouse_sequence
 			ret c
 			
-			ld a,0f3h
-			call write_to_mouse_absorb_loopback		;send "set sample rate"
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-			ld a,100								;srate = 100 
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;should be FA: ACK
-			ret c
-
-			ld a,0f3h
-			call write_to_mouse_absorb_loopback		;send "set sample rate"
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-			ld a,80									;srate = 80 
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;should be FA: ACK
-			ret c
-
 			ld a,0f2h
-			call write_to_mouse_absorb_loopback		;send "get device type"
-			ret c
-			call wait_mouse_byte					;response should be FA: ACK
+			call write_mouse_wait_ack				;send "get device type"
 			ret c
 			call wait_mouse_byte					;response = 03 if intellimouse (scroll wheel mouse)
 			ret c
@@ -349,54 +351,44 @@ ms_postok	call wait_mouse_byte					;response = Mouse ID ($00 if standard mouse)
 			ld (mouse_packet_size),a
 
 standard_mouse
-
-			ld a,0e8h								;send "set resolution"
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-			ld a,(mouse_resolution)				 
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;should be FA: ACK
-			ret c
-	
-			ld a,(mouse_scaling)					;send "set scaling" - no args, command is e6 or e7
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-				
-			ld a,0f3h								;send "set sample rate"
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
-			ret c
-			ld a,(mouse_sample_rate)				 
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;should be FA: ACK
-			ret c
-
-			ld a,0f4h								;send "enable data reporting" command to mouse
-			call write_to_mouse_absorb_loopback
-			ret c
-			call wait_mouse_byte					;response should be $FA : Ack
+		
+			ld hl,mouse_settings_seq
+			ld b,6
+			call mouse_sequence
 			ret c
 			xor a									;zero flag set, mouse initialized OK
 			ret
+
 
 bad_mouse	ld a,089h								;unsupported device error
 			or a
 			ret
 
 
+mouse_sequence
 
-write_to_mouse_absorb_loopback
+mseqlp		ld a,(hl)
+			push hl
+			push bc
+			call write_mouse_wait_ack
+			pop bc
+			pop hl
+			ret c
+			inc hl
+			djnz mseqlp
+			xor a
+			ret
+
+
+write_mouse_wait_ack
 			
 			call write_to_mouse
 			ret c
-			call wait_mouse_byte					;same byte written is looped back to input buffer
+			call wait_mouse_byte					;response should be 0FAh: ACK
+			ret c
+			cp 0fah									;if response is not ack, set carry flag
+			ret z
+			scf
 			ret
 			
 ;-----------------------------------------------------------------------------------------------
@@ -408,12 +400,17 @@ write_to_mouse
 			ld c,a								; copy output byte to c
 			ld a,0100b							; pull clock line low
 			out0 (port_ps2_ctrl),a
-			ld de,8
-			call hwsc_time_delay				; wait ~100 microseconds
+
+			ld de,10
+			call hwsc_time_delay				; wait at least 100 microseconds
+
 			ld a,1100b
 			out0 (port_ps2_ctrl),a				; pull data line low also
+			
 			ld a,1000b
 			out0 (port_ps2_ctrl),a				; release clock line
+			
+			call wait_mouse_clk_high
 			
 			ld d,1								; initial parity count
 			ld b,8								; loop for 8 bits of data
@@ -476,36 +473,104 @@ wait_mloop	in0 a,(port_ps2_ctrl)
 rec_mbyte	in0 a,(port_mouse_data)				; get byte sent by mouse
 			or a
 			ret
-			
+
 ;-----------------------------------------------------------------------------------------------
+
+purge_mouse
+			
+			in0 a,(port_ps2_ctrl)
+			bit 5,a
+			ret z
+			in0 a,(port_mouse_data)			; read the mouse port to purge buffer
+			jr purge_mouse
+
+
+;-----------------------------------------------------------------------------------------------
+
+
+wait_kb_data_low
+
+			ld a,2
+			jr test_lo_ps2
+			
+wait_kb_clk_low
+
+			ld a,1
+			jr test_lo_ps2			
+
+wait_mouse_data_low
+
+			ld a,8
+			jr test_lo_ps2
 
 wait_mouse_clk_low
 
 			ld a,4
-			jp ps2_test_lo
 
-wait_mouse_data_low
-		
+test_lo_ps2	push bc
+			push de
+			ld c,a
+			ld de,04000h					; allow 0.5 seconds before time out
+			call set_timeout
+
+nkb_lw		call test_timeout				; timer reached zero?
+			jr z,nkb_lnto
+			pop de
+			pop bc
+			scf								; carry set = timed out
+			ret
+nkb_lnto	in0 a,(port_ps2_ctrl)
+			and c
+			jr nz,nkb_lw
+					
+			pop de
+			pop bc
+			xor a
+			ret					
+
+
+
+
+wait_kb_data_high
+
+			ld a,2
+			jr test_hi_ps2
+			
+wait_kb_clk_high
+
+			ld a,1
+			jr test_hi_ps2
+
+
+wait_mouse_data_high
+			
 			ld a,8
-			jp ps2_test_lo	
-
+			jr test_hi_ps2
+			 
 wait_mouse_clk_high
 
 			ld a,4
-			jp ps2_test_hi
 
-wait_mouse_data_high
-		
-			ld a,8
-			jp ps2_test_hi			
-			
+test_hi_ps2	push bc
+			push de
+			ld c,a
+			ld de,04000h					; allow 0.5 seconds before time out
+			call set_timeout
 
-;-----------------------------------------------------------------------------------------------
+nkb_hw		call test_timeout				; timer reached zero?
+			jr z,nkb_hnto
+			pop de
+			pop bc
+			scf								; carry set = timed out
+			ret
+nkb_hnto	in0 a,(port_ps2_ctrl)
+			and c
+			jr z,nkb_hw
+					
+			pop de
+			pop bc
+			xor a							; carry clear = op was ok
+			ret
 
-purge_mouse	in0 a,(port_ps2_ctrl)
-			bit 5,a
-			ret z
-			in0 a,(port_mouse_data)					;read the mouse port to purge buffer
-			jr purge_mouse
 
-;-----------------------------------------------------------------------------------------------
+;=====================================================================================================

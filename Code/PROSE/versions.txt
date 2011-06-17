@@ -34,3 +34,10 @@
       If incompatible mouse is connected, an error is now reported.
 
       Mouse initialization now skips ACK wait, and instead waits for $AA "POST OK" response.
+
+
+027 - Intellimouse Scroll Wheel enabled. Mouse Kernal calls return a counter 0-255 in B,
+      (value is adjusted by mouse delta in 4th byte of Intellimouse packets)
+
+
+029 - Improved keyboard and mouse initialization code: Requires AMOEBA v03
