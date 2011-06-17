@@ -7,5 +7,5 @@
 Previously addressed:
 ---------------------
 
-* Some mice initialize but return bad data packets. (Fixed in PROSE v0.26)
+* Some mice initialize but return bad data packets. (Fixed in PROSE v0.29 / AMOEBA 103)
 
