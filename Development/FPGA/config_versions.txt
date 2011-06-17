@@ -2,6 +2,8 @@
 Release versions of AMOEBA
 ---------------------------
 
+V103 - Updated the PS/2 Keyboard and Mouse Interface logic.
+
 V102 - Swapped Spare_IO1/IO2 pin functions. IO1 is now NMI, IO2 is unused (input)
 
 v101 - First AMOEBA release, same as v91 pre-release
