@@ -1,8 +1,8 @@
-; Mouse test
+; Mouse test v0.02
 ;----------------------------------------------------------------------------------------------
 
 amoeba_version_req	equ	0				; 0 = dont care about HW version
-prose_version_req	equ 0				; 0 = dont care about OS version
+prose_version_req	equ 27h				; 0 = dont care about OS version
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
 
@@ -34,6 +34,7 @@ lp1				ld a,kr_get_mouse_position
 				jr nz,ms_error					; mouse not connected
 
 				ex de,hl
+				push bc
 				push af
 				push hl
 				ld hl,text1
@@ -51,7 +52,11 @@ lp1				ld a,kr_get_mouse_position
 				pop af
 				ld hl,text3
 				call hex_byte_to_ascii
-					
+				pop bc
+				ld a,b
+				ld hl,text5
+				call hex_byte_to_ascii
+				
 					
 				ld a,kr_get_mouse_motion
 				call.lil prose_kernal
@@ -123,8 +128,10 @@ hxdone			ret
 
 mytext		db "Mouse x: $"
 text1		db "xxxx",11,"Mouse y: $"
-text2		db "yyyy",11,"Mouse buttons :$"
-text3		db "bb",11,11
+text2		db "yyyy",11,"Buttons: $"
+text3		db "bb",11
+text4		db "Wheel: $"
+text5		db "ww",11,11
 
 			db "Disp x: $"
 disp1		db "xxxx",11,"Disp y: $"
