@@ -977,7 +977,7 @@ G04 Draw part reg*
 G04 Draw part powmf*
 G04 Draw part powcap200*
 G54D24*
-G01X37480Y-10350D03*
+G01X36500Y-9370D03*
 G54D25*
 G01X37480Y-9370D03*
 G04 Draw part powcap201*
