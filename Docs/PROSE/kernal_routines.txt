@@ -1,4 +1,4 @@
-PROSE KERNAL ROUTINES
+PROSE KERNAL ROUTINES (last updated 27-6-2011)
 ---------------------
 
 General: 
@@ -194,7 +194,7 @@ Output: See error codes
 --------------------
 
 Action: Appends data to an existing file
-Input : HL (location of zero terminated filename), IX (source address of data), xDE (length)
+Input : HL (location of zero terminated filename), xDE (source address of data), xBC (length)
 Output: See error codes
 
 
