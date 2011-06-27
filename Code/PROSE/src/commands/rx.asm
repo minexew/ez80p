@@ -71,8 +71,8 @@ rxtd_blok		call s_holdack
 				jr c,rx_lbr
 				djnz rx_lnb
 
-				ld de,buffer_blocks*256
-				ld ix,buffer_addr
+				ld bc,buffer_blocks*256
+				ld de,buffer_addr
 				ld hl,serial_fileheader
 				call os_write_bytes_to_file
 				jr z,rx_rnblk
@@ -82,8 +82,8 @@ rxwtd_fail		push af
 				ret
 				
 rx_lbr			call s_goodack
-				ld de,(serial_file_length_cache)
-				ld ix,buffer_addr
+				ld bc,(serial_file_length_cache)
+				ld de,buffer_addr
 				ld hl,serial_fileheader
 				call os_write_bytes_to_file
 				ret nz	

@@ -36,8 +36,8 @@ os_cmd_sb
 				ret
 			
 os_sfapp		ld hl,(sb_save_name_addr)				;filename address
-				ld ix,(sb_save_addr)					;address of source data
-				ld de,(sb_save_length)					;xDE = length of save
+				ld de,(sb_save_addr)					;address of source data
+				ld bc,(sb_save_length)					;xDE = length of save
 				call os_write_bytes_to_file
 				ret nz	
 				
