@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 29h
+prose_version	equ 2Ah
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -2019,14 +2019,14 @@ os_create_file	call fs_hl_to_filename
 ext_write_bytes_to_file
 
 				call z,mbase_hl
-				call z,mbase_ix
+				call z,mbase_de
 
 os_write_bytes_to_file
 
 ; Before calling, set..
 
-; xIX   = address to save data from
-; xDE   = number of bytes to save
+; xDE   = address to save data from
+; xBC   = number of bytes to save
 ; xHL   = address of null-terminated ascii name of file the databytes are to be appended to
 
 ; On return:
@@ -2037,9 +2037,9 @@ os_write_bytes_to_file
 
 ; NOTE:
 ; Will return 'file not found' if the file has not been created previously.
-
-				ld (fs_file_transfer_length),de
-				ld (fs_ez80_address),ix	 	
+				
+				ld (fs_file_transfer_length),bc
+				ld (fs_ez80_address),de	 	
 				call fs_hl_to_filename
 				call fs_write_bytes_to_file_command
 				jp c,os_fferr
