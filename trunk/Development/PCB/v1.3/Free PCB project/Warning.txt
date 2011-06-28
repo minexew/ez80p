@@ -1,0 +1,10 @@
+
+The FreePCB project ez80p_v213 is out of date!
+==============================================
+
+The SD card connector was changed (to ALPS brand) and other small
+modifications made but the project file was lost (thank you Tortoise SVN!)
+
+The Gerber files in the subdir ARE up to date for PCB revision v1.3
+
+
