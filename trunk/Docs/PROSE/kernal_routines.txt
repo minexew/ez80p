@@ -545,24 +545,24 @@ Output: B (x char coord), C (y char coord)
 33 - "kr_set_envar"			
 -------------------
 
-Input :  NOT IMPLEMENTED YET
-Output:  NOT IMPLEMENTED YET 
+Input :  HL = variable name pointer, DE = variable data string
+Output:  ZF set if OK
 
 
 
 34 - "kr_get_envar"			
 -------------------
 
-Input :  NOT IMPLEMENTED YET
-Output:  NOT IMPLEMENTED YET
+Input :  HL = variable name pointer
+Output:  ZF set if name found: DE = variable data string
 
 
 
 35 - "kr_delete_envar"			
 ----------------------
 
-Input :  NOT IMPLEMENTED YET
-Output:  NOT IMPLEMENTED YET
+Input :  HL = variable name pointer
+Output:  ZF set if OK
 
 
 

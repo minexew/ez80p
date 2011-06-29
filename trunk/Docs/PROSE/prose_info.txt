@@ -30,7 +30,13 @@ load_location		equ 10000h		; anywhere in system ram ($10000 upwards suggested)
 
 ;----------------------------------------------------------------------------------------------
 
-The Small Stack Pointer for Z80 programs is set to $FFFF by default.
+The Small Stack Pointer for Z80 programs is set to $FFFF by default PROSE starts (and so
+the stack will be at the top of whatever 64KB page is being used for that program) but
+it can be set at will by the user program.
+
+The Large Stack Pointer (for ADL programs) is set the top of the top of system memory when
+PROSE starts.
+
 Remember to set the includes directory in your ZDS II project.
 
 
@@ -40,7 +46,7 @@ Calling PROSE kernal routines:
 
 Load the accumulator with the routine label (see kernal_routines.txt for descriptions)
 and set the other registers as appropriate for the routine in question. Then do an ADL
-mode call to "prose.kernal"
+mode call to "prose_kernal"
 
 EG: To print a line of text:
 
@@ -51,6 +57,14 @@ EG: To print a line of text:
 This applies to both Z80 mode and ADL mode programs. (When a Z80 mode program
 calls the PROSE kernal, registers used as location pointers have their MSB [23:16] 
 set (by the kernal) to the MBASE register).
+
+
+Exiting back to PROSE:
+----------------------
+
+Programs should return to PROSE with the instruction:
+
+JP.LIL prose_return
 
 
 ----------------------------------------------------------------------------------------------
@@ -124,6 +138,7 @@ Misc:
 
 MOUSE				- Enable mouse driver
 EXEC filename			- Run a batch file (note: scripts cannot run other scripts)
+SET varname=string		- Set an environment variable 
 
 -----------------------------------------------------------------------------------------------
 
