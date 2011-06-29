@@ -106,6 +106,7 @@ nmi_freeze_txt			db "Register Dump:"
 crlfx2_txt				db 11,11,0
 rep_char_txt			db "x",0
 to_txt					db " to ",0
+error_txt				db "ERROR",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -315,6 +316,9 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"And"				;bb
 						db 0,"Saving"			;bc
 						db 0,"Unsupported"		;bd
+						db a0h,"SET"			;be
+						db 0,"[var=string]"		;bf
+						db 0,"Envar"			;c0
 						
 						db 0,1					;END MARKER
 
@@ -376,6 +380,7 @@ packed_help1				db 097h,0
 							db 0b0h,05fh,0b1h,0b0h,0a7h,0h						; "MOUSE - enable mouse driver"
 							db 0aeh,09h,05fh,01bh,0afh,0						; "PALETTE a b c - change palette"
 							db 03ah,032h,05fh,01bh,05bh,0						; "PEN [pen paper] change cols"
+							db 0beh,0bfh,05fh,0a4h,0c0h,0						; "SET var=string - set envar" 
 							db 04eh,05fh,010h,030h,031h,0						; "VERS - show OS/HW version"
 							db 0b7h,09h,5fh,01bh,0b8h,0b9h,0					; "VMODE a - change video mode"
 							db 05ch,05fh,010h,05dh,0							; "? - Show commands"		
@@ -401,8 +406,8 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_format							;c
 							dw24 os_cmd_lb								;d
 							dw24 os_cmd_m								;e
-					
 							dw24 os_cmd_remount							;f	
+
 							dw24 os_cmd_r								;10
 							dw24 os_cmd_rd								;11
 							dw24 os_cmd_rn								;12
@@ -410,8 +415,8 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_sb								;14
 							dw24 os_cmd_t								;15
 							dw24 os_cmd_tx								;16	
-					
 							dw24 os_cmd_vers							;17											
+							
 							dw24 os_cmd_md								;18
 							dw24 os_cmd_help							;19
 							dw24 os_cmd_exec							;1a
@@ -420,6 +425,8 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_mouse							;1d
 							dw24 os_cmd_vmode							;1e
 							dw24 os_cmd_font							;1f
+							
+							dw24 os_cmd_set								;20
 							
 								
 packed_msg_list				db 0										;First message marker
@@ -795,12 +802,20 @@ mouse_disp_x_buffer		dw24 0
 mouse_disp_y_buffer		dw24 0
 mouse_new_window		db 0
 
-;======================================================================================
-last_os_var				db 0 
-;=======================================================================================
-
+;---------------------------------------------------------------------------------------
 first_os_var			equ cursor_y
+last_os_var				db 0
+;---------------------------------------------------------------------------------------
 
 ;=======================================================================================
+; Environment variables
+;=======================================================================================
 
+envar_list				db "ERROR=00",0
+first_ext_ev_entry		db 0ffh
+						blkb envar_buffer_size,0
+
+envar_top_loc			dw24 first_ext_ev_entry
+
+;=======================================================================================
 

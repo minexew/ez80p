@@ -268,7 +268,7 @@ nmi_routine
 				
 				ld hl,0
 				add hl,sp
-				ld a,(hl)								; 3 if in ADL mode when NMI occured, 2 for Z80 mode 
+				ld a,(hl)								; will be 3 if was in ADL mode when NMI occured, 2 for Z80 mode 
 				and 1
 				ld (store_adl),a
 				jr nz,adl_freeze

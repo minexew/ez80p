@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2Ah
+prose_version	equ 2bh
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -606,7 +606,13 @@ extcmd_return	push af								; <-FIRST INSTRUCTION UPON RETURN FROM EXTERNAL COM
 skp_strg		pop af
 
 cntuasr			push af
-				call disable_nmi					; prevent NMI button taking any action
+				ld hl,scratch_pad					; update "error" envar on exit of previous program
+				call hexbyte_to_ascii
+				ld (hl),0
+				ld de,scratch_pad
+				ld hl,error_txt
+				call os_set_envar
+				call disable_nmi					; prevent NMI button taking any action				
 				pop af
 extcmderf		jr z,not_errc						; if ZERO FLAG is set, the program completed OK
 				or a
@@ -623,7 +629,7 @@ not_errc		cp 0ffh								; no error but check for a = $ff on return anyway (OS n
 ;---------------------------------------------------------------------------------------------------------------
 
 os_run_command										
-	
+				out0 (port_nmi_ack),a				; ensure NMI F/F is reset for freezer
 				ld (com_start_addr),ix				; temp store start address of executable
 				jp (ix)								; jump to command's code
 
@@ -1455,8 +1461,18 @@ os_print_output_line_skip_zeroes
 
 os_store_CPU_regs
 
+				di								; store_register_values - PC and ADL are stored elsewhere
+
+				inc sp							; Add 3 to SPL because the routine's CALL offset the stack (ADL mode)
+				inc sp
+				inc sp
+				ld (store_spl),sp
+				dec sp							; restore SPL
+				dec sp
+				dec sp
+				
 				push af
-				ld (store_a1),a					; store_register_values - PC and ADL are stored elsewhere
+				ld (store_a1),a					
 				ex af,af'
 				ld (store_a2),a
 				ex af,af'
@@ -1470,7 +1486,7 @@ os_store_CPU_regs
 				exx
 				ld (store_ix),ix
 				ld (store_iy),iy
-				ld (store_spl),sp
+				
 			    ld a,MB
 				ld (store_mbase),a
 								
@@ -1503,6 +1519,7 @@ ifstzero		ld a,b
 				
 				pop bc
 				pop af
+				ei
 				ret
 
 
@@ -2795,10 +2812,27 @@ fsl_done		ld ix,sector_lba0
 				cp a									; set zero flag, no error
 				ret
 				
-	
+;--------------------------------------------------------------------------------------------
+
+
+os_count_chars	push hl									; count chars in HL string, result in BC
+				ld bc,0
+cch_lp			ld a,(hl)
+				or a
+				jr z,cch_end
+				inc hl
+				inc bc
+				jr cch_lp
+cch_end			pop hl
+				ret
+				
 			
 ;--------------------------------------------------------------------------------------------
-; Environment variable code - NOT IMPLEMENTED YET!!
+; Environment variable code V0.01
+;--------------------------------------------------------------------------------------------
+
+envar_buffer_size equ 256
+
 ;--------------------------------------------------------------------------------------------
 
 ext_get_envar
@@ -2807,30 +2841,103 @@ ext_get_envar
 os_get_envar
 
 ;Set: 		HL = name of required variable
-
-;Returns:	HL = address of variable data
-;        	ZF = Not Set: Couldn't find variable
-						
+;Returns:	ZF Set: DE = address of variable's data string
+;        	ZF Not Set: Couldn't find variable
+				
+				ld ix,envar_list-1
+env_fname		call os_count_chars					; count characters at HL to 0, count in BC
+				ld a,b
+				or c
+				jr z,env_bad
+								
+env_cname		lea de,ix+1
+				ld a,(de)
+				cp 0ffh
+				jr z,env_bad
+				push bc
+				ld b,c
+				call os_compare_strings
+				pop bc
+				jr nz,env_nomatch
+				inc bc								; skip the "="
+				ex de,hl
+				add hl,bc
+				ex de,hl							; DE = pointer to value string
 				xor a
-				ret
-			
+				ret			
+				
+env_nomatch		inc ix								; look for following zero byte
+				call check_envar_bounds
+				jr nz,env_bad
+				ld a,(ix)
+				or a
+				jr z,env_cname
+				jr env_nomatch
+
+env_bad			ld a,82h							; ZF not set (and "bad data" error) = Didnt find envar
+				or a
+				ret	
+				
 ;--------------------------------------------------------------------------------------------
 
 ext_set_envar
 
-;HL = addr of variable name (4 bytes max ASCII, zero terminated)
-;DE = addr of data for variable (4 bytes max)
+;HL = addr of variable name (zero terminated)
+;DE = addr of data for variable (zero terminated)
 
 ;Returns:
-
+;ZF = Set: OK
 ;ZF = Not Set: No enough space for new variable
 		
 				call z,mbase_hl
 				call z,mbase_de
 
+os_set_envar	ld a,(hl)							;abort if either args point at zero
+				or a
+				jr z,env_bad
+				ld a,(de)
+				or a
+				jr z,env_bad
+
+				push hl
+				push de
+				call os_delete_envar				;doesn't matter if named envar didnt previously exist
+				pop de
+				pop hl
+				
+				ld ix,(envar_top_loc)				;is there space for new entry?	
+env_enlp		call check_envar_bounds
+				jr nz,env_bad
+				ld a,(hl)							;enter name into list 
+				ld (ix),a
+				or a
+				jr z,env_ndone
+				inc hl
+				inc ix
+				jr env_enlp
+				
+env_ndone		call check_envar_bounds				;enter "=" into list
+				jr nz,env_bad
+				ld (ix),'='
+				inc ix
+
+env_evlp		call check_envar_bounds				;enter value into list
+				jr nz,env_bad
+				ld a,(de)
+				ld (ix),a
+				or a
+				jr z,env_vdone
+				inc de
+				inc ix
+				jr env_evlp
+
+env_vdone		inc ix
+				ld (ix),0ffh
+				ld (envar_top_loc),ix					;note the end-of-list location
 				xor a
 				ret
-		
+
+	
 ;--------------------------------------------------------------------------------------------
 
 ext_delete_envar
@@ -2840,11 +2947,68 @@ ext_delete_envar
 os_delete_envar
 
 ;HL = name of required variable (null terminated string, 4 bytes max)
+;ZF = Set: OK
+;ZF = Not Set: Didnt find named variable
 
+
+				call os_get_envar					;does it even exist?
+				ret nz
+				
+				push de
+				pop hl
+				xor a
+				sbc hl,bc							;hl = location of name in envar list
+				
+env_fnxt		inc de								;find next envar (look for next zero)
+				push de
+				pop ix
+				call check_envar_bounds
+				jr nz,env_bad
+				ld a,(de)
+				or a
+				jr nz,env_fnxt
+
+env_gnxt		inc de								;skip past zero
+				ex de,hl
+env_collp		ld a,(hl)
+				ld (de),a							;put this character at previous envar name (collapse list)
+				cp 0ffh
+				jr z,env_clspd						;if this byte is FF, it's the end of the envar list
+				push hl
+				pop ix
+				call check_envar_bounds
+				jr nz,env_bad
+				inc hl
+				inc de
+				jr env_collp
+
+env_clspd		ld (envar_top_loc),de				;note the end of the envar list
 				xor a
 				ret
 				
+;--------------------------------------------------------------------------------------------
 
+check_envar_bounds
+
+				push bc
+				push hl
+				push ix
+				pop hl
+				ld bc,1+(envar_list+envar_buffer_size)
+				xor a
+				sbc hl,bc
+				jr c,env_bok
+				xor a
+				inc a
+				pop hl
+				pop bc
+				ret
+
+env_bok			xor a
+				pop hl
+				pop bc
+				ret
+						
 ;--------------------------------------------------------------------------------------------
 
 os_get_keymap_location
@@ -2896,9 +3060,9 @@ os_get_font_info
 	include 'commands\mouse.asm'
 	include 'commands\vmode.asm'
 	include 'commands\font.asm'
+	include 'commands\set.asm'
 
 os_cmd_unused	ret		; <- dummy command, should never be called
-
 
 ;-----------------------------------------------------------------------------------------------
 
