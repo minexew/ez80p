@@ -1,0 +1,2343 @@
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   1
+
+
+PC     Object              I  Line    Source 
+                           A     1    ;test sprites with 640x480 256 colour tilemap m
+                           A     2    ;----------------------------------------------
+                           A     3    
+       00000000            A     4    amoeba_version_req	equ	0				; 0 = d
+       00000000            A     5    prose_version_req	equ 0				; 0 = d
+       00000001            A     6    ADL_mode			equ 1				; 0 if 
+       00010000            A     7    load_location		equ 10000h			; anywh
+                           A     8    
+                           B     0    			include	'PROSE_header.asm'
+                           B     1    ;--- EZ80 Internal CPU Ports ------------------
+                           B     2    
+       0000009A            B     3    PB_DR			equ 09ah
+       0000009B            B     4    PB_DDR			equ 09bh
+       0000009C            B     5    PB_ALT1			equ 09ch
+       0000009D            B     6    PB_ALT2			equ 09dh
+                           B     7    
+       0000009E            B     8    PC_DR			equ 09eh
+       0000009F            B     9    PC_DDR			equ 09fh
+       000000A0            B    10    PC_ALT1			equ 0a0h
+       000000A1            B    11    PC_ALT2			equ 0a1h
+                           B    12    
+       000000A2            B    13    PD_DR			equ 0a2h
+       000000A3            B    14    PD_DDR			equ 0a3h
+       000000A4            B    15    PD_ALT1			equ 0a4h
+       000000A5            B    16    PD_ALT2			equ 0a5h
+                           B    17    
+       000000C0            B    18    UART0_RBR		equ 0c0h
+       000000C0            B    19    UART0_THR		equ 0c0h
+       000000C0            B    20    UART0_BRG_L		equ 0c0h
+       000000C1            B    21    UART0_BRG_H		equ 0c1h
+       000000C1            B    22    UART0_IER		equ 0c1h
+       000000C2            B    23    UART0_FCTL		equ 0c2h
+       000000C3            B    24    UART0_LCTL		equ 0c3h
+       000000C4            B    25    UART0_MCTL		equ 0c4h
+       000000C5            B    26    UART0_LSR		equ 0c5h
+                           B    27    
+       000000A8            B    28    CS0_LBR			equ 0a8h			;eZ80 wait 
+       000000A9            B    29    CS0_UBR			equ 0a9h
+       000000AA            B    30    CS0_CTL			equ 0aah			
+       000000AB            B    31    CS1_LBR			equ 0abh			;eZ80 wait 
+       000000AC            B    32    CS1_UBR			equ 0ach
+       000000AD            B    33    CS1_CTL			equ 0adh
+       000000AE            B    34    CS2_LBR			equ 0aeh			;eZ80 wait 
+       000000AF            B    35    CS2_UBR			equ 0afh
+       000000B0            B    36    CS2_CTL			equ 0b0h
+       000000B1            B    37    CS3_LBR			equ 0b1h			;eZ80 wait 
+       000000B2            B    38    CS3_UBR			equ 0b2h
+       000000B3            B    39    CS3_CTL			equ 0b3h
+                           B    40    
+       00000080            B    41    TMR0_CTL		equ 080h			;timer 0 eq
+       00000081            B    42    TMR0_DR_L		equ 081h
+       00000081            B    43    TMR0_RR_L		equ 081h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   2
+
+
+PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+       00000082            B    44    TMR0_DR_H		equ 082h
+       00000082            B    45    TMR0_RR_H		equ 082h
+       00000092            B    46    TMR_ISS			equ 092h
+                           B    47    
+       000000ED            B    48    RTC_CTRL		equ 0edh			;RTC equate
+       000000EC            B    49    RTC_ACTRL		equ 0ech
+       000000E0            B    50    RTC_SEC			equ 0e0h
+       000000E1            B    51    RTC_MIN			equ 0e1h
+       000000E2            B    52    RTC_HRS			equ 0e2h
+       000000E3            B    53    RTC_DOW			equ 0e3h
+       000000E4            B    54    RTC_DOM			equ 0e4h
+       000000E5            B    55    RTC_MON			equ 0e5h
+       000000E6            B    56    RTC_YR			equ 0e6h
+       000000E7            B    57    RTC_CEN			equ 0e7h
+                           B    58    
+                           B    59    ;-- EZ80P Hardware equates --------------------
+                           B    60    
+       00000000            B    61    port_pic_data  			equ 000h
+       00000001            B    62    port_pic_ctrl			equ 001h
+       00000001            B    63    port_hw_flags			equ 001h
+       00000002            B    64    port_sdc_ctrl			equ 002h	; this is a
+       00000002            B    65    port_keyboard_data		equ 002h
+       00000003            B    66    port_sdc_data		 	equ 003h	
+       00000004            B    67    port_memory_paging		equ 004h
+       00000005            B    68    port_irq_ctrl			equ 005h
+       00000006            B    69    port_nmi_ack			equ 006h
+       00000007            B    70    port_ps2_ctrl			equ 007h
+       00000008            B    71    port_selector			equ 008h
+       00000006            B    72    port_mouse_data			equ 006h
+       00000009            B    73    port_clear_flags		equ 009h
+                           B    74    
+       00000000            B    75    sdc_power				equ 0		;(port_sd_c
+       00000001            B    76    sdc_cs					equ 1		;(port_sd_c
+       00000002            B    77    sdc_speed				equ 2 		;(port_sd_c
+                           B    78    
+       00000004            B    79    sdc_serializer_busy		equ 4 		;(port_hw_f
+       00000005            B    80    vrt						equ 5		;(port_hw_f
+                           B    81    
+                           B    82    
+                           B    83    ;-- Memory locations --------------------------
+                           B    84    
+       00800000            B    85    vram_a_addr				equ 0800000h
+       00C00000            B    86    vram_b_addr				equ 0c00000h
+                           B    87    
+                           B    88    ;-- Hardware registers ------------------------
+                           B    89    
+       00FF0000            B    90    hw_palette				equ 0ff0000h
+       00FF0800            B    91    hw_sprite_registers		equ 0ff0800h
+       00FF1000            B    92    hw_video_parameters		equ 0ff1000h
+       00FF1400            B    93    hw_audio_registers		equ 0ff1400h
+       00FF1800            B    94    hw_video_settings		equ 0ff1800h
+                           B    95    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   3
+
+
+PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+       00FF1000            B    96    tilemap_parameters		equ hw_video_parameters
+       00FF1020            B    97    bitmap_parameters		equ hw_video_parameters
+                           B    98    
+       00FF1800            B    99    video_control			equ hw_video_settings+0
+       00FF1801            B   100    sprite_control			equ hw_video_settings+0
+       00FF1802            B   101    bgnd_palette_select		equ hw_video_settings+0
+       00FF1803            B   102    sprite_palette_select	equ hw_video_settings+0
+       00FF1804            B   103    right_border_position	equ hw_video_settings+0
+                           B   104    
+                           B   105    ;----------------------------------------------
+                           B   106    
+       00000A00            B   107    os_start 	equ 0a00h
+                           B   108    
+       00000A14            B   109    prose_return equ os_start+14h
+       00000A20            B   110    prose_kernal equ os_start+20h
+                           B   111    
+                           B   112    ;----------------------------------------------
+                           B   113    ; Kernal Jump Table values for mode PROSE
+                           B   114    ;----------------------------------------------
+                           B   115    		
+       00000000            B   116    kr_mount_volumes				equ 00h	
+       00000001            B   117    kr_get_device_info				equ 01h	
+       00000002            B   118    kr_check_volume_format			equ 02h	
+       00000003            B   119    kr_change_volume				equ 03h	
+       00000004            B   120    kr_get_volume_info				equ 04h	
+       00000005            B   121    kr_format_device				equ 05h	
+       00000006            B   122    kr_make_dir						equ 06h
+                           B   123    
+       00000007            B   124    kr_change_dir					equ 07h	
+       00000008            B   125    kr_parent_dir					equ 08h	
+       00000009            B   126    kr_root_dir						equ 09h
+       0000000A            B   127    kr_delete_dir					equ 0ah
+       0000000B            B   128    kr_find_file					equ 0bh
+       0000000C            B   129    kr_set_file_pointer				equ 0ch
+       0000000D            B   130    kr_set_load_length				equ 0dh
+       0000000E            B   131    kr_read_file					equ 0eh
+                           B   132    
+       0000000F            B   133    kr_erase_file					equ 0fh
+       00000010            B   134    kr_rename_file					equ 10h
+       00000011            B   135    kr_create_file					equ 11h
+       00000012            B   136    kr_write_file					equ 12h
+       00000013            B   137    kr_get_total_sectors			equ 13h
+       00000014            B   138    kr_dir_list_first_entry			equ 14h
+       00000015            B   139    kr_dir_list_get_entry			equ 15h
+       00000016            B   140    kr_dir_list_next_entry			equ 16h
+                           B   141    
+       00000017            B   142    kr_read_sector					equ 17h
+       00000018            B   143    kr_write_sector					equ 18h
+       00000019            B   144    kr_file_sector_list				equ 19h
+       0000001A            B   145    kr_get_dir_cluster				equ 1ah
+       0000001B            B   146    kr_set_dir_cluster				equ 1bh
+       0000001C            B   147    kr_get_dir_name					equ 1ch
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   4
+
+
+PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+       0000001D            B   148    kr_wait_key						equ 1dh
+       0000001E            B   149    kr_get_key						equ 1eh
+                           B   150    
+       0000001F            B   151    kr_get_key_mod_flags			equ 1fh
+       00000020            B   152    kr_serial_receive_header		equ 20h
+       00000021            B   153    kr_serial_receive_file			equ 21h
+       00000022            B   154    kr_serial_send_file				equ 22h
+       00000023            B   155    kr_serial_tx_byte				equ 23h
+       00000024            B   156    kr_serial_rx_byte				equ 24h
+                           B   157    
+       00000025            B   158    kr_print_string					equ 25h
+       00000026            B   159    kr_clear_screen					equ 26h
+       00000027            B   160    kr_wait_vrt						equ 27h
+       00000028            B   161    kr_set_cursor_position			equ 28h
+       00000029            B   162    kr_plot_char					equ 29h
+       0000002A            B   163    kr_set_pen						equ 2ah
+       0000002B            B   164    kr_background_colours			equ 2bh
+       0000002C            B   165    kr_draw_cursor					equ 2ch
+       0000002D            B   166    kr_get_pen						equ 2dh
+       0000002E            B   167    kr_scroll_up					equ 2eh
+       0000002F            B   168    kr_os_display					equ 2fh
+       00000030            B   169    kr_get_display_size				equ 30h
+       00000031            B   170    kr_get_charmap_addr_xy			equ 31h
+       00000032            B   171    kr_get_cursor_position			equ 32h
+                           B   172    
+       00000033            B   173    kr_set_envar					equ 33h
+       00000034            B   174    kr_get_envar					equ 34h
+       00000035            B   175    kr_delete_envar					equ 35h
+                           B   176    
+       00000036            B   177    kr_set_mouse_window				equ 36h
+       00000037            B   178    kr_get_mouse_position			equ 37h
+       00000038            B   179    kr_get_mouse_motion				equ 38h
+                           B   180    
+       00000039            B   181    kr_time_delay					equ 39h
+       0000003A            B   182    kr_compare_strings				equ 3ah
+       0000003B            B   183    kr_hex_byte_to_ascii			equ 3bh
+       0000003C            B   184    kr_ascii_to_hex_word			equ 3ch
+       0000003D            B   185    kr_get_string					equ 3dh
+                           B   186    
+       0000003E            B   187    kr_get_version					equ 3eh
+       0000003F            B   188    kr_dont_store_registers			equ 3fh
+       00000040            B   189    kr_os_video_settings			equ 40h
+       00000041            B   190    kr_read_rtc						equ 41h
+       00000042            B   191    kr_write_rtc					equ 42h
+                           B   192    
+       00000043            B   193    kr_get_keymap_location			equ 43h
+                           B   194    
+                           B   195    ;----------------------------------------------
+                           B   196    ; Standard PROSE executable header
+                           B   197    ;----------------------------------------------
+                           B   198    
+                           B   199    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   5
+
+
+PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+                           B   200    	IF ADL_mode = 0
+                           B   201    		org load_location&0ffffh	; if Z80 mo
+                           B   202    	ELSE
+010000                     B   203    		org load_location			; otherwise
+                           B   204    	ENDIF
+                           B   205    	
+                           B   206    		.assume ADL = 1				; All PROSE
+                           B   207    
+010000 18 0E               B   208    		jr skip_header				; $0 - Jump
+010002 50524F              B   209    		db 'PRO'					; $2 - ASCI
+010005 000001              B   210    mb_loc	dw24 load_location			; $5 - Desi
+010008 000000              B   211    		dw24 0						; $8 - If >
+01000B 0000                B   212    		dw prose_version_req		; $B - If >
+01000D 0000                B   213    		dw amoeba_version_req		; $D - If >
+01000F 01                  B   214    		db ADL_mode					; $F - Z80 
+                           B   215    
+010010                     B   216    skip_header
+                           B   217    	
+                           B   218    	IF ADL_mode = 0 
+                           B   219    		
+                           B   220    mbase_offset equ load_location & 0ff0000h
+                           B   221    
+                           B   222    		ld a,load_location/65536	; Additiona
+                           B   223    		ld MB,a						; Set MBASE
+                           B   224    		jp.sis go_z80_mode			; switches 
+                           B   225    
+                           B   226    go_z80_mode
+                           B   227    
+                           B   228    		.assume ADL = 0
+                           B   229    
+                           B   230    	ENDIF
+                           B   231    	
+                           B   232    ;----------------------------------------------
+                           B   233    	
+                           A    10    
+                           A    11    ;----------------------------------------------
+                           A    12    
+       00000000            A    13    tile_map_addr	  equ 0h						       00000100            A    14    tile_map_width	  equ 256						       00000050            A    15    tile_window_width equ 80						       00000002            A    16    tile_step		  equ 2							                           A    17    
+010010 3E08                A    18    begin_app		ld a,00001000b
+010012 320018FF            A    19    				ld (video_control),a			010016 32 4E 01 01         A    20    				ld (vc_mirror),a
+01001A 3E00                A    21    				ld a,0
+01001C 320218FF            A    22    				ld (bgnd_palette_select),a
+010020 3E62                A    23    				ld a,98
+010022 320418FF            A    24    				ld (right_border_position),a
+                           A    25    
+010026 DD210010 FF         A    26    				ld ix,tilemap_parameters		01002B 21000000            A    27    				ld hl,tile_map_addr
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   6
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\test640x480.asm
+01002F DD2F00              A    28    				ld (ix),hl			   			010032 21020000            A    29    				ld hl,tile_step
+010036 DD2F04              A    30    				ld (ix+04h),hl					010039 2160FF07            A    31    				ld hl,80000h-(tile_window_width
+01003D DD2F08              A    32    				ld (ix+08h),hl					010040 21600100            A    33    				ld hl,tile_step*(tile_map_width
+010044 DD2F0C              A    34    				ld (ix+0ch),hl					010047 DD36104F            A    35    				ld (ix+10h),tile_window_width-1
+01004B 3E00                A    36    				ld a,0
+01004D DD7711              A    37    				ld (ix+11h),a					010050 3E00                A    38    				ld a,0
+010052 DD7712              A    39    				ld (ix+12h),a					                           A    40    						
+010055 21 51 01 01         A    41    				ld hl,tiles						010059 11000084            A    42    				ld de,vram_a_addr+40000h
+01005D 01001000            A    43    				ld bc,8*8*64
+010061 EDB0                A    44    				ldir
+010063 21 51 11 01         A    45    				ld hl,colours					010067 110000FF            A    46    				ld de,hw_palette
+01006B 01000200            A    47    				ld bc,256*2
+01006F EDB0                A    48    				ldir	
+                           A    49    
+010071 FD210000 80         A    50    				ld iy,vram_a_addr				010076 11001000            A    51    				ld de,1000h						01007A 0E08                A    52    				ld c,8
+01007C ED5400              A    53    mtmlp2			lea ix,iy+0
+01007F 0608                A    54    				ld b,8
+010081 DD7300              A    55    mtmlp1			ld (ix),e
+010084 DD7201              A    56    				ld (ix+1),d
+010087 13                  A    57    				inc de
+010088 ED3202              A    58    				lea ix,ix+2
+01008B 10 F4               A    59    				djnz mtmlp1
+01008D D5                  A    60    				push de
+01008E 11000200            A    61    				ld de,tile_map_width*tile_step
+010092 FD19                A    62    				add iy,de
+010094 D1                  A    63    				pop de
+010095 0D                  A    64    				dec c
+010096 20 E4               A    65    				jr nz,mtmlp2
+                           A    66    				
+                           A    67    
+010098 21 51 13 01         A    68    				ld hl,sprites					01009C 110000C0            A    69    				ld de,vram_b_addr
+0100A0 01002400            A    70    				ld bc,96*96
+0100A4 EDB0                A    71    				ldir
+0100A6 21 51 37 01         A    72    				ld hl,spr_colours				0100AA 110002FF            A    73    				ld de,hw_palette+512
+0100AE 01000200            A    74    				ld bc,256*2
+0100B2 EDB0                A    75    				ldir
+0100B4 3E01                A    76    				ld a,1
+0100B6 320118FF            A    77    				ld (sprite_control),a
+0100BA 3E01                A    78    				ld a,1
+0100BC 320318FF            A    79    				ld (sprite_palette_select),a
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   7
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\test640x480.asm
+                           A    80    							
+0100C0 DD210008 FF         A    81    				ld ix,hw_sprite_registers		0100C5 3E06                A    82    				ld a,6
+0100C7 2A 51 39 01         A    83    				ld hl,(xcoord1)
+0100CB ED5B 55 39 01       A    84    				ld de,(def1)
+0100D0 DD7500              A    85    boing1lp		ld (ix),l
+0100D3 DD7401              A    86    				ld (ix+1),h
+0100D6 ED4B 53 39 01       A    87    				ld bc,(ycoord1)
+0100DB DD7102              A    88    				ld (ix+2),c
+0100DE DD7003              A    89    				ld (ix+3),b
+0100E1 ED4B 57 39 01       A    90    				ld bc,(height_ctrl1)
+0100E6 DD7104              A    91    				ld (ix+4),c
+0100E9 DD7005              A    92    				ld (ix+5),b
+0100EC DD7306              A    93    				ld (ix+6),e
+0100EF DD7207              A    94    				ld (ix+7),d
+0100F2 ED3208              A    95    				lea ix,ix+8
+0100F5 01100000            A    96    				ld bc,16
+0100F9 09                  A    97    				add hl,bc
+0100FA 01600000            A    98    				ld bc,96
+0100FE EB                  A    99    				ex de,hl
+0100FF 09                  A   100    				add hl,bc
+010100 EB                  A   101    				ex de,hl
+010101 3D                  A   102    				dec a
+010102 20 CC               A   103    				jr nz,boing1lp
+                           A   104    
+010104 3E1D                A   105    loopit			ld a,kr_wait_key
+010106 5BCD200A 00         A   106    				call.lil prose_kernal
+01010B FE76                A   107    				cp 76h
+01010D 28 39               A   108    				jr z,quit
+                           A   109    				
+01010F 78                  A   110    				ld a,b
+010110 FE79                A   111    				cp 'y'
+010112 20 0D               A   112    				jr nz,noty
+010114 21 50 01 01         A   113    				ld hl,yhws
+010118 34                  A   114    				inc (hl)
+010119 7E                  A   115    				ld a,(hl)
+01011A E607                A   116    				and 7
+01011C 77                  A   117    				ld (hl),a
+01011D 321210FF            A   118    				ld (tilemap_parameters+12h),a
+010121 78                  A   119    noty			ld a,b
+010122 FE78                A   120    				cp 'x'
+010124 20 0D               A   121    				jr nz,notx
+010126 21 4F 01 01         A   122    				ld hl,xhws
+01012A 34                  A   123    				inc (hl)
+01012B 7E                  A   124    				ld a,(hl)
+01012C E607                A   125    				and 7
+01012E 77                  A   126    				ld (hl),a
+01012F 321110FF            A   127    				ld (tilemap_parameters+11h),a
+010133 78                  A   128    notx			ld a,b
+010134 FE77                A   129    				cp 'w'
+010136 20 CC               A   130    				jr nz,loopit
+010138 3A 4E 01 01         A   131    				ld a,(vc_mirror)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   8
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\test640x480.asm
+01013C EE08                A   132    				xor 8
+01013E 32 4E 01 01         A   133    				ld (vc_mirror),a
+010142 320018FF            A   134    				ld (video_control),a
+010146 18 BC               A   135    				jr loopit
+                           A   136    				
+010148 3EFF                A   137    quit			ld a,0ffh
+01014A C3140A00            A   138    				jp prose_return					                           A   139    
+                           A   140    ;----------------------------------------------
+                           A   141    
+01014E 00                  A   142    vc_mirror	db 0
+01014F 00                  A   143    xhws	db 0
+010150 00                  A   144    yhws	db 0
+                           A   145    
+                           B     0    include	'8x8_tiles_data.asm'
+010151                     B     1    tiles:
+010151 3C3C3C3C 3C3C3C3C   B     2                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010159 3C000000 00000000 
+010161 3C000000 00000000   B     3                    db 03Ch,000h,000h,000h,000h,000
+010169 3C000000 00000000 
+010171 3C000000 00000000   B     4                    db 03Ch,000h,000h,000h,000h,000
+010179 3C000000 00000000 
+010181 3C000000 00000000   B     5                    db 03Ch,000h,000h,000h,000h,000
+010189 3C000000 00000000 
+010191 3C3C3C3C 3C3C3C3C   B     6                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010199 00000000 00000000 
+0101A1 00000000 00000000   B     7                    db 000h,000h,000h,000h,000h,000
+0101A9 00000000 00000000 
+0101B1 00000000 00000000   B     8                    db 000h,000h,000h,000h,000h,000
+0101B9 00000000 00000000 
+0101C1 00000000 00000000   B     9                    db 000h,000h,000h,000h,000h,000
+0101C9 00000000 00000000 
+0101D1 3C3C3C3C 3C3C3C3C   B    10                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+0101D9 00000000 00000000 
+0101E1 00000000 00000000   B    11                    db 000h,000h,000h,000h,000h,000
+0101E9 00000000 00000000 
+0101F1 00003B3B 3B3B3B3B   B    12                    db 000h,000h,03Bh,03Bh,03Bh,03B
+0101F9 003B0E1A 2C221A13 
+010201 003B132C 322C221A   B    13                    db 000h,03Bh,013h,02Ch,032h,02C
+010209 3B0E1322 2C25221A 
+010211 3C3C3C3C 3C3C3C3C   B    14                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010219 00000000 00000000 
+010221 00000000 00000000   B    15                    db 000h,000h,000h,000h,000h,000
+010229 00000000 00000000 
+010231 3B3B0000 00000000   B    16                    db 03Bh,03Bh,000h,000h,000h,000
+010239 0E3B3B00 00000000 
+010241 130E3B00 00000000   B    17                    db 013h,00Eh,03Bh,000h,000h,000
+010249 130E3B3B 00000000 
+010251 3C3C3C3C 3C3C3C3C   B    18                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010259 00000000 00000000 
+010261 00000000 00000000   B    19                    db 000h,000h,000h,000h,000h,000
+010269 00000000 00000000 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:   9
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010271 00000000 00000000   B    20                    db 000h,000h,000h,000h,000h,000
+010279 00000000 00000000 
+010281 00000000 00000000   B    21                    db 000h,000h,000h,000h,000h,000
+010289 00000000 00000000 
+010291 3C3C3C3C 3C3C3C3C   B    22                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010299 00000000 00000000 
+0102A1 00000000 00000000   B    23                    db 000h,000h,000h,000h,000h,000
+0102A9 00000000 00000000 
+0102B1 00000000 00000000   B    24                    db 000h,000h,000h,000h,000h,000
+0102B9 00000000 00000000 
+0102C1 00000000 00000000   B    25                    db 000h,000h,000h,000h,000h,000
+0102C9 00000000 0000003B 
+0102D1 3C3C3C3C 3C3C3C3C   B    26                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+0102D9 00000000 00000000 
+0102E1 00000000 00000000   B    27                    db 000h,000h,000h,000h,000h,000
+0102E9 00000000 00000000 
+0102F1 0000003B 3B3B0000   B    28                    db 000h,000h,000h,03Bh,03Bh,03B
+0102F9 003B3B1F 1F153B3B 
+010301 3B1F2828 281F1B15   B    29                    db 03Bh,01Fh,028h,028h,028h,01F
+010309 1F283434 342E1F1B 
+010311 3C3C3C3C 3C3C3C14   B    30                    db 03Ch,03Ch,03Ch,03Ch,03Ch,03C
+010319 00000000 00000014 
+010321 00000000 00000014   B    31                    db 000h,000h,000h,000h,000h,000
+010329 00000000 00000014 
+010331 00000000 00000014   B    32                    db 000h,000h,000h,000h,000h,000
+010339 00000000 00000014 
+010341 3B000000 00000014   B    33                    db 03Bh,000h,000h,000h,000h,000
+010349 153B0000 00000014 
+010351 3C000000 00000000   B    34                    db 03Ch,000h,000h,000h,000h,000
+010359 3C000000 00000000 
+010361 3C000000 00000000   B    35                    db 03Ch,000h,000h,000h,000h,000
+010369 3C000000 00000000 
+010371 3C000000 00000000   B    36                    db 03Ch,000h,000h,000h,000h,000
+010379 3C000000 0000003B 
+010381 3C000000 00003B2A   B    37                    db 03Ch,000h,000h,000h,000h,000
+010389 3C000000 00003B3A 
+010391 0000003B 3B3B0000   B    38                    db 000h,000h,000h,03Bh,03Bh,03B
+010399 00003B0E 133B3B3B 
+0103A1 00003B13 22130E3B   B    39                    db 000h,000h,03Bh,013h,022h,013
+0103A9 0000000B 13221A13 
+0103B1 00000000 3B3B131A   B    40                    db 000h,000h,000h,000h,03Bh,03B
+0103B9 3B3B0000 00003B3B 
+0103C1 3A2A3B00 0000003B   B    41                    db 03Ah,02Ah,03Bh,000h,000h,000
+0103C9 3A3A3B00 00003B10 
+0103D1 3B0E131A 22221A13   B    42                    db 03Bh,00Eh,013h,01Ah,022h,022
+0103D9 3B3B0E13 1A130E0D 
+0103E1 3B3B0E13 1A130E0D   B    43                    db 03Bh,03Bh,00Eh,013h,01Ah,013
+0103E9 3B3B3B3B 3B3B3B3B 
+0103F1 22252C32 3332302C   B    44                    db 022h,025h,02Ch,032h,033h,032
+0103F9 3B3B3B3B 3B3B3B3B 
+010401 10163B3B 3B12183B   B    45                    db 010h,016h,03Bh,03Bh,03Bh,012
+010409 163B2341 2F3B3B2F 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  10
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010411 0E0E0E3B 00003B3B   B    46                    db 00Eh,00Eh,00Eh,03Bh,000h,000
+010419 3B3B3B3B 3B3B3B13 
+010421 3B3B3B3B 3B0E221A   B    47                    db 03Bh,03Bh,03Bh,03Bh,03Bh,00E
+010429 3B07073B 13221A13 
+010431 2C22221A 1A133B3B   B    48                    db 02Ch,022h,022h,01Ah,01Ah,013
+010439 3B3B3B3B 3B3B0000 
+010441 3B3B1610 3B000000   B    49                    db 03Bh,03Bh,016h,010h,03Bh,000
+010449 41233B16 103B0000 
+010451 3B000000 00000000   B    50                    db 03Bh,000h,000h,000h,000h,000
+010459 0E3B0000 00000000 
+010461 133B0000 00000000   B    51                    db 013h,03Bh,000h,000h,000h,000
+010469 0B000000 00000000 
+010471 00000000 00000000   B    52                    db 000h,000h,000h,000h,000h,000
+010479 00003B3B 3B000000 
+010481 003B2A3A 2A3B0000   B    53                    db 000h,03Bh,02Ah,03Ah,02Ah,03B
+010489 003B3A3A 3A3B0000 
+010491 00000000 00003B1F   B    54                    db 000h,000h,000h,000h,000h,000
+010499 00000000 00003B28 
+0104A1 00000000 003B1F34   B    55                    db 000h,000h,000h,000h,000h,03B
+0104A9 00000000 003B2835 
+0104B1 00000000 003B3435   B    56                    db 000h,000h,000h,000h,000h,03B
+0104B9 00000000 3B1F3535 
+0104C1 00000000 3B283535   B    57                    db 000h,000h,000h,000h,03Bh,028
+0104C9 00000000 3B283535 
+0104D1 28343535 35342E1F   B    58                    db 028h,034h,035h,035h,035h,034
+0104D9 37383837 35353428 
+0104E1 383F3F38 3535342E   B    59                    db 038h,03Fh,03Fh,038h,035h,035
+0104E9 383F3F38 3535342E 
+0104F1 37383837 3535342E   B    60                    db 037h,038h,038h,037h,035h,035
+0104F9 35353535 3535342E 
+010501 35353535 3535342E   B    61                    db 035h,035h,035h,035h,035h,035
+010509 35353535 3535342E 
+010511 1B153B00 00000014   B    62                    db 01Bh,015h,03Bh,000h,000h,000
+010519 1F193B00 00000014 
+010521 1F1B153B 00000014   B    63                    db 01Fh,01Bh,015h,03Bh,000h,000
+010529 281F193B 00000014 
+010531 281F1B3B 00000014   B    64                    db 028h,01Fh,01Bh,03Bh,000h,000
+010539 281F1B15 3B000014 
+010541 281F1B19 3B000014   B    65                    db 028h,01Fh,01Bh,019h,03Bh,000
+010549 281F1B19 3B000014 
+010551 3C000000 00003B31   B    66                    db 03Ch,000h,000h,000h,000h,000
+010559 3C000000 00003B31 
+010561 3C000000 003B3B2A   B    67                    db 03Ch,000h,000h,000h,000h,03B
+010569 3C000000 3B182A31 
+010571 3C00003B 18414141   B    68                    db 03Ch,000h,000h,03Bh,018h,041
+010579 3C003B18 41414141 
+010581 3C003B31 41414141   B    69                    db 03Ch,000h,03Bh,031h,041h,041
+010589 3C003B31 41414141 
+010591 41313B00 00003B2A   B    70                    db 041h,031h,03Bh,000h,000h,000
+010599 41313B00 003B1E41 
+0105A1 412A3B00 003B2A41   B    71                    db 041h,02Ah,03Bh,000h,000h,03B
+0105A9 41411E3B 3B3B3141 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  11
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+0105B1 41413A2A 1E3B3141   B    72                    db 041h,041h,03Ah,02Ah,01Eh,03B
+0105B9 41232A41 3A3B3141 
+0105C1 412A1841 413B3141   B    73                    db 041h,02Ah,018h,041h,041h,03B
+0105C9 412A1641 313B3141 
+0105D1 3B23411E 3B23411E   B    74                    db 03Bh,023h,041h,01Eh,03Bh,023
+0105D9 3B2A413B 3B18413B 
+0105E1 3B1E2F3B 3B182F3B   B    75                    db 03Bh,01Eh,02Fh,03Bh,03Bh,018
+0105E9 1E3B1E18 183B1618 
+0105F1 2F1E3B3B 3B2A3A3B   B    76                    db 02Fh,01Eh,03Bh,03Bh,03Bh,02A
+0105F9 41414141 41414141 
+010601 3B1E2A41 41414141   B    77                    db 03Bh,01Eh,02Ah,041h,041h,041
+010609 413B3B3B 3B3B3B3B 
+010611 3B2A183B 183B0000   B    78                    db 03Bh,02Ah,018h,03Bh,018h,03B
+010619 3B23183B 1E103B00 
+010621 3B1C183B 1E163B00   B    79                    db 03Bh,01Ch,018h,03Bh,01Eh,016
+010629 18183B1E 1E183B3B 
+010631 3B3B1E2F 1E183B1E   B    80                    db 03Bh,03Bh,01Eh,02Fh,01Eh,018
+010639 4141412F 18183B3A 
+010641 412A1E3B 1E183B41   B    81                    db 041h,02Ah,01Eh,03Bh,01Eh,018
+010649 3B3B3B2A 1E163B31 
+010651 003B3141 313B0000   B    82                    db 000h,03Bh,031h,041h,031h,03B
+010659 003B3141 313B0000 
+010661 003B2A41 2A3B3B00   B    83                    db 000h,03Bh,02Ah,041h,02Ah,03B
+010669 3B1E4141 312A183B 
+010671 2A3A4141 41414118   B    84                    db 02Ah,03Ah,041h,041h,041h,041
+010679 412A2341 41414141 
+010681 41182A41 41414141   B    85                    db 041h,018h,02Ah,041h,041h,041
+010689 41162A41 41414141 
+010691 00000000 3B283535   B    86                    db 000h,000h,000h,000h,03Bh,028
+010699 00000000 3B283535 
+0106A1 0000003B 3B3B3B3B   B    87                    db 000h,000h,000h,03Bh,03Bh,03B
+0106A9 0000003B 272F3A41 
+0106B1 3B00003B 272F3A41   B    88                    db 03Bh,000h,000h,03Bh,027h,02F
+0106B9 183B0000 3B090211 
+0106C1 313B0000 3B090211   B    89                    db 031h,03Bh,000h,000h,03Bh,009
+0106C9 313B0000 3B273A41 
+0106D1 35353535 3535342E   B    90                    db 035h,035h,035h,035h,035h,035
+0106D9 35353535 3535342E 
+0106E1 3B3B3B3B 3B3B3B3B   B    91                    db 03Bh,03Bh,03Bh,03Bh,03Bh,03B
+0106E9 41414141 3A2F271E 
+0106F1 41414141 3A2F271E   B    92                    db 041h,041h,041h,041h,03Ah,02F
+0106F9 11111111 11110C02 
+010701 11111111 11110C02   B    93                    db 011h,011h,011h,011h,011h,011
+010709 41414141 3A2F271E 
+010711 281F1B19 3B000014   B    94                    db 028h,01Fh,01Bh,019h,03Bh,000
+010719 281F1B19 3B000014 
+010721 3B3B3B3B 3B3B0014   B    95                    db 03Bh,03Bh,03Bh,03Bh,03Bh,03B
+010729 1E1C1C18 123B0014 
+010731 1E1C1C18 123B0014   B    96                    db 01Eh,01Ch,01Ch,018h,012h,03B
+010739 03090801 3B000014 
+010741 03090801 3B000014   B    97                    db 003h,009h,008h,001h,03Bh,000
+010749 1E1C1812 3B000014 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  12
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010751 3C003B31 3A414141   B    98                    db 03Ch,000h,03Bh,031h,03Ah,041
+010759 3C003B2A 3A3A3A3A 
+010761 3C003B18 31313131   B    99                    db 03Ch,000h,03Bh,018h,031h,031
+010769 3C00003B 18232323 
+010771 3C000000 3B3B3B3B   B   100                    db 03Ch,000h,000h,000h,03Bh,03B
+010779 3C000000 00000000 
+010781 3C000000 00000000   B   101                    db 03Ch,000h,000h,000h,000h,000
+010789 3C000000 00000000 
+010791 3A2A1631 2A3B1E31   B   102                    db 03Ah,02Ah,016h,031h,02Ah,03B
+010799 312A162A 183B3B2A 
+0107A1 2A233B18 3B003B1E   B   103                    db 02Ah,023h,03Bh,018h,03Bh,000
+0107A9 23183B3B 0000003B 
+0107B1 3B3B0000 0000003B   B   104                    db 03Bh,03Bh,000h,000h,000h,000
+0107B9 00000000 00000000 
+0107C1 00000000 0000003B   B   105                    db 000h,000h,000h,000h,000h,000
+0107C9 00000000 003B3B3B 
+0107D1 41413B3B 2036203B   B   106                    db 041h,041h,03Bh,03Bh,020h,036
+0107D9 3A414118 3B3B3B3B 
+0107E1 2F3A3A41 4141413A   B   107                    db 02Fh,03Ah,03Ah,041h,041h,041
+0107E9 1E2A2F2F 2F2F2F2F 
+0107F1 16232A2A 2A2A2A23   B   108                    db 016h,023h,02Ah,02Ah,02Ah,02A
+0107F9 3B161E1E 1E1E1E1E 
+010801 183B3B10 18181816   B   109                    db 018h,03Bh,03Bh,010h,018h,018
+010809 3B3B2A3B 3B3B3B3B 
+010811 3B3B3A2A 1E103B2A   B   110                    db 03Bh,03Bh,03Ah,02Ah,01Eh,010
+010819 183A2A1E 163B3B18 
+010821 2F2A1E18 103B003B   B   111                    db 02Fh,02Ah,01Eh,018h,010h,03B
+010829 2A1E1816 3B000000 
+010831 1E181610 3B000000   B   112                    db 01Eh,018h,016h,010h,03Bh,000
+010839 1816103B 00000000 
+010841 103B3B18 3B000000   B   113                    db 010h,03Bh,03Bh,018h,03Bh,000
+010849 3B2A3B3B 3B3B3B00 
+010851 31162A3A 4141413A   B   114                    db 031h,016h,02Ah,03Ah,041h,041
+010859 2A162A31 3A3A3A3A 
+010861 183B232A 31313131   B   115                    db 018h,03Bh,023h,02Ah,031h,031
+010869 3B3B1823 23232318 
+010871 00003B3B 3B3B3B3B   B   116                    db 000h,000h,03Bh,03Bh,03Bh,03B
+010879 00000000 00000000 
+010881 00000000 00000000   B   117                    db 000h,000h,000h,000h,000h,000
+010889 00000000 00000000 
+010891 313B0000 003B2F3A   B   118                    db 031h,03Bh,000h,000h,000h,03B
+010899 2A3B0000 003B090C 
+0108A1 183B0000 00003B09   B   119                    db 018h,03Bh,000h,000h,000h,000
+0108A9 3B000000 0000003B 
+0108B1 00000000 00000000   B   120                    db 000h,000h,000h,000h,000h,000
+0108B9 00000000 00000000 
+0108C1 00000000 00000000   B   121                    db 000h,000h,000h,000h,000h,000
+0108C9 00000000 00000000 
+0108D1 41414141 3A2F271E   B   122                    db 041h,041h,041h,041h,03Ah,02F
+0108D9 11111111 11110203 
+0108E1 0C111111 11110209   B   123                    db 00Ch,011h,011h,011h,011h,011
+0108E9 273A4141 3A271E1C 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  13
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+0108F1 3B273A3A 2F1E1C18   B   124                    db 03Bh,027h,03Ah,03Ah,02Fh,01E
+0108F9 003B090C 1109083B 
+010901 00003B09 0C093B00   B   125                    db 000h,000h,03Bh,009h,00Ch,009
+010909 00003B27 411E3B00 
+010911 1E1C183B 00000014   B   126                    db 01Eh,01Ch,018h,03Bh,000h,000
+010919 0908013B 00000014 
+010921 08013B00 00000014   B   127                    db 008h,001h,03Bh,000h,000h,000
+010929 183B0000 00000014 
+010931 3B000000 00000014   B   128                    db 03Bh,000h,000h,000h,000h,000
+010939 00000000 00000014 
+010941 00000000 00000014   B   129                    db 000h,000h,000h,000h,000h,000
+010949 00000000 00000014 
+010951 3C000000 00000000   B   130                    db 03Ch,000h,000h,000h,000h,000
+010959 3C000000 00000000 
+010961 3C000000 00000000   B   131                    db 03Ch,000h,000h,000h,000h,000
+010969 3C000000 00000000 
+010971 3C000000 00000000   B   132                    db 03Ch,000h,000h,000h,000h,000
+010979 3C000000 00000000 
+010981 3C000000 00000000   B   133                    db 03Ch,000h,000h,000h,000h,000
+010989 3C000000 00000000 
+010991 00000000 3B204136   B   134                    db 000h,000h,000h,000h,03Bh,020
+010999 00000000 3B363636 
+0109A1 00000000 3B2D3A3A   B   135                    db 000h,000h,000h,000h,03Bh,02D
+0109A9 00000000 3B3B3B3B 
+0109B1 00000000 00000000   B   136                    db 000h,000h,000h,000h,000h,000
+0109B9 00000000 00000000 
+0109C1 00000000 0000003B   B   137                    db 000h,000h,000h,000h,000h,000
+0109C9 00000000 00003B04 
+0109D1 36203B18 3B00003B   B   138                    db 036h,020h,03Bh,018h,03Bh,000
+0109D9 3636203B 3B00003B 
+0109E1 3A2D2620 3B00003B   B   139                    db 03Ah,02Dh,026h,020h,03Bh,000
+0109E9 3B3B3B3B 3B00003B 
+0109F1 00000000 00000000   B   140                    db 000h,000h,000h,000h,000h,000
+0109F9 3B000000 00000000 
+010A01 043B0000 003B3B3B   B   141                    db 004h,03Bh,000h,000h,000h,03B
+010A09 0A0A3B00 3B0A060A 
+010A11 183B2036 4136203B   B   142                    db 018h,03Bh,020h,036h,041h,036
+010A19 3B203636 3636363B 
+010A21 20262D3A 3A3A2D3B   B   143                    db 020h,026h,02Dh,03Ah,03Ah,03A
+010A29 3B3B3B3B 3B3B3B3B 
+010A31 00000000 00000000   B   144                    db 000h,000h,000h,000h,000h,000
+010A39 00000000 00000000 
+010A41 3B000000 00000000   B   145                    db 03Bh,000h,000h,000h,000h,000
+010A49 043B0000 00000000 
+010A51 00000000 00000000   B   146                    db 000h,000h,000h,000h,000h,000
+010A59 00000000 00000000 
+010A61 00000000 00000000   B   147                    db 000h,000h,000h,000h,000h,000
+010A69 00000000 00000000 
+010A71 00000000 00000000   B   148                    db 000h,000h,000h,000h,000h,000
+010A79 00000000 00000000 
+010A81 00000000 00000000   B   149                    db 000h,000h,000h,000h,000h,000
+010A89 00000000 00000000 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  14
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010A91 00000000 00000000   B   150                    db 000h,000h,000h,000h,000h,000
+010A99 00000000 00000000 
+010AA1 00000000 00000000   B   151                    db 000h,000h,000h,000h,000h,000
+010AA9 00000000 00000000 
+010AB1 00000000 00000000   B   152                    db 000h,000h,000h,000h,000h,000
+010AB9 00000000 00000000 
+010AC1 00000000 00000000   B   153                    db 000h,000h,000h,000h,000h,000
+010AC9 00000000 0000003B 
+010AD1 00003B27 411E3B00   B   154                    db 000h,000h,03Bh,027h,041h,01E
+010AD9 00003B09 0C093B00 
+010AE1 00003B09 0C093B00   B   155                    db 000h,000h,03Bh,009h,00Ch,009
+010AE9 00003B27 411E3B00 
+010AF1 00003B27 411E3B00   B   156                    db 000h,000h,03Bh,027h,041h,01E
+010AF9 00003B09 0C093B00 
+010B01 003B3B09 0C093B3B   B   157                    db 000h,03Bh,03Bh,009h,00Ch,009
+010B09 3B1C2741 3A271C12 
+010B11 00000000 00000014   B   158                    db 000h,000h,000h,000h,000h,000
+010B19 00000000 00000014 
+010B21 00000000 00000014   B   159                    db 000h,000h,000h,000h,000h,000
+010B29 00000000 00000014 
+010B31 00000000 00000014   B   160                    db 000h,000h,000h,000h,000h,000
+010B39 00000000 00000014 
+010B41 00000000 00000014   B   161                    db 000h,000h,000h,000h,000h,000
+010B49 3B3B0000 00000014 
+010B51 3C000000 00000000   B   162                    db 03Ch,000h,000h,000h,000h,000
+010B59 3C000000 00000000 
+010B61 3C000000 00000000   B   163                    db 03Ch,000h,000h,000h,000h,000
+010B69 3C000000 00000000 
+010B71 3C000000 00000000   B   164                    db 03Ch,000h,000h,000h,000h,000
+010B79 3C000000 00000000 
+010B81 3C000000 0000003B   B   165                    db 03Ch,000h,000h,000h,000h,000
+010B89 3C000000 00003B0F 
+010B91 00000000 00003B0A   B   166                    db 000h,000h,000h,000h,000h,000
+010B99 00000000 00003B06 
+010BA1 00000000 00003B0A   B   167                    db 000h,000h,000h,000h,000h,000
+010BA9 00000000 00003B04 
+010BB1 00003B3B 3B3B3B3B   B   168                    db 000h,000h,03Bh,03Bh,03Bh,03B
+010BB9 3B3B0F17 1717143B 
+010BC1 0F172121 17171714   B   169                    db 00Fh,017h,021h,021h,017h,017
+010BC9 172B3C2B 21171717 
+010BD1 060A043B 0A060405   B   170                    db 006h,00Ah,004h,03Bh,00Ah,006
+010BD9 04050A3B 050A3B04 
+010BE1 053B053B 0A3B050A   B   171                    db 005h,03Bh,005h,03Bh,00Ah,03B
+010BE9 0A3B0A3B 3B0A0A04 
+010BF1 043B0A3B 3B3B3B3B   B   172                    db 004h,03Bh,00Ah,03Bh,03Bh,03B
+010BF9 3B3B043B 0A060A04 
+010C01 3B3B3B3B 3B3B060A   B   173                    db 03Bh,03Bh,03Bh,03Bh,03Bh,03B
+010C09 140F3B3B 0A050405 
+010C11 0A3B0000 00000000   B   174                    db 00Ah,03Bh,000h,000h,000h,000
+010C19 053B0000 00000000 
+010C21 043B0000 00000000   B   175                    db 004h,03Bh,000h,000h,000h,000
+010C29 3B000000 00000000 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  15
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010C31 00000000 00000000   B   176                    db 000h,000h,000h,000h,000h,000
+010C39 3B000000 00000000 
+010C41 0A3B0000 00000000   B   177                    db 00Ah,03Bh,000h,000h,000h,000
+010C49 0A043B00 00000000 
+010C51 00000000 00000000   B   178                    db 000h,000h,000h,000h,000h,000
+010C59 00000000 00000000 
+010C61 00000000 00000000   B   179                    db 000h,000h,000h,000h,000h,000
+010C69 00000000 00000000 
+010C71 00000000 00000000   B   180                    db 000h,000h,000h,000h,000h,000
+010C79 00000000 00000000 
+010C81 00000000 00000000   B   181                    db 000h,000h,000h,000h,000h,000
+010C89 00000000 00000000 
+010C91 00000000 00003B09   B   182                    db 000h,000h,000h,000h,000h,000
+010C99 00000000 003B3B3B 
+010CA1 00000000 00000000   B   183                    db 000h,000h,000h,000h,000h,000
+010CA9 00000000 00000000 
+010CB1 00000000 00000000   B   184                    db 000h,000h,000h,000h,000h,000
+010CB9 00000000 00000000 
+010CC1 00000000 0000003B   B   185                    db 000h,000h,000h,000h,000h,000
+010CC9 00000000 003B3B24 
+010CD1 02111D29 1D110209   B   186                    db 002h,011h,01Dh,029h,01Dh,011
+010CD9 3B3B3B3B 3B3B3B3B 
+010CE1 00000000 00000000   B   187                    db 000h,000h,000h,000h,000h,000
+010CE9 00000000 003B3B00 
+010CF1 0000003B 3B243D3B   B   188                    db 000h,000h,000h,03Bh,03Bh,024
+010CF9 003B3B24 3D3E3E3D 
+010D01 3B243D2E 193D3E3E   B   189                    db 03Bh,024h,03Dh,02Eh,019h,03D
+010D09 3D3E3E19 3D393E3D 
+010D11 08013B00 00000014   B   190                    db 008h,001h,03Bh,000h,000h,000
+010D19 3B3B3B3B 00000014 
+010D21 00000000 00000014   B   191                    db 000h,000h,000h,000h,000h,000
+010D29 00000000 00000014 
+010D31 3B000000 00000014   B   192                    db 03Bh,000h,000h,000h,000h,000
+010D39 2E3B0000 00000014 
+010D41 3E2E3B00 00000014   B   193                    db 03Eh,02Eh,03Bh,000h,000h,000
+010D49 393E2E3B 00000014 
+010D51 3C000000 00003B17   B   194                    db 03Ch,000h,000h,000h,000h,000
+010D59 3C000000 003B0F17 
+010D61 3C000000 003B1717   B   195                    db 03Ch,000h,000h,000h,000h,03B
+010D69 3C000000 003B1717 
+010D71 3C000000 003B1717   B   196                    db 03Ch,000h,000h,000h,000h,03B
+010D79 3C000000 003B1717 
+010D81 3C000000 003B1717   B   197                    db 03Ch,000h,000h,000h,000h,03B
+010D89 3C000000 3B0F1717 
+010D91 213C413C 21171717   B   198                    db 021h,03Ch,041h,03Ch,021h,017
+010D99 212B3C2B 21171717 
+010DA1 17212121 17171717   B   199                    db 017h,021h,021h,021h,017h,017
+010DA9 17171717 17171717 
+010DB1 17171717 17171714   B   200                    db 017h,017h,017h,017h,017h,017
+010DB9 17171717 17171414 
+010DC1 17171717 17141414   B   201                    db 017h,017h,017h,017h,017h,014
+010DC9 17171714 14140F0F 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  16
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010DD1 17143B3B 040A050A   B   202                    db 017h,014h,03Bh,03Bh,004h,00A
+010DD9 17140F3B 3B3B3B3B 
+010DE1 14140F3B 00000000   B   203                    db 014h,014h,00Fh,03Bh,000h,000
+010DE9 14140F3B 00000000 
+010DF1 140F0F3B 00000000   B   204                    db 014h,00Fh,00Fh,03Bh,000h,000
+010DF9 140F0F3B 00000000 
+010E01 0F0F3B00 00000000   B   205                    db 00Fh,00Fh,03Bh,000h,000h,000
+010E09 0F0F3B00 00000000 
+010E11 043B0000 00000000   B   206                    db 004h,03Bh,000h,000h,000h,000
+010E19 3B000000 00000000 
+010E21 00000000 00000000   B   207                    db 000h,000h,000h,000h,000h,000
+010E29 00000000 00000000 
+010E31 00000000 00000000   B   208                    db 000h,000h,000h,000h,000h,000
+010E39 00000000 00000000 
+010E41 00000000 00000000   B   209                    db 000h,000h,000h,000h,000h,000
+010E49 00000000 00000000 
+010E51 00000000 00000000   B   210                    db 000h,000h,000h,000h,000h,000
+010E59 00000000 00000000 
+010E61 00000000 00000000   B   211                    db 000h,000h,000h,000h,000h,000
+010E69 00000000 00000000 
+010E71 00000000 00000000   B   212                    db 000h,000h,000h,000h,000h,000
+010E79 00000000 00000000 
+010E81 00000000 00000000   B   213                    db 000h,000h,000h,000h,000h,000
+010E89 00000000 00000000 
+010E91 0000003B 3B243D3E   B   214                    db 000h,000h,000h,03Bh,03Bh,024
+010E99 00003B24 3D3E3E3E 
+010EA1 00003B2E 2E2E2E3D   B   215                    db 000h,000h,03Bh,02Eh,02Eh,02E
+010EA9 00003B24 2E2E2E2E 
+010EB1 00003B2E 193B242E   B   216                    db 000h,000h,03Bh,02Eh,019h,03B
+010EB9 00003B2E 3B2E3D2E 
+010EC1 00003B2E 243D3E2E   B   217                    db 000h,000h,03Bh,02Eh,024h,03D
+010EC9 00003B2E 2E2E2E2E 
+010ED1 2E3E3E3D 39403E3E   B   218                    db 02Eh,03Eh,03Eh,03Dh,039h,040
+010ED9 393E3D3E 3E3E2E3D 
+010EE1 2E193B24 2E2E3B2E   B   219                    db 02Eh,019h,03Bh,024h,02Eh,02E
+010EE9 2E3B2E3D 2E2E243D 
+010EF1 2E243D3E 2E2E2E2E   B   220                    db 02Eh,024h,03Dh,03Eh,02Eh,02E
+010EF9 2E2E2E2E 242E2E2E 
+010F01 2E2E2E2E 3D2E193B   B   221                    db 02Eh,02Eh,02Eh,02Eh,03Dh,02E
+010F09 193B242E 2E2E3B2E 
+010F11 3E3E3D3B 00000014   B   222                    db 03Eh,03Eh,03Dh,03Bh,000h,000
+010F19 3E3E3E24 3B000014 
+010F21 3D2E2E24 3B000014   B   223                    db 03Dh,02Eh,02Eh,024h,03Bh,000
+010F29 3E2E2E24 3B000014 
+010F31 2E242E24 3B000014   B   224                    db 02Eh,024h,02Eh,024h,03Bh,000
+010F39 2E3D2E24 3B000014 
+010F41 242E2E24 3B000014   B   225                    db 024h,02Eh,02Eh,024h,03Bh,000
+010F49 3D2E2E24 3B000014 
+010F51 3C000000 3B141414   B   226                    db 03Ch,000h,000h,000h,03Bh,014
+010F59 3C00003B 0F0F0F0F 
+010F61 3C003B3B 3B3B3B3B   B   227                    db 03Ch,000h,03Bh,03Bh,03Bh,03B
+010F69 3C000000 00000000 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  17
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+010F71 3C000000 00000000   B   228                    db 03Ch,000h,000h,000h,000h,000
+010F79 3C000000 00000000 
+010F81 3C000000 00000000   B   229                    db 03Ch,000h,000h,000h,000h,000
+010F89 14141414 14141414 
+010F91 14141414 0F0F0F0F   B   230                    db 014h,014h,014h,014h,00Fh,00F
+010F99 0F0F0F0F 0F0F0F3B 
+010FA1 3B3B3B3B 3B3B3B00   B   231                    db 03Bh,03Bh,03Bh,03Bh,03Bh,03B
+010FA9 00000000 00000000 
+010FB1 00000000 00000000   B   232                    db 000h,000h,000h,000h,000h,000
+010FB9 00000000 00000000 
+010FC1 00000000 00000000   B   233                    db 000h,000h,000h,000h,000h,000
+010FC9 14141414 14141414 
+010FD1 0F3B0000 00000000   B   234                    db 00Fh,03Bh,000h,000h,000h,000
+010FD9 3B000000 00000000 
+010FE1 00000000 00000000   B   235                    db 000h,000h,000h,000h,000h,000
+010FE9 00000000 00000000 
+010FF1 00000000 00000000   B   236                    db 000h,000h,000h,000h,000h,000
+010FF9 00000000 00000000 
+011001 00000000 00000000   B   237                    db 000h,000h,000h,000h,000h,000
+011009 14141414 14141414 
+011011 00000000 00000000   B   238                    db 000h,000h,000h,000h,000h,000
+011019 00000000 00000000 
+011021 00000000 00000000   B   239                    db 000h,000h,000h,000h,000h,000
+011029 00000000 00000000 
+011031 00000000 00000000   B   240                    db 000h,000h,000h,000h,000h,000
+011039 00000000 00000000 
+011041 00000000 00000000   B   241                    db 000h,000h,000h,000h,000h,000
+011049 14141414 14141414 
+011051 00000000 00000000   B   242                    db 000h,000h,000h,000h,000h,000
+011059 00000000 00000000 
+011061 00000000 00000000   B   243                    db 000h,000h,000h,000h,000h,000
+011069 00000000 00000000 
+011071 00000000 00000000   B   244                    db 000h,000h,000h,000h,000h,000
+011079 00000000 00000000 
+011081 00000000 00000000   B   245                    db 000h,000h,000h,000h,000h,000
+011089 14141414 14141414 
+011091 00003B2E 2E2E2E2E   B   246                    db 000h,000h,03Bh,02Eh,02Eh,02E
+011099 00003B2E 19242E2E 
+0110A1 00003B2E 243D2E2E   B   247                    db 000h,000h,03Bh,02Eh,024h,03D
+0110A9 00003B3B 3B3B3B3B 
+0110B1 00000000 00000000   B   248                    db 000h,000h,000h,000h,000h,000
+0110B9 00000000 00000000 
+0110C1 00000000 00000000   B   249                    db 000h,000h,000h,000h,000h,000
+0110C9 14141414 14141414 
+0110D1 3B2E3D2E 2E2E243D   B   250                    db 03Bh,02Eh,03Dh,02Eh,02Eh,02E
+0110D9 243D3E2E 3D2E2E2E 
+0110E1 2E2E2E2E 2E2E2E24   B   251                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+0110E9 3B3B3B3B 3B3B3B3B 
+0110F1 00000000 00000000   B   252                    db 000h,000h,000h,000h,000h,000
+0110F9 00000000 00000000 
+011101 00000000 00000000   B   253                    db 000h,000h,000h,000h,000h,000
+011109 14141414 14141414 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  18
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_data.asm
+011111 3E2E2E24 3B000014   B   254                    db 03Eh,02Eh,02Eh,024h,03Bh,000
+011119 2E242E24 3B000014 
+011121 2E2E2E24 3B000014   B   255                    db 02Eh,02Eh,02Eh,024h,03Bh,000
+011129 3B3B3B3B 3B000014 
+011131 00000000 00000014   B   256                    db 000h,000h,000h,000h,000h,000
+011139 00000000 00000014 
+011141 00000000 00000014   B   257                    db 000h,000h,000h,000h,000h,000
+011149 14141414 14141414 
+                           B     0    include '8x8_tiles_palette.asm'
+011151                     B     1    colours:
+011151 0F0F0500 0D000B00   B     2                    db 00Fh,00Fh,005h,000h,00Dh,000
+011159 50007000 90000000 
+011161 17001900 60001101   B     3                    db 017h,000h,019h,000h,060h,000
+011169 2E020002 00030404 
+011171 44044F04 55052005   B     4                    db 044h,004h,04Fh,004h,055h,005
+011179 06064006 66061707 
+011181 77075007 30085008   B     5                    db 077h,007h,050h,007h,030h,008
+011189 88088F08 99096009 
+011191 100A3A0A 410AAA0A   B     6                    db 010h,00Ah,03Ah,00Ah,041h,00A
+011199 700A500B 880BBB0B 
+0111A1 800BBF0B CC0C4C0C   B     7                    db 080h,00Bh,0BFh,00Bh,0CCh,00C
+0111A9 500CAA0C 900DDD0D 
+0111B1 500DEE0E 720E950E   B     8                    db 050h,00Dh,0EEh,00Eh,072h,00E
+0111B9 A20EB40E 000FC60F 
+0111C1 D80FF00F FF0F0000   B     9                    db 0D8h,00Fh,0F0h,00Fh,0FFh,00F
+0111C9 6F0FB00F D00FFB0F 
+0111D1 F60FFF0F FF0FFF0F   B    10                    db 0F6h,00Fh,0FFh,00Fh,0FFh,00F
+0111D9 FF0FFF0F FF0FFF0F 
+0111E1 FF0FFF0F FF0FFF0F   B    11                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0111E9 FF0FFF0F FF0FFF0F 
+0111F1 FF0FFF0F FF0FFF0F   B    12                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0111F9 FF0FFF0F FF0FFF0F 
+011201 FF0FFF0F FF0FFF0F   B    13                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011209 FF0FFF0F FF0FFF0F 
+011211 FF0FFF0F FF0FFF0F   B    14                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011219 FF0FFF0F FF0FFF0F 
+011221 FF0FFF0F FF0FFF0F   B    15                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011229 FF0FFF0F FF0FFF0F 
+011231 FF0FFF0F FF0FFF0F   B    16                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011239 FF0FFF0F FF0FFF0F 
+011241 FF0FFF0F FF0FFF0F   B    17                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011249 FF0FFF0F FF0FFF0F 
+011251 FF0FFF0F FF0FFF0F   B    18                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011259 FF0FFF0F FF0FFF0F 
+011261 FF0FFF0F FF0FFF0F   B    19                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011269 FF0FFF0F FF0FFF0F 
+011271 FF0FFF0F FF0FFF0F   B    20                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011279 FF0FFF0F FF0FFF0F 
+011281 FF0FFF0F FF0FFF0F   B    21                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011289 FF0FFF0F FF0FFF0F 
+011291 FF0FFF0F FF0FFF0F   B    22                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011299 FF0FFF0F FF0FFF0F 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  19
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\8x8_tiles_palette.asm
+0112A1 FF0FFF0F FF0FFF0F   B    23                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112A9 FF0FFF0F FF0FFF0F 
+0112B1 FF0FFF0F FF0FFF0F   B    24                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112B9 FF0FFF0F FF0FFF0F 
+0112C1 FF0FFF0F FF0FFF0F   B    25                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112C9 FF0FFF0F FF0FFF0F 
+0112D1 FF0FFF0F FF0FFF0F   B    26                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112D9 FF0FFF0F FF0FFF0F 
+0112E1 FF0FFF0F FF0FFF0F   B    27                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112E9 FF0FFF0F FF0FFF0F 
+0112F1 FF0FFF0F FF0FFF0F   B    28                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+0112F9 FF0FFF0F FF0FFF0F 
+011301 FF0FFF0F FF0FFF0F   B    29                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011309 FF0FFF0F FF0FFF0F 
+011311 FF0FFF0F FF0FFF0F   B    30                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011319 FF0FFF0F FF0FFF0F 
+011321 FF0FFF0F FF0FFF0F   B    31                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011329 FF0FFF0F FF0FFF0F 
+011331 FF0FFF0F FF0FFF0F   B    32                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011339 FF0FFF0F FF0FFF0F 
+011341 FF0FFF0F FF0FFF0F   B    33                    db 0FFh,00Fh,0FFh,00Fh,0FFh,00F
+011349 FF0FFF0F FF0FFF0F 
+                           A   148    
+                           B     0    include 'boing_96x96_sprites.asm'
+011351                     B     1    sprites:
+011351 00000000 00000000   B     2                    db 000h,000h,000h,000h,000h,000
+011359 00000000 00000000 
+011361 00000000 00000000   B     3                    db 000h,000h,000h,000h,000h,000
+011369 00000000 00000000 
+011371 00000000 00000000   B     4                    db 000h,000h,000h,000h,000h,000
+011379 00000000 00000000 
+011381 00000000 00000000   B     5                    db 000h,000h,000h,000h,000h,000
+011389 00000000 00000000 
+011391 00000000 00000000   B     6                    db 000h,000h,000h,000h,000h,000
+011399 00000000 00000000 
+0113A1 00000000 00000000   B     7                    db 000h,000h,000h,000h,000h,000
+0113A9 00000000 00000000 
+0113B1 00000000 00000000   B     8                    db 000h,000h,000h,000h,000h,000
+0113B9 00000000 00000000 
+0113C1 00000000 00000000   B     9                    db 000h,000h,000h,000h,000h,000
+0113C9 00000000 00000000 
+0113D1 00000000 00000000   B    10                    db 000h,000h,000h,000h,000h,000
+0113D9 00000000 00000000 
+0113E1 00000000 00000000   B    11                    db 000h,000h,000h,000h,000h,000
+0113E9 00000000 00000000 
+0113F1 00000000 00000000   B    12                    db 000h,000h,000h,000h,000h,000
+0113F9 00000000 00000000 
+011401 00000000 00000000   B    13                    db 000h,000h,000h,000h,000h,000
+011409 00000000 00000000 
+011411 00000000 00000000   B    14                    db 000h,000h,000h,000h,000h,000
+011419 00000000 00000000 
+011421 00000000 00000000   B    15                    db 000h,000h,000h,000h,000h,000
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  20
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011429 00000000 00000025 
+011431 00000000 00000000   B    16                    db 000h,000h,000h,000h,000h,000
+011439 00000000 00002530 
+011441 00000000 00000000   B    17                    db 000h,000h,000h,000h,000h,000
+011449 00000000 00391E2E 
+011451 00000000 00000000   B    18                    db 000h,000h,000h,000h,000h,000
+011459 00000000 390D3E2E 
+011461 00000000 00000000   B    19                    db 000h,000h,000h,000h,000h,000
+011469 00000039 36103F17 
+011471 00000000 00000000   B    20                    db 000h,000h,000h,000h,000h,000
+011479 00001C37 363B3B37 
+011481 00000000 00000000   B    21                    db 000h,000h,000h,000h,000h,000
+011489 001C0C33 04383634 
+011491 00000000 00000000   B    22                    db 000h,000h,000h,000h,000h,000
+011499 00390303 0B373433 
+0114A1 00000000 00000000   B    23                    db 000h,000h,000h,000h,000h,000
+0114A9 1C36030D 170B3333 
+0114B1 00000000 0000001C   B    24                    db 000h,000h,000h,000h,000h,000
+0114B9 0A030B17 2F100304 
+0114C1 00000000 00000039   B    25                    db 000h,000h,000h,000h,000h,000
+0114C9 030B173F 3F170605 
+0114D1 00000000 00001C36   B    26                    db 000h,000h,000h,000h,000h,000
+0114D9 373C3F2E 2E320D05 
+0114E1 00000000 00003936   B    27                    db 000h,000h,000h,000h,000h,000
+0114E9 3B3F2E2E 2E3F3B06 
+0114F1 00000000 001C3738   B    28                    db 000h,000h,000h,000h,000h,01C
+0114F9 322E2E2E 2E2E3D0D 
+011501 00000000 00390B3D   B    29                    db 000h,000h,000h,000h,000h,039
+011509 2E2E2E2E 2E2E2F3B 
+011511 00000000 1C0C3C3F   B    30                    db 000h,000h,000h,000h,01Ch,00C
+011519 2E2E2E2E 2E3F3C0D 
+011521 00000000 1C383E2E   B    31                    db 000h,000h,000h,000h,01Ch,038
+011529 2E2E2E2E 3F170D0B 
+011531 0000001C 0F172E2E   B    32                    db 000h,000h,000h,01Ch,00Fh,017
+011539 2E2E2E3F 3238090B 
+011541 0000001C 3C3F2E2E   B    33                    db 000h,000h,000h,01Ch,03Ch,03F
+011549 2E2E2E3E 1009090B 
+011551 00000025 3D2E2E2E   B    34                    db 000h,000h,000h,025h,03Dh,02E
+011559 2E2E3F3C 09090B0B 
+011561 00001C0F 3C2E2E2E   B    35                    db 000h,000h,01Ch,00Fh,03Ch,02E
+011569 2E2E170B 09090B0B 
+011571 00001C37 3B2F2E2E   B    36                    db 000h,000h,01Ch,037h,03Bh,02F
+011579 2E323806 06090B0B 
+011581 00001C03 382F2E2E   B    37                    db 000h,000h,01Ch,003h,038h,02F
+011589 3F3B0906 06090B0B 
+011591 00000C34 0B322E2E   B    38                    db 000h,000h,00Ch,034h,00Bh,032
+011599 170B0606 06090B0B 
+0115A1 001C3733 37172E3E   B    39                    db 000h,01Ch,037h,033h,037h,017
+0115A9 38360606 06090B0B 
+0115B1 001C3633 03102F3C   B    40                    db 000h,01Ch,036h,033h,003h,010
+0115B9 09050606 06090B0B 
+0115C1 001C0333 330B1738   B    41                    db 000h,01Ch,003h,033h,033h,00B
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  21
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+0115C9 05050506 06090B0B 
+0115D1 00393433 33363837   B    42                    db 000h,039h,034h,033h,033h,036
+0115D9 05050506 06090B0B 
+0115E1 1C0A3333 33030B06   B    43                    db 01Ch,00Ah,033h,033h,033h,003
+0115E9 05050506 0609090B 
+0115F1 1C0A3333 33373C0D   B    44                    db 01Ch,00Ah,033h,033h,033h,037
+0115F9 04050506 0609090B 
+011601 23363333 340D323C   B    45                    db 023h,036h,033h,033h,034h,00D
+011609 09050505 0606090B 
+011611 1C363333 363C3F3F   B    46                    db 01Ch,036h,033h,033h,036h,03C
+011619 10360505 0606090B 
+011621 1C363333 093D2E2E   B    47                    db 01Ch,036h,033h,033h,009h,03D
+011629 32380505 06060909 
+011631 23033334 0D3E2E2E   B    48                    db 023h,003h,033h,034h,00Dh,03E
+011639 2E3D0D05 05060609 
+011641 1C043304 3B3F2E2E   B    49                    db 01Ch,004h,033h,004h,03Bh,03F
+011649 2E2E3D0B 05060609 
+011651 1C363309 3D2E2E2E   B    50                    db 01Ch,036h,033h,009h,03Dh,02E
+011659 2E2E3F17 0B06060D 
+011661 1C37330D 3E2E2E2E   B    51                    db 01Ch,037h,033h,00Dh,03Eh,02E
+011669 2E2E2E3F 3C0B373B 
+011671 1C0D0310 2F2E2E2E   B    52                    db 01Ch,00Dh,003h,010h,02Fh,02E
+011679 2E2E2E2E 3F3C0D32 
+011681 1C0F363C 3F2E2E2E   B    53                    db 01Ch,00Fh,036h,03Ch,03Fh,02E
+011689 2E2E2E2E 2E3E383B 
+011691 1C260C17 2E2E2E2E   B    54                    db 01Ch,026h,00Ch,017h,02Eh,02E
+011699 2E2E2E2E 2E3D0937 
+0116A1 1C26381E 2E2E2E2E   B    55                    db 01Ch,026h,038h,01Eh,02Eh,02E
+0116A9 2E2E2E2E 3F3B3605 
+0116B1 00261731 2E2E2E2E   B    56                    db 000h,026h,017h,031h,02Eh,02E
+0116B9 2E2E2E2E 3D0D0304 
+0116C1 00253C3B 2F2E2E2E   B    57                    db 000h,025h,03Ch,03Bh,02Fh,02E
+0116C9 2E2E2E2E 3C363333 
+0116D1 001C100B 3D2E2E2E   B    58                    db 000h,01Ch,010h,00Bh,03Dh,02E
+0116D9 2E2E2E2F 10033333 
+0116E1 001C1036 103E2E2E   B    59                    db 000h,01Ch,010h,036h,010h,03E
+0116E9 2E2E2E32 0D033333 
+0116F1 00002504 373C3F2E   B    60                    db 000h,000h,025h,004h,037h,03C
+0116F9 2E2E2E17 06333333 
+011701 00002536 030D3D3F   B    61                    db 000h,000h,025h,036h,003h,00D
+011709 2E2E3F3B 03333333 
+011711 00001C37 3303103E   B    62                    db 000h,000h,01Ch,037h,033h,003
+011719 2E2E2F38 03333333 
+011721 00001C0C 34333610   B    63                    db 000h,000h,01Ch,00Ch,034h,033
+011729 2F2E3D0B 33333333 
+011731 00000039 03333306   B    64                    db 000h,000h,000h,039h,003h,033
+011739 3B2F1709 33333333 
+011741 0000001C 03333303   B    65                    db 000h,000h,000h,01Ch,003h,033
+011749 373C3C05 33333333 
+011751 0000001C 0A333333   B    66                    db 000h,000h,000h,01Ch,00Ah,033
+011759 33093803 33333333 
+011761 00000000 39033333   B    67                    db 000h,000h,000h,000h,039h,003
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  22
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011769 33030B09 03333333 
+011771 00000000 1C373333   B    68                    db 000h,000h,000h,000h,01Ch,037
+011779 3303383C 0B033333 
+011781 00000000 00390333   B    69                    db 000h,000h,000h,000h,000h,039
+011789 3303383E 170D0333 
+011791 00000000 001C3733   B    70                    db 000h,000h,000h,000h,000h,01C
+011799 3303103F 3F3D3836 
+0117A1 00000000 00003903   B    71                    db 000h,000h,000h,000h,000h,000
+0117A9 3303103F 2E3F3E3B 
+0117B1 00000000 00001C0C   B    72                    db 000h,000h,000h,000h,000h,000
+0117B9 3303383E 2E2E2E3F 
+0117C1 00000000 0000001C   B    73                    db 000h,000h,000h,000h,000h,000
+0117C9 3603383E 2E2E2E2E 
+0117D1 00000000 00000000   B    74                    db 000h,000h,000h,000h,000h,000
+0117D9 39360D3E 2E2E2E2E 
+0117E1 00000000 00000000   B    75                    db 000h,000h,000h,000h,000h,000
+0117E9 1C0C0B32 2E2E2E2E 
+0117F1 00000000 00000000   B    76                    db 000h,000h,000h,000h,000h,000
+0117F9 001C0F17 2F2E2E2E 
+011801 00000000 00000000   B    77                    db 000h,000h,000h,000h,000h,000
+011809 0000251D 1E272F2F 
+011811 00000000 00000000   B    78                    db 000h,000h,000h,000h,000h,000
+011819 00001C25 10171E1E 
+011821 00000000 00000000   B    79                    db 000h,000h,000h,000h,000h,000
+011829 0000001C 390F2A2A 
+011831 00000000 00000000   B    80                    db 000h,000h,000h,000h,000h,000
+011839 00000000 1C110F1D 
+011841 00000000 00000000   B    81                    db 000h,000h,000h,000h,000h,000
+011849 00000000 00231139 
+011851 00000000 00000000   B    82                    db 000h,000h,000h,000h,000h,000
+011859 00000000 00002311 
+011861 00000000 00000000   B    83                    db 000h,000h,000h,000h,000h,000
+011869 00000000 00000023 
+011871 00000000 00000000   B    84                    db 000h,000h,000h,000h,000h,000
+011879 00000000 00000000 
+011881 00000000 00000000   B    85                    db 000h,000h,000h,000h,000h,000
+011889 00000000 00000000 
+011891 00000000 00000000   B    86                    db 000h,000h,000h,000h,000h,000
+011899 00000000 00000000 
+0118A1 00000000 00000000   B    87                    db 000h,000h,000h,000h,000h,000
+0118A9 00000000 00000000 
+0118B1 00000000 00000000   B    88                    db 000h,000h,000h,000h,000h,000
+0118B9 00000000 00000000 
+0118C1 00000000 00000000   B    89                    db 000h,000h,000h,000h,000h,000
+0118C9 00000000 00000000 
+0118D1 00000000 00000000   B    90                    db 000h,000h,000h,000h,000h,000
+0118D9 00000000 00000000 
+0118E1 00000000 00000000   B    91                    db 000h,000h,000h,000h,000h,000
+0118E9 00000000 00000000 
+0118F1 00000000 00000000   B    92                    db 000h,000h,000h,000h,000h,000
+0118F9 00000000 00000000 
+011901 00000000 00000000   B    93                    db 000h,000h,000h,000h,000h,000
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  23
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011909 00000000 00000000 
+011911 00000000 00000000   B    94                    db 000h,000h,000h,000h,000h,000
+011919 00000000 00000000 
+011921 00000000 00000000   B    95                    db 000h,000h,000h,000h,000h,000
+011929 00000000 00000000 
+011931 00000000 00000000   B    96                    db 000h,000h,000h,000h,000h,000
+011939 00000000 00000000 
+011941 00000000 00000000   B    97                    db 000h,000h,000h,000h,000h,000
+011949 00000000 00000000 
+011951 00000000 00000000   B    98                    db 000h,000h,000h,000h,000h,000
+011959 00000000 00000000 
+011961 00000000 00000000   B    99                    db 000h,000h,000h,000h,000h,000
+011969 00000000 00000000 
+011971 00000000 00000000   B   100                    db 000h,000h,000h,000h,000h,000
+011979 00000000 00000000 
+011981 00000000 00000000   B   101                    db 000h,000h,000h,000h,000h,000
+011989 00000000 001C1C25 
+011991 00000000 00000000   B   102                    db 000h,000h,000h,000h,000h,000
+011999 0000001C 1C252A27 
+0119A1 00000000 00000000   B   103                    db 000h,000h,000h,000h,000h,000
+0119A9 001C1C39 103B380B 
+0119B1 00000000 0000001C   B   104                    db 000h,000h,000h,000h,000h,000
+0119B9 1C39370B 09050334 
+0119C1 00000000 00001C39   B   105                    db 000h,000h,000h,000h,000h,000
+0119C9 0C103B06 33333333 
+0119D1 00000000 1C1C0C3B   B   106                    db 000h,000h,000h,000h,01Ch,01C
+0119D9 3D3E3B04 3303360B 
+0119E1 0000001C 39103D3F   B   107                    db 000h,000h,000h,01Ch,039h,010
+0119E9 2E2F1036 37383C32 
+0119F1 00001C0F 172F2E2E   B   108                    db 000h,000h,01Ch,00Fh,017h,02F
+0119F9 3F321038 173E2E2E 
+011A01 001C263E 2E2E3F3E   B   109                    db 000h,01Ch,026h,03Eh,02Eh,02E
+011A09 3C0D0B17 2E2E2E2E 
+011A11 1C2A3F2E 2E2F1738   B   110                    db 01Ch,02Ah,03Fh,02Eh,02Eh,02F
+011A19 06340410 3F2E2E2E 
+011A21 1E2E2E3F 3D3B0903   B   111                    db 01Eh,02Eh,02Eh,03Fh,03Dh,03B
+011A29 33333409 172E3F32 
+011A31 2E2E3E3C 0D043333   B   112                    db 02Eh,02Eh,03Eh,03Ch,00Dh,004
+011A39 33333304 1032170D 
+011A41 2E2F1036 34333333   B   113                    db 02Eh,02Fh,010h,036h,034h,033
+011A49 33333304 37103705 
+011A51 3D0D0333 33333333   B   114                    db 03Dh,00Dh,003h,033h,033h,033
+011A59 04040509 3B3C0B05 
+011A61 09033433 33030405   B   115                    db 009h,003h,034h,033h,033h,003
+011A69 05060D17 3F3F170D 
+011A71 34333333 04050505   B   116                    db 034h,033h,033h,033h,004h,005
+011A79 09103D3F 2E2E3F17 
+011A81 33330305 0505060B   B   117                    db 033h,033h,003h,005h,005h,005
+011A89 3B3E2E2E 2E2E2E3F 
+011A91 33040505 06060D3C   B   118                    db 033h,004h,005h,005h,006h,006
+011A99 3E2E2E2E 2E2E2E2E 
+011AA1 04050506 060D173F   B   119                    db 004h,005h,005h,006h,006h,00D
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  24
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011AA9 2E2E2E2E 2E2E2E2E 
+011AB1 05050609 383D3F2E   B   120                    db 005h,005h,006h,009h,038h,03D
+011AB9 2E2E2E2E 2E2E2E2E 
+011AC1 05060938 3D3F2E2E   B   121                    db 005h,006h,009h,038h,03Dh,03F
+011AC9 2E2E2E2E 2E2E2E2F 
+011AD1 0609103D 3F2E2E2E   B   122                    db 006h,009h,010h,03Dh,03Fh,02E
+011AD9 2E2E2E2E 2E2E3F3C 
+011AE1 06383D2E 2E2E2E2E   B   123                    db 006h,038h,03Dh,02Eh,02Eh,02E
+011AE9 2E2E2E2E 2E3F1738 
+011AF1 383D3F2E 2E2E2E2E   B   124                    db 038h,03Dh,03Fh,02Eh,02Eh,02E
+011AF9 2E2E2E2E 3F321038 
+011B01 3D3F2E2E 2E2E2E2E   B   125                    db 03Dh,03Fh,02Eh,02Eh,02Eh,02E
+011B09 2E2E2E2E 323B1038 
+011B11 3B2F2E2E 2E2E2E2E   B   126                    db 03Bh,02Fh,02Eh,02Eh,02Eh,02E
+011B19 2E2E2E2F 3C101010 
+011B21 0D3C2F2E 2E2E2E2E   B   127                    db 00Dh,03Ch,02Fh,02Eh,02Eh,02E
+011B29 2E2E3F17 3B3B1010 
+011B31 0B383C3F 2E2E2E2E   B   128                    db 00Bh,038h,03Ch,03Fh,02Eh,02E
+011B39 2E3F3D3C 3B3B3B3B 
+011B41 0D0D3817 3F2E2E2E   B   129                    db 00Dh,00Dh,038h,017h,03Fh,02E
+011B49 2E323C3B 3B3B3B3B 
+011B51 0D0D3810 173F2E2E   B   130                    db 00Dh,00Dh,038h,010h,017h,03F
+011B59 3F173C3C 3C3B3B3B 
+011B61 0D383810 3B3D2E2E   B   131                    db 00Dh,038h,038h,010h,03Bh,03D
+011B69 3D3C3C3C 3C3C3B3B 
+011B71 0D383810 3B3C3D27   B   132                    db 00Dh,038h,038h,010h,03Bh,03C
+011B79 3C3C3C3C 3C3C3B3B 
+011B81 0D383810 3B3B3C17   B   133                    db 00Dh,038h,038h,010h,03Bh,03B
+011B89 3C3C3C3C 3C3C3B3B 
+011B91 0D383810 3B3B172F   B   134                    db 00Dh,038h,038h,010h,03Bh,03B
+011B99 3D173C3C 3C3C3B3B 
+011BA1 0D383810 3B3C3E2E   B   135                    db 00Dh,038h,038h,010h,03Bh,03C
+011BA9 3F3E3D3C 3C3B3B3B 
+011BB1 0D383810 3B3D3F2E   B   136                    db 00Dh,038h,038h,010h,03Bh,03D
+011BB9 2E2E3F32 173B3B3B 
+011BC1 0D383810 3C2F2E2E   B   137                    db 00Dh,038h,038h,010h,03Ch,02F
+011BC9 2E2E2E2E 2F173B3B 
+011BD1 0D0D3810 3D2E2E2E   B   138                    db 00Dh,00Dh,038h,010h,03Dh,02E
+011BD9 2E2E2E2E 2E3F323C 
+011BE1 0D0D383C 2F2E2E2E   B   139                    db 00Dh,00Dh,038h,03Ch,02Fh,02E
+011BE9 2E2E2E2E 2E2E2E2F 
+011BF1 0D0D103E 2E2E2E2E   B   140                    db 00Dh,00Dh,010h,03Eh,02Eh,02E
+011BF9 2E2E2E2E 2E2E2E2E 
+011C01 0B0D3C3F 2E2E2E2E   B   141                    db 00Bh,00Dh,03Ch,03Fh,02Eh,02E
+011C09 2E2E2E2E 2E2E2E2E 
+011C11 0B103E2E 2E2E2E2E   B   142                    db 00Bh,010h,03Eh,02Eh,02Eh,02E
+011C19 2E2E2E2E 2E2E2E2E 
+011C21 0B3C3F2E 2E2E2E2E   B   143                    db 00Bh,03Ch,03Fh,02Eh,02Eh,02E
+011C29 2E2E2E2E 2E2E2E2E 
+011C31 383E2E2E 2E2E2E2E   B   144                    db 038h,03Eh,02Eh,02Eh,02Eh,02E
+011C39 2E2E2E2E 2E2E2E2E 
+011C41 3C3F2E2E 2E2E2E2E   B   145                    db 03Ch,03Fh,02Eh,02Eh,02Eh,02E
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  25
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011C49 2E2E2E2E 2E2E2E2E 
+011C51 3E2E2E2E 2E2E2E2E   B   146                    db 03Eh,02Eh,02Eh,02Eh,02Eh,02E
+011C59 2E2E2E2E 2E2E2E2E 
+011C61 2E2E2E2E 2E2E2E2E   B   147                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+011C69 2E2E2E2E 2E2E2E3D 
+011C71 2E2E2E2E 2E2E2E2E   B   148                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+011C79 2E2E2E2E 2E2E3F3B 
+011C81 2F2E2E2E 2E2E2E2E   B   149                    db 02Fh,02Eh,02Eh,02Eh,02Eh,02E
+011C89 2E2E2E2E 2E2E3E38 
+011C91 10323F2E 2E2E2E2E   B   150                    db 010h,032h,03Fh,02Eh,02Eh,02E
+011C99 2E2E2E2E 2E3F3C09 
+011CA1 060D172F 2E2E2E2E   B   151                    db 006h,00Dh,017h,02Fh,02Eh,02E
+011CA9 2E2E2E2E 2E2F3806 
+011CB1 04050B3B 3E2E2E2E   B   152                    db 004h,005h,00Bh,03Bh,03Eh,02E
+011CB9 2E2E2E2E 2E3D0B06 
+011CC1 33040506 38172F2E   B   153                    db 033h,004h,005h,006h,038h,017
+011CC9 2E2E2E2E 3F100606 
+011CD1 33333304 050B3B32   B   154                    db 033h,033h,033h,004h,005h,00B
+011CD9 3F2E2E2E 320D0505 
+011CE1 33333333 3304060D   B   155                    db 033h,033h,033h,033h,033h,004
+011CE9 3C2F2E3F 17370505 
+011CF1 33333333 33333304   B   156                    db 033h,033h,033h,033h,033h,033
+011CF9 37103D3E 10050403 
+011D01 33333333 33333333   B   157                    db 033h,033h,033h,033h,033h,033
+011D09 33360B10 0B043333 
+011D11 33333333 33333333   B   158                    db 033h,033h,033h,033h,033h,033
+011D19 3333030B 3B0D3734 
+011D21 33333333 33333333   B   159                    db 033h,033h,033h,033h,033h,033
+011D29 33330310 2F3E3C38 
+011D31 33333333 33333333   B   160                    db 033h,033h,033h,033h,033h,033
+011D39 3333363C 2E2E2E2F 
+011D41 33333333 33333333   B   161                    db 033h,033h,033h,033h,033h,033
+011D49 33340B32 2E2E2E2E 
+011D51 33333333 33333333   B   162                    db 033h,033h,033h,033h,033h,033
+011D59 3303382F 2E2E2E2E 
+011D61 33333333 33333333   B   163                    db 033h,033h,033h,033h,033h,033
+011D69 33043B2E 2E2E2E2E 
+011D71 33333333 33333333   B   164                    db 033h,033h,033h,033h,033h,033
+011D79 3337172E 2E2E2E2E 
+011D81 33333333 33333333   B   165                    db 033h,033h,033h,033h,033h,033
+011D89 030D3E2E 2E2E2E2E 
+011D91 33333333 33333333   B   166                    db 033h,033h,033h,033h,033h,033
+011D99 043B3F2E 2E2E2E2E 
+011DA1 06033333 33333333   B   167                    db 006h,003h,033h,033h,033h,033
+011DA9 363C2E2E 2E2E2E2E 
+011DB1 3C0D0434 33333333   B   168                    db 03Ch,00Dh,004h,034h,033h,033
+011DB9 0B3D2E2E 2E2E2E2E 
+011DC1 3F3D1037 03333303   B   169                    db 03Fh,03Dh,010h,037h,003h,033
+011DC9 382F2E2E 2E2E2E2E 
+011DD1 2E2E3F3C 0D363403   B   170                    db 02Eh,02Eh,03Fh,03Ch,00Dh,036
+011DD9 3B2E2E2E 2E2E2E2E 
+011DE1 2E2E2E2E 323B0B37   B   171                    db 02Eh,02Eh,02Eh,02Eh,032h,03B
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  26
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011DE9 3C2E2E2E 2E3F2F3E 
+011DF1 2E2E2E2E 2E3F3D10   B   172                    db 02Eh,02Eh,02Eh,02Eh,02Eh,03F
+011DF9 3C323F3F 2F273D3D 
+011E01 2E2E2E2E 2E2E3E10   B   173                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+011E09 370D3C3D 3D1E1E21 
+011E11 2727272F 31272738   B   174                    db 027h,027h,027h,02Fh,031h,027
+011E19 0301360D 3B3C212A 
+011E21 21211E3D 3D3D1E0B   B   175                    db 021h,021h,01Eh,03Dh,03Dh,03D
+011E29 02020202 0237101D 
+011E31 2A2A2A2A 2A2A2A37   B   176                    db 02Ah,02Ah,02Ah,02Ah,02Ah,02A
+011E39 02020202 0202020A 
+011E41 1D1D1D2A 2A2A1D0A   B   177                    db 01Dh,01Dh,01Dh,02Ah,02Ah,02A
+011E49 02020202 02022C2C 
+011E51 0A0F1D1D 1D1D260A   B   178                    db 00Ah,00Fh,01Dh,01Dh,01Dh,01D
+011E59 02022C2C 2C2C2C2C 
+011E61 11083926 2626262C   B   179                    db 011h,008h,039h,026h,026h,026
+011E69 2C2C2C2C 2C2C2C2C 
+011E71 1F192C0A 0F260F2C   B   180                    db 01Fh,019h,02Ch,00Ah,00Fh,026
+011E79 2C2C2C2C 2C2C2C2C 
+011E81 001F1211 110E3908   B   181                    db 000h,01Fh,012h,011h,011h,00E
+011E89 2C2C2C2C 2C2C2C2C 
+011E91 00001F13 19110808   B   182                    db 000h,000h,01Fh,013h,019h,011
+011E99 08111111 11111111 
+011EA1 00000028 2418110E   B   183                    db 000h,000h,000h,028h,024h,018
+011EA9 0E161111 11111111 
+011EB1 00000000 001F1320   B   184                    db 000h,000h,000h,000h,000h,01F
+011EB9 23232316 19111111 
+011EC1 00000000 00002824   B   185                    db 000h,000h,000h,000h,000h,000
+011EC9 28292923 29161512 
+011ED1 00000000 00000000   B   186                    db 000h,000h,000h,000h,000h,000
+011ED9 1B242822 29292922 
+011EE1 00000000 00000000   B   187                    db 000h,000h,000h,000h,000h,000
+011EE9 00001B24 28222929 
+011EF1 00000000 00000000   B   188                    db 000h,000h,000h,000h,000h,000
+011EF9 00000000 1B241B28 
+011F01 00000000 00000000   B   189                    db 000h,000h,000h,000h,000h,000
+011F09 00000000 00002824 
+011F11 00000000 00000000   B   190                    db 000h,000h,000h,000h,000h,000
+011F19 00000000 00000000 
+011F21 00000000 00000000   B   191                    db 000h,000h,000h,000h,000h,000
+011F29 00000000 00000000 
+011F31 00000000 00000000   B   192                    db 000h,000h,000h,000h,000h,000
+011F39 00000000 00000000 
+011F41 00000000 00000000   B   193                    db 000h,000h,000h,000h,000h,000
+011F49 00000000 00000000 
+011F51 00000000 0000001C   B   194                    db 000h,000h,000h,000h,000h,000
+011F59 1C1C1C1C 1C1C1C1C 
+011F61 0000001C 1C1C3939   B   195                    db 000h,000h,000h,01Ch,01Ch,01C
+011F69 39390C0C 37383C17 
+011F71 1C1C1C25 262A1E3D   B   196                    db 01Ch,01Ch,01Ch,025h,026h,02A
+011F79 3D3D1E10 37363737 
+011F81 262A3031 32173C3B   B   197                    db 026h,02Ah,030h,031h,032h,017
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  27
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+011F89 10101010 38383838 
+011F91 173B380D 09373604   B   198                    db 017h,03Bh,038h,00Dh,009h,037
+011F99 03033717 31323D17 
+011FA1 37040303 34333403   B   199                    db 037h,004h,003h,003h,034h,033
+011FA9 36090D10 0D0B0937 
+011FB1 33333303 360B3810   B   200                    db 033h,033h,033h,003h,036h,00B
+011FB9 3C3D3210 36030304 
+011FC1 03370D10 3C3D3E2F   B   201                    db 003h,037h,00Dh,010h,03Ch,03D
+011FC9 2E2E2E3D 0D09383B 
+011FD1 10173E2F 2E2E2E2E   B   202                    db 010h,017h,03Eh,02Fh,02Eh,02E
+011FD9 2F323C38 09383D2E 
+011FE1 2F2E2E2E 2E2E2F17   B   203                    db 02Fh,02Eh,02Eh,02Eh,02Eh,02E
+011FE9 100B0503 34040D3D 
+011FF1 2E2E2E2E 3E171009   B   204                    db 02Eh,02Eh,02Eh,02Eh,03Eh,017
+011FF9 03343333 33343638 
+012001 2E2E2F17 38370334   B   205                    db 02Eh,02Eh,02Fh,017h,038h,037
+012009 33333333 3436383D 
+012011 3F3D1037 03333333   B   206                    db 03Fh,03Dh,010h,037h,003h,033
+012019 33333303 063B322E 
+012021 3B090333 33333333   B   207                    db 03Bh,009h,003h,033h,033h,033
+012029 3334030B 172F2E2E 
+012031 36033333 33333333   B   208                    db 036h,003h,033h,033h,033h,033
+012039 3436383D 2E2E2E2E 
+012041 05040403 33333303   B   209                    db 005h,004h,004h,003h,033h,033
+012049 373B2F2E 2E2E2E2E 
+012051 05050505 05040409   B   210                    db 005h,005h,005h,005h,005h,004
+012059 3C2F2E2E 2E2E2E2E 
+012061 36050505 05050D17   B   211                    db 036h,005h,005h,005h,005h,005
+012069 2F2E2E2E 2E2E2E2E 
+012071 0D060605 060D3D3F   B   212                    db 00Dh,006h,006h,005h,006h,00D
+012079 2E2E2E2E 2E2E2E2F 
+012081 3D380606 383D3F2E   B   213                    db 03Dh,038h,006h,006h,038h,03D
+012089 2E2E2E2E 2E2E3F3B 
+012091 2E321038 3D3F2E2E   B   214                    db 02Eh,032h,010h,038h,03Dh,03F
+012099 2E2E2E2E 2E2E3D09 
+0120A1 2E2F3B38 3C3E2E2E   B   215                    db 02Eh,02Fh,03Bh,038h,03Ch,03E
+0120A9 2E2E2E2E 2E3E3803 
+0120B1 2F3C0D0B 0B383C3E   B   216                    db 02Fh,03Ch,00Dh,00Bh,00Bh,038
+0120B9 2E2E2E2E 3F3C3733 
+0120C1 3C0D0B0B 09090B10   B   217                    db 03Ch,00Dh,00Bh,00Bh,009h,009
+0120C9 173F2E2E 3D0D0533 
+0120D1 380D0B0B 0B090909   B   218                    db 038h,00Dh,00Bh,00Bh,00Bh,009
+0120D9 0B3B3D3E 3B060533 
+0120E1 380D0D0B 0B0B0909   B   219                    db 038h,00Dh,00Dh,00Bh,00Bh,00B
+0120E9 09090D3B 0D060504 
+0120F1 38380D0D 0B0B0B09   B   220                    db 038h,038h,00Dh,00Dh,00Bh,00B
+0120F9 09090910 3C100B37 
+012101 3838380D 0D0B0B0B   B   221                    db 038h,038h,038h,00Dh,00Dh,00B
+012109 09090D3D 2E3F323C 
+012111 3838380D 0D0D0B0B   B   222                    db 038h,038h,038h,00Dh,00Dh,00D
+012119 0B0B3B2F 2E2E2E2E 
+012121 10383838 0D0D0D0B   B   223                    db 010h,038h,038h,038h,00Dh,00D
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  28
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012129 0B38322E 2E2E2E2E 
+012131 10103838 380D0D0B   B   224                    db 010h,010h,038h,038h,038h,00D
+012139 0D3C2E2E 2E2E2E2E 
+012141 3B101038 380D0D0D   B   225                    db 03Bh,010h,010h,038h,038h,00D
+012149 10322E2E 2E2E2E2E 
+012151 3B101038 38380D38   B   226                    db 03Bh,010h,010h,038h,038h,038
+012159 172E2E2E 2E2E2E2E 
+012161 3B101038 38380D3B   B   227                    db 03Bh,010h,010h,038h,038h,038
+012169 3E2E2E2E 2E2E2E2E 
+012171 3B101038 3838383D   B   228                    db 03Bh,010h,010h,038h,038h,038
+012179 3F2E2E2E 2E2E2E2E 
+012181 3B101038 38383B2F   B   229                    db 03Bh,010h,010h,038h,038h,038
+012189 2E2E2E2E 2E2E2E2E 
+012191 3B101038 38383D2E   B   230                    db 03Bh,010h,010h,038h,038h,038
+012199 2E2E2E2E 2E2E2E2E 
+0121A1 3B101038 383B2F2E   B   231                    db 03Bh,010h,010h,038h,038h,03B
+0121A9 2E2E2E2E 2E2E2E2E 
+0121B1 3B101038 103D2E2E   B   232                    db 03Bh,010h,010h,038h,010h,03D
+0121B9 2E2E2E2E 2E2E2E2E 
+0121C1 10103838 3B2F2E2E   B   233                    db 010h,010h,038h,038h,03Bh,02F
+0121C9 2E2E2E2E 2E2E2E2E 
+0121D1 10103810 3D2E2E2E   B   234                    db 010h,010h,038h,010h,03Dh,02E
+0121D9 2E2E2E2E 2E2E2E2E 
+0121E1 173B383B 2F2E2E2E   B   235                    db 017h,03Bh,038h,03Bh,02Fh,02E
+0121E9 2E2E2E2E 2E2E2E2E 
+0121F1 2E323C3C 3E2F2E2E   B   236                    db 02Eh,032h,03Ch,03Ch,03Eh,02F
+0121F9 2E2E2E2E 2E2E2E2E 
+012201 2E2E3C38 383B1732   B   237                    db 02Eh,02Eh,03Ch,038h,038h,03B
+012209 3F2E2E2E 2E2E2E2E 
+012211 2E3E100D 0B0B0D38   B   238                    db 02Eh,03Eh,010h,00Dh,00Bh,00B
+012219 3C3D2F3F 2E2E2E2E 
+012221 2E170D0B 0B0B0909   B   239                    db 02Eh,017h,00Dh,00Bh,00Bh,00B
+012229 090B383C 3D3E3F2E 
+012231 3E100D0B 0B0B0909   B   240                    db 03Eh,010h,00Dh,00Bh,00Bh,00B
+012239 09060606 09101727 
+012241 170D0B0B 0B090909   B   241                    db 017h,00Dh,00Bh,00Bh,00Bh,009
+012249 06060606 0536060B 
+012251 100B0B0B 09090906   B   242                    db 010h,00Bh,00Bh,00Bh,009h,009
+012259 06060605 05050504 
+012261 0D0B0909 09090606   B   243                    db 00Dh,00Bh,009h,009h,009h,009
+012269 06060505 05050433 
+012271 0B090909 06060606   B   244                    db 00Bh,009h,009h,009h,006h,006
+012279 06050505 05043333 
+012281 09090906 06060606   B   245                    db 009h,009h,009h,006h,006h,006
+012289 05050505 04333333 
+012291 09060606 06060505   B   246                    db 009h,006h,006h,006h,006h,006
+012299 05050504 33333303 
+0122A1 06060606 06050505   B   247                    db 006h,006h,006h,006h,006h,005
+0122A9 05050433 33333301 
+0122B1 06060505 05050505   B   248                    db 006h,006h,005h,005h,005h,005
+0122B9 05033333 33333336 
+0122C1 05050505 05050504   B   249                    db 005h,005h,005h,005h,005h,005
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  29
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+0122C9 33333333 33333409 
+0122D1 05050505 05043333   B   250                    db 005h,005h,005h,005h,005h,004
+0122D9 33333333 33330338 
+0122E1 05050403 33333333   B   251                    db 005h,005h,004h,003h,033h,033
+0122E9 33333333 3333363B 
+0122F1 03333333 33333333   B   252                    db 003h,033h,033h,033h,033h,033
+0122F9 33333333 3334363D 
+012301 33333333 33333333   B   253                    db 033h,033h,033h,033h,033h,033
+012309 33333333 33340B31 
+012311 34333333 33333333   B   254                    db 034h,033h,033h,033h,033h,033
+012319 33333333 3303383D 
+012321 09033434 33333333   B   255                    db 009h,003h,034h,034h,033h,033
+012329 33333333 33363B3D 
+012331 3D100D36 34343333   B   256                    db 03Dh,010h,00Dh,036h,034h,034
+012339 33333333 3406171E 
+012341 2E2E3E3C 38093634   B   257                    db 02Eh,02Eh,03Eh,03Ch,038h,009
+012349 33333333 340B1E2A 
+012351 2E2E2E2E 2F323C38   B   258                    db 02Eh,02Eh,02Eh,02Eh,02Fh,032
+012359 37360333 0110212A 
+012361 2E2E2E2E 2E2E3F2F   B   259                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+012369 3D3B3837 0A3B212A 
+012371 2E2E2E2E 2E2E2E2E   B   260                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+012379 3F3E3D3C 100C3810 
+012381 2E2E2E2E 2E2E2E3F   B   261                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+012389 313D1E17 0F02022C 
+012391 2E2E2E2E 2E2E3F27   B   262                    db 02Eh,02Eh,02Eh,02Eh,02Eh,02E
+012399 3D1E2A3C 0C02022C 
+0123A1 2E2E2E2E 2E3E271E   B   263                    db 02Eh,02Eh,02Eh,02Eh,02Eh,03E
+0123A9 212A2A3B 0A02022C 
+0123B1 2E2E2E2E 3E3D1E21   B   264                    db 02Eh,02Eh,02Eh,02Eh,03Eh,03D
+0123B9 2A2A2A0F 2C2C2C2C 
+0123C1 2E2E3F27 3D1E212A   B   265                    db 02Eh,02Eh,03Fh,027h,03Dh,01E
+0123C9 2A2A1D0C 2C2C2C2C 
+0123D1 3F3E271E 1E2A2A2A   B   266                    db 03Fh,03Eh,027h,01Eh,01Eh,02A
+0123D9 1D1D260A 2C2C2C2C 
+0123E1 273D1E21 2A2A2A1D   B   267                    db 027h,03Dh,01Eh,021h,02Ah,02A
+0123E9 1D1D0F2C 2C2C2C2C 
+0123F1 1E212A2A 2A2A1D1D   B   268                    db 01Eh,021h,02Ah,02Ah,02Ah,02A
+0123F9 1D26392C 2C2C2C2C 
+012401 2A2A2A2A 1D1D1D26   B   269                    db 02Ah,02Ah,02Ah,02Ah,01Dh,01D
+012409 26260A2C 2C2C2C2C 
+012411 2A2A1D1D 1D1D2626   B   270                    db 02Ah,02Ah,01Dh,01Dh,01Dh,01D
+012419 2625082C 2C2C2C2C 
+012421 1D1D1D1D 26262626   B   271                    db 01Dh,01Dh,01Dh,01Dh,026h,026
+012429 26392C2C 2C2C2C11 
+012431 0C0F2626 26262625   B   272                    db 00Ch,00Fh,026h,026h,026h,026
+012439 250E2C2C 2C111111 
+012441 2C2C0A39 0F252525   B   273                    db 02Ch,02Ch,00Ah,039h,00Fh,025
+012449 25082C2C 11111111 
+012451 2C2C2C2C 2C080E39   B   274                    db 02Ch,02Ch,02Ch,02Ch,02Ch,008
+012459 39081111 11111111 
+012461 2C2C2C2C 2C2C1111   B   275                    db 02Ch,02Ch,02Ch,02Ch,02Ch,02C
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  30
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012469 0E390E0E 08111919 
+012471 2C2C2C2C 2C111111   B   276                    db 02Ch,02Ch,02Ch,02Ch,02Ch,011
+012479 391C2323 23230E22 
+012481 2C2C1111 11111108   B   277                    db 02Ch,02Ch,011h,011h,011h,011
+012489 23232323 23232929 
+012491 11111111 11111116   B   278                    db 011h,011h,011h,011h,011h,011
+012499 23232323 29292929 
+0124A1 11111111 11111916   B   279                    db 011h,011h,011h,011h,011h,011
+0124A9 23232929 29292929 
+0124B1 11191919 19191529   B   280                    db 011h,019h,019h,019h,019h,019
+0124B9 29292929 29292929 
+0124C1 12121212 12121529   B   281                    db 012h,012h,012h,012h,012h,012
+0124C9 29292929 29292929 
+0124D1 1A073535 35352029   B   282                    db 01Ah,007h,035h,035h,035h,035
+0124D9 29292929 29292929 
+0124E1 2922221A 15072029   B   283                    db 029h,022h,022h,01Ah,015h,007
+0124E9 29292929 29292929 
+0124F1 22292929 291A0715   B   284                    db 022h,029h,029h,029h,029h,01A
+0124F9 20202222 22292929 
+012501 241B2822 22073535   B   285                    db 024h,01Bh,028h,022h,022h,007
+012509 35350715 151A1A20 
+012511 0028243A 1F131314   B   286                    db 000h,028h,024h,03Ah,01Fh,013
+012519 35353535 35353535 
+012521 0000001F 3A3A241F   B   287                    db 000h,000h,000h,01Fh,03Ah,03A
+012529 1F131313 13131414 
+012531 00000000 0000001F   B   288                    db 000h,000h,000h,000h,000h,000
+012539 3A3A3A3A 3A3A3A3A 
+012541 00000000 00000000   B   289                    db 000h,000h,000h,000h,000h,000
+012549 00000000 00000000 
+012551 1C1C1C1C 1C1C1C1C   B   290                    db 01Ch,01Ch,01Ch,01Ch,01Ch,01C
+012559 1C000000 00000000 
+012561 3C3B0F0C 39392525   B   291                    db 03Ch,03Bh,00Fh,00Ch,039h,039
+012569 1C1C1C1C 00000000 
+012571 0B38103B 10380C0C   B   292                    db 00Bh,038h,010h,03Bh,010h,038
+012579 100F0E23 1C1C1C00 
+012581 380D0D0D 0C0F3838   B   293                    db 038h,00Dh,00Dh,00Dh,00Ch,00F
+012589 0C0F0C0A 25253929 
+012591 3C3C3B3B 10103838   B   294                    db 03Ch,03Ch,03Bh,03Bh,010h,010
+012599 0D0D0F0C 0F0E0E0E 
+0125A1 36373737 370C0D38   B   295                    db 036h,037h,037h,037h,037h,00C
+0125A9 38380F0F 0F0C3939 
+0125B1 370D383B 17173C10   B   296                    db 037h,00Dh,038h,03Bh,017h,017
+0125B9 0B0C100D 0D0C0C39 
+0125C1 173E2F3E 3C383704   B   297                    db 017h,03Eh,02Fh,03Eh,03Ch,038
+0125C9 373B170B 0C10390C 
+0125D1 2E3F1738 06033406   B   298                    db 02Eh,03Fh,017h,038h,006h,003
+0125D9 3B321737 02100F0A 
+0125E1 3D100903 33330510   B   299                    db 03Dh,010h,009h,003h,033h,033
+0125E9 323F3C36 010D3C0F 
+0125F1 10363433 33043832   B   300                    db 010h,036h,034h,033h,033h,004
+0125F9 2E2F1001 34373C1D 
+012601 3D100936 030D322E   B   301                    db 03Dh,010h,009h,036h,003h,00D
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  31
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012609 2E2F3803 34363B1D 
+012611 2E2F3D10 0D3C3E3F   B   302                    db 02Eh,02Fh,03Dh,010h,00Dh,03C
+012619 2E320B33 3401382A 
+012621 2E2E3F17 0B0B383C   B   303                    db 02Eh,02Eh,03Fh,017h,00Bh,00B
+012629 3D173733 33030B2A 
+012631 2E2E3D0B 34330304   B   304                    db 02Eh,02Eh,03Dh,00Bh,034h,033
+012639 0B380B36 3601373C 
+012641 2E2F3803 33333333   B   305                    db 02Eh,02Fh,038h,003h,033h,033
+012649 030D273D 3C100F38 
+012651 2E3B3633 33333333   B   306                    db 02Eh,03Bh,036h,033h,033h,033
+012659 03102E2E 3F27170C 
+012661 3D093433 33333333   B   307                    db 03Dh,009h,034h,033h,033h,033
+012669 053C2E2E 2E311738 
+012671 38033333 33333333   B   308                    db 038h,003h,033h,033h,033h,033
+012679 37172E2E 2E313D10 
+012681 36343333 33333334   B   309                    db 036h,034h,033h,033h,033h,033
+012689 0B322E2E 2E313D3B 
+012691 34333333 33333303   B   310                    db 034h,033h,033h,033h,033h,033
+012699 382F2E2E 2E313D3C 
+0126A1 33333333 33333304   B   311                    db 033h,033h,033h,033h,033h,033
+0126A9 3B2E2E2E 2E313D3C 
+0126B1 33333333 33333306   B   312                    db 033h,033h,033h,033h,033h,033
+0126B9 3C2E2E2E 2E2F3D17 
+0126C1 33333333 3333340B   B   313                    db 033h,033h,033h,033h,033h,033
+0126C9 3D2E2E2E 2E3F3D17 
+0126D1 33333333 33330338   B   314                    db 033h,033h,033h,033h,033h,033
+0126D9 3E2E2E2E 2E3F3D21 
+0126E1 03333333 3333033B   B   315                    db 003h,033h,033h,033h,033h,033
+0126E9 3F2E2E2E 2E2F3D21 
+0126F1 05033333 3333363C   B   316                    db 005h,003h,033h,033h,033h,033
+0126F9 2E2E2E2E 2E313D21 
+012701 100B0603 3433093D   B   317                    db 010h,00Bh,006h,003h,034h,033
+012709 2E2E2E2E 2E313D21 
+012711 2E323C38 3736383E   B   318                    db 02Eh,032h,03Ch,038h,037h,036
+012719 3F2E2E2E 2E313D21 
+012721 2E2E2E2F 173B103B   B   319                    db 02Eh,02Eh,02Eh,02Fh,017h,03B
+012729 173D3E2F 3F273D2A 
+012731 2E2E2E2E 2E3D0903   B   320                    db 02Eh,02Eh,02Eh,02Eh,02Eh,03D
+012739 36370B0D 103B3C3C 
+012741 2E2E2E2E 2E3C3633   B   321                    db 02Eh,02Eh,02Eh,02Eh,02Eh,03C
+012749 33333333 03023637 
+012751 2E2E2E2E 2F100333   B   322                    db 02Eh,02Eh,02Eh,02Eh,02Fh,010
+012759 33333333 33330102 
+012761 2E2E2E2E 3E0D0333   B   323                    db 02Eh,02Eh,02Eh,02Eh,03Eh,00D
+012769 33333333 33340202 
+012771 2E2E2E2E 3D093333   B   324                    db 02Eh,02Eh,02Eh,02Eh,03Dh,009
+012779 33333333 33030202 
+012781 2E2E2E2E 3C363333   B   325                    db 02Eh,02Eh,02Eh,02Eh,03Ch,036
+012789 33333333 33010202 
+012791 2E2E2E2F 10043333   B   326                    db 02Eh,02Eh,02Eh,02Fh,010h,004
+012799 33333333 34010202 
+0127A1 2E2E2E3E 0D043333   B   327                    db 02Eh,02Eh,02Eh,03Eh,00Dh,004
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  32
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+0127A9 33333333 34020202 
+0127B1 2E2E2E32 09333333   B   328                    db 02Eh,02Eh,02Eh,032h,009h,033
+0127B9 33333333 01020202 
+0127C1 2E2E2E3C 36333333   B   329                    db 02Eh,02Eh,02Eh,03Ch,036h,033
+0127C9 33333334 01020202 
+0127D1 2E2E3F10 04333333   B   330                    db 02Eh,02Eh,03Fh,010h,004h,033
+0127D9 33333334 02020202 
+0127E1 2E2E3E0D 03333333   B   331                    db 02Eh,02Eh,03Eh,00Dh,003h,033
+0127E9 33333334 02020202 
+0127F1 2E2E3209 33333333   B   332                    db 02Eh,02Eh,032h,009h,033h,033
+0127F9 33333401 02020202 
+012801 2E2E3C36 33333333   B   333                    db 02Eh,02Eh,03Ch,036h,033h,033
+012809 33333402 02020202 
+012811 2E3F1004 33333333   B   334                    db 02Eh,03Fh,010h,004h,033h,033
+012819 33340202 02020202 
+012821 2E3E0D03 33333333   B   335                    db 02Eh,03Eh,00Dh,003h,033h,033
+012829 33340202 0202022C 
+012831 3F3D0933 33333333   B   336                    db 03Fh,03Dh,009h,033h,033h,033
+012839 33010202 0202022C 
+012841 103B3601 03333333   B   337                    db 010h,03Bh,036h,001h,003h,033
+012849 34020202 02022C2C 
+012851 040D3C3B 100D0B37   B   338                    db 004h,00Dh,03Ch,03Bh,010h,00D
+012859 01020202 02022C2C 
+012861 033B3F3F 3F313D17   B   339                    db 003h,03Bh,03Fh,03Fh,03Fh,031
+012869 3C100F0D 0C0A2C2C 
+012871 36173F2E 2E3E3D1E   B   340                    db 036h,017h,03Fh,02Eh,02Eh,03E
+012879 2A2A2A1D 1D26260F 
+012881 09272E2E 2E273D21   B   341                    db 009h,027h,02Eh,02Eh,02Eh,027
+012889 2A2A2A1D 1D262626 
+012891 382F2E2E 3E3D1E2A   B   342                    db 038h,02Fh,02Eh,02Eh,03Eh,03D
+012899 2A2A1D1D 26262625 
+0128A1 3B3F2E2E 273D212A   B   343                    db 03Bh,03Fh,02Eh,02Eh,027h,03D
+0128A9 2A1D1D1D 26262625 
+0128B1 3D2E2E3E 3D1E2A2A   B   344                    db 03Dh,02Eh,02Eh,03Eh,03Dh,01E
+0128B9 2A1D1D26 26262525 
+0128C1 312E3F27 1E212A2A   B   345                    db 031h,02Eh,03Fh,027h,01Eh,021
+0128C9 1D1D2626 26252525 
+0128D1 3E2E313D 212A2A1D   B   346                    db 03Eh,02Eh,031h,03Dh,021h,02A
+0128D9 1D1D2626 2525251C 
+0128E1 2E3E3D1E 212A2A1D   B   347                    db 02Eh,03Eh,03Dh,01Eh,021h,02A
+0128E9 1D262626 2525251C 
+0128F1 3F3D3D21 2A2A1D1D   B   348                    db 03Fh,03Dh,03Dh,021h,02Ah,02A
+0128F9 26262625 2525251C 
+012901 273D212A 2A1D1D1D   B   349                    db 027h,03Dh,021h,02Ah,02Ah,01D
+012909 26262525 25251C39 
+012911 3D212A2A 1D1D1D26   B   350                    db 03Dh,021h,02Ah,02Ah,01Dh,01D
+012919 26262525 251C1C39 
+012921 1E2A2A2A 1D1D2626   B   351                    db 01Eh,02Ah,02Ah,02Ah,01Dh,01D
+012929 26252525 251C1C0E 
+012931 2A2A2A1D 1D262626   B   352                    db 02Ah,02Ah,02Ah,01Dh,01Dh,026
+012939 25252525 1C1C1C0E 
+012941 2A2A1D1D 26262626   B   353                    db 02Ah,02Ah,01Dh,01Dh,026h,026
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  33
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012949 25252525 1C1C1C16 
+012951 2A1D1D26 26262625   B   354                    db 02Ah,01Dh,01Dh,026h,026h,026
+012959 2525251C 1C1C2316 
+012961 1D1D2626 26262525   B   355                    db 01Dh,01Dh,026h,026h,026h,026
+012969 25251C1C 1C1C2319 
+012971 26262626 26252525   B   356                    db 026h,026h,026h,026h,026h,025
+012979 25251C1C 1C230E19 
+012981 0A0A0A39 390F0F1C   B   357                    db 00Ah,00Ah,00Ah,039h,039h,00F
+012989 1C1C1C1C 23231619 
+012991 2C2C2C2C 2C2C1108   B   358                    db 02Ch,02Ch,02Ch,02Ch,02Ch,02C
+012999 08161616 0E0E1615 
+0129A1 2C2C2C2C 2C2C2C11   B   359                    db 02Ch,02Ch,02Ch,02Ch,02Ch,02C
+0129A9 11111111 11192929 
+0129B1 2C2C2C2C 2C2C2C11   B   360                    db 02Ch,02Ch,02Ch,02Ch,02Ch,02C
+0129B9 11111111 19122929 
+0129C1 2C2C2C2C 2C2C1111   B   361                    db 02Ch,02Ch,02Ch,02Ch,02Ch,02C
+0129C9 11111119 19152929 
+0129D1 2C2C2C2C 2C111111   B   362                    db 02Ch,02Ch,02Ch,02Ch,02Ch,011
+0129D9 11111919 121A2929 
+0129E1 2C2C2C2C 11111111   B   363                    db 02Ch,02Ch,02Ch,02Ch,011h,011
+0129E9 11191912 35202929 
+0129F1 2C2C2C11 11111111   B   364                    db 02Ch,02Ch,02Ch,011h,011h,011
+0129F9 19191218 07222929 
+012A01 2C111111 11111119   B   365                    db 02Ch,011h,011h,011h,011h,011
+012A09 19121835 15222929 
+012A11 11111111 11111919   B   366                    db 011h,011h,011h,011h,011h,011
+012A19 12183535 1A292929 
+012A21 11111111 19191912   B   367                    db 011h,011h,011h,011h,019h,019
+012A29 35353507 22292929 
+012A31 11111119 19191235   B   368                    db 011h,011h,011h,019h,019h,019
+012A39 35353515 22292929 
+012A41 11111919 19123535   B   369                    db 011h,011h,019h,019h,019h,012
+012A49 3535351A 29292929 
+012A51 19191912 18353535   B   370                    db 019h,019h,019h,012h,018h,035
+012A59 35353520 29292929 
+012A61 19121218 35353535   B   371                    db 019h,012h,012h,018h,035h,035
+012A69 35351522 29292929 
+012A71 201A1515 07353535   B   372                    db 020h,01Ah,015h,015h,007h,035
+012A79 35351A29 22222222 
+012A81 29292929 22222220   B   373                    db 029h,029h,029h,029h,022h,022
+012A89 20201507 07070707 
+012A91 29292929 29292929   B   374                    db 029h,029h,029h,029h,029h,029
+012A99 29203535 35353535 
+012AA1 29292929 29292929   B   375                    db 029h,029h,029h,029h,029h,029
+012AA9 22153535 35353535 
+012AB1 29292229 29292929   B   376                    db 029h,029h,022h,029h,029h,029
+012AB9 20353535 35353535 
+012AC1 29292929 29292922   B   377                    db 029h,029h,029h,029h,029h,029
+012AC9 15353535 35353535 
+012AD1 29292929 29292920   B   378                    db 029h,029h,029h,029h,029h,029
+012AD9 35353535 35353535 
+012AE1 29292929 29292215   B   379                    db 029h,029h,029h,029h,029h,029
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  34
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012AE9 35353535 35353535 
+012AF1 29292929 29291A35   B   380                    db 029h,029h,029h,029h,029h,029
+012AF9 35353535 35070714 
+012B01 20202020 20201507   B   381                    db 020h,020h,020h,020h,020h,020
+012B09 151A1A1A 1B241F1F 
+012B11 35353535 1A292222   B   382                    db 035h,035h,035h,035h,01Ah,029
+012B19 281B241F 1F220000 
+012B21 1413131B 1B1B241F   B   383                    db 014h,013h,013h,01Bh,01Bh,01B
+012B29 1F280000 00000000 
+012B31 3A3A3A3A 3A3A1F1F   B   384                    db 03Ah,03Ah,03Ah,03Ah,03Ah,03A
+012B39 00000000 00000000 
+012B41 00000000 00000000   B   385                    db 000h,000h,000h,000h,000h,000
+012B49 00000000 00000000 
+012B51 00000000 00000000   B   386                    db 000h,000h,000h,000h,000h,000
+012B59 00000000 00000000 
+012B61 00000000 00000000   B   387                    db 000h,000h,000h,000h,000h,000
+012B69 00000000 00000000 
+012B71 00000000 00000000   B   388                    db 000h,000h,000h,000h,000h,000
+012B79 00000000 00000000 
+012B81 29000000 00000000   B   389                    db 029h,000h,000h,000h,000h,000
+012B89 00000000 00000000 
+012B91 0E3A3A00 00000000   B   390                    db 00Eh,03Ah,03Ah,000h,000h,000
+012B99 00000000 00000000 
+012BA1 390E233A 3A000000   B   391                    db 039h,00Eh,023h,03Ah,03Ah,000
+012BA9 00000000 00000000 
+012BB1 390E1616 1A3A3A00   B   392                    db 039h,00Eh,016h,016h,01Ah,03A
+012BB9 00000000 00000000 
+012BC1 390E3939 0E1A143A   B   393                    db 039h,00Eh,039h,039h,00Eh,01A
+012BC9 3A000000 00000000 
+012BD1 0C0F0E08 0E0E0E1A   B   394                    db 00Ch,00Fh,00Eh,008h,00Eh,00E
+012BD9 133A0000 00000000 
+012BE1 080A0F39 0808160E   B   395                    db 008h,00Ah,00Fh,039h,008h,008
+012BE9 29282424 00000000 
+012BF1 0C2C0A0F 1C0E1119   B   396                    db 00Ch,02Ch,00Ah,00Fh,01Ch,00E
+012BF9 20221A24 1F000000 
+012C01 1D0A2C08 1C1C3916   B   397                    db 01Dh,00Ah,02Ch,008h,01Ch,01C
+012C09 19151A35 133A0000 
+012C11 1D0F2C2C 08391C39   B   398                    db 01Dh,00Fh,02Ch,02Ch,008h,039
+012C19 1612151A 35131F00 
+012C21 1D1D392C 2C08391C   B   399                    db 01Dh,01Dh,039h,02Ch,02Ch,008
+012C29 23162029 2007141F 
+012C31 1D1D260A 2C2C0839   B   400                    db 01Dh,01Dh,026h,00Ah,02Ch,02C
+012C39 23161522 29221A14 
+012C41 1010100F 0A0A0E0E   B   401                    db 010h,010h,010h,00Fh,00Ah,00A
+012C49 16111915 22292920 
+012C51 02022C2C 3925251C   B   402                    db 002h,002h,02Ch,02Ch,039h,025
+012C59 39111112 35202929 
+012C61 0202022C 0A252525   B   403                    db 002h,002h,002h,02Ch,00Ah,025
+012C69 1C0E1919 12352029 
+012C71 0202022C 2C392525   B   404                    db 002h,002h,002h,02Ch,02Ch,039
+012C79 1C231619 19353520 
+012C81 0202022C 2C082525   B   405                    db 002h,002h,002h,02Ch,02Ch,008
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  35
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012C89 1C1C2316 19123535 
+012C91 0202022C 2C2C3925   B   406                    db 002h,002h,002h,02Ch,02Ch,02C
+012C99 1C1C230E 15183535 
+012CA1 0A02022C 2C2C0825   B   407                    db 00Ah,002h,002h,02Ch,02Ch,02C
+012CA9 251C1C23 29073535 
+012CB1 0C02022C 2C2C2C39   B   408                    db 00Ch,002h,002h,02Ch,02Ch,02C
+012CB9 251C1C23 23203535 
+012CC1 0D02022C 2C2C2C08   B   409                    db 00Dh,002h,002h,02Ch,02Ch,02C
+012CC9 1C1C1C23 23290735 
+012CD1 3802022C 2C2C2C2C   B   410                    db 038h,002h,002h,02Ch,02Ch,02C
+012CD9 391C1C23 23292035 
+012CE1 3802022C 2C2C2C2C   B   411                    db 038h,002h,002h,02Ch,02Ch,02C
+012CE9 0E1C1C23 23232915 
+012CF1 1002022C 2C2C2C2C   B   412                    db 010h,002h,002h,02Ch,02Ch,02C
+012CF9 081C1C23 23232922 
+012D01 3B02022C 2C2C2C2C   B   413                    db 03Bh,002h,002h,02Ch,02Ch,02C
+012D09 110E1C23 23232929 
+012D11 3B2C022C 2C2C2C2C   B   414                    db 03Bh,02Ch,002h,02Ch,02Ch,02C
+012D19 110E1C23 23232929 
+012D21 3C2C022C 2C2C2C2C   B   415                    db 03Ch,02Ch,002h,02Ch,02Ch,02C
+012D29 2C082323 23232929 
+012D31 3B0A2C2C 2C2C2C2C   B   416                    db 03Bh,00Ah,02Ch,02Ch,02Ch,02C
+012D39 2C110E23 23291A15 
+012D41 0C0C0C0C 39393939   B   417                    db 00Ch,00Ch,00Ch,00Ch,039h,039
+012D49 0E0E0E16 15121835 
+012D51 02101D26 26252525   B   418                    db 002h,010h,01Dh,026h,026h,025
+012D59 251C2319 19191235 
+012D61 02101D26 26252525   B   419                    db 002h,010h,01Dh,026h,026h,025
+012D69 1C1C231A 19191235 
+012D71 020F1D26 26252525   B   420                    db 002h,00Fh,01Dh,026h,026h,025
+012D79 1C1C2316 19193535 
+012D81 020F1D26 26252525   B   421                    db 002h,00Fh,01Dh,026h,026h,025
+012D89 1C1C230E 19193535 
+012D91 020F2626 26252525   B   422                    db 002h,00Fh,026h,026h,026h,025
+012D99 1C1C2323 19193535 
+012DA1 2C0F2626 26252525   B   423                    db 02Ch,00Fh,026h,026h,026h,025
+012DA9 1C1C2323 15123535 
+012DB1 2C0F2626 2525251C   B   424                    db 02Ch,00Fh,026h,026h,025h,025
+012DB9 1C1C2323 1A353535 
+012DC1 2C0F2626 2525251C   B   425                    db 02Ch,00Fh,026h,026h,025h,025
+012DC9 1C232323 16353535 
+012DD1 2C0F2626 2525251C   B   426                    db 02Ch,00Fh,026h,026h,025h,025
+012DD9 1C232323 22353535 
+012DE1 2C0F2626 25251C1C   B   427                    db 02Ch,00Fh,026h,026h,025h,025
+012DE9 1C232323 29353535 
+012DF1 2C0F2625 25251C1C   B   428                    db 02Ch,00Fh,026h,025h,025h,025
+012DF9 1C232323 29073535 
+012E01 2C0F2625 25251C1C   B   429                    db 02Ch,00Fh,026h,025h,025h,025
+012E09 23232323 29153535 
+012E11 2C0F2625 251C1C1C   B   430                    db 02Ch,00Fh,026h,025h,025h,01C
+012E19 23232323 291A3535 
+012E21 2C0F2525 251C1C23   B   431                    db 02Ch,00Fh,025h,025h,025h,01C
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  36
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012E29 23232329 291A3535 
+012E31 2C0F2525 251C1C23   B   432                    db 02Ch,00Fh,025h,025h,025h,01C
+012E39 23232329 29203535 
+012E41 2C0F2525 1C1C1C23   B   433                    db 02Ch,00Fh,025h,025h,01Ch,01C
+012E49 23232329 29203535 
+012E51 080F2525 1C1C2323   B   434                    db 008h,00Fh,025h,025h,01Ch,01C
+012E59 23232929 29203535 
+012E61 0825251C 1C1C2323   B   435                    db 008h,025h,025h,01Ch,01Ch,01C
+012E69 23292922 22201A20 
+012E71 390E0E08 08080819   B   436                    db 039h,00Eh,00Eh,008h,008h,008
+012E79 15123535 35072229 
+012E81 39112C11 11111119   B   437                    db 039h,011h,02Ch,011h,011h,011
+012E89 19191235 35352229 
+012E91 392C2C11 11111119   B   438                    db 039h,02Ch,02Ch,011h,011h,011
+012E99 19123535 35352229 
+012EA1 392C1111 11111919   B   439                    db 039h,02Ch,011h,011h,011h,011
+012EA9 19183535 35352229 
+012EB1 0E111111 11111919   B   440                    db 00Eh,011h,011h,011h,011h,011
+012EB9 12183535 35352229 
+012EC1 0E111111 11191919   B   441                    db 00Eh,011h,011h,011h,011h,019
+012EC9 18353535 35352229 
+012ED1 08111111 11191912   B   442                    db 008h,011h,011h,011h,011h,019
+012ED9 35353535 35352229 
+012EE1 08111111 19191918   B   443                    db 008h,011h,011h,011h,019h,019
+012EE9 35353535 35352229 
+012EF1 11111111 19191235   B   444                    db 011h,011h,011h,011h,019h,019
+012EF9 35353535 35352229 
+012F01 11111119 19121835   B   445                    db 011h,011h,011h,019h,019h,012
+012F09 35353535 35352229 
+012F11 11111119 19123535   B   446                    db 011h,011h,011h,019h,019h,012
+012F19 35353535 35352229 
+012F21 11111919 12353535   B   447                    db 011h,011h,019h,019h,012h,035
+012F29 35353535 35352229 
+012F31 11191919 18353535   B   448                    db 011h,019h,019h,019h,018h,035
+012F39 35353535 35352229 
+012F41 11191912 35353535   B   449                    db 011h,019h,019h,012h,035h,035
+012F49 35353535 35352229 
+012F51 19191235 35353535   B   450                    db 019h,019h,012h,035h,035h,035
+012F59 35353535 35072929 
+012F61 19191835 35353535   B   451                    db 019h,019h,018h,035h,035h,035
+012F69 35353535 35152929 
+012F71 19123535 35353535   B   452                    db 019h,012h,035h,035h,035h,035
+012F79 35353535 351A221A 
+012F81 12183535 35353535   B   453                    db 012h,018h,035h,035h,035h,035
+012F89 3515151A 20153535 
+012F91 1515151A 1A202020   B   454                    db 015h,015h,015h,01Ah,01Ah,020
+012F99 22222229 29153535 
+012FA1 29292929 29292929   B   455                    db 029h,029h,029h,029h,029h,029
+012FA9 29292929 22073535 
+012FB1 29292929 29292929   B   456                    db 029h,029h,029h,029h,029h,029
+012FB9 29292929 20353535 
+012FC1 29292929 29292929   B   457                    db 029h,029h,029h,029h,029h,029
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  37
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+012FC9 29292929 20353535 
+012FD1 29292929 29292929   B   458                    db 029h,029h,029h,029h,029h,029
+012FD9 29292929 1A353535 
+012FE1 29292929 29292929   B   459                    db 029h,029h,029h,029h,029h,029
+012FE9 29292922 15353535 
+012FF1 29292929 29292929   B   460                    db 029h,029h,029h,029h,029h,029
+012FF9 22292920 35353535 
+013001 29292929 29292929   B   461                    db 029h,029h,029h,029h,029h,029
+013009 29292920 35353535 
+013011 29292929 29292929   B   462                    db 029h,029h,029h,029h,029h,029
+013019 29292915 35353535 
+013021 29292929 29292929   B   463                    db 029h,029h,029h,029h,029h,029
+013029 29292235 35353535 
+013031 29292929 29292929   B   464                    db 029h,029h,029h,029h,029h,029
+013039 29291A35 35353515 
+013041 29292929 29292929   B   465                    db 029h,029h,029h,029h,029h,029
+013049 29221535 071A2229 
+013051 29292929 29292929   B   466                    db 029h,029h,029h,029h,029h,029
+013059 29201520 22292928 
+013061 29292929 2922201A   B   467                    db 029h,029h,029h,029h,029h,022
+013069 1A222929 2929281F 
+013071 22201A1A 15353535   B   468                    db 022h,020h,01Ah,01Ah,015h,035
+013079 15222929 22283A00 
+013081 35353535 35353507   B   469                    db 035h,035h,035h,035h,035h,035
+013089 20292922 1B1F0000 
+013091 35353535 3535351A   B   470                    db 035h,035h,035h,035h,035h,035
+013099 29292224 24000000 
+0130A1 35353535 35351522   B   471                    db 035h,035h,035h,035h,035h,035
+0130A9 29281F00 00000000 
+0130B1 35353535 35072022   B   472                    db 035h,035h,035h,035h,035h,007
+0130B9 241F0000 00000000 
+0130C1 35353535 071A2824   B   473                    db 035h,035h,035h,035h,007h,01A
+0130C9 00000000 00000000 
+0130D1 35353535 141F1B00   B   474                    db 035h,035h,035h,035h,014h,01F
+0130D9 00000000 00000000 
+0130E1 3535131F 1B000000   B   475                    db 035h,035h,013h,01Fh,01Bh,000
+0130E9 00000000 00000000 
+0130F1 241F1B00 00000000   B   476                    db 024h,01Fh,01Bh,000h,000h,000
+0130F9 00000000 00000000 
+013101 22000000 00000000   B   477                    db 022h,000h,000h,000h,000h,000
+013109 00000000 00000000 
+013111 00000000 00000000   B   478                    db 000h,000h,000h,000h,000h,000
+013119 00000000 00000000 
+013121 00000000 00000000   B   479                    db 000h,000h,000h,000h,000h,000
+013129 00000000 00000000 
+013131 00000000 00000000   B   480                    db 000h,000h,000h,000h,000h,000
+013139 00000000 00000000 
+013141 00000000 00000000   B   481                    db 000h,000h,000h,000h,000h,000
+013149 00000000 00000000 
+013151 00000000 00000000   B   482                    db 000h,000h,000h,000h,000h,000
+013159 00000000 00000000 
+013161 00000000 00000000   B   483                    db 000h,000h,000h,000h,000h,000
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  38
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+013169 00000000 00000000 
+013171 00000000 00000000   B   484                    db 000h,000h,000h,000h,000h,000
+013179 00000000 00000000 
+013181 00000000 00000000   B   485                    db 000h,000h,000h,000h,000h,000
+013189 00000000 00000000 
+013191 00000000 00000000   B   486                    db 000h,000h,000h,000h,000h,000
+013199 00000000 00000000 
+0131A1 00000000 00000000   B   487                    db 000h,000h,000h,000h,000h,000
+0131A9 00000000 00000000 
+0131B1 00000000 00000000   B   488                    db 000h,000h,000h,000h,000h,000
+0131B9 00000000 00000000 
+0131C1 00000000 00000000   B   489                    db 000h,000h,000h,000h,000h,000
+0131C9 00000000 00000000 
+0131D1 00000000 00000000   B   490                    db 000h,000h,000h,000h,000h,000
+0131D9 00000000 00000000 
+0131E1 00000000 00000000   B   491                    db 000h,000h,000h,000h,000h,000
+0131E9 00000000 00000000 
+0131F1 00000000 00000000   B   492                    db 000h,000h,000h,000h,000h,000
+0131F9 00000000 00000000 
+013201 00000000 00000000   B   493                    db 000h,000h,000h,000h,000h,000
+013209 00000000 00000000 
+013211 00000000 00000000   B   494                    db 000h,000h,000h,000h,000h,000
+013219 00000000 00000000 
+013221 00000000 00000000   B   495                    db 000h,000h,000h,000h,000h,000
+013229 00000000 00000000 
+013231 1F000000 00000000   B   496                    db 01Fh,000h,000h,000h,000h,000
+013239 00000000 00000000 
+013241 141F0000 00000000   B   497                    db 014h,01Fh,000h,000h,000h,000
+013249 00000000 00000000 
+013251 20143A00 00000000   B   498                    db 020h,014h,03Ah,000h,000h,000
+013259 00000000 00000000 
+013261 2922143A 00000000   B   499                    db 029h,022h,014h,03Ah,000h,000
+013269 00000000 00000000 
+013271 29292214 3A000000   B   500                    db 029h,029h,022h,014h,03Ah,000
+013279 00000000 00000000 
+013281 20292922 13240000   B   501                    db 020h,029h,029h,022h,013h,024
+013289 00000000 00000000 
+013291 07222929 201F0000   B   502                    db 007h,022h,029h,029h,020h,01F
+013299 00000000 00000000 
+0132A1 35152229 29281F00   B   503                    db 035h,015h,022h,029h,029h,028
+0132A9 00000000 00000000 
+0132B1 35351522 29291B24   B   504                    db 035h,035h,015h,022h,029h,029
+0132B9 00000000 00000000 
+0132C1 3535351A 29291A1F   B   505                    db 035h,035h,035h,01Ah,029h,029
+0132C9 00000000 00000000 
+0132D1 35353507 20220713   B   506                    db 035h,035h,035h,007h,020h,022
+0132D9 24000000 00000000 
+0132E1 35353535 15200735   B   507                    db 035h,035h,035h,035h,015h,020
+0132E9 1F000000 00000000 
+0132F1 35353535 35153535   B   508                    db 035h,035h,035h,035h,035h,015
+0132F9 133A0000 00000000 
+013301 15353535 1A221535   B   509                    db 015h,035h,035h,035h,01Ah,022
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  39
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+013309 351F0000 00000000 
+013311 22070720 29292007   B   510                    db 022h,007h,007h,020h,029h,029
+013319 35131F00 00000000 
+013321 221A2229 2929291A   B   511                    db 022h,01Ah,022h,029h,029h,029
+013329 35353A00 00000000 
+013331 35072229 29292922   B   512                    db 035h,007h,022h,029h,029h,029
+013339 0735131F 00000000 
+013341 35351A29 29292929   B   513                    db 035h,035h,01Ah,029h,029h,029
+013349 1A35143A 00000000 
+013351 35350722 29292929   B   514                    db 035h,035h,007h,022h,029h,029
+013359 2207353A 00000000 
+013361 35353520 29292929   B   515                    db 035h,035h,035h,020h,029h,029
+013369 291A3513 1F000000 
+013371 35353515 22292929   B   516                    db 035h,035h,035h,015h,022h,029
+013379 29220714 3A000000 
+013381 35353535 20292929   B   517                    db 035h,035h,035h,035h,020h,029
+013389 29291A35 3A000000 
+013391 35353535 1A292929   B   518                    db 035h,035h,035h,035h,01Ah,029
+013399 29292035 1F3A0000 
+0133A1 35353535 07222929   B   519                    db 035h,035h,035h,035h,007h,022
+0133A9 29292215 13240000 
+0133B1 35353535 35202929   B   520                    db 035h,035h,035h,035h,035h,020
+0133B9 2929291A 141F0000 
+0133C1 35353535 351A2929   B   521                    db 035h,035h,035h,035h,035h,01A
+0133C9 29292920 1B1F0000 
+0133D1 35353535 35072229   B   522                    db 035h,035h,035h,035h,035h,007
+0133D9 29292929 203A0000 
+0133E1 35353535 35352029   B   523                    db 035h,035h,035h,035h,035h,035
+0133E9 29292922 203A1F00 
+0133F1 35353535 35351A29   B   524                    db 035h,035h,035h,035h,035h,035
+0133F9 29292215 153A1F00 
+013401 35353535 35351522   B   525                    db 035h,035h,035h,035h,035h,035
+013409 29221535 07283A00 
+013411 35353535 35350722   B   526                    db 035h,035h,035h,035h,035h,035
+013419 22153535 351B2400 
+013421 35353535 35353520   B   527                    db 035h,035h,035h,035h,035h,035
+013429 15353535 351B1F00 
+013431 35353535 35351515   B   528                    db 035h,035h,035h,035h,035h,035
+013439 35353535 35152400 
+013441 35353507 1A22291A   B   529                    db 035h,035h,035h,007h,01Ah,022
+013449 35353535 35152400 
+013451 071A2229 29292920   B   530                    db 007h,01Ah,022h,029h,029h,029
+013459 35353535 35072400 
+013461 29292929 29292922   B   531                    db 029h,029h,029h,029h,029h,029
+013469 07353535 35141F00 
+013471 29292929 29292922   B   532                    db 029h,029h,029h,029h,029h,029
+013479 07353535 35131F00 
+013481 29292929 29292922   B   533                    db 029h,029h,029h,029h,029h,029
+013489 07353535 35131F00 
+013491 29292929 29292922   B   534                    db 029h,029h,029h,029h,029h,029
+013499 15353535 351F1F00 
+0134A1 29292929 29292929   B   535                    db 029h,029h,029h,029h,029h,029
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  40
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+0134A9 15353535 351F1F00 
+0134B1 29292929 29292929   B   536                    db 029h,029h,029h,029h,029h,029
+0134B9 15353535 351F0000 
+0134C1 29292929 29292929   B   537                    db 029h,029h,029h,029h,029h,029
+0134C9 1A353535 143A0000 
+0134D1 29292929 29292929   B   538                    db 029h,029h,029h,029h,029h,029
+0134D9 1A353535 143A0000 
+0134E1 29292929 29292929   B   539                    db 029h,029h,029h,029h,029h,029
+0134E9 1A353535 141B0000 
+0134F1 29292929 29292929   B   540                    db 029h,029h,029h,029h,029h,029
+0134F9 1A353515 24290000 
+013501 29292929 29292929   B   541                    db 029h,029h,029h,029h,029h,029
+013509 1A350720 1F000000 
+013511 29292929 29292929   B   542                    db 029h,029h,029h,029h,029h,029
+013519 15072028 1F000000 
+013521 29292929 29292929   B   543                    db 029h,029h,029h,029h,029h,029
+013529 1A20291B 28000000 
+013531 29292929 29292922   B   544                    db 029h,029h,029h,029h,029h,029
+013539 22292224 00000000 
+013541 29292929 29221507   B   545                    db 029h,029h,029h,029h,029h,022
+013549 22292224 00000000 
+013551 29292922 15353507   B   546                    db 029h,029h,029h,022h,015h,035
+013559 22291B28 00000000 
+013561 22201535 35353507   B   547                    db 022h,020h,015h,035h,035h,035
+013569 22221F00 00000000 
+013571 07353535 3535351A   B   548                    db 007h,035h,035h,035h,035h,035
+013579 29281B00 00000000 
+013581 35353535 35353520   B   549                    db 035h,035h,035h,035h,035h,035
+013589 221F0000 00000000 
+013591 35353535 35350722   B   550                    db 035h,035h,035h,035h,035h,035
+013599 28240000 00000000 
+0135A1 35353535 35351522   B   551                    db 035h,035h,035h,035h,035h,035
+0135A9 24000000 00000000 
+0135B1 35353535 3535201B   B   552                    db 035h,035h,035h,035h,035h,035
+0135B9 1B000000 00000000 
+0135C1 35353535 3507281F   B   553                    db 035h,035h,035h,035h,035h,007
+0135C9 00000000 00000000 
+0135D1 35353535 35152400   B   554                    db 035h,035h,035h,035h,035h,015
+0135D9 00000000 00000000 
+0135E1 35353535 351B1B00   B   555                    db 035h,035h,035h,035h,035h,01B
+0135E9 00000000 00000000 
+0135F1 35353535 141F0000   B   556                    db 035h,035h,035h,035h,014h,01F
+0135F9 00000000 00000000 
+013601 35353507 1F000000   B   557                    db 035h,035h,035h,007h,01Fh,000
+013609 00000000 00000000 
+013611 3535071F 24000000   B   558                    db 035h,035h,007h,01Fh,024h,000
+013619 00000000 00000000 
+013621 351A1B24 00000000   B   559                    db 035h,01Ah,01Bh,024h,000h,000
+013629 00000000 00000000 
+013631 22281F00 00000000   B   560                    db 022h,028h,01Fh,000h,000h,000
+013639 00000000 00000000 
+013641 283A0000 00000000   B   561                    db 028h,03Ah,000h,000h,000h,000
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  41
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_sprites.asm
+013649 00000000 00000000 
+013651 1F000000 00000000   B   562                    db 01Fh,000h,000h,000h,000h,000
+013659 00000000 00000000 
+013661 00000000 00000000   B   563                    db 000h,000h,000h,000h,000h,000
+013669 00000000 00000000 
+013671 00000000 00000000   B   564                    db 000h,000h,000h,000h,000h,000
+013679 00000000 00000000 
+013681 00000000 00000000   B   565                    db 000h,000h,000h,000h,000h,000
+013689 00000000 00000000 
+013691 00000000 00000000   B   566                    db 000h,000h,000h,000h,000h,000
+013699 00000000 00000000 
+0136A1 00000000 00000000   B   567                    db 000h,000h,000h,000h,000h,000
+0136A9 00000000 00000000 
+0136B1 00000000 00000000   B   568                    db 000h,000h,000h,000h,000h,000
+0136B9 00000000 00000000 
+0136C1 00000000 00000000   B   569                    db 000h,000h,000h,000h,000h,000
+0136C9 00000000 00000000 
+0136D1 00000000 00000000   B   570                    db 000h,000h,000h,000h,000h,000
+0136D9 00000000 00000000 
+0136E1 00000000 00000000   B   571                    db 000h,000h,000h,000h,000h,000
+0136E9 00000000 00000000 
+0136F1 00000000 00000000   B   572                    db 000h,000h,000h,000h,000h,000
+0136F9 00000000 00000000 
+013701 00000000 00000000   B   573                    db 000h,000h,000h,000h,000h,000
+013709 00000000 00000000 
+013711 00000000 00000000   B   574                    db 000h,000h,000h,000h,000h,000
+013719 00000000 00000000 
+013721 00000000 00000000   B   575                    db 000h,000h,000h,000h,000h,000
+013729 00000000 00000000 
+013731 00000000 00000000   B   576                    db 000h,000h,000h,000h,000h,000
+013739 00000000 00000000 
+013741 00000000 00000000   B   577                    db 000h,000h,000h,000h,000h,000
+013749 00000000 00000000 
+                           B     0    include 'boing_96x96_12bit_palette.asm'
+013751                     B     1    spr_colours:
+013751 0F0B000E 000C000F   B     2                    db 00Fh,00Bh,000h,00Eh,000h,00C
+013759 110F110F 220F0003 
+013761 1108330F 220A440E   B     3                    db 011h,008h,033h,00Fh,022h,00A
+013769 440C660E 4407770C 
+013771 990F0007 00040002   B     4                    db 099h,00Fh,000h,007h,000h,004
+013779 00021104 2206DD0F 
+013781 00030005 12041102   B     5                    db 000h,003h,000h,005h,012h,004
+013789 7708CC0C EE0E0000 
+013791 2204DD0E 33045506   B     6                    db 022h,004h,0DDh,00Eh,033h,004
+013799 01019909 AA0BEE0F 
+0137A1 22023404 DD0D8E06   B     7                    db 022h,002h,034h,004h,0DDh,00D
+0137A9 000AFF0F FF0FFF0F 
+0137B1 EE0EFF0F EE0F000F   B     8                    db 0EEh,00Eh,0FFh,00Fh,0EEh,00F
+0137B9 000F0003 110E220D 
+0137C1 770F5509 0000BB0F   B     9                    db 077h,00Fh,055h,009h,000h,000
+0137C9 CC0FEE0F FF0FFF0F 
+0137D1 00000000 00000000   B    10                    db 000h,000h,000h,000h,000h,000
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  42
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\boing_96x96_12bit_palette.asm
+0137D9 00000000 00000000 
+0137E1 00000000 00000000   B    11                    db 000h,000h,000h,000h,000h,000
+0137E9 00000000 00000000 
+0137F1 00000000 00000000   B    12                    db 000h,000h,000h,000h,000h,000
+0137F9 00000000 00000000 
+013801 00000000 00000000   B    13                    db 000h,000h,000h,000h,000h,000
+013809 00000000 00000000 
+013811 00000000 00000000   B    14                    db 000h,000h,000h,000h,000h,000
+013819 00000000 00000000 
+013821 00000000 00000000   B    15                    db 000h,000h,000h,000h,000h,000
+013829 00000000 00000000 
+013831 00000000 00000000   B    16                    db 000h,000h,000h,000h,000h,000
+013839 00000000 00000000 
+013841 00000000 00000000   B    17                    db 000h,000h,000h,000h,000h,000
+013849 00000000 00000000 
+013851 00000000 00000000   B    18                    db 000h,000h,000h,000h,000h,000
+013859 00000000 00000000 
+013861 00000000 00000000   B    19                    db 000h,000h,000h,000h,000h,000
+013869 00000000 00000000 
+013871 00000000 00000000   B    20                    db 000h,000h,000h,000h,000h,000
+013879 00000000 00000000 
+013881 00000000 00000000   B    21                    db 000h,000h,000h,000h,000h,000
+013889 00000000 00000000 
+013891 00000000 00000000   B    22                    db 000h,000h,000h,000h,000h,000
+013899 00000000 00000000 
+0138A1 00000000 00000000   B    23                    db 000h,000h,000h,000h,000h,000
+0138A9 00000000 00000000 
+0138B1 00000000 00000000   B    24                    db 000h,000h,000h,000h,000h,000
+0138B9 00000000 00000000 
+0138C1 00000000 00000000   B    25                    db 000h,000h,000h,000h,000h,000
+0138C9 00000000 00000000 
+0138D1 00000000 00000000   B    26                    db 000h,000h,000h,000h,000h,000
+0138D9 00000000 00000000 
+0138E1 00000000 00000000   B    27                    db 000h,000h,000h,000h,000h,000
+0138E9 00000000 00000000 
+0138F1 00000000 00000000   B    28                    db 000h,000h,000h,000h,000h,000
+0138F9 00000000 00000000 
+013901 00000000 00000000   B    29                    db 000h,000h,000h,000h,000h,000
+013909 00000000 00000000 
+013911 00000000 00000000   B    30                    db 000h,000h,000h,000h,000h,000
+013919 00000000 00000000 
+013921 00000000 00000000   B    31                    db 000h,000h,000h,000h,000h,000
+013929 00000000 00000000 
+013931 00000000 00000000   B    32                    db 000h,000h,000h,000h,000h,000
+013939 00000000 00000000 
+013941 00000000 00000000   B    33                    db 000h,000h,000h,000h,000h,000
+013949 00000000 00000000 
+                           A   151    
+013951 A000                A   152    xcoord1			dw 160
+013953 6400                A   153    ycoord1 		dw 100
+013955 0000                A   154    def1			dw 0
+013957 6000                A   155    height_ctrl1	dw 060h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)31-Mar-11     21:13:35     page:  43
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\TILE_T~1\src\test640x480.asm
+                           A   156    
+                           A   157    ;----------------------------------------------
+
+
+Errors: 0
+Warnings: 0
+Lines Assembled: 1291
