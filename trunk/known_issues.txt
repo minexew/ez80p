@@ -1,8 +1,6 @@
 
 * NMI button sometimes doesn't work.
 
-* Many of the the programs in the PROSE_BASED_APPS/TEST folder need to
-  be tidied up.
 
 
 Previously addressed:
