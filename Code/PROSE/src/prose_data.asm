@@ -162,22 +162,22 @@ dictionary				db 0,"DEBUG"			;01
 						db 0,"Transmit"			;2e
 						db 0,"Load"				;2f
 						
-						db 0,"OS/HW"				;30
-						db 0,"Version"				;31
-						db 0,"[pen paper]"			;32				
-						db 80h,":"					;33
-						db 81h,">"					;34
-						db 0,"*"					;35 (command $082h currently not used)
-						db 0,"Volumes"				;36
-						db 83h,"C"					;37
-						db 84h,"CD"					;38
-						db 85h,"CLS"				;39
-						db 86h,"PEN"				;3a
-						db 87h,"D"					;3b
-						db 88h,"DEL"				;3c
-						db 89h,"DIR"				;3d
-						db 8ah,"H"					;3e
-						db 8bh,"F"					;3f
+						db 0,"OS/HW"			;30
+						db 0,"Version"			;31
+						db 0,"[pen paper]"		;32				
+						db 80h,":"				;33
+						db 81h,">"				;34
+						db 0,"*"				;35 (command $082h currently not used)
+						db 0,"Volumes"			;36
+						db 83h,"C"				;37
+						db 84h,"CD"				;38
+						db 85h,"CLS"			;39
+						db 86h,"PEN"			;3a
+						db 87h,"D"				;3b
+						db 88h,"DEL"			;3c
+						db 89h,"DIR"			;3d
+						db 8ah,"H"				;3e
+						db 8bh,"F"				;3f
 						
 						db 0,"On"				;40 
 						db 8ch,"FORMAT"			;41
@@ -316,9 +316,13 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"And"				;bb
 						db 0,"Saving"			;bc
 						db 0,"Unsupported"		;bd
-						db a0h,"SET"			;be
+						db 0a0h,"SET"			;be
 						db 0,"[var=string]"		;bf
+
 						db 0,"Envar"			;c0
+						db 0a1h,"DZ"			;c1
+						db 0,"ADL"				;c2
+						db 0,"Z80"				;c3
 						
 						db 0,1					;END MARKER
 
@@ -346,7 +350,8 @@ packed_help1				db 097h,0
 							db 0a8h,007h,009h,05fh,04fh,00bh,01eh,017h,0		; "< ad a b c - write bytes / disassemble" 
 
 							db 037h,007h,007h,007h,05fh,019h,050h,0				; "C ad ad ad - copy mem"
-							db 03bh,007h,007h,05fh,017h,0						; "D ad ad - disassemble"
+							db 03bh,007h,05fh,0c2h,017h,0						; "D ad - adl disassemble"
+							db 0c1h,007h,05fh,0c3h,017h,0						; "DZ ad - z80 disassemble"
 							db 03fh,007h,007h,054h,05fh,00eh,050h,0				; "F ad ad a" - fill mem"		
 							db 042h,007h,05fh,00fh,00ah,0						; "G ad - goto address"
 							db 03eh,007h,007h,009h,05fh,00dh,050h,0				; "H ad ad a b c - hunt mem"
@@ -427,6 +432,7 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_font							;1f
 							
 							dw24 os_cmd_set								;20
+							dw24 os_cmd_dz								;21
 							
 								
 packed_msg_list				db 0										;First message marker
