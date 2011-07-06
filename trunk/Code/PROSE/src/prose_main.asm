@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2bh
+prose_version	equ 2ch
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -3061,6 +3061,7 @@ os_get_font_info
 	include 'commands\vmode.asm'
 	include 'commands\font.asm'
 	include 'commands\set.asm'
+	include 'commands\dz.asm'
 
 os_cmd_unused	ret		; <- dummy command, should never be called
 
