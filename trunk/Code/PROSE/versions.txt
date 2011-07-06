@@ -1,6 +1,12 @@
 Current version
 ---------------
 
+02C - Added "D - disassemble" command (and "DZ - disassemble Z80" command)
+
+
+Previous
+--------
+
 02B - Added Environment variables (see kernal routines)
       Added SET command for enviroment variables
       Programs now update the ERROR environment variable on return to PROSE
@@ -8,10 +14,6 @@ Current version
     - Fixed the reported Stack Pointer value when NMI freezer button is pressed.
       (Was originally 6 bytes too low due to a CALL and a PUSH prior to its value
       being read)
-
-
-Previous
---------
 
 02A - Fixed "kr_write_file" call. External calls cannot use IX to pass data
       to PROSE as it is used to compute the jump! Inputs are now HL: filename
