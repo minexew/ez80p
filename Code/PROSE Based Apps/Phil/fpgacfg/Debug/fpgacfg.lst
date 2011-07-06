@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,10 +54,10 @@ PC     Object              I  Line    Source
        000000B1            B    38    CS3_LBR			equ 0b1h			;eZ80 wait 
        000000B2            B    39    CS3_UBR			equ 0b2h
        000000B3            B    40    CS3_CTL			equ 0b3h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   2
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            B    43    TMR0_DR_L		equ 081h
@@ -110,10 +110,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
                            B    90    ;-- Hardware registers ------------------------
                            B    91    
        00FF0000            B    92    hw_palette				equ 0ff0000h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   3
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
@@ -166,10 +166,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000016            B   142    kr_dir_list_next_entry			equ 16h
                            B   143    
        00000017            B   144    kr_read_sector					equ 17h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   4
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
@@ -222,10 +222,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
                            B   194    
        00000043            B   195    kr_get_keymap_location			equ 43h
        00000044            B   196    kr_get_os_high_mem				equ 44h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   5
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B   197    
                            B   198    ;----------------------------------------------
                            B   199    ; Standard PROSE executable header
@@ -276,10 +276,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
 01001B CD 4E 08 01         A    21    				call get_slot_count				01001F 28 06               A    22    				jr z,slc_ok
 010021 21 9C 0B 01         A    23    				ld hl,slot_count_error_txt
 010025 18 57               A    24    				jr quit_string
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A    25    					
 010027 2A AB 09 01         A    26    slc_ok			ld hl,(command_line_arg_ptr)
 01002B 7E                  A    27    				ld a,(hl)						01002C B7                  A    28    				or a				
@@ -331,10 +331,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010093 CD 5A 05 01         A    74    				call print_string
                            A    75    
 010097 AF                  A    76    				xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010098 32 CA 09 01         A    77    id_loop			ld (working_slot),a
 01009C 5F                  A    78    				ld e,a
 01009D 21 CB 0D 01         A    79    				ld hl,slot_hex+1
@@ -383,10 +383,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010121 DA 94 05 01         A   126    				jp c,timeout
 010125 CD 3C 05 01         A   127    				call show_hex_byte
                            A   128    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   8
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   8
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010129 21 E1 0D 01         A   129    				ld hl,cr_txt
 01012D C3 7E 00 01         A   130    				jp quit_string	
                            A   131    
@@ -435,10 +435,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010197 13                  A   178    				inc de
 010198 10 F3               A   179    				djnz cpy_fn
 01019A AF                  A   180    fn_done			xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:   9
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:   9
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 01019B 12                  A   181    				ld (de),a
                            A   182    				
 01019C 21 B0 09 01         A   183    				ld hl,filename
@@ -486,10 +486,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010221 7E                  A   230    cfnlp			ld a,(hl)
 010222 12                  A   231    				ld (de),a
 010223 B7                  A   232    				or a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  10
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  10
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010224 28 06               A   233    				jr z,cfnd
 010226 23                  A   234    				inc hl
 010227 13                  A   235    				inc de
@@ -538,10 +538,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010296 B1                  A   282    				or c
 010297 20 E8               A   283    				jr nz,lp1
                            A   284    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  11
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  11
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010299 CD 0B 08 01         A   285    				call disable_pic_writes
 01029D DA 94 05 01         A   286    				jp c,timeout
 0102A1 FE00                A   287    				cp 0
@@ -581,10 +581,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010313 CD 3D 08 01         A   333    				call send_byte_to_pic
 010317 CD 1C 08 01         A   334    				call get_byte_from_pic			01031B DA 94 05 01         A   335    				jp c,timeout
 01031F FE00                A   336    				cp 0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  12
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  12
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010321 C2 E4 05 01         A   337    				jp nz,bad_pic_response
                            A   338    
 010325 21 03 0E 03         A   339    				ld hl,buffer+020000h
@@ -634,10 +634,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A   386    								
                            A   387    
                            A   388    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  13
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  13
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A   389    
                            A   390    
 010381 CD 21 05 01         A   391    erase_slot_cmd	call find_next_argument			010385 CA B4 05 01         A   392    				jp z,missing_arg
@@ -686,10 +686,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0103FC BE                  A   438    				cp (hl)
 0103FD D2 8C 05 01         A   439    				jp nc,invalid_slot
                            A   440    	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  14
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  14
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010401 21 57 0C 01         A   441    				ld hl,new_boot_txt
 010405 CD 5A 05 01         A   442    				call print_string
 010409 3A C8 09 01         A   443    				ld a,(target_slot)
@@ -739,10 +739,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010494 21 CC 09 01         A   490    				ld hl,ok_txt
 010498 C3 7E 00 01         A   491    				jp quit_string
                            A   492    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  15
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  15
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A   493    
                            A   494    ;----------------------------------------------
                            A   495    
@@ -790,10 +790,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A   542    ;----------------------------------------------
                            A   543    
                            A   544    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  16
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  16
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010521                     A   545    find_next_argument
                            A   546    
 010521 2A AB 09 01         A   547    				ld hl,(command_line_arg_ptr)
@@ -844,10 +844,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010562 11008000            A   593    pause			ld de,32768						010566 3E39                A   594    				ld a,kr_time_delay
 010568 5BCD200A 00         A   595    				call.lil prose_kernal
 01056D C9                  A   596    				ret
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  17
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  17
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A   597    
                            A   598    
                            A   599    ;----------------------------------------------
@@ -898,10 +898,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A   646    
                            A   647    
 0105C4 21 11 0B 01         A   648    bad_erase		ld hl,erase_failed_txt
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  18
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  18
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 0105C8 C3 7E 00 01         A   649    				jp quit_string
                            A   650    
                            A   651    
@@ -948,10 +948,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 01062A 23                  A   697    				inc hl
 01062B 10 F8               A   698    				djnz wdplp1
 01062D CD 1C 08 01         A   699    				call get_byte_from_pic			010631 D8                  A   700    				ret c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  19
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  19
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010632 B7                  A   701    				or a
 010633 C0                  A   702    				ret nz
                            A   703    
@@ -990,10 +990,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0106A2 CD 3D 08 01         A   749    				call send_byte_to_pic
 0106A6 3EC0                A   750    				ld a,0c0h			
 0106A8 CD 3D 08 01         A   751    				call send_byte_to_pic			0106AC 3A C6 09 01         A   752    				ld a,(page_med)	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  20
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  20
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 0106B0 CD 3D 08 01         A   753    				call send_byte_to_pic			0106B4 3A C5 09 01         A   754    				ld a,(page_hi)
 0106B8 CD 3D 08 01         A   755    				call send_byte_to_pic			                           A   756    
 0106BC 0640                A   757    				ld b,64							0106BE 7E                  A   758    wdplp4			ld a,(hl)
@@ -1032,10 +1032,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010716 CD 3D 08 01         A   800    				call send_byte_to_pic
 01071A 3E80                A   801    				ld a,080h			
 01071C CD 3D 08 01         A   802    				call send_byte_to_pic			010720 3A C6 09 01         A   803    				ld a,(page_med)	
-010724 CD 3D 08 01         A   804    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  21
+010724 CD 3D 08 01         A   804    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  21
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010728 3A C5 09 01         A   805    				ld a,(page_hi)
 01072C CD 3D 08 01         A   806    				call send_byte_to_pic			010730 3E80                A   807    				ld a,128
 010732 CD 3D 08 01         A   808    				call send_byte_to_pic			                           A   809    
@@ -1074,10 +1074,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 01078A 3E00                A   851    				ld a,00			
 01078C CD 3D 08 01         A   852    				call send_byte_to_pic			010790 3E01                A   853    				ld a,01		
 010792 CD 3D 08 01         A   854    				call send_byte_to_pic			010796 3E00                A   855    				ld a,00
-010798 CD 3D 08 01         A   856    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  22
+010798 CD 3D 08 01         A   856    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  22
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 01079C CD 1C 08 01         A   857    				call get_byte_from_pic			0107A0 38 46               A   858    				jr c,t_o
 0107A2 FE00                A   859    				cp 0
 0107A4 20 3D               A   860    				jr nz,bpr
@@ -1125,10 +1125,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0107ED C9                  A   906    				ret	
                            A   907    				
                            A   908    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  23
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  23
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A   909    ;----------------------------------------------
                            A   910    
 0107EE                     A   911    enable_pic_writes
@@ -1174,10 +1174,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010833 D1                  A   956    				pop de
 010834 37                  A   957    				scf								010835 C9                  A   958    				ret
                            A   959    
-010836 ED3800              A   960    pcbib			in0 a,(port_pic_data)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  24
+010836 ED3800              A   960    pcbib			in0 a,(port_pic_data)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  24
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010839 B7                  A   961    				or a							01083A C1                  A   962    				pop bc
 01083B D1                  A   963    				pop de
 01083C C9                  A   964    				ret
@@ -1222,10 +1222,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A  1010    ;----------------------------------------------
                            A  1011    
 010876                     A  1012    get_last_cfg_slot				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  25
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  25
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A  1013    	
 010876 3E88                A  1014    				ld a,088h						010878 CD 3D 08 01         A  1015    				call send_byte_to_pic
 01087C 3E71                A  1016    				ld a,71h
@@ -1265,10 +1265,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0108DA CD 3D 08 01         A  1060    				call send_byte_to_pic
 0108DE 3E00                A  1061    				ld a,000h			
 0108E0 CD 3D 08 01         A  1062    				call send_byte_to_pic			0108E4 3E00                A  1063    				ld a,000h		
-0108E6 CD 3D 08 01         A  1064    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  26
+0108E6 CD 3D 08 01         A  1064    				call send_byte_to_pic			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  26
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 0108EA 3A C8 09 01         A  1065    				ld a,(target_slot)
 0108EE CB27                A  1066    				sla a
 0108F0 F601                A  1067    				or 1
@@ -1308,10 +1308,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010958 FE00                A  1114    				cp 0
 01095A C0                  A  1115    				ret nz
                            A  1116    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  27
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  27
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
                            A  1117    
 01095B 3E88                A  1118    				ld a,088h						01095D CD 3D 08 01         A  1119    				call send_byte_to_pic
 010961 3EC0                A  1120    				ld a,0c0h
@@ -1358,10 +1358,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0109AE 2A00                A  1166    dl_filename				db '*',0
                            A  1167    
 0109B0 00 00 00 00 00 00   A  1168    filename				blkb 18,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  28
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  28
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 0109B6 00 00 00 00 00 00 
 0109BC 00 00 00 00 00 00 
                            A  1169    
@@ -1414,10 +1414,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010ABA 65642061 7267756D 
 010AC2 656E742E 0B00 
                            A  1193    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  29
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  29
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010AC8 4552524F 52202D20   A  1194    missing_arg_txt			db "ERROR - Missing arg
 010AD0 4D697373 696E6720 
 010AD8 61726775 6D656E74 
@@ -1470,10 +1470,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010BEE 20666F75 6E643F0B 
 010BF6 00 
                            A  1213    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  30
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  30
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010BF7 4552524F 52202D20   A  1214    timeout_msg 			db "ERROR - Timed out."
 010BFF 54696D65 64206F75 
 010C07 742E0B00 
@@ -1526,10 +1526,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010CFE 76696120 73657269 
 010D06 616C206C 696E6B20 
 010D0E 5B457363 20746F20 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:28:33     page:  31
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:35:46     page:  31
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 010D16 71756974 5D0B00 
 010D1D 52656365 6976696E   A  1239    receiving				db "Receiving file..",1
 010D25 67206669 6C652E2E 

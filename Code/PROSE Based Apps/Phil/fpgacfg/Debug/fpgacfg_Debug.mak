@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\Debug
+WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"..;..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\fpgacfg_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\Debug
+OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\Debug
 
 build: fpgacfg
 
@@ -68,6 +68,6 @@ fpgacfg: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\fpgacfg.obj :  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\fpgacfg\src\fpgacfg.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\fpgacfg\src\fpgacfg.asm
 

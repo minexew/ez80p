@@ -13,7 +13,7 @@
 <tool name="Assembler">
 <options>
 <option name="define" type="string" change-action="assemble">_EZ80=1,_SIMULATE=1</option>
-<option name="include" type="string" change-action="assemble">E:\My_Own_Files\Coding\Ez80 Project\Code\Includes;E:\My_Own_Files\Coding\Ez80 Project\Code\Includes</option>
+<option name="include" type="string" change-action="assemble">..\..\..\Includes</option>
 <option name="list" type="boolean" change-action="none">true</option>
 <option name="listmac" type="boolean" change-action="none">false</option>
 <option name="name" type="boolean" change-action="none">true</option>
