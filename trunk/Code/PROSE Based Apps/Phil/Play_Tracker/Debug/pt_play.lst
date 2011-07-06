@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,10 +54,10 @@ PC     Object              I  Line    Source
        000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   2
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000081            B    43    TMR0_DR_L		equ 081h
        00000081            B    44    TMR0_RR_L		equ 081h
        00000082            B    45    TMR0_DR_H		equ 082h
@@ -110,10 +110,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00FF0000            B    92    hw_palette				equ 0ff0000h
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   3
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
        00FF1800            B    96    hw_video_settings		equ 0ff1800h
                            B    97    
@@ -166,10 +166,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000017            B   144    kr_read_sector					equ 17h
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   4
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
        0000001B            B   148    kr_set_dir_cluster				equ 1bh
        0000001C            B   149    kr_get_dir_name					equ 1ch
@@ -222,10 +222,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000044            B   196    kr_get_os_high_mem				equ 44h
                            B   197    
                            B   198    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   5
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B   199    ; Standard PROSE executable header
                            B   200    ;----------------------------------------------
                            B   201    
@@ -278,10 +278,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
 010016 3E0B                A    22    			ld a,kr_find_file				; l
 010018 5BCD200A 00         A    23    			call.lil prose_kernal
 01001D C2 B8 00 01         A    24    			jr nz,load_error
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\PLAY_T~1\src\pt_play.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\src\pt_play.asm
 010021 ED53 4E 01 01       A    25    			ld (pt_mod_length),de			; n
                            A    26    			
 010026 21 E7 00 01         A    27    			ld hl,loading_txt					01002A CD D7 00 01         A    28    			call print_string
@@ -324,10 +324,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010092 C4 C2 00 01         A    72    			call nz,do_tracker_update			                           A    73    		
 010096 3E1E                A    74    			ld a,kr_get_key						010098 5BCD200A 00         A    75    			call.lil prose_kernal
 01009D FE76                A    76    			cp 076h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\PLAY_T~1\src\pt_play.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\src\pt_play.asm
 01009F 20 EC               A    77    			jr nz,wait_50hz
                            A    78    
 0100A1 3E00                A    79    endit		ld a,0
@@ -372,10 +372,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A   126    ;----------------------------------------------
                            A   127    		
 0100E7 4C6F6164 696E6720   A   128    loading_txt		db 'Loading Protracker module..
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   8
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   8
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEA~1\PLAY_T~1\src\pt_play.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\src\pt_play.asm
 0100EF 50726F74 7261636B 
 0100F7 6572206D 6F64756C 
 0100FF 652E2E20 00 
@@ -428,10 +428,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            B    26    ; Equates (must be defined in external code)
                            B    27    ; -------
                            B    28    ; "music_module" = location of protracker modul
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:   9
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:   9
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
                            B    29    ; The music module must be located at a word ad
                            B    30    ;
                            B    31    ; Routines:
@@ -481,10 +481,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010164 AF                  B    77    				xor a							010165 32 8C 11 01         B    78    				ld (ticker),a
 010169 32 8D 11 01         B    79    				ld (songpos),a
 01016D 32 8E 11 01         B    80    				ld (patindex),a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  10
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  10
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010171 32 90 11 01         B    81    				ld (arpeggio_counter),a
 010175 32 91 11 01         B    82    				ld (pattloop_pos),a
 010179 32 92 11 01         B    83    				ld (pattloop_count),a
@@ -527,10 +527,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
                            B   130    
                            B   131    ;----------------------------------------------
                            B   132    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  11
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  11
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0101E1                     B   133    play_tracker
                            B   134    
 0101E1 3A 8C 11 01         B   135    				ld a,(ticker)
@@ -566,10 +566,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010244 DD7E00              B   181    				ld a,(ix)						010247 E6F0                B   182    				and 0f0h
 010249 DD4602              B   183    				ld b,(ix+2)
 01024C CB38                B   184    				srl b
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  12
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  12
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 01024E CB38                B   185    				srl b
 010250 CB38                B   186    				srl b
 010252 CB38                B   187    				srl b
@@ -607,10 +607,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01029F E1                  B   232    				pop hl	
 0102A0 11000000            B   233    				ld de,0
 0102A4 56                  B   234    				ld d,(hl)						0102A5 23                  B   235    				inc hl
-0102A6 5E                  B   236    				ld e,(hl)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  13
+0102A6 5E                  B   236    				ld e,(hl)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  13
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0102A7 EB                  B   237    				ex de,hl
 0102A8 29                  B   238    				add hl,hl
 0102A9 FD2F 20             B   239    				ld (iy+sample_loop_length),hl	                           B   240    								
@@ -644,10 +644,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010301 C1                  B   285    				pop bc
                            B   286    				
 010302 FD7E 04             B   287    nonewp1			ld a,(iy+fx_number)
-010305 FE0E                B   288    				cp 0eh							Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  14
+010305 FE0E                B   288    				cp 0eh							Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  14
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010307 20 0B               B   289    				jr nz,not_ed		 
 010309 FD7E 05             B   290    				ld a,(iy+fx_args)
 01030C E6F0                B   291    				and 0f0h
@@ -686,10 +686,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010372 FD7E 13             B   338    skiptrig		ld a,(iy+volume_waiting)
 010375 FD77 03             B   339    				ld (iy+volume),a	
 010378 FD77 08             B   340    				ld (iy+volume_for_fx),a	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  15
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  15
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 01037B C9                  B   341    				ret
                            B   342    				
                            B   343    
@@ -731,10 +731,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0103B7 FE03                B   390    				cp 3
 0103B9 20 02               B   391    				jr nz,arp_ok
 0103BB 3600                B   392    				ld (hl),0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  16
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  16
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0103BD 21 8C 11 01         B   393    arp_ok			ld hl,ticker					0103C1 34                  B   394    				inc (hl)
 0103C2 3A 8F 11 01         B   395    				ld a,(songspeed)	
 0103C6 BE                  B   396    				cp (hl)							0103C7 20 39               B   397    				jr nz,nspwrap
@@ -773,10 +773,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01042B CA 8E 06 01         B   442    				jp z,fx_vibrato_volslide
 01042F FE07                B   443    				cp 7
 010431 CA 96 06 01         B   444    				jp z,fx_tremolo
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  17
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  17
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010435 FE0A                B   445    				cp 0ah
 010437 CA 63 07 01         B   446    				jp z,fx_volslide
 01043B FE0E                B   447    				cp 0eh
@@ -823,10 +823,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01049A 5F                  B   492    				ld e,a							                           B   493    
 01049B 21 2A 09 01         B   494    doarp			ld hl,period_lookup_table-113
 01049F 09                  B   495    				add hl,bc
-0104A0 7E                  B   496    				ld a,(hl)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  18
+0104A0 7E                  B   496    				ld a,(hl)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  18
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0104A1 83                  B   497    				add a,e							0104A2 CB27                B   498    				sla a							0104A4 21000000            B   499    				ld hl,0
 0104A8 6F                  B   500    				ld l,a
 0104A9 11 8B 0C 01         B   501    				ld de,period_table_p0
@@ -873,10 +873,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0104F4 FE03                B   546    				cp 3
 0104F6 38 0B               B   547    				jr c,portdgnp
 0104F8 20 05               B   548    				jr nz,portdmax
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  19
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  19
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0104FA 7D                  B   549    				ld a,l
 0104FB FE8B                B   550    				cp 139
 0104FD 38 04               B   551    				jr c,portdgnp
@@ -915,10 +915,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010553 18 1C               B   596    				jr tp_end						                           B   597    
 010555 FD6E 06             B   598    tp_peru			ld l,(iy+period_for_fx_lo)		010558 FD66 07             B   599    				ld h,(iy+period_for_fx_hi)
 01055B 0600                B   600    				ld b,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  20
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  20
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 01055D 4009                B   601    				add.sis hl,bc
 01055F 4D                  B   602    				ld c,l							010560 44                  B   603    				ld b,h
 010561 AF                  B   604    				xor a
@@ -962,10 +962,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0105C2 59                  B   649    				ld e,c
 0105C3 AF                  B   650    				xor a
 0105C4 060C                B   651    				ld b,12
-0105C6 DD6E00              B   652    glissfper		ld l,(ix)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  21
+0105C6 DD6E00              B   652    glissfper		ld l,(ix)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  21
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0105C9 DD6601              B   653    				ld h,(ix+1)
 0105CC 40ED52              B   654    				sbc.sis hl,de
 0105CF 30 0F               B   655    				jr nc,nggliss
@@ -1009,10 +1009,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01061A 79                  B   701    				ld a,c
 01061B E61F                B   702    				and 1fh
 01061D 4F                  B   703    				ld c,a							01061E FD7E 0E             B   704    				ld a,(iy+wave_type)	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  22
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  22
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010621 E60F                B   705    				and 0fh
 010623 B7                  B   706    				or a							010624 28 1D               B   707    				jr z,vib_sine					010626 CB21                B   708    				sla c		
 010628 CB21                B   709    				sla c
@@ -1050,10 +1050,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01067B CB3F                B   753    				srl a
 01067D CB3F                B   754    				srl a
 01067F E63C                B   755    				and 3ch							010681 80                  B   756    				add a,b
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  23
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  23
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010682 FD77 0B             B   757    				ld (iy+vibrato_pos),a			010685 C9                  B   758    				ret
                            B   759    
                            B   760    
@@ -1096,10 +1096,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0106BF 79                  B   804    				ld a,c
 0106C0 E61F                B   805    				and 1fh
 0106C2 4F                  B   806    				ld c,a							0106C3 FD7E 0E             B   807    				ld a,(iy+wave_type)				0106C6 CB3F                B   808    				srl a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  24
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  24
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0106C8 CB3F                B   809    				srl a
 0106CA CB3F                B   810    				srl a
 0106CC CB3F                B   811    				srl a
@@ -1138,10 +1138,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010720 AF                  B   857    				xor a
 010721 FD77 03             B   858    tre_done		ld (iy+volume),a
                            B   859    				
-010724 FD46 0D             B   860    				ld b,(iy+tremolo_pos)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  25
+010724 FD46 0D             B   860    				ld b,(iy+tremolo_pos)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  25
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010727 FD7E 0C             B   861    				ld a,(iy+tremolo_args)
 01072A CB3F                B   862    				srl a
 01072C CB3F                B   863    				srl a
@@ -1184,10 +1184,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010775 C9                  B   909    				ret
                            B   910    
 010776 78                  B   911    volup			ld a,b							010777 0F                  B   912    				rrca
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  26
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  26
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010778 0F                  B   913    				rrca
 010779 0F                  B   914    				rrca
 01077A 0F                  B   915    				rrca
@@ -1240,10 +1240,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0107B6 81                  B   962    				add a,c
 0107B7 CB27                B   963    				sla a
 0107B9 4F                  B   964    				ld c,a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  27
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  27
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0107BA 78                  B   965    				ld a,b
 0107BB E60F                B   966    				and 0fh
 0107BD 81                  B   967    				add a,c
@@ -1295,10 +1295,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010822 CA 7F 09 01         B  1014    				jp z,ee_pattdelay
 010826 C9                  B  1015    				ret
                            B  1016    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  28
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  28
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010827                     B  1017    e0_filter
                            B  1018    
 010827 78                  B  1019    				ld a,b							010828 E601                B  1020    				and 01h			
@@ -1347,10 +1347,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010878 7D                  B  1066    				ld a,l
 010879 FE58                B  1067    				cp 88
 01087B 38 04               B  1068    				jr c,fportdgnp
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  29
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  29
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 01087D 21580300            B  1069    fportdmax		ld hl,856						010881 FD75 01             B  1070    fportdgnp		ld (iy+period_lo),l
 010884 FD74 02             B  1071    				ld (iy+period_hi),h
 010887 C9                  B  1072    				ret
@@ -1399,10 +1399,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0108BB 38 0A               B  1116    				jr c,plp_end
 0108BD 3A 91 11 01         B  1117    				ld a,(pattloop_pos)				0108C1 3D                  B  1118    				dec a							0108C2 32 8E 11 01         B  1119    				ld (patindex),a
 0108C6 C9                  B  1120    				ret
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  30
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  30
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0108C7 AF                  B  1121    plp_end			xor a			
 0108C8 32 92 11 01         B  1122    				ld (pattloop_count),a			0108CC C9                  B  1123    				ret
 0108CD 3A 8E 11 01         B  1124    setplp			ld a,(patindex)					0108D1 32 91 11 01         B  1125    				ld (pattloop_pos),a
@@ -1453,10 +1453,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01090C FD86 03             B  1170    				add a,(iy+volume)
 01090F FE40                B  1171    				cp 64
 010911 38 02               B  1172    				jr c,eavolok
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  31
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  31
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010913 3E40                B  1173    				ld a,64
 010915 FD77 03             B  1174    eavolok			ld (iy+volume),a
 010918 C9                  B  1175    				ret
@@ -1506,10 +1506,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01094D FD4E 06             B  1220    				ld c,(iy+period_for_fx_lo)		010950 FD46 07             B  1221    				ld b,(iy+period_for_fx_hi)
 010953 FD71 01             B  1222    				ld (iy+period_lo),c
 010956 FD70 02             B  1223    				ld (iy+period_hi),b
-010959 FDCB 0F C6          B  1224    				set 0,(iy+control_bits)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  32
+010959 FDCB 0F C6          B  1224    				set 0,(iy+control_bits)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  32
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 01095D FD7E 12             B  1225    				ld a,(iy+instrument_waiting)	010960 B7                  B  1226    				or a
 010961 C8                  B  1227    				ret z
 010962 18 0E               B  1228    				jr ed_do_vol					                           B  1229    				
@@ -1555,10 +1555,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
                            B  1274    
 01099B 23000000 00000022   B  1275    					DB 35,0,0,0,0,0,0,34,0,0,0,
 0109A3 00000000 00002100 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  33
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  33
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0109AB 00000000 00002000   B  1276    					DB 0,0,0,0,0,0,32,0,0,0,0,0
 0109B3 00000000 00001F00 
 0109BB 00000000 00001E00   B  1277    					DB 0,0,0,0,0,0,30,0,0,0,0,0
@@ -1611,10 +1611,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010B33 00000000 00000000 
 010B3B 00000000 00000000   B  1301    					DB 0,0,0,0,0,0,0,0,0,8,0,0,
 010B43 00080000 00000000 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  34
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  34
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010B4B 00000000 00000000   B  1302    					DB 0,0,0,0,0,0,0,0,0,0,0,0,
 010B53 00000000 00000000 
 010B5B 00000000 00000000   B  1303    					DB 0,0,0,0,0,0,0,0,0,7,0,0,
@@ -1667,10 +1667,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010CC3 AA00A000 97008F00 
 010CCB 87007F00 78007100 
                            B  1327    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  35
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  35
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010CD3 52032203 F502CB02   B  1328    period_table_p1	dw 850,802,757,715,674,637,601,
 010CDB A2027D02 59023702 
 010CE3 1702F901 DD01C201 
@@ -1723,10 +1723,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
                            B  1347    
 010E3B 34030603 DA02B102   B  1348    period_table_p6	dw 820,774,730,689,651,614,580,
 010E43 8B026602 44022302 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  36
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  36
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010E4B 0402E701 CC01B201 
 010E53 9A018301 6D015901   B  1349    				dw 410,387,365,345,325,307,290,
 010E5B 45013301 22011201 
@@ -1779,10 +1779,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 010FAB C0029902 74025002 
 010FB3 2F021002 F201D601 
 010FBB BC01A301 8B017501   B  1369    				dw 444,419,395,373,352,332,314,
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  37
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  37
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 010FC3 60014C01 3A012801 
 010FCB 18010801 F900EB00 
 010FD3 DE00D100 C600BB00   B  1370    				dw 222,209,198,187,176,166,157,
@@ -1835,10 +1835,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011113 B4C5D4E0 EBF4FAFD   B  1391    					db 180,197,212,224,235,244,
 01111B FFFDFAF4 EBE0D4C5   B  1392    					db 255,253,250,244,235,224,
 011123 B4A18D78 614A3118   B  1393    					db 180,161,141,120,097,074,
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  38
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  38
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
                            B  1394    
                            B  1395    ;----------------------------------------------
                            B  1396    
@@ -1891,10 +1891,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0111CC 00 00 00 00 00 00 
 0111D2 00 00 00 00 00 00 
 0111D8 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  39
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  39
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_Player_v101.asm
 0111DE 00 00 00 00 00 00 
 0111E4 00 00 00 00 00 00 
 0111EA 00 00 00 00 00 00 
@@ -1942,10 +1942,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
                            B  1455    
                            A   142    	
                            B     0    			include "routines/ADL_mode_Protrack
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  40
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  40
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
                            B     1    ;----------------------------------------------
                            B     2    ; Convert Amiga hardware values from eZ80 Protr
                            B     3    ; and writes to hardware registers
@@ -1997,10 +1997,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 01122E                     B    49    update_audio_hardware
                            B    50    
 01122E 3E01                B    51    				ld a,1
-011230 320314FF            B    52    				ld (hw_audio_registers+3),a		Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  41
+011230 320314FF            B    52    				ld (hw_audio_registers+3),a		Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  41
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 011234 0E01                B    53    				ld c,port_hw_flags
 011236 ED7440              B    54    wait_audreg		tstio 40h						011239 28 FB               B    55    				jr z,wait_audreg
                            B    56    				
@@ -2044,10 +2044,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011285 DD0F48              B   101    				ld (ix+48h),bc					011288 FD0F48              B   102    				ld (iy+48h),bc	
                            B   103    
 01128B ED4B 09 12 01       B   104    				ld bc,(fourthchan_period)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  42
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  42
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 011290 21000000            B   105    				ld hl,0
 011294 69                  B   106    				ld l,c
 011295 60                  B   107    				ld h,b  	
@@ -2088,10 +2088,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0112E1 2A B3 11 01         B   152    				ld hl,(firstchan_loop_loc)
 0112E5 DD2F10              B   153    				ld (ix+10h),hl					0112E8 FD2F10              B   154    				ld (iy+10h),hl	
 0112EB 2A B0 11 01         B   155    				ld hl,(firstchan_length)
-0112EF DD2F04              B   156    				ld (ix+04h),hl					Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  43
+0112EF DD2F04              B   156    				ld (ix+04h),hl					Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  43
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 0112F2 FD2F04              B   157    				ld (iy+04h),hl
 0112F5 2A B6 11 01         B   158    				ld hl,(firstchan_loop_len)
 0112F9 DD2F14              B   159    				ld (ix+14h),hl					0112FC FD2F14              B   160    				ld (iy+14h),hl
@@ -2137,10 +2137,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011374 FD2F60              B   206    				ld (iy+60h),hl	
 011377 2A 25 12 01         B   207    				ld hl,(fourthchan_loop_loc)
 01137B DD2F70              B   208    				ld (ix+70h),hl	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  44
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  44
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 01137E FD2F70              B   209    				ld (iy+70h),hl	
 011381 2A 22 12 01         B   210    				ld hl,(fourthchan_length)
 011385 DD2F64              B   211    				ld (ix+64h),hl		
@@ -2191,10 +2191,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011456 C05F435F C85E4E5E   B   246                    db 0C0h,05Fh,043h,05Fh,0C8h,05E
 01145E D55D5E5D E85C725C 
 011466 FE5B8C5B 1A5BA95A   B   247                    db 0FEh,05Bh,08Ch,05Bh,01Ah,05B
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  45
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  45
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 01146E 3A5ACB59 5E59F158 
 011476 86581B58 B2574A57   B   248                    db 086h,058h,01Bh,058h,0B2h,057
 01147E E2567C56 1656B155 
@@ -2247,10 +2247,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 0115F6 742E562E 392E1C2E   B   272                    db 074h,02Eh,056h,02Eh,039h,02E
 0115FE FF2DE22D C62DA92D 
 011606 8D2D702D 542D382D   B   273                    db 08Dh,02Dh,070h,02Dh,054h,02D
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  46
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  46
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 01160E 1D2D012D E52CCA2C 
 011616 AF2C932C 782C5D2C   B   274                    db 0AFh,02Ch,093h,02Ch,078h,02C
 01161E 432C282C 0D2CF32B 
@@ -2303,10 +2303,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011796 AA1E9D1E 901E841E   B   298                    db 0AAh,01Eh,09Dh,01Eh,090h,01E
 01179E 771E6A1E 5E1E511E 
 0117A6 451E381E 2C1E1F1E   B   299                    db 045h,01Eh,038h,01Eh,02Ch,01E
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  47
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  47
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 0117AE 131E071E FA1DEE1D 
 0117B6 E21DD61D CA1DBD1D   B   300                    db 0E2h,01Dh,0D6h,01Dh,0CAh,01D
 0117BE B11DA51D 991D8D1D 
@@ -2359,10 +2359,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode
 011936 E316DB16 D416CD16   B   324                    db 0E3h,016h,0DBh,016h,0D4h,016
 01193E C616BF16 B816B116 
 011946 AA16A316 9C169516   B   325                    db 0AAh,016h,0A3h,016h,09Ch,016
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     15:31:13     page:  48
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:37:56     page:  48
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\routines/ADL_mode_Protracker_to_EZ80P_audio.asm
 01194E 8E168716 80167916 
 011956 72166C16 65165E16   B   326                    db 072h,016h,06Ch,016h,065h,016
 01195E 57165016 49164316 

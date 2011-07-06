@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Sun May 29 17:10:53 2011
+DATE:      Wed Jul 06 22:36:42 2011
 PROCESSOR: assembler
 FILES:     .\hello_world_adl.obj
 
@@ -18,7 +18,7 @@ COMMAND LIST:
 /*  IDE component: d:5.1:10042301 */
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"..;..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -debug -NOigcase -cpu:eZ80L92 */
 
@@ -55,7 +55,7 @@ define _SYS_CLK_SRC = 0
 define _OSC_FREQ_MULT = 1
 define __PLL_CTL0_INIT_PARAM = $00
 
-"E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\HELLO_~1\Debug\adl_helloworld"=  .\hello_world_adl.obj
+"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\HELLO_~1\Debug\adl_helloworld"=  .\hello_world_adl.obj
 
 
 SPACE ALLOCATION:
@@ -76,7 +76,7 @@ CODE               absolute data          C:010000    C:010039       3ah
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\HELLO_~1\src\hello_world_adl.asm (File: hello_world_adl.obj) Version: 1:0 05/29/2011 17:10:51
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\HELLO_~1\src\hello_world_adl.asm (File: hello_world_adl.obj) Version: 1:0 07/06/2011 22:36:42
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------

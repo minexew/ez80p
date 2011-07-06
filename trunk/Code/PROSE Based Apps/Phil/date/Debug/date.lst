@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,10 +54,10 @@ PC     Object              I  Line    Source
        000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   2
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000081            B    43    TMR0_DR_L		equ 081h
        00000081            B    44    TMR0_RR_L		equ 081h
        00000082            B    45    TMR0_DR_H		equ 082h
@@ -110,10 +110,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00FF0000            B    92    hw_palette				equ 0ff0000h
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   3
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
        00FF1800            B    96    hw_video_settings		equ 0ff1800h
                            B    97    
@@ -166,10 +166,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000017            B   144    kr_read_sector					equ 17h
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   4
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
        0000001B            B   148    kr_set_dir_cluster				equ 1bh
        0000001C            B   149    kr_get_dir_name					equ 1ch
@@ -222,10 +222,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000044            B   196    kr_get_os_high_mem				equ 44h
                            B   197    
                            B   198    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   5
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B   199    ; Standard PROSE executable header
                            B   200    ;----------------------------------------------
                            B   201    
@@ -278,10 +278,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
 01001E E5                  A    22    			push hl
 01001F FDE1                A    23    			pop iy
                            A    24    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\src\date.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm
 010021 CD 55 00 01         A    25    			call ascii_to_bcd				;up
 010025 38 51               A    26    			jr c,bad_bcd
 010027 FD7704              A    27    			ld (iy+4),a						;da
@@ -334,10 +334,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010083 AF                  A    74    			xor a
 010084 C3140A00            A    75    			jp prose_return
                            A    76    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\src\date.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm
                            A    77    
 010088 3E41                A    78    no_args		ld a,kr_read_rtc
 01008A 5BCD200A 00         A    79    			call.lil prose_kernal
@@ -390,10 +390,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A   126    ;----------------------------------------------
                            A   127    
 0100E3 42616420 61726775   A   128    bad_bcd_txt	db 'Bad arguments!',11,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)29-May-11     17:04:42     page:   8
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:36:19     page:   8
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\src\date.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm
 0100EB 6D656E74 73210B00 
                            A   129    
 0100F3 00                  A   130    date_string db 0							;do

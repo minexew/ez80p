@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,10 +54,10 @@ PC     Object              I  Line    Source
        000000B1            B    38    CS3_LBR			equ 0b1h			;eZ80 wait 
        000000B2            B    39    CS3_UBR			equ 0b2h
        000000B3            B    40    CS3_CTL			equ 0b3h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   2
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            B    43    TMR0_DR_L		equ 081h
@@ -110,10 +110,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
                            B    90    ;-- Hardware registers ------------------------
                            B    91    
        00FF0000            B    92    hw_palette				equ 0ff0000h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   3
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
@@ -166,10 +166,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
        00000016            B   142    kr_dir_list_next_entry			equ 16h
                            B   143    
        00000017            B   144    kr_read_sector					equ 17h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   4
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
@@ -222,10 +222,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
                            B   194    
        00000043            B   195    kr_get_keymap_location			equ 43h
        00000044            B   196    kr_get_os_high_mem				equ 44h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   5
 
 
-PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
+PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
                            B   197    
                            B   198    ;----------------------------------------------
                            B   199    ; Standard PROSE executable header
@@ -278,10 +278,10 @@ PC     Object              I  Line    Source ..\..\..\Includes\PROSE_header.asm
 010012 28 32               A    22    			jr z,no_args
                            A    23    			
 010014 CD 6B 00 01         A    24    			call load_header
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 010018 20 32               A    25    			jr nz,load_error
                            A    26    			
 01001A CD AF 00 01         A    27    			call test_bmp_parameters
@@ -334,10 +334,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
                            A    74    ;----------------------------------------------
                            A    75    
                            A    76    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 01006B 3E0B                A    77    load_header	ld a,kr_find_file				; l
 01006D 5BCD200A 00         A    78    			call.lil prose_kernal
 010072 C0                  A    79    			ret nz
@@ -389,10 +389,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0100D3 2A 86 03 01         A   126    coldep_ok	ld hl,(pic_buffer+30)
 0100D7 7C                  A   127    			ld a,h
 0100D8 B5                  A   128    			or l
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   8
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   8
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 0100D9 28 03               A   129    			jr z,cmpr_ok
 0100DB 3E03                A   130    			ld a,3						;error 
 0100DD C9                  A   131    			ret
@@ -445,10 +445,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010132 23                  A   178    			inc hl
 010133 23                  A   179    			inc hl
 010134 CB3F                A   180    			srl a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:   9
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:   9
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 010136 CB3F                A   181    			srl a
 010138 CB3F                A   182    			srl a
 01013A CB3F                A   183    			srl a
@@ -501,10 +501,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 010182 09                  A   230    			add hl,bc
 010183 01 00 50 83         A   231    			ld bc,bm_base
 010187 09                  A   232    			add hl,bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:  10
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:  10
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 010188 E5                  A   233    			push hl						;vram d
                            A   234    						
 010189 21 68 03 01         A   235    			ld hl,pic_buffer			;start 
@@ -553,10 +553,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0101C6 3E27                A   278    			ld a,kr_wait_vrt					0101C8 5BCD200A 00         A   279    			call.lil prose_kernal
                            A   280    			
 0101CD 3E00                A   281    			ld a,0000b							0101CF 320018FF            A   282    			ld (video_control),a				0101D3 3E01                A   283    			ld a,1
-0101D5 320218FF            A   284    			ld (bgnd_palette_select),a			Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:  11
+0101D5 320218FF            A   284    			ld (bgnd_palette_select),a			Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:  11
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 0101D9 3E63                A   285    			ld a,99
 0101DB 320418FF            A   286    			ld (right_border_position),a		                           A   287    				
 0101DF DD212010 FF         A   288    			ld ix,bitmap_parameters				0101E4 21005083            A   289    			ld hl,bm_base
@@ -606,10 +606,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PR
 0102CB 656C7320 6D617829 
 0102D3 0B00 
                            A   314    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)30-May-11     19:36:41     page:  12
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-Jul-11     22:38:16     page:  12
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\showbmp\source\show_bmp.asm
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\showbmp\source\show_bmp.asm
 0102D5 170201 280201       A   315    err_msg_table	dw24 em1,em2,em3,em4,em5,em6
 0102DB 440201 6A0201 
 0102E1 910201 B30201 

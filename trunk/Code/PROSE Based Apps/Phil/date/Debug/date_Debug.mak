@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\Debug
+WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"..;..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\date_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\Debug
+OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\Debug
 
 build: date
 
@@ -39,20 +39,20 @@ buildall: clean date
 relink: deltarget date
 
 deltarget: 
-	@if exist $(WORKDIR)\date.lod  \
-            $(RM) $(WORKDIR)\date.lod
-	@if exist $(WORKDIR)\date.hex  \
-            $(RM) $(WORKDIR)\date.hex
-	@if exist $(WORKDIR)\date.map  \
-            $(RM) $(WORKDIR)\date.map
+	@if exist $(WORKDIR)\date_set.lod  \
+            $(RM) $(WORKDIR)\date_set.lod
+	@if exist $(WORKDIR)\date_set.hex  \
+            $(RM) $(WORKDIR)\date_set.hex
+	@if exist $(WORKDIR)\date_set.map  \
+            $(RM) $(WORKDIR)\date_set.map
 
 clean: 
-	@if exist $(WORKDIR)\date.lod  \
-            $(RM) $(WORKDIR)\date.lod
-	@if exist $(WORKDIR)\date.hex  \
-            $(RM) $(WORKDIR)\date.hex
-	@if exist $(WORKDIR)\date.map  \
-            $(RM) $(WORKDIR)\date.map
+	@if exist $(WORKDIR)\date_set.lod  \
+            $(RM) $(WORKDIR)\date_set.lod
+	@if exist $(WORKDIR)\date_set.hex  \
+            $(RM) $(WORKDIR)\date_set.hex
+	@if exist $(WORKDIR)\date_set.map  \
+            $(RM) $(WORKDIR)\date_set.map
 	@if exist $(WORKDIR)\date.obj  \
             $(RM) $(WORKDIR)\date.obj
 
@@ -68,6 +68,6 @@ date: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\date.obj :  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\src\date.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\EZ80PR~1\Code\PROSEB~1\date\src\date.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm
 
