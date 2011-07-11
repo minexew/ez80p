@@ -1,11 +1,14 @@
 Current version
 ---------------
 
-02C - Added "D - disassemble" command (and "DZ - disassemble Z80" command)
-
+02D - (11-07-2011) Tested entire (documented) opcode list for ez80 CPU.
+      Fixed some rogue opcode translations in the D command.
 
 Previous
 --------
+
+02C - Added "D - disassemble" command (and "DZ - disassemble Z80" command)
+
 
 02B - Added Environment variables (see kernal routines)
       Added SET command for enviroment variables
