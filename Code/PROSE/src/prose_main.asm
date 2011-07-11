@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2ch
+prose_version	equ 2dh
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options

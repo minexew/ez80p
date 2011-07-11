@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------------------------
-; OS "D" Command: EZ80 Disassembler V0.01
+; OS "D" Command: EZ80 Disassembler V0.02
 ; Totally and utterly unoptimized!
 ;------------------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ dis_loop		push bc
 				call dis_instr					; disassemble one line..
 				inc ix							; ix = start of next opcode
 				
-				ld a,24							; move cursor to column 24				
+				ld a,26							; move cursor to column 26				
 				ld (cursor_pos+1),a				; show the hex bytes use by opcode
 				ld bc,(dis_addr)
 				ld (dis_addr),ix				; IX now = next opcode address			
@@ -335,7 +335,11 @@ do_table 	inc hl
 			pop hl
 			jp next_opcode_ascii_char
 			
-ntable_r	ld de,table_rp					; symbol for rp table?
+ntable_r	ld de,table_r2					; symbol for r2 table?
+			cp '='
+			jr z,do_table
+			
+			ld de,table_rp					; symbol for rp table?
 			cp '@'
 			jr z,do_table 
 			
@@ -367,7 +371,10 @@ ntable_r	ld de,table_rp					; symbol for rp table?
 			cp ';'
 			jr z,do_table 
 
-			
+			ld de,table_rp5					; symbol for rp5 table?
+			cp '{'
+			jr z,do_table 
+
 ntable_bli
 
 ;--------------------------------------------------------------------------------------------------------
@@ -496,10 +503,7 @@ notedx0z4	cp 6
 notedx0z6	cp 7
 			jr nz,bad_opcode			;x0 / z7
 			ld hl,ed_x0_z7
-			ld a,(iy+var_y)
-			cp 6
-			ret nz
-			ld b,1
+			ld b,(iy+var_q)
 			ret
 			
 ;--------------------------------------------------------------------------------------------------------
@@ -646,13 +650,16 @@ x0_z_not_zero
 			
 			cp 1
 			jr nz,x0_z_not_one
-			ld hl,x0_z1_yn6
-			ld b,(iy+var_q)				;q is the index
-			ld a,(iy+var_y)
+			ld a,(iy+var_y)				;x=0/z=6
 			cp 6
-			ret nz
+			jr nz,x0z1yn6
+			call test_ixiy_prefix		;if y=6 and theres a dd/fd prefix, use
+			jr z,x0z1yn6				;alternative opcode
 			ld hl,x0_z1_y6
-			ld b,0
+			ret
+
+x0z1yn6		ld hl,x0_z1					;x=0, z=1
+			ld b,(iy+var_q)				;q is the index
 			ret 
 			
 x0_z_not_one
@@ -703,16 +710,12 @@ altx0z6		ld hl,alt_x0_z6				;if dd/fd prefix set the y=7 instruction changes - u
 
 x0_z_not_six
 			
-			ld hl,x0_z7
+			ld hl,x0_z7					;x=0, z=7
 			ld b,(iy+var_y)				;y is normally the index
-			bit sub_ix_prefix,(iy)
-			jr nz,altx0z7
-			bit sub_iy_prefix,(iy)
+			call test_ixiy_prefix
 			ret z
-altx0z7		ld a,b
-			and 1
-			ld b,a						;if dd/fd prefix set - the (y6/y7) instructions change completely
-			ld hl,alt_x0_z7				;this is unusual!
+altx0z7		ld hl,alt_x0_z7				;if dd/fd prefix set - the (y6/y7) instructions change completely
+			ld b,(iy+var_q)				;this is unusual!
 			ret
 
 ;----------------------------------------------------------------------------------------------------
@@ -721,16 +724,29 @@ x_not_zero	cp 1						; is x = 1?
 			jr nz,x_not_one
 			
 			ld hl,x1_table				; x=1
-			ld b,0
-			ld a,(iy+var_y)				; no index
+			call test_ixiy_prefix
+			jr nz,pref_x1
+			ld a,(iy+var_y)
 			cp 6
 			ret nz
 			ld a,(iy+var_z)
 			cp 6
 			ret nz
-			inc b						; unless y=6 and z=6 
+			ld hl,x1_y6_z6				;if y=6 and z=6, its a halt instruction
 			ret
-		
+
+pref_x1		ld a,(iy+var_y)				
+			cp 6
+			jr nz,x1yn6
+			ld hl,x1_y6
+			ret
+			
+x1yn6		ld a,(iy+var_z)
+			cp 6
+			ret nz
+			ld hl,x1_z6
+			ret
+			
 ;----------------------------------------------------------------------------------------------------
 			
 x_not_one	cp 2						; is x = 2? 
@@ -808,6 +824,15 @@ x3_z_not_six
 
 ;========================================================================================================
 
+test_ixiy_prefix
+
+			bit sub_ix_prefix,(iy)
+			ret nz
+			bit sub_iy_prefix,(iy)
+			ret
+			
+;========================================================================================================
+
 
 show_hex_byte
 
@@ -844,27 +869,29 @@ show_ix		ld (d_work_address),ix
 
 ; SYMBOLS:
 
-; # = CC_table
-; ~ = r table (registers)
-; @ = RP table (register pairs 1)
-; * = RP2 table (registers pairs 2)
-; : = ALU table
-; % = ROT table
-; _ = HL,IX/IY substitute selected by prefix
-; £ = HL, IY/IX substitute based on prefix (IX/IY reversed version of above)
-; $ = (HL),(IX+d),(IY+d) substitute selected by prefix
-; h = H,IXH/IYH substitute selected by prefix
-; l = L,IXL,IYL substitute selected by prefix
-; & = ADL prefix 
+; #  CC_table
+; ~  r table (registers)
+; =  r2 table (registers 2)
+; @  RP table (register pairs 1)
+; *  RP2 table (registers pairs 2)
+; :  ALU table
+; %  ROT table
+; _  HL,IX/IY substitute selected by prefix
+; |  HL, IY/IX substitute based on prefix (IX/IY reversed version of above)
+; $  (HL),(IX+d),(IY+d) substitute selected by prefix
+; h  H,IXH/IYH substitute selected by prefix
+; l  L,IXL,IYL substitute selected by prefix
+; &  ADL prefix 
 
-; ^ = n (8 bit immediate)
-; ! = nn (16 or 24 bit immediate)
-; d = 8 bit signed jump displacement from PC
-; / = 8 bit signed byte used for IX+d, IY+d instructions
-; > = single digit used by BIT,SET,RES instructions
-; < = RP3 table (register pairs 3)
-; } = RP4 table (register pairs 4)
-; ; = RST table
+; ^   n (8 bit immediate)
+; !   nn (16 or 24 bit immediate)
+; d   8 bit signed jump displacement from PC
+; /   8 bit signed byte used for IX+d, IY+d instructions
+; >   single digit used by BIT,SET,RES instructions
+; <   RP3 table (register pairs 3)
+; }   RP4 table (register pairs 4)
+; ;   RST table
+; {   RP5 table (register pairs 5)
 
 opcode_vars
 
@@ -895,11 +922,11 @@ x0_z0		db 'NO','P'+80h				; y0
 			db 'JR ','d',80h			; y3
 			db 'JR #',var_calc,',d',80h	; y4-y7
 			
-x0_z1_yn6	db 'LD& @',var_p,',!',80h	; q=0
+x0_z1		db 'LD& @',var_p,',!',80h	; q=0
 			db 'ADD& _,@',var_p,80h		; q=1
-x0_z1_y6	db 'LD& |,$',80h			; y=6
-			
-x0_z2		db 'LD& (BC)','A'+80h		;y=0
+x0_z1_y6	db 'LD& |,$',80h
+
+x0_z2		db 'LD& (BC),','A'+80h		;y=0
 			db 'LD& A,(BC',')'+80h		;y=1
 			db 'LD& (DE),','A'+80h		;y=2
 			db 'LD& A,(DE',')'+80h		;y=3
@@ -927,12 +954,16 @@ x0_z7		db 'RLC','A'+80h		;y=0
 			db 'SC','F'+80h			;y=6 (and no DD/FD prefix)
 			db 'CC','F'+80h			;y=7 (and no DD/FD prefix)
 			
-alt_x0_z7	db 'LD& _,$',80h		;y=6 (DD/FD prefix - unusual instruction: DD/FD completely changes function)
-			db 'LD& $,_',80h		;y=7 ("" "")
+alt_x0_z7	db 'LD& {',var_p,',$',80h	;q=0 (DD/FD prefix - unusual instruction: DD/FD completely changes function)		
+			db 'LD& $,{',var_p,80h		;q=1 (DD/FD prefix - unusual instruction: DD/FD completely changes function)
+		
 
 
-x1_table	db 'LD& ~',var_y,',~',var_z,80h		;for all except..
-x1_y6_z6	db 'HAL','T'+80h					;when y=6 and z=6
+x1_table	db 'LD& ~',var_y,',~',var_z,80h	
+x1_y6	 	db 'LD& ~',var_y,',=',var_z,80h		;source register is not switched, dest register can be switched
+x1_z6		db 'LD& =',var_y,',~',var_z,80h		;source register can be switched, dest register is not switched
+
+x1_y6_z6	db 'HAL','T'+80h
 
 
 
@@ -940,10 +971,10 @@ x2_table	db ':',var_y,'~',var_z,80h			;ALU_table(y), r(z)
 			
 		
 		
-x3_z0		db 'RET #',var_y,80h
+x3_z0		db 'RET& #',var_y,80h
 
 x3_z1_q0	db 'POP& *',var_p,80h			
-x3_z1_q1	db 'RE','T'+80h			;p=0
+x3_z1_q1	db 'RET','&',80h		;p=0
 			db 'EX','X'+80h			;p=1
 			db 'JP& _',80h			;p=2
 			db 'LD& SP,_',80h		;p=3
@@ -969,13 +1000,13 @@ x3_z5_q1	db 'CALL& !',80h			;p=0
 
 x3_z6		db ':',var_y,'^',80h	;ALU_table(y),n
 
-x3_z7		db 'RST ;',var_y,80h		; rst_table(y)
+x3_z7		db 'RST& ;',var_y,80h		; rst_table(y)
 
 
 ;--- CB - Prefixed op-codes-------------------------------------------------------------------------------------
 
 
-cb_group		db '%',var_y,',~',var_z,80h			; x = 0
+cb_group		db '%',var_y,' ~',var_z,80h				; x = 0
 				db 'BIT& >',var_y,',~',var_z,80h		; x = 1   (">" = show variable: single digit)
 				db 'RES& >',var_y,',~',var_z,80h		; x = 2
 				db 'SET& >',var_y,',~',var_z,80h		; x = 3 
@@ -986,8 +1017,8 @@ cb_group		db '%',var_y,',~',var_z,80h			; x = 0
 ed_x0_z0_yn6	db 'IN0 ~',var_y,',(^',')'+80h
 ed_x0_z0_y6		db 'IN0 (^',')'+80h	
 
-ed_x0_z1		db 'OUT0 ~',var_y,',(^',')'+80h		;y not 6
-				db 'LD& IY,(_',')'+80h				;y is 6
+ed_x0_z1		db 'OUT0 (^),~',var_y,80h		;y not 6
+				db 'LD& IY,(_',')'+80h			;y is 6
 
 ed_x0_z2		db 'LEA& <',var_p,',IX/',80h		
 ed_x0_z3		db 'LEA& }',var_p,',IY/',80h
@@ -995,21 +1026,20 @@ ed_x0_z4		db 'TST& A,~',var_y,80h
 
 ed_x0_z6		db 'LD& (_),}',var_p,80h
 
-ed_x0_z7		db 'LD& (_),<',var_p,80h			;y not 6	
-				db 'LD& IX,(_',')'+80h				;y is 6
-
+ed_x0_z7		db 'LD& <',var_p,',(_',')'+80h	;p = 0
+				db 'LD& (_),<',var_p,80h		;p = 1	
 
 ed_x1_z0_yn6	db 'IN ~',var_y,',(BC',')'+80h
 ed_x1_z0_y6		db 'IN (C',')'+80h
 
-ed_x1_z1_yn6	db 'OUT (C),~',var_y,80h
+ed_x1_z1_yn6	db 'OUT (BC),~',var_y,80h
 ed_x1_z1_y6		db 'OUT (C),','0'+80h
 
 ed_x1_z2		db 'SBC& HL,@',var_p,80h		;q=0
 				db 'ADC& HL,@',var_p,80h		;q=1
 
 ed_x1_z3		db 'LD& (!),@',var_p,80h		;q=0
-				db 'LD& @',var_p,'(!',')'+80h	;q=1
+				db 'LD& @',var_p,',(!',')'+80h	;q=1
 
 ed_x1_z4		db 'NE','G'+80h				;y=0
 				db 'MLT B','C'+80h			;y=1
@@ -1117,7 +1147,9 @@ bad_opcode	db '??','?'+80h
 ;------------------------------------------------------------------------------------------------------------------
 
 
-table_r		db 'B'+80h, 'C'+80h, 'D'+80h, 'E'+80h, 'h',80h, 'l',80h, '$',80h, 'A'+80h
+table_r		db 'B'+80h, 'C'+80h, 'D'+80h, 'E'+80h, 'h',80h, 'l',80h, '$',80h, 'A'+80h	;H/L can be subbed
+
+table_r2	db 'B'+80h, 'C'+80h, 'D'+80h, 'E'+80h, 'H',80h, 'L',80h, '$',80h, 'A'+80h	;H/L cannot be subbed
 
 table_rp	db 'B','C'+80h, 'D','E'+80h, '_'+80h, 'S','P'+80h
 
@@ -1131,10 +1163,12 @@ table_alu	db 'ADD& A',','+80h, 'ADC& A',','+80h, 'SUB&',' '+80h, 'SBC A&',','+80
 table_rot	db 'RLC&',80h, 'RRC&',80h, 'RL&',80h, 'RR&',80h
 			db 'SLA&',80h, 'SRA&',80h, 'SLL&',80h, 'SRL&',80h
 	
-table_rp3	db 'B','C'+80h, 'D','E'+80h, 'H','L'+80h, 'I','X'+80h
+table_rp3	db 'B','C'+80h, 'D','E'+80h, 'H','L'+80h, 'I','X'+80h		; < token
 
 table_rp4	db 'B','C'+80h, 'D','E'+80h, 'H','L'+80h, 'I','Y'+80h
-			
+
+table_rp5	db 'B','C'+80h, 'D','E'+80h, 'H','L'+80h, '_',80h			; { token
+
 table_rst	db '0','0'+80h
 			db '0','8'+80h
 			db '1','0'+80h
