@@ -19,16 +19,16 @@ Z80 mode programs should set the MBASE register upon start-up to bits 23:16 of t
 location.  The easiest way to handle all the above is to begin programs with the following
 source:
 
-;----------------------------------------------------------------------------------------------
+;--------------------------------------------------------------------------------------------
 
-amoeba_version_req	equ 0			; 0 = dont care about HW version, else minimum version allowed
-prose_version_req	equ 0			; 0 = dont care about OS version, else minimum version allowed
-ADL_mode		equ 1			; 0 = user program is Z80 mode type, 1 if not
-load_location		equ 10000h		; anywhere in system ram ($10000 upwards suggested)
+amoeba_version_req	equ 0		; 0 = dont care, else minimum AMOEBA version req'd
+prose_version_req	equ 0		; 0 = dont care, else minimum PROSE version req'd
+ADL_mode		equ 1		; 0 = user program is Z80 mode type, 1 if not
+load_location		equ 10000h	; anywhere in system ram ($10000 upwards suggested)
 
 			include	'PROSE_header.asm'
 
-;----------------------------------------------------------------------------------------------
+;--------------------------------------------------------------------------------------------
 
 The Small Stack Pointer for Z80 programs is set to $FFFF by default PROSE starts (and so
 the stack will be at the top of whatever 64KB page is being used for that program) but
@@ -67,7 +67,7 @@ Programs should return to PROSE with the instruction:
 JP.LIL prose_return
 
 
-----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
 
 
 PROSE Internal Commands: 
@@ -111,10 +111,10 @@ RX filename address		- receive file from PC over serial link and place in memory
 
  Notes:  If filename is "*"  any file will be accepted. 
 
-	 If filename is "!" the file will be treated as an executable, loaded to the
-	 address in the file header and immediately run.
+   If filename is "!" the file will be treated as an executable, loaded to the
+   address in the file header and immediately run.
 
-	 If the filename is ">" the file will be written to the SD card (not loaded to memory)
+   If the filename is ">" the file will be written to the SD card (not loaded to memory)
 
 TX filename address length 	- send a file to the PC over serial link.
 
@@ -123,13 +123,24 @@ TX filename address length 	- send a file to the PC over serial link.
 Debug:
 ------
 
-C address1 address2 address3	- Copy bytes from address1->address2 to address3
-: address ab,cd.. 		- Place bytes at address
-F address1 address2 x		- Fill memory with x from address1 to address2
-H address1 address2 ab,cd	- Hunt in memory for bytes from address1 to address2
-M address			- Show memory as hex bytes (if no address continue from previous)
-T address			- Show memory as ascii (if no address continue from previous)
-R 				- Show registers (as set on exit of last program / NMI freeze)
+C  address1 address2 address3	- Copy bytes from address1->address2 to address3
+D  [address*]			- Disassemble a page of ADL-code #
+DZ [address*]			- Disassemble a page of Z80-mode code #
+:  address ab,cd.. 		- Place bytes at address
+F  address1 address2 x		- Fill memory with x from address1 to address2
+H  address1 address2 ab,cd	- Hunt in memory for bytes from address1 to address2
+M  [address*]			- Show memory as hex bytes 
+T  [address*]			- Show memory as ascii (if no address continue from previous)
+R 				- Show registers (as upon exit of last program / NMI freeze)
+
+Notes: 
+
+* If [address] is omitted, the operation continues from the last location used by
+  the command)
+
+# The only difference between the D and DZ is that DZ disassembles with the assumption
+  that all address references and immediate data words are 16 bit as per the original
+  Z80 CPU (and not 24 as per the EZ80).
 
 
 
@@ -137,8 +148,49 @@ Misc:
 -----
 
 MOUSE				- Enable mouse driver
-EXEC filename			- Run a batch file (note: scripts cannot run other scripts)
+EXEC filename			- Run a script *
 SET varname=string		- Set an environment variable 
 
------------------------------------------------------------------------------------------------
+
+Notes:
+
+* Scripts (IE: batch files) cannot run other scripts.
+
+  Scripts can be aborted by holding CRTL+C.
+
+  PROSE will run a script named "STARTUP.SCR" (if it exists in the root dir) when it starts
+
+  Scripts support basic looping features using the syntax:
+
+   IF environment_variable = ascii_string LABEL
+   or
+   IF environment_variable <> ascii string LABEL
+  
+   IE: If an environment variable has been initialized and its contents match (or
+      do not match) the ascii_string specified, then jump to LABEL.
+
+   Lables are defined in square brackets at the start of lines (no other characters
+   should follow a label).
+
+   END will stop a script at that line.
+
+   An example Script:
+
+   VERS
+   [DO_THIS]
+   pen 37
+   VERS
+   PEN 26
+   VERS
+   IF my_envar = string_a DO_THIS
+   IF my_envar = string_b DO_THAT
+   PEN 7
+   MOUSE
+   END
+   [DO_THAT]
+   PEN 6
+   MOUNT
+ 
+
+--------------------------------------------------------------------------------------------
 

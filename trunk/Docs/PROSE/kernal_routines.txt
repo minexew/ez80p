@@ -722,6 +722,7 @@ $88 - Out of range
 $89 - Unsupported Device
 $8a - Device not detected
 $8b - Device error
+$8c - Script error
 
 
 Errors from Filesystem related routines
