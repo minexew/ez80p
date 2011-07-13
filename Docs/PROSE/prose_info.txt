@@ -191,6 +191,8 @@ Notes:
    PEN 6
    MOUNT
  
+   (The environment variable name, value and label strings are currently limited to a
+    maximum of 16 characters)
 
 --------------------------------------------------------------------------------------------
 
