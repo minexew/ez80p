@@ -145,30 +145,30 @@ kirq_done		in0 a,(port_ps2_ctrl)					;anything else in keyboard buffer?
 				ret
 
 
-qualifiers		ld l,040h
+qualifiers		ld l,040h		;apps
 				cp 02fh
 				ret z
 			
-				ld l,020h
+				ld l,020h		;r gui
 				cp 027h
 				ret z
 			
-				ld l,010h
+				ld l,010h		;r shift
 				cp 059h
 				ret z
 			
-				ld l,08h
+				ld l,08h		; alt
 				cp 011h
 				ret z
 			
-				ld l,04h
+				ld l,04h		; l gui
 				cp 01fh
 			
-				ld l,02h
+				ld l,02h		;l ctrl / r ctrl
 				cp 14h
 				ret z
 			
-				ld l,01h
+				ld l,01h		;l shift
 				cp 12h
 				ret z
 				

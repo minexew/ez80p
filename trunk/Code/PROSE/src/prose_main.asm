@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2dh
+prose_version	equ 2eh
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -149,8 +149,6 @@ kb_present
 				ld hl,startup_script_fn
 				ld (os_args_loc),hl
 				call os_cmd_exec						; any start-up commands?
-				xor a
-				ld (in_script_flag),a
 									
 				ld a,(frozen)							; if OS was restarted with an NMI, show registers
 				or a
@@ -309,9 +307,7 @@ os_enter_pressed
 
 os_esdok		call os_parse_cmd_chk_ps			; interpret the command
 
-post_csb		xor a
-				ld (in_script_flag),a
-				jp os_main_loop
+post_csb		jp os_main_loop
 
 	
 ;---------------------------------------------------------------------------------------------
