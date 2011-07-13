@@ -107,6 +107,8 @@ crlfx2_txt				db 11,11,0
 rep_char_txt			db "x",0
 to_txt					db " to ",0
 error_txt				db "ERROR",0
+if_command_txt			db "IF "
+end_command_txt			db "END "
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -298,7 +300,7 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"Required"			;aa
 						db 0,"FPGA config"		;ab
 						db 0,"Unchanged"		;ac
-						db 0," (If fn = ! receive and run program)"	;ad
+						db 0," "				;ad - unused entry
 						db 9ch,"PALETTE"		;ae
 						db 0,"palette"			;af
 						
@@ -343,12 +345,10 @@ script_aborted_msg		db 0a1h,077h,097h,097h,0								;"Script Aborted",11.0
 no_keyboard_msg			db 076h,0b2h,0b3h,097h,0								;"No keyboard detected",11,0
 
 packed_help1				db 097h,0
-							db 001h,0													;DEBUG
-							db 002h,0													;-----
+							db 001h,0											;DEBUG
+							db 002h,0											;-----
 							db 033h,007h,009h,05fh,04fh,050h,00bh,0				; ": ad a b c - Write Mem Bytes"
 							db 034h,007h,051h,05fh,04fh,014h,0					; "> ad "txt" - write ASCII"
-							db 0a8h,007h,009h,05fh,04fh,00bh,01eh,017h,0		; "< ad a b c - write bytes / disassemble" 
-
 							db 037h,007h,007h,007h,05fh,019h,050h,0				; "C ad ad ad - copy mem"
 							db 03bh,007h,05fh,0c2h,017h,0						; "D ad - adl disassemble"
 							db 0c1h,007h,05fh,0c3h,017h,0						; "DZ ad - z80 disassemble"
@@ -371,7 +371,7 @@ packed_help1				db 097h,0
 							db 045h,05fh,025h,057h,0							; "MOUNT remount drives"
 							db 048h,01dh,05fh,029h,01dh,0						; "RD dir - remove dir"
 							db 049h,058h,059h,05fh,02ah,021h,0					; "RN oldfn newfn - rename file"
-							db 04ah,01fh,007h,05fh,02ch,021h,0adh,0				; "RX fn ad - receive file / receive+run"
+							db 04ah,01fh,007h,05fh,02ch,021h,0					; "RX fn ad - receive file"
 							db 04bh,01fh,007h,05ah,05fh,02dh,021h,0				; "SB fn len - save file"
 							db 04dh,01fh,007h,05ah,05fh,02eh,021h,0				; "TX fn len - transmit file"		
 							db 023h,05fh,018h,060h,0							; "VOLx: - switch volume"
@@ -497,6 +497,7 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 							db 0bdh,01ah,0								;$30 Unsupported device
 							db 01ah,062h,0b3h,0							;$31 Device not detected
 							db 01ah,07ch,0								;$32 Device error
+							db 0a1h,07ch,0								;$33 Script error
 							
 							db 0ffh										;END MARKER
 
@@ -504,11 +505,11 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 
 kernal_error_code_translation
 
-					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h		; begins at $80
+					db 24h,2dh,2eh,14h,08h,11h,0fh,2ah, 02fh,030h,031h,032h,033h			; begins at $80
 					
 fs_error_code_translation
 
-					db 00h,01h,02h,03h,04h,05h,06h,07h, 08h,09h,0ah,0bh,0ch,0dh,13h,21h	  ;begins at $c0
+					db 00h,01h,02h,03h,04h,05h,06h,07h, 08h,09h,0ah,0bh,0ch,0dh,13h,21h		; begins at $c0
 					db 22h,23h,24h,25h,26h,0eh,00h,00h
 
 
@@ -759,12 +760,17 @@ os_args_pos_cache		dw24 0
 os_dir_block_cache  	dw24 0
 os_extcmd_jmp_addr		dw24 0
 
-in_script_flag			db 0
+
 script_dir				dw24 0
-script_buffer			blkb max_buffer_chars+2,0
 script_file_offset		dw24 0
-script_buffer_offset	dw24 0
-script_orig_dir			dw24 0
+script_length			dw24 0
+
+script_flags			db 0
+
+if_name_txt				blkb max_if_chars+2,0
+if_value_txt			blkb max_if_chars+2,0
+if_label_txt			blkb max_if_chars+2,0
+
 
 char_to_print			db 0,0	; zero terminated
 

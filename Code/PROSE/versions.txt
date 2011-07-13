@@ -1,11 +1,17 @@
 Current version
 ---------------
 
-02D - (11-07-2011) Tested entire (documented) opcode list for ez80 CPU.
-      Fixed some rogue opcode translations in the D command.
+02e - Fixed "EXEC" command and added basic jump features (IF <condition> LABEL), END.
+      See docs for usage.
+
+      Changed "?" command list (excludes < etc)
 
 Previous
 --------
+
+02D - (11-07-2011) Tested entire (documented) opcode list for ez80 CPU.
+      Fixed some rogue opcode translations in the D command.
+
 
 02C - Added "D - disassemble" command (and "DZ - disassemble Z80" command)
 

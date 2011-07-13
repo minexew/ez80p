@@ -27,9 +27,14 @@ new_key			ld bc,0									; HL = location in scancode buffer
 				add hl,de								; move to qualifier part of buffer
 				ld a,(hl)								; get qualifier status
 				
+				ld b,0
+				bit 1,a
+				jr nz,gotkdone							; if ctrl pressed, no ascii char is reported
+								
 				ld hl,alted_keymap						; ascii conversion table (with "ALT" pressed)	
 				bit 3,a
 				jr nz,got_kmap	
+								
 				ld hl,unshifted_keymap					; unshifted key
 				and 011h			
 				jr z,got_kmap
