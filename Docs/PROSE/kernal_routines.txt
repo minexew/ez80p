@@ -328,7 +328,7 @@ Output: xHL (location of directory name ASCII string)
 
 Action: Pauses until a key is pressed
 Input : None
-Output: A = Scancode, B  = ASCII character modified by shift/alt if applicable. 0 if not
+Output: A = Scancode, B  = ASCII character modified by shift/alt/CRTL if applicable. 0 if not
 
 
 1e - "kr_get_key"			
@@ -336,8 +336,8 @@ Output: A = Scancode, B  = ASCII character modified by shift/alt if applicable. 
 
 Action: Returns any keypresses that are in the buffer (does not wait)
 Input : None
-Output: If zero flag is set, A = New scancode, B = (ASCII character modified by shift/alt if applicable. 0 if not).
-        Else: No new key data is in the buffer
+Output: If zero flag is set, A = New scancode, B = (ASCII character modified by shift/alt/CTRL
+        if applicable. 0 if not)  Else: No new key data is in the buffer
 
 
 1f - "kr_get_key_mod_flags"		
