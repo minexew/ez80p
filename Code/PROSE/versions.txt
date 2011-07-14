@@ -1,13 +1,18 @@
 Current version
 ---------------
 
+02f - Fixed:   kr_get_display_size (wasnt returning correct figures)
+      Changed: kr_get_string now null-terminates the ascii string
+
+(not released yet)
+
+Previous
+--------
+
 02e - Fixed "EXEC" command and added basic jump features (IF <condition> LABEL), END.
       See docs for usage.
 
       Changed "?" command list (excludes < etc)
-
-Previous
---------
 
 02D - (11-07-2011) Tested entire (documented) opcode list for ez80 CPU.
       Fixed some rogue opcode translations in the D command.
