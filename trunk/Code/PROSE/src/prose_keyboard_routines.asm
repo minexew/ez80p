@@ -13,6 +13,7 @@ os_wait_key_press
 				push de
 				ld d,c
 				push hl
+				
 wait_kbuf		call get_kb_buffer_indexes				; HL = buffer read index. A = buffer write index
 				cp (hl)									; if read and write indexes are same, buffer is empty
 				jr z,wait_kbuf		
@@ -21,31 +22,42 @@ new_key			ld bc,0									; HL = location in scancode buffer
 				ld c,a
 				ld hl,scancode_buffer	
 				add hl,bc
-																			
-				ld c,(hl)								; c = scan code / b = 0 (no valid ascii equivalent by default)		
-				ld de,16
-				add hl,de								; move to qualifier part of buffer
+				ld a,(hl)								; a = scancode	(b = 0, no valid ascii equivalent by default)								
+
+				ld c,16
+				add hl,bc								; move to qualifier part of buffer
+				ld c,a									; c = scan code 
 				ld a,(hl)								; get qualifier status
-				
-				ld b,0
+
+				ld e,0									; default is dont subtract anything from final ascii value
+				ld hl,unshifted_keymap					; default is to use unshifted keymap
+
 				bit 1,a
-				jr nz,gotkdone							; if ctrl pressed, no ascii char is reported
-								
+				jr z,not_ctrl							; if ctrl pressed, ascii char is lowercase key-96
+				ld e,96									
+				jr got_keymap							
+							
+not_ctrl		bit 0,a
+				jr nz,shifted
+				bit 4,a
+				jr z,not_shifted
+shifted			ld hl,shifted_keymap					; shifted key
+				jr got_keymap
+				
+not_shifted		bit 3,a
+				jr z,got_keymap	
 				ld hl,alted_keymap						; ascii conversion table (with "ALT" pressed)	
-				bit 3,a
-				jr nz,got_kmap	
-								
-				ld hl,unshifted_keymap					; unshifted key
-				and 011h			
-				jr z,got_kmap
-				ld hl,shifted_keymap					; shifted key
-			
-got_kmap		ld a,c									; retrieve scan code
+
+got_keymap		ld a,c									; retrieve scan code
 				cp 062h
 				jr nc,gotkdone
 				add hl,bc								; use scancode as the index in ascii translation table	
-				ld b,(hl)								; b = ascii version of keycode
-			
+				ld a,(hl)								; b = ascii version of keycode
+				or a
+				jr z,gotkdone							; if there is no ascii translation, dont attempt to
+				sub a,e									; subtract anything
+				ld b,a
+				
 gotkdone		ld a,(key_buf_rd_idx)					; advance the buffer read index one byte
 				inc a									; and return with keypress info in A and B
 				and 15

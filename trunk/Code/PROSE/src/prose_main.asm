@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2eh
+prose_version	equ 2fh
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -256,8 +256,8 @@ os_nbksp		cp 05ah								; pressed enter?
 				jp z,os_enter_pressed
 	
 				ld a,(current_asciicode)			; not a direction, bkspace, del or enter. 
-				or a								; if scancode is not an ascii char
-				jr z,os_nvdun						; zero is returned, skip plotting char.
+				cp 32								; if scancode is not an ascii char dont plot anything
+				jr c,os_nvdun						
 
 				cp 07bh								; upper <-> lower case are flipped in OS 
 				jr nc,os_gtcha						; to make unshifted = upper case
@@ -1088,8 +1088,8 @@ os_nuibs		cp 076h							; pressed escape
 				jr z,ui_loop	
 
 				ld a,(current_asciicode)		; not a bkspace or enter... 
-				or a							; if scancode is not an ascii char
-				jr z,ui_loop					; skip plotting char.
+				cp 32							; if scancode is not an ascii char
+				jr c,ui_loop					; skip plotting char.
 
 ui_gtcha		ld d,a
 				ld hl,(ui_string_addr)
@@ -1122,7 +1122,12 @@ ui_enter_pressed
 				ld a,081h						; number of chars = 0, return error 81h
 				or a
 				ret
-ui_data			cp a							; zero flag set, all ok
+ui_data			ld hl,(ui_string_addr)
+				ld de,0
+				ld e,a
+				add hl,de
+				ld (hl),0						; null terminate the string
+				cp a							; zero flag set, all ok
 				ret
 
 ui_aborted		ld a,(ui_im_cache)				; restore original insert mode 
@@ -1793,8 +1798,13 @@ os_get_key_mod_flags
 
 os_get_display_size
 			
-				ld bc,(display_parameters)
-				cp a
+				push af
+				ld a,(window_rows)
+				ld c,a
+				ld a,(window_columns)
+				ld b,a
+				pop af
+				cp a						; ZF set, no error
 				ret
 
 ;------------------------------------------------------------------------------------------
