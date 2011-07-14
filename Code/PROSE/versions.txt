@@ -1,10 +1,16 @@
 Current version
 ---------------
 
-02f - Fixed:   kr_get_display_size (wasnt returning correct figures)
+02f - Changed: kernal keyboard routines now return ASCII codes (0-31) for keys when
+               CTRL is held (lower-case ASCII code of the key - 96). Note if these
+               characters are displayed, they will show up as garbage so user programs
+               should check for them.
+
+      Fixed:   kr_get_display_size (wasn't returning correct figures)
+
       Changed: kr_get_string now null-terminates the ascii string
 
-(not released yet)
+
 
 Previous
 --------

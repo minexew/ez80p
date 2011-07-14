@@ -53,10 +53,10 @@ got_keymap		ld a,c									; retrieve scan code
 				jr nc,gotkdone
 				add hl,bc								; use scancode as the index in ascii translation table	
 				ld a,(hl)								; b = ascii version of keycode
-				or a
-				jr z,gotkdone							; if there is no ascii translation, dont attempt to
-				sub a,e									; subtract anything
-				ld b,a
+				sub a,e									; subtract for CTRL+key
+				jr nc,subkey_ok	
+				xor a									; if sub creates a carry, dont return any ASCII code
+subkey_ok		ld b,a
 				
 gotkdone		ld a,(key_buf_rd_idx)					; advance the buffer read index one byte
 				inc a									; and return with keypress info in A and B

@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
                            B    41    
        000000ED            B    42    RTC_CTRL		equ 0edh			;RTC equate
        000000EC            B    43    RTC_ACTRL		equ 0ech
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   2
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80_cpu_equates.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
        00FF1000            B    39    tilemap_parameters		equ hw_video_parameters
        00FF1020            B    40    bitmap_parameters		equ hw_video_parameters
                            B    41    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   3
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_hardware_equates.asm
@@ -159,7 +159,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000A21 DD21 50 55 00       A    49    				ld ix,kernal_table				000A26 11030000            A    50    				ld de,3
 000A2A 57                  A    51    				ld d,a
 000A2B ED5C                A    52    				mlt de
-000A2D DD19                A    53    				add ix,de						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   4
+000A2D DD19                A    53    				add ix,de						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   4
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -199,7 +199,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000A78 21 E1 60 00         A   102    				ld hl,os_variables				000A7C 01 C8 01 00         A   103    				ld bc,last_os_var-os_variables
 000A80 AF                  A   104    				xor a
 000A81 CD 56 15 00         A   105    				call os_bchl_memfill
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   5
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -245,7 +245,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000B07 28 11               A   155    				jr z,os_main_loop
 000B09 AF                  A   156    				xor a
 000B0A 32 B0 60 00         A   157    				ld (frozen),a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   6
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -293,7 +293,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000B71 77                  A   205    				ld (hl),a						000B72 18 A6               A   206    				jr os_main_loop
                            A   207    
 000B74 FE74                A   208    os_ntlft		cp 074h							000B76 20 0C               A   209    				jr nz,os_ntrig
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   7
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -333,7 +333,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000BD4 FE5A                A   255    os_nbksp		cp 05ah							000BD6 CA 1E 0C 00         A   256    				jp z,os_enter_pressed
                            A   257    	
 000BDA 3A 7F 62 00         A   258    				ld a,(current_asciicode)		000BDE FE20                A   259    				cp 32							000BE0 38 38               A   260    				jr c,os_nvdun					                           A   261    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   8
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   8
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -378,7 +378,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A   311    
                            A   312    	
                            A   313    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:   9
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:   9
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -416,7 +416,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000C8A FD23                A   359    				inc iy
 000C8C 28 F1               A   360    				jr z,cmdnscan					000C8E 1A                  A   361    nomatch			ld a,(de)						000C8F B7                  A   362    				or a
 000C90 28 04               A   363    				jr z,posmatch					000C92 CB7F                A   364    				bit 7,a			
-000C94 28 D5               A   365    				jr z,compcstr					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  10
+000C94 28 D5               A   365    				jr z,compcstr					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  10
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -455,7 +455,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000CF9 C8                  A   413    				ret z							000CFA 23                  A   414    				inc hl
 000CFB B7                  A   415    				or a
 000CFC 20 F8               A   416    				jr nz,findmsg					000CFE 04                  A   417    				inc b
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  11
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  11
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -499,7 +499,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000D54 20 80               A   465    				jr nz,show_erm
 000D56 CD E3 3B 00         A   466    				call enable_nmi					000D5A D5                  A   467    				push de
 000D5B DDE1                A   468    				pop ix			
-000D5D C3 EF 0E 00         A   469    				jp os_run_command				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  12
+000D5D C3 EF 0E 00         A   469    				jp os_run_command				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  12
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -533,7 +533,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000DD9 CD B3 4A 00         A   516    				call fs_read_data_command
 000DDD DA C4 0C 00         A   517    				jp c,os_hwerr					000DE1 B7                  A   518    				or a
 000DE2 C2 D6 0C 00         A   519    				jp nz,show_erm					000DE6 2A 98 68 00         A   520    				ld hl,(scratch_pad+2)
-000DEA 1150524F            A   521    				ld de,04f5250h					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  13
+000DEA 1150524F            A   521    				ld de,04f5250h					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  13
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -570,7 +570,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000E5E CD 05 0F 00         A   568    				call restore_dir_block
 000E62 3E2B                A   569    				ld a,02bh						000E64 C3 D6 0C 00         A   570    				jp show_erm
                            A   571    
-000E68 ED5B 9E 68 00       A   572    nohwv_spec		ld de,(scratch_pad+8)			000E6D 3A A0 68 00         A   573    				ld a,(scratch_pad+10)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  14
+000E68 ED5B 9E 68 00       A   572    nohwv_spec		ld de,(scratch_pad+8)			000E6D 3A A0 68 00         A   573    				ld a,(scratch_pad+10)			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  14
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -605,7 +605,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000EEE C9                  A   623    				ret
                            A   624    				
                            A   625    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  15
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  15
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -656,7 +656,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000F1D C5                  A   674    				push bc
 000F1E ED4B 48 61 00       A   675    				ld bc,(cursor_pos)				000F23 7E                  A   676    prstr_lp		ld a,(hl)
 000F24 23                  A   677    				inc hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  16
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  16
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -711,7 +711,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 000F71 34                  A   727    				inc (hl)
 000F72 7E                  A   728    				ld a,(hl)
 000F73 FE19                A   729    				cp 25
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  17
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  17
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -763,7 +763,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A   779    ;----------------------------------------------
                            A   780    	
                            A   781    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  18
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  18
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -810,7 +810,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A   830    
                            A   831    	
 000FE6 CD 16 10 00         A   832    				call os_atfn_pre				000FEA C8                  A   833    				ret z
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  19
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  19
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -863,7 +863,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001033 3E20                A   883    				ld a,32
 001035 CD 56 15 00         A   884    				call os_bchl_memfill
 001039 E1                  A   885    				pop hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  20
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  20
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -911,7 +911,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A   933    
 00105F C5                  A   934    				push bc
 001060 47                  A   935    				ld b,a							001061 CB3F                A   936    				srl a							001063 CB3F                A   937    				srl a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  21
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  21
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -963,7 +963,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A   987    
 00109E DDE5                A   988    				push ix
 0010A0 C5                  A   989    				push bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  22
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  22
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1009,7 +1009,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  1039    
                            A  1040    
 0010E4                     A  1041    ext_user_input
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  23
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  23
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1050,7 +1050,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001150 28 B1               A  1088    				jr z,ui_loop	
                            A  1089    
 001152 3A 7F 62 00         A  1090    				ld a,(current_asciicode)		001156 FE20                A  1091    				cp 32							001158 38 A9               A  1092    				jr c,ui_loop					                           A  1093    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  24
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  24
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1091,7 +1091,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0011BA                     A  1141    os_count_lines
                            A  1142    
 0011BA E5                  A  1143    				push hl							0011BB 0679                A  1144    				ld b,'y'						0011BD 21 4D 61 00         A  1145    				ld hl,os_linecount			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  25
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  25
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1139,7 +1139,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001201 C9                  A  1195    				ret
                            A  1196    
                            A  1197    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  26
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  26
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1195,7 +1195,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001223 D620                A  1247    				sub 020h				
 001225 C9                  A  1248    				ret
                            A  1249    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  27
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  27
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1250,7 +1250,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  1299    ; INPUT xDE hex longword
                            A  1300    ; OUTPUT xHL = decimal LSB address (8 digits) 
                            A  1301    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  28
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  28
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1306,7 +1306,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0012A3 C1                  A  1351    				pop bc
 0012A4 10 EE               A  1352    				djnz daddlp	
 0012A6 E1                  A  1353    				pop hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  29
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  29
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1358,7 +1358,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0012EC 78                  A  1403    				ld a,b
 0012ED B1                  A  1404    				or c
 0012EE 20 F6               A  1405    				jr nz,os_cloll
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  30
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  30
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1411,7 +1411,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00132A E5                  A  1455    				push hl
 00132B 21 B8 61 00         A  1456    				ld hl,output_line
 00132F CD 3C 10 00         A  1457    				call os_skip_leading_ascii_zero
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  31
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  31
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1458,7 +1458,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00138B EA 91 13 00         A  1505    sfstzero		jp pe,pfstzero					00138F CBD0                A  1506    				set 2,b
                            A  1507    
 001391 ED57                A  1508    pfstzero		ld a,i			
-001393 EA 99 13 00         A  1509    				jp pe,ifstzero					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  32
+001393 EA 99 13 00         A  1509    				jp pe,ifstzero					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  32
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1507,7 +1507,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0013CD 38 14               A  1559    				jr c,badpos
 0013CF 79                  A  1560    				ld a,c
 0013D0 32 48 61 00         A  1561    				ld (cursor_y),a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  33
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  33
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1558,7 +1558,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00140A E1                  A  1611    				pop hl
                            A  1612    			
 00140B DDE1                A  1613    				pop ix
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  34
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  34
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1607,7 +1607,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  1663    			
 00145A                     A  1664    os_get_mouse_motion
                            A  1665    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  35
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  35
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1659,7 +1659,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0014BC AF                  A  1714    				xor a
 0014BD ED52                A  1715    				sbc hl,de
 0014BF 38 06               A  1716    				jr c,ms_x_ok2
-0014C1 ED4B 90 62 00       A  1717    				ld bc,(mouse_window_size_x)		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  36
+0014C1 ED4B 90 62 00       A  1717    				ld bc,(mouse_window_size_x)		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  36
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1713,7 +1713,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001526                     A  1767    crc_checksum
                            A  1768    
 001526 21FFFF00            A  1769    				ld hl,0ffffh		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  37
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  37
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1766,7 +1766,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00155D C9                  A  1819    				ret
                            A  1820    	
                            A  1821    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  38
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  38
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1816,7 +1816,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0015A2 DD22 60 61 00       A  1870    				ld (xrr_temp),ix				0015A7 ED6E                A  1871    				ld a,MB
 0015A9 32 62 61 00         A  1872    				ld (xrr_temp+2),a
 0015AD DD2A 60 61 00       A  1873    				ld ix,(xrr_temp)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  39
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  39
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1860,7 +1860,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  1923    ;----------------------------------------------
                            A  1924    
                            A  1925    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  40
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  40
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1912,7 +1912,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00160C CD 68 4A 00         A  1971    				call fs_open_file_command		001610 38 02               A  1972    				jr c,os_fferr					001612 B7                  A  1973    				or a							001613 C9                  A  1974    				ret 		
                            A  1975    								
 001614 47                  A  1976    os_fferr		ld b,a							001615 AF                  A  1977    				xor a			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  41
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  41
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -1961,7 +1961,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  2027    
                            A  2028    ;----------------------------------------------
                            A  2029    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  42
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  42
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2015,7 +2015,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001679 DA 14 16 00         A  2079    os_rffsc		jp c,os_fferr
 00167D B7                  A  2080    				or a
 00167E C9                  A  2081    				ret
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  43
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  43
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2066,7 +2066,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0016C3 CD C7 52 00         A  2131    os_change_dir	call fs_hl_to_filename
 0016C7 CD 14 4A 00         A  2132    				call fs_change_dir_command
 0016CB 18 AC               A  2133    				jr os_rffsc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  44
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  44
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2121,7 +2121,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0016F3 CD 29 50 00         A  2183    				call fs_goto_next_dir_entry	
 0016F7 18 80               A  2184    				jr os_rffsc
                            A  2185    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  45
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  45
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2174,7 +2174,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00174B F5                  A  2234    sect_done		push af
 00174C 3A A4 60 00         A  2235    				ld a,(sys_driver_backup)		001750 32 6E 5F 00         A  2236    				ld (current_driver),a
 001754 F1                  A  2237    				pop af
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  46
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  46
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2217,7 +2217,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0017B9 BF                  A  2284    os_null			cp a							0017BA C9                  A  2285    				ret
                            A  2286    					
 0017BB 3ED0                A  2287    bad_dev			ld a,0d0h						0017BD B7                  A  2288    				or a							0017BE C9                  A  2289    				ret	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  47
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  47
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2273,7 +2273,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0017FB CD 32 46 00         A  2339    				call serial_send_file
 0017FF C9                  A  2340    				ret
                            A  2341    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  48
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  48
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2322,7 +2322,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00184E AF                  A  2390    clrdl_lp		xor a
 00184F CD 56 15 00         A  2391    				call os_bchl_memfill
                            A  2392    								
-001853 21 87 5F 00         A  2393    				ld hl,volume_dir_clusters		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  49
+001853 21 87 5F 00         A  2393    				ld hl,volume_dir_clusters		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  49
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2366,7 +2366,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0018CB 21 6F 5F 00         A  2442    				ld hl,device_count
 0018CF 34                  A  2443    				inc (hl)						0018D0 3A 6E 5F 00         A  2444    				ld a,(current_driver)
 0018D4 2A 9F 60 00         A  2445    				ld hl,(dhwn_temp_pointer)	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  50
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  50
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2404,7 +2404,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00193A C8                  A  2493    				ret z							                           A  2494    			
 00193B 3A A3 60 00         A  2495    nxt_dev			ld a,(vols_on_device_temp)		00193F B7                  A  2496    				or a
 001940 C0                  A  2497    				ret nz		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  51
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  51
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2453,7 +2453,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0019A1 34                  A  2547    				inc (hl)
 0019A2 7E                  A  2548    				ld a,(hl)
 0019A3 FE08                A  2549    				cp max_volumes
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  52
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  52
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2503,7 +2503,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0019FE                     A  2599    show_dev_driver_name
                            A  2600    	
                            A  2601    	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  53
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  53
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2554,7 +2554,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  2651    ;----------------------------------------------
                            A  2652    
                            A  2653    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  54
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  54
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2606,7 +2606,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  2703    	
                            A  2704    
                            A  2705    	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  55
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  55
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2656,7 +2656,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001AA0 7B                  A  2755    				ld a,e
                            A  2756    
 001AA1                     A  2757    os_change_volume
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  56
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  56
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2700,7 +2700,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            A  2807    
                            A  2808    				
 001ADC 3A D7 54 00         A  2809    				ld a,(fs_cluster_size)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  57
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  57
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2753,7 +2753,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001B19 ED1201              A  2859    env_cname		lea de,ix+1
 001B1C 1A                  A  2860    				ld a,(de)
 001B1D FEFF                A  2861    				cp 0ffh
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  58
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  58
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2803,7 +2803,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001B56 CD A2 1B 00         A  2910    				call os_delete_envar			001B5A D1                  A  2911    				pop de
 001B5B E1                  A  2912    				pop hl
                            A  2913    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  59
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  59
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2853,7 +2853,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001BA7 D5                  A  2963    				push de
 001BA8 E1                  A  2964    				pop hl
 001BA9 AF                  A  2965    				xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  60
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  60
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2903,7 +2903,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001BED C1                  A  3015    				pop bc
 001BEE C9                  A  3016    				ret
                            A  3017    						
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  61
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  61
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -2953,7 +2953,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    29    ; carry flag: Set = bad range
                            B    30    ; xBC = run length on return
                            B    31    ; xHL = start address
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  62
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  62
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\c.asm
@@ -3001,7 +3001,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001C61 20 03               B    81    				jr nz,hex_good
 001C63 E1                  B    82    				pop hl						; r
 001C64 B7                  B    83    				or a	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  63
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  63
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\c.asm
@@ -3052,7 +3052,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001CA0 23                  B    43    				inc hl
 001CA1 56                  B    44    				ld d,(hl)
 001CA2 23                  B    45    				inc hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  64
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  64
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\cd.asm
@@ -3099,7 +3099,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    94    					
 001D02                     B    95    cd_dcherr	
                            B    96    			
-001D02 F5                  B    97    				push af							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  65
+001D02 F5                  B    97    				push af							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  65
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\cd.asm
@@ -3155,7 +3155,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   147    					
                            B   148    ;----------------------------------------------
                            B     0    	include 'commands\cls.asm'
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  66
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  66
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\cls.asm
@@ -3203,7 +3203,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001D83 3A F3 5E 00         B    13    d_no_hex		ld a,(window_rows)				001D87 D602                B    14    				sub a,2
 001D89 47                  B    15    				ld b,a
 001D8A C5                  B    16    dis_loop		push bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  67
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  67
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3249,7 +3249,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    66    
        00000000            B    67    adl_dis				equ 0					; b
                            B    68    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  68
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  68
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3304,7 +3304,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001E3B FDCB00CE            B   118    do_ed		set ed_prefix,(iy)
 001E3F DD23                B   119    			inc ix
 001E41 18 2E               B   120    			jr not_traditional_prefix_byte
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  69
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  69
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3354,7 +3354,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001EA1 DD7E00              B   170    			ld a,(ix)
 001EA4 E608                B   171    			and 00001000b
 001EA6 CB3F                B   172    			srl a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  70
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  70
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3409,7 +3409,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001F0A FE21                B   221    d_not_imm8	cp '!'							;sy
 001F0C 20 26               B   222    			jr nz,d_not_imm16					001F0E 11020000            B   223    			ld de,2
 001F12 FDCB0076            B   224    			bit il_prefix,(iy)				;ad
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  71
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  71
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3465,7 +3465,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001F8C C3 63 20 00         B   274    			jp next_opcode_ascii_char
                            B   275    
 001F90 FE3E                B   276    d_not_pcdip	cp '>'							;sy
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  72
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  72
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3521,7 +3521,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 001FF4 23                  B   326    do_table 	inc hl
 001FF5 01000000            B   327    			ld bc,0							; t
 001FF9 4E                  B   328    			ld c,(hl)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  73
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  73
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3577,7 +3577,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00205F                     B   378    ntable_bli
                            B   379    
                            B   380    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  74
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  74
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3633,7 +3633,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002088 0600                B   430    			ld b,0						; defau
                            B   431    
 00208A FDCB0066            B   432    			bit ddcb_fdcb_prefix,(iy)	; Was t
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  75
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  75
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3688,7 +3688,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   482    
 0020E2 FE02                B   483    notedx0z1	cp 2
 0020E4 20 05               B   484    			jr nz,notedx0z2
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  76
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  76
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3744,7 +3744,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00213E 20 08               B   534    			jr nz,ed_x1_zn2					;z 
 002140 21 C1 25 00         B   535    			ld hl,ed_x1_z2	
 002144 FD46 05             B   536    			ld b,(iy+var_q)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  77
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  77
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3800,7 +3800,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00219F 21 D0 26 00         B   586    			ld hl,ed_x2_z2					;x=
 0021A3 C9                  B   587    			ret
                            B   588    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  78
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  78
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3856,7 +3856,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0021E3 21 5E 23 00         B   638    			ld hl,x0_z0
 0021E7 FD7E 02             B   639    			ld a,(iy+var_y)				;y is t
 0021EA 47                  B   640    			ld b,a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  79
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  79
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3912,7 +3912,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002236 FE05                B   690    			cp 5
 002238 20 05               B   691    			jr nz,x0_z_not_five
 00223A 21 FD 23 00         B   692    			ld hl,x0_z5					;no ini
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  80
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  80
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -3968,7 +3968,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00229B C9                  B   742    			ret
                            B   743    			
 00229C FD7E 03             B   744    x1yn6		ld a,(iy+var_z)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  81
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  81
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4024,7 +4024,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0022E5 FE04                B   794    			cp 4
 0022E7 20 05               B   795    			jr nz,x3_z_not_four
 0022E9 21 CE 24 00         B   796    			ld hl,x3_z4				;no initial
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  82
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  82
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4080,7 +4080,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00232B C9                  B   846    			ret
                            B   847    			
                            B   848    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  83
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  83
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4136,7 +4136,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002356 00                  B   898    prefix_bits_loc	db 0	
 002357 00                  B   899    var_x_loc		db 0	
 002358 00                  B   900    var_y_loc		db 0	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  84
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  84
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4192,7 +4192,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0023EC 80 
 0023ED 44454326 2040 04    B   939    			db 'DEC& @',var_p,80h		;q=1
 0023F4 80 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  85
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  85
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4245,7 +4245,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002481 4A502620 5F80       B   979    			db 'JP& _',80h			;p=2
 002487 4C442620 53502C5F   B   980    			db 'LD& SP,_',80h		;p=3
 00248F 80 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  86
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  86
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4298,7 +4298,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00253D 494E3020 285EA9     B  1018    ed_x0_z0_y6		db 'IN0 (^',')'+80h	
                            B  1019    
 002544 4F555430 20285E29   B  1020    ed_x0_z1		db 'OUT0 (^),~',var_y,80h		00254C 2C7E 02 80 
-002550 4C442620 49592C28   B  1021    				db 'LD& IY,(_',')'+80h			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  87
+002550 4C442620 49592C28   B  1021    				db 'LD& IY,(_',')'+80h			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  87
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4346,7 +4346,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002630 4C454126 2049592C   B  1055    				db 'LEA& IY,IX/',80h		;y=
 002638 49582F80 
 00263C BF                  B  1056    				db '?'+80h					;y=
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  88
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  88
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4394,7 +4394,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002700 4F54494D 2680       B  1104    ed_x2_z3		db 'OTIM&',80h		; y0
 002706 4F54444D 2680       B  1105    				db 'OTDM&',80h		; y1
 00270C 4F54494D 522680     B  1106    				db 'OTIMR&',80h		; y2
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  89
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  89
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4445,7 +4445,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1147    ;----------------------------------------------
                            B  1148    
                            B  1149    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  90
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  90
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4501,7 +4501,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1187    ; "l" = L, IXL, IYL depending on prefix
                            B  1188    ; "$" = (HL), (IX+d), (IY+d) depending on prefi
                            B  1189    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  91
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  91
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\d.asm
@@ -4557,7 +4557,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0028E1 C3 E0 15 00         B    24    				jp os_no_fn_error			;so
                            B    25    
                            B    26    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  92
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  92
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\dir.asm
@@ -4604,7 +4604,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00294F 21 B8 61 00         B    49    				ld hl,output_line
 002953 E5                  B    50    				push hl
 002954 ED5B 98 68 00       B    51    				ld de,(scratch_pad+2)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  93
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  93
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\dir.asm
@@ -4652,7 +4652,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0029BC AF                  B   100    				xor a
 0029BD 12                  B   101    				ld (de),a
 0029BE E1                  B   102    				pop hl							0029BF CD 1C 0F 00         B   103    				call os_print_string
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  94
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  94
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\dir.asm
@@ -4702,7 +4702,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     3    ;
                            B     4    ; The internal format routine is limited to for
                            B     5    ; No partition data is allowed.
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  95
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  95
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\format.asm
@@ -4746,7 +4746,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    55    ;----- FORMAT A DEVICE (USE ENTIRE CAPACITY (TR
                            B    56    			
                            B    57    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  96
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  96
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\format.asm
@@ -4790,7 +4790,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   105    			
 002AE2 21 43 2B 00         B   106    				ld hl,ok_txt					002AE6 CD 1C 0F 00         B   107    				call os_print_string
                            B   108    				
-002AEA CD F6 31 00         B   109    f_end			call os_cmd_remount				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  97
+002AEA CD F6 31 00         B   109    f_end			call os_cmd_remount				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  97
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\format.asm
@@ -4845,7 +4845,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002B33 0B0B466F 726D6174   B   158    				db 11,11,'Formatting.. ',0
 002B3B 74696E67 2E2E2000 
                            B   159    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  98
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  98
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\format.asm
@@ -4894,7 +4894,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002B97 04                  B    31    				inc b
 002B98 18 F2               B    32    				jr h_fasc_len
                            B    33    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page:  99
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page:  99
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\h.asm
@@ -4942,7 +4942,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002BF9 C1                  B    83    				pop bc
 002BFA DDE1                B    84    				pop ix
                            B    85    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 100
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 100
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\h.asm
@@ -4997,7 +4997,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     2    ;">" for write ascii bytes to memory command. V
                            B     3    ;----------------------------------------------
                            B     4    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 101
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 101
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\gtr.asm
@@ -5044,7 +5044,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002C6B C0                  B     8    				ret nz
                            B     9    				
 002C6C CD DD 28 00         B    10    				call filename_or_bust			002C70 CD 08 16 00         B    11    				call os_find_file				002C74 C0                  B    12    				ret nz
-002C75 ED53 99 68 00       B    13    				ld (filesize_cache),de			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 102
+002C75 ED53 99 68 00       B    13    				ld (filesize_cache),de			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 102
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\lb.asm
@@ -5085,7 +5085,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002CF0 CD BC 13 00         B    63    				call os_new_line
 002CF4 AF                  B    64    				xor a
 002CF5 C9                  B    65    				ret
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 103
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 103
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\lb.asm
@@ -5135,7 +5135,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002D3D 3A2000              B    42    colon_cmd_prefix	db ': ',0
                            B    43    
                            B    44    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 104
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 104
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\md.asm
@@ -5190,7 +5190,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002D88 DD23                B    33    				inc ix
 002D8A DD23                B    34    				inc ix
 002D8C DDE5                B    35    				push ix
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 105
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 105
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\r.asm
@@ -5240,7 +5240,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002DF5 AF                  B    85    				xor a
 002DF6 C9                  B    86    				ret
                            B    87    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 106
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 106
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\r.asm
@@ -5296,7 +5296,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     9    				
 002E83 CD DD 28 00         B    10    				call filename_or_bust
                            B    11    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 107
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 107
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rd.asm
@@ -5344,7 +5344,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002EC9 CD 5B 1C 00         B    19    				call hexword_or_bust			002ECD CA EC 15 00         B    20    				jp z,os_no_filesize
 002ED1 ED53 99 68 00       B    21    				ld (sb_save_length),de
                            B    22    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 108
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 108
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\sb.asm
@@ -5388,7 +5388,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002F15 3E3E                B    15    				ld a,'>'						002F17 BE                  B    16    				cp (hl)
 002F18 C2 DB 2F 00         B    17    				jp nz,rx_nrs
 002F1C 23                  B    18    				inc hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 109
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 109
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rx.asm
@@ -5433,7 +5433,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 002F9C ED52                B    68    				sbc hl,de
 002F9E 22 4E 5F 00         B    69    				ld (serial_fileheader+16),hl
 002FA2 28 1D               B    70    				jr z,rx_lbr
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 110
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 110
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rx.asm
@@ -5480,7 +5480,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003017 C9                  B   120    				ret
                            B   121    	
 003018 2A 98 66 00         B   122    rxe_fblok		ld hl,(sector_buffer+2)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 111
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 111
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rx.asm
@@ -5517,7 +5517,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003093 CD 02 12 00         B   171    				call os_copy_ascii_run			003097 79                  B   172    				ld a,c
 003098 32 3C 5F 00         B   173    				ld (serial_fn_length),a
 00309C CD A9 0F 00         B   174    				call os_scan_for_space
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 112
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 112
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rx.asm
@@ -5561,7 +5561,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003108 CD 65 0F 00         B   222    				call home_cursor
                            B   223    				
 00310C 21 2A 5F 00         B   224    				ld hl,serial_filename			003110 3E01                B   225    				ld a,1							003112 CD CE 44 00         B   226    				call serial_get_header
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 113
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 113
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\rx.asm
@@ -5606,7 +5606,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    22    							
 00315E CD 5B 1C 00         B    23    				call hexword_or_bust			003162 CA E8 15 00         B    24    				jp z,os_no_start_addr			003166 ED53 21 5F 00       B    25    				ld (serial_ez80_address),de
                            B    26    			
-00316B CD 5B 1C 00         B    27    				call hexword_or_bust			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 114
+00316B CD 5B 1C 00         B    27    				call hexword_or_bust			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 114
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\tx.asm
@@ -5656,7 +5656,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0031D2 FE7F                B    26    				cp 07fh
 0031D4 38 02               B    27    				jr c,nchchar
 0031D6 3E7C                B    28    chchar			ld a,07ch
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 115
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 115
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\t.asm
@@ -5711,7 +5711,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00320F EB                  B    12    				ex de,hl
 003210 CD 13 13 00         B    13    				call os_show_hex_word
                            B    14    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 116
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 116
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\vers.asm
@@ -5764,7 +5764,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    32    			
 003248 2A 0A 62 00         B    33    				ld hl,(os_args_loc)				00324C 11 37 61 00         B    34    				ld de,script_fn					003250 060D                B    35    				ld b,13
 003252 CD 02 12 00         B    36    				call os_copy_ascii_run
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 117
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 117
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -5809,7 +5809,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0032B3 CD E3 11 00         B    86    				call os_compare_strings
 0032B7 28 DD               B    87    				jr z,scr_done
                            B    88    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 118
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 118
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -5851,7 +5851,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003317 11 44 62 00         B   133    				ld de,if_label_txt				00331B 0610                B   134    				ld b,max_if_chars
 00331D CD 02 12 00         B   135    				call os_copy_ascii_run			003321 AF                  B   136    				xor a
 003322 12                  B   137    				ld (de),a						                           B   138    								
-003323 21 20 62 00         B   139    				ld hl,if_name_txt				003327 CD 0C 1B 00         B   140    				call os_get_envar				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 119
+003323 21 20 62 00         B   139    				ld hl,if_name_txt				003327 CD 0C 1B 00         B   140    				call os_get_envar				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 119
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -5890,7 +5890,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003396 E5                  B   188    new_script		push hl
 003397 21000000            B   189    				ld hl,0
 00339B 22 19 62 00         B   190    				ld (script_file_offset),hl		00339F 21 1F 62 00         B   191    				ld hl,script_flags
-0033A3 CB8E                B   192    				res scr_find_new_line,(hl)		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 120
+0033A3 CB8E                B   192    				res scr_find_new_line,(hl)		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 120
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -5931,7 +5931,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003400 C9                  B   241    				ret
 003401 CD 21 16 00         B   242    not_eoscr		call os_set_file_pointer
                            B   243    
-003405 21 66 61 00         B   244    				ld hl,commandstring				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 121
+003405 21 66 61 00         B   244    				ld hl,commandstring				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 121
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -5974,7 +5974,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003461 21 1F 62 00         B   293    				ld hl,script_flags				003465 CB8E                B   294    				res scr_find_new_line,(hl)
 003467 C3 D4 33 00         B   295    				jr read_script
                            B   296    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 122
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 122
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\exec.asm
@@ -6027,7 +6027,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     1    ;----------------------------------------------
                            B     2    ;"Palette" - Change attribute v0.01 - ADL mode
                            B     3    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 123
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 123
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\palette.asm
@@ -6079,7 +6079,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0034C6 CB8E                B    18    				res 1,(hl)
                            B    19    		
 0034C8 CD DA 42 00         B    20    				call init_mouse
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 124
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 124
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\mouse.asm
@@ -6132,7 +6132,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003529 21000000            B    27    				ld hl,0
 00352D 11000000            B    28    				ld de,0
 003531 DD6E00              B    29    				ld l,(ix)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 125
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 125
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\vmode.asm
@@ -6183,7 +6183,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    79    				
 003591 A000F000            B    80    				dw 320/2,240
 003595 03                  B    81    				db 11b
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 126
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 126
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\vmode.asm
@@ -6232,7 +6232,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     3    ;
                            B     4    ; Command should be in format: "SET BLAH=SOMETH
                            B     5    ;
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 127
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 127
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\set.asm
@@ -6288,7 +6288,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003631 E5                  B    55    				push hl
 003632 CD 1C 0F 00         B    56    				call os_print_string
 003636 CD BC 13 00         B    57    				call os_new_line
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 128
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 128
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\commands\set.asm
@@ -6343,7 +6343,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     9    ; Somewhat arbitary timimg..
                            B    10    ;
                            B    11    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 129
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 129
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6397,7 +6397,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    61    
                            B    62    
                            B    63    ; Initializes card, reads CSD and CID into sect
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 130
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 130
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6430,7 +6430,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0036D4 CD D8 39 00         B   109    				call sdc_get_byte				0036D8 CD D8 39 00         B   110    				call sdc_get_byte				0036DC 3E69                B   111    				ld a,069h						0036DE CD 25 39 00         B   112    				call sdc_send_command_null_args
 0036E2 CD D8 39 00         B   113    				call sdc_get_byte
 0036E6 C1                  B   114    				pop bc
-0036E7 CD 52 39 00         B   115    				call sdc_wait_ncr				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 131
+0036E7 CD 52 39 00         B   115    				call sdc_wait_ncr				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 131
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6469,7 +6469,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003754 21 A6 66 00         B   164    				ld hl,sector_buffer+16			003758 CD 2E 38 00         B   165    				call sdc_read_id_bytes
 00375C CD F2 39 00         B   166    				call sdc_deselect_card
                            B   167    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 132
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 132
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6521,7 +6521,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0037B3 12                  B   217    sdc_hvl1		ld (de),a
 0037B4 13                  B   218    				inc de
 0037B5 7E                  B   219    				ld a,(hl)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 133
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 133
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6571,7 +6571,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00380D CB12                B   268    				rl d
 00380F CB15                B   269    				rl l
 003811 CB14                B   270    				rl h
-003813 10 F6               B   271    				djnz sdc_blsh					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 134
+003813 10 F6               B   271    				djnz sdc_blsh					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 134
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6617,7 +6617,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00384E CB23                B   318    				sla e							003850 CB12                B   319    				rl d
 003852 CB11                B   320    				rl c
 003854 3E51                B   321    				ld a,051h						003856 0601                B   322    				ld b,001h						003858 CD 2D 39 00         B   323    				call sdc_send_command		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 135
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 135
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6659,7 +6659,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   371    	
 0038B5 CD 7F 39 00         B   372    				call sdc_send_eight_clocks		                           B   373    
 0038B9 3EFE                B   374    				ld a,0feh
-0038BB CD C8 39 00         B   375    				call sdc_send_byte				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 136
+0038BB CD C8 39 00         B   375    				call sdc_send_byte				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 136
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6703,7 +6703,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003925 01000100            B   425    				ld bc,0100h				
 003929 11000000            B   426    				ld de,0000h
                            B   427    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 137
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 137
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6752,7 +6752,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003975 B1                  B   477    				or c
 003976 20 F3               B   478    				jr nz,sdc_wdt
 003978 C1                  B   479    				pop bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 138
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 138
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6806,7 +6806,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   529    
 00399C                     B   530    sdc_bcr_error
                            B   531    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 139
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 139
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_sdcard_driver.asm
@@ -6860,7 +6860,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0039C8 C5                  C     9    					push bc
 0039C9 01030000            C    10    					ld bc,port_sdc_data
 0039CD ED79                C    11    					out (bc),a					                           C    12    	
-0039CF 0E01                C    13    					ld c,port_hw_flags			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 140
+0039CF 0E01                C    13    					ld c,port_hw_flags			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 140
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_sdcard_code.asm
@@ -6911,7 +6911,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003A03 C5                  C    62    					push bc
 003A04 01020000            C    63    					ld bc,port_sdc_ctrl
 003A08 3E81                C    64    					ld a,80h+(1<<sdc_power)		003A0A ED79                C    65    					out (bc),a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 141
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 141
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_sdcard_code.asm
@@ -6959,7 +6959,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003A2F                     B     5    set_irq_vector
                            B     6    
 003A2F AF                  B     7    				xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 142
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 142
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7003,7 +7003,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    57    ;----------------------------------------------
                            B    58    ; Keyboard IRQ routine v0.03
                            B    59    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 143
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 143
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7050,7 +7050,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003AB4 FEE1                B   108    				cp 0e1h
 003AB6 28 3D               B   109    				jr z,kirq_done	
                            B   110    			
-003AB8 FEF0                B   111    				cp 0f0h							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 144
+003AB8 FEF0                B   111    				cp 0f0h							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 144
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7097,7 +7097,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003B10 FE11                B   161    				cp 011h
 003B12 C8                  B   162    				ret z
                            B   163    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 145
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 145
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7148,7 +7148,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003B3F BE                  B   213    				cp (hl)
 003B40 20 4F               B   214    				jr nz,msubpkt
                            B   215    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 146
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 146
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7196,7 +7196,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   265    
 003BA0                     B   266    nmi_routine
 003BA0 CD 35 13 00         B   267    				call os_store_CPU_regs
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 147
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 147
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7241,7 +7241,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003BE2 C9                  B   317    				ret
                            B   318    
                            B   319    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 148
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 148
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_interrupt_code.asm
@@ -7284,7 +7284,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003C26 BF                  B    36    				cp a							003C27 C9                  B    37    				ret
                            B    38    
 003C28 C1                  B    39    rx_time_out		pop bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 149
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 149
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_rs232_code.asm
@@ -7334,7 +7334,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     3    ; 16 colour mode routines
                            B     4    ;-------------------------------------------
                            B     5    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 150
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 150
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7384,7 +7384,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003CB5 AF                  B    55    				xor a
 003CB6 C9                  B    56    				ret
                            B    57    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 151
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 151
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7436,7 +7436,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003D10 DD210018 FF         B   103    				ld ix,video_control				003D15 3A 20 5F 00         B   104    				ld a,(window_pixel_doubling)
 003D19 CB27                B   105    				sla a
 003D1B F601                B   106    				or 1
-003D1D DD7700              B   107    				ld (ix),a						003D20 DD360100            B   108    				ld (ix+1),0						003D24 DD360200            B   109    				ld (ix+2),0						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 152
+003D1D DD7700              B   107    				ld (ix),a						003D20 DD360100            B   108    				ld (ix+1),0						003D24 DD360200            B   109    				ld (ix+2),0						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 152
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7480,7 +7480,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003D80 77                  B   159    				ld (hl),a
 003D81 E5                  B   160    				push hl
 003D82 D1                  B   161    				pop de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 153
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 153
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7529,7 +7529,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   210    				
 003DDB EB                  B   211    				ex de,hl						003DDC 3A CE 5E 00         B   212    				ld a,(background_colour)
 003DE0 E60F                B   213    				and 0fh
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 154
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 154
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7580,7 +7580,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003E45 C1                  B   262    				pop bc			
                            B   263    
 003E46 2A 11 5F 00         B   264    				ld hl,(attributes_address)		003E4A 09                  B   265    				add hl,bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 155
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 155
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7630,7 +7630,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   315    				
 003E81 F1                  B   316    win_ok			pop af
 003E82 D5                  B   317    				push de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 156
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 156
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7671,7 +7671,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   366    
 003EDA 3A F0 5E 00         B   367    				ld a,(plotchar_colour)			003EDE 2A 11 5F 00         B   368    				ld hl,(attributes_address)
 003EE2 19                  B   369    				add hl,de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 157
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 157
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7722,7 +7722,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003F29 D9                  B   418    charloop		exx
 003F2A DD6E00              B   419    				ld l,(ix)						003F2D CB25                B   420    				sla l
 003F2F 79                  B   421    				ld a,c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 158
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 158
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7778,7 +7778,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003F7E 10 A9               B   471    				djnz charloop
 003F80 D9                  B   472    				exx 
                            B   473    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 159
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 159
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7831,7 +7831,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 003FD1 19                  B   522    				add hl,de						003FD2 E5                  B   523    				push hl
 003FD3 FDE1                B   524    				pop iy
                            B   525    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 160
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 160
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7880,7 +7880,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   575    			
 00402D 23                  B   576    				inc hl
 00402E C1                  B   577    				pop bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 161
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 161
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7931,7 +7931,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004067 EB                  B   626    				ex de,hl
 004068 D5                  B   627    				push de
 004069 2A 0E 5F 00         B   628    				ld hl,(charmap_address)
-00406D 19                  B   629    				add hl,de						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 162
+00406D 19                  B   629    				add hl,de						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 162
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -7979,7 +7979,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0040AE 57                  B   679    				ld d,a
 0040AF 14                  B   680    				inc d
 0040B0 3A 48 61 00         B   681    				ld a,(cursor_y)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 163
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 163
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -8028,7 +8028,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0040F6 C1                  B   731    				pop bc
 0040F7 C9                  B   732    				ret
                            B   733    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 164
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 164
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -8078,7 +8078,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   783    
 004148 0E01                B   784    				ld c,port_hw_flags
 00414A ED7420              B   785    ewaitvrtlp1		tstio 1<<vrt
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 165
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 165
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_video_code.asm
@@ -8122,7 +8122,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004188 E6FC                B    39    					and 11111100b
 00418A F601                B    40    					or  00000001b
 00418C ED3992              B    41    					out0 (TMR_ISS),a			                           B    42    					
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 166
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 166
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8167,7 +8167,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0041BC 7B                  B    86    set_timeout			ld a,e						0041BD ED3981              B    87    					out0 (TMR0_RR_L),a			0041C0 7A                  B    88    					ld a,d
 0041C1 ED3982              B    89    					out0 (TMR0_RR_H),a			0041C4 3E03                B    90    					ld a,00000011b				0041C6 ED3980              B    91    					out0 (TMR0_CTL),a			0041C9 ED3880              B    92    					in0 a,(TMR0_CTL)			0041CC C9                  B    93    					ret
                            B    94    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 167
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 167
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8214,7 +8214,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   144    
                            B   145    ;----------------------------------------------
                            B   146    ; INIT KEYBOARD ROUTINE 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 168
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 168
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8263,7 +8263,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   195    
                            B   196    ; Put byte to send to keyboard in A
                            B   197    
-004247 4F                  B   198    			ld c,a								Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 169
+004247 4F                  B   198    			ld c,a								Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 169
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8307,7 +8307,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0042A4 CD 02 44 00         B   246    			call wait_kb_clk_low				0042A8 D8                  B   247    			ret c
                            B   248    				
 0042A9 CD 2B 44 00         B   249    			call wait_kb_data_high				0042AD D8                  B   250    			ret c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 170
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 170
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8357,7 +8357,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0042E3 FB                  B   299    			ei
 0042E4 D0                  B   300    			ret nc
 0042E5 3E8B                B   301    			ld a,08bh							0042E7 B7                  B   302    			or a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 171
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 171
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8404,7 +8404,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   352    
 00433C                     B   353    standard_mouse
                            B   354    		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 172
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 172
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8453,7 +8453,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   403    
 004371 110A0000            B   404    			ld de,10
 004375 CD B0 41 00         B   405    			call hwsc_time_delay				                           B   406    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 173
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 173
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8498,7 +8498,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   456    ;----------------------------------------------
                            B   457    
                            B   458    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 174
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 174
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8551,7 +8551,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00440A 3E04                B   508    			ld a,4
                            B   509    
 00440C C5                  B   510    test_lo_ps2	push bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 175
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 175
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8607,7 +8607,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004444 CD CD 41 00         B   560    nkb_hw		call test_timeout				; t
 004448 28 04               B   561    			jr z,nkb_hnto
 00444A D1                  B   562    			pop de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 176
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 176
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\ez80p_misc_code.asm
@@ -8652,7 +8652,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00446F 09                  B    28    				add hl,bc						004470 4F                  B    29    				ld c,a							004471 7E                  B    30    				ld a,(hl)						                           B    31    
 004472 1E00                B    32    				ld e,0							004474 21 A0 5D 00         B    33    				ld hl,unshifted_keymap			                           B    34    
 004478 CB4F                B    35    				bit 1,a
-00447A 28 04               B    36    				jr z,not_ctrl					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 177
+00447A 28 04               B    36    				jr z,not_ctrl					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 177
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_keyboard_routines.asm
@@ -8668,8 +8668,8 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004492 21 64 5E 00         B    49    				ld hl,alted_keymap				                           B    50    
 004496 79                  B    51    got_keymap		ld a,c							004497 FE62                B    52    				cp 062h
 004499 30 07               B    53    				jr nc,gotkdone
-00449B 09                  B    54    				add hl,bc						00449C 7E                  B    55    				ld a,(hl)						00449D B7                  B    56    				or a
-00449E 28 02               B    57    				jr z,gotkdone					0044A0 93                  B    58    				sub a,e							0044A1 47                  B    59    				ld b,a
+00449B 09                  B    54    				add hl,bc						00449C 7E                  B    55    				ld a,(hl)						00449D 93                  B    56    				sub a,e							00449E 30 01               B    57    				jr nc,subkey_ok	
+0044A0 AF                  B    58    				xor a							0044A1 47                  B    59    subkey_ok		ld b,a
                            B    60    				
 0044A2 3A 79 62 00         B    61    gotkdone		ld a,(key_buf_rd_idx)			0044A6 3C                  B    62    				inc a							0044A7 E60F                B    63    				and 15
 0044A9 32 79 62 00         B    64    				ld (key_buf_rd_idx),a			0044AD 79                  B    65    				ld a,c							0044AE E1                  B    66    				pop hl
@@ -8691,7 +8691,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0044B4 51                  B    83    				ld d,c
 0044B5 E5                  B    84    				push hl
 0044B6 CD C5 44 00         B    85    				call get_kb_buffer_indexes		0044BA BE                  B    86    				cp (hl)							0044BB 20 A5               B    87    				jr nz,new_key					0044BD 3E81                B    88    				ld a,81h			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 178
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 178
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_keyboard_routines.asm
@@ -8738,7 +8738,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0044D6 CD 48 3C 00         B    25    				call hwsc_flush_serial_buffer	                           B    26    
 0044DA CD BD 45 00         B    27    				call s_getblock					0044DE 28 0C               B    28    				jr z,s_gbfhok					0044E0 F5                  B    29    				push af							0044E1 3A 5E 5F 00         B    30    				ld a,(serial_transfer_started)
 0044E5 B7                  B    31    				or a							0044E6 C4 24 46 00         B    32    				call nz,s_badack				0044EA F1                  B    33    				pop af
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 179
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 179
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -8782,7 +8782,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00454D CD E3 11 00         B    82    				call os_compare_strings
 004551 28 08               B    83    				jr z,s_rffns
 004553 CD 24 46 00         B    84    s_rfnbad		call s_badack
-004557 3E87                B    85    				ld a,087h						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 180
+004557 3E87                B    85    				ld a,087h						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 180
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -8827,7 +8827,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004594 ED5A                B   132    				adc hl,de						004596 28 1A               B   133    				jr z,s_rfabr					004598 C5                  B   134    				push bc
 004599 01010000            B   135    				ld bc,1
 00459D DD09                B   136    				add ix,bc						00459F C1                  B   137    				pop bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 181
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 181
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -8871,7 +8871,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0045F0 6F                  B   187    				ld l,a
 0045F1 10 F2               B   188    rxcrcnext		djnz rxcrcbyte
 0045F3 D9                  B   189    				exx
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 182
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 182
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -8918,7 +8918,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   239    ;  xHL   = filename
                            B   240    ;  xDE   = length of file
                            B   241    ;  xIX   = Start address [23:0]
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 183
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 183
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -8961,7 +8961,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00468A CD 1B 47 00         B   286    				call s_waitack					00468E C0                  B   287    				ret nz							                           B   288    				
 00468F DD2A 21 5F 00       B   289    				ld ix,(serial_ez80_address)
 004694 ED5B 4E 5F 00       B   290    				ld de,(serial_fileheader+16)	004699 CD B6 46 00         B   291    s_sbloop		call s_makeblock				00469D 38 16               B   292    				jr c,s_rerr
-00469F CD EE 46 00         B   293    				call s_sendblock				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 184
+00469F CD EE 46 00         B   293    				call s_sendblock				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 184
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -9003,7 +9003,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   342    
 0046EE E5                  B   343    				push hl
 0046EF D5                  B   344    				push de							0046F0 C5                  B   345    				push bc				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 185
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 185
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_serial_routines.asm
@@ -9055,7 +9055,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B     6    ;
                            B     7    ; 0.05 - Fixed format command
                            B     8    ; 0.04 - File system error codes are now in the
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 186
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 186
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9107,7 +9107,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    56    
 00473B 3A 6F 5F 00         B    57    				ld a,(device_count)				00473F 47                  B    58    				ld b,a							004740 DD21 1F 60 00       B    59    				ld ix,host_device_hardware_info
 004745 3A 6E 5F 00         B    60    fdevinfo		ld a,(current_driver)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 187
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 187
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9140,7 +9140,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0047A1 18 F3               B   104    				jr spc_loop						                           B   105    							
 0047A3 DD21 96 66 00       B   106    spcvalok		ld ix,sector_buffer
 0047A8 DD770D              B   107    				ld (ix+0dh),a					                           B   108    				
-0047AB CD 73 15 00         B   109    				call os_get_xde_msb				0047AF 4F                  B   110    				ld c,a							0047B0 B7                  B   111    				or a							0047B1 20 08               B   112    				jr nz,ts_dword					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 188
+0047AB CD 73 15 00         B   109    				call os_get_xde_msb				0047AF 4F                  B   110    				ld c,a							0047B0 B7                  B   111    				or a							0047B1 20 08               B   112    				jr nz,ts_dword					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 188
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9181,7 +9181,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00482B 21 EE 54 00         B   162    				ld hl,fs_sought_filename
 00482F 11 96 66 00         B   163    				ld de,sector_buffer
 004833 010B0000            B   164    				ld bc,11
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 189
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 189
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9224,7 +9224,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00487A CD B5 48 00         B   211    				call fs_check_fat_sig			00487E 20 42               B   212    				jr nz,formbad
                            B   213    			
 004880 CD A6 48 00         B   214    				call check_fat16_id				004884 28 1C               B   215    				jr z,at_pbs						                           B   216    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 190
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 190
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9272,7 +9272,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   266    ; ensures disk is FAT16, sets up constants..
                            B   267    	
 0048C6 C5                  B   268    				push bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 191
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 191
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9316,7 +9316,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00492B 22 DB 54 00         B   316    				ld (fs_fat1_position),hl		00492F 11000000            B   317    				ld de,0
 004933 DD5E16              B   318    				ld e,(ix+16h)					004936 DD5617              B   319    				ld d,(ix+17h)
 004939 ED53 E8 54 00       B   320    				ld (fs_sectors_per_fat),de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 192
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 192
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9353,7 +9353,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0049AA 52ED52              B   369    				sbc.s hl,de						0049AD 38 02               B   370    				jr c,cmaxok
 0049AF E1                  B   371    				pop hl
 0049B0 D5                  B   372    				push de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 193
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 193
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9400,7 +9400,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0049FB FD21 60 61 00       B   420    powdone			ld iy,xrr_temp
 004A00 FD3E00              B   421    				ld (iy),ix						004A03 FDCB023E            B   422    				srl (iy+2)
 004A07 FDCB011E            B   423    				rr (iy+1)
-004A0B FDCB001E            B   424    				rr (iy+0)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 194
+004A0B FDCB001E            B   424    				rr (iy+0)						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 194
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9446,7 +9446,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004A49 7A                  B   473    				ld a,d
 004A4A B3                  B   474    				or e
 004A4B 20 03               B   475    				jr nz,pdnaroot
-004A4D 3ECA                B   476    				ld a,0cah						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 195
+004A4D 3ECA                B   476    				ld a,0cah						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 195
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9486,7 +9486,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004AAA DD661B              B   525    				ld h,(ix+01bh)
 004AAD 22 21 55 00         B   526    				ld (fs_file_start_cluster),hl	004AB1 AF                  B   527    				xor a
 004AB2 C9                  B   528    				ret
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 196
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 196
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9530,7 +9530,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004B08 21 96 68 00         B   577    				ld hl,sector_buffer+0200h		004B0C AF                  B   578    				xor a
 004B0D ED42                B   579    				sbc hl,bc		
 004B0F C3 9F 4B 00         B   580    				jr fs_dadok
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 197
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 197
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9570,7 +9570,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004B74 21000200            B   627    				ld hl,512
 004B78 AF                  B   628    				xor a
 004B79 ED52                B   629    				sbc hl,de						004B7B 44                  B   630    				ld b,h
-004B7C 4D                  B   631    				ld c,l							004B7D 21 96 66 00         B   632    				ld hl,sector_buffer				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 198
+004B7C 4D                  B   631    				ld c,l							004B7D 21 96 66 00         B   632    				ld hl,sector_buffer				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 198
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9606,7 +9606,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004BE1                     B   681    fs_make_dir_command		
                            B   682    				
 004BE1 CD FC 51 00         B   683    				call fs_find_filename			004BE5 D8                  B   684    				ret c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 199
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 199
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9640,7 +9640,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004C5A CD 45 1A 00         B   731    				call fs_get_dir_cluster			004C5E DD733A              B   732    				ld (ix+03ah),e
 004C61 DD723B              B   733    				ld (ix+03bh),d
 004C64 DD361821            B   734    				ld (ix+018h),021h				004C68 DD363821            B   735    				ld (ix+038h),021h				004C6C 0609                B   736    				ld b,9
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 200
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 200
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9687,7 +9687,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   785    				
 004CCF DD22 3A 55 00       B   786    okdeldir		ld (fs_fname_in_sector_addr),ix
 004CD4 CD 42 54 00         B   787    				call backup_sector_lba
-004CD8 DD6E1A              B   788    				ld l,(ix+01ah)					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 201
+004CD8 DD6E1A              B   788    				ld l,(ix+01ah)					Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 201
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9732,7 +9732,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004D38 DD6E1A              B   836    				ld l,(ix+01ah)
 004D3B DD661B              B   837    				ld h,(ix+01bh)
 004D3E 22 31 55 00         B   838    				ld (fs_working_cluster),hl
-004D42 7C                  B   839    				ld a,h							004D43 B5                  B   840    				or l							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 202
+004D42 7C                  B   839    				ld a,h							004D43 B5                  B   840    				or l							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 202
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9774,7 +9774,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004D8D 13                  B   887    				inc de
 004D8E 10 FC               B   888    				djnz clrfnen
 004D90 DD361821            B   889    				ld (ix+018h),021h				004D94 CD 7C 54 00         B   890    				call fs_write_sector			004D98 D8                  B   891    				ret c							004D99 AF                  B   892    				xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 203
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 203
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9813,7 +9813,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004DEA 11000000            B   939    nfsizeok		ld de,0
 004DEE DD5E1A              B   940    				ld e,(ix+01ah)					004DF1 DD561B              B   941    				ld d,(ix+01bh)					004DF4 ED53 24 55 00       B   942    				ld (fs_file_working_cluster),de
 004DF9 CD 7C 54 00         B   943    				call fs_write_sector			004DFD D8                  B   944    				ret c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 204
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 204
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9861,7 +9861,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004E76 79                  B   994    				ld a,c
 004E77 CD E3 53 00         B   995    				call cluster_and_offset_to_lba
 004E7B CD 64 54 00         B   996    				call fs_read_sector
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 205
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 205
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9895,7 +9895,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004ED7 CD 7C 54 00         B  1038    				call fs_write_sector			004EDB D8                  B  1039    				ret c							004EDC 0C                  B  1040    				inc c							004EDD 05                  B  1041    				dec b
 004EDE 28 0B               B  1042    				jr z,fs_sfncl					004EE0 C5                  B  1043    fs_sfns			push bc				
 004EE1 01000200            B  1044    				ld bc,512						004EE5 11 96 66 00         B  1045    				ld de,sector_buffer				004EE9 18 B9               B  1046    				jr fs_dbfil						                           B  1047    				
-004EEB CD C2 50 00         B  1048    fs_sfncl		call fs_find_free_cluster		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 206
+004EEB CD C2 50 00         B  1048    fs_sfncl		call fs_find_free_cluster		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 206
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9938,7 +9938,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1096    
 004F41                     B  1097    fs_rename_command
                            B  1098    
-004F41 CD FC 51 00         B  1099    				call fs_find_filename			004F45 D8                  B  1100    				ret c							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 207
+004F41 CD FC 51 00         B  1099    				call fs_find_filename			004F45 D8                  B  1100    				ret c							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 207
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -9982,7 +9982,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1150    ;         IX:IY = Length of file (if applicable
                            B  1151    ;         B     = File flag (1 = directory, 0 =
                            B  1152    ;         A     = Error code
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 208
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 208
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10023,7 +10023,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 004FF4 0608                B  1200    				ld b,8							004FF6 11 B8 61 00         B  1201    				ld de,output_line
 004FFA 7E                  B  1202    dcopyn			ld a,(hl)
 004FFB FE20                B  1203    				cp ' '							004FFD 28 02               B  1204    				jr z,digchar
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 209
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 209
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10067,7 +10067,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005056 BE                  B  1253    				cp (hl)
 005057 28 23               B  1254    				jr z,endofdir			
 005059 C3 9C 4F 00         B  1255    				jp fs_get_dir_entry
-                           B  1256    												Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 210
+                           B  1256    												Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 210
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10114,7 +10114,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1306    ; Internal subroutines
                            B  1307    ;----------------------------------------------
                            B  1308    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 211
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 211
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10157,7 +10157,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0050F5 BD                  B  1351    				cp l		
 0050F6 20 D5               B  1352    				jr nz,fs_ffcl2					0050F8 3EC1                B  1353    fs_dfull		ld a,c1h						0050FA B7                  B  1354    				or a							0050FB C9                  B  1355    				ret
                            B  1356    			
-0050FC DDE5                B  1357    fs_gotfc		push ix							0050FE E1                  B  1358    				pop hl							0050FF 2B                  B  1359    				dec hl							005100 2B                  B  1360    				dec hl							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 212
+0050FC DDE5                B  1357    fs_gotfc		push ix							0050FE E1                  B  1358    				pop hl							0050FF 2B                  B  1359    				dec hl							005100 2B                  B  1360    				dec hl							Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 212
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10204,7 +10204,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005159 28 61               B  1407    				jr z,got_fde
 00515B DD19                B  1408    				add ix,de						00515D 10 F2               B  1409    				djnz scdirfe					                           B  1410    				
 00515F 21 30 55 00         B  1411    				ld hl,fs_working_sector			005163 34                  B  1412    				inc (hl)
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 213
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 213
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10244,7 +10244,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0051BE 22 31 55 00         B  1462    				ld (fs_working_cluster),hl
                            B  1463    			
 0051C2 CD EA 51 00         B  1464    				call fs_clear_sector_buffer
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 214
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 214
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10295,7 +10295,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00520F 2A E1 54 00         B  1513    ffnnxtsec		ld hl,(fs_root_dir_position)	005213 3A 30 55 00         B  1514    				ld a,(fs_working_sector)
 005217 CD 29 54 00         B  1515    				call set_absolute_lba
                            B  1516    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 215
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 215
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10338,7 +10338,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005281 11200000            B  1564    fnnotsame		ld de,32						005285 DD19                B  1565    				add ix,de
 005287 0D                  B  1566    				dec c
 005288 20 B1               B  1567    				jr nz,ndirentr					                           B  1568    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 216
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 216
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10381,7 +10381,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0052D2 0E00                B  1617    				ld c,0
 0052D4 0608                B  1618    				ld b,8
 0052D6 7E                  B  1619    csfnlp2			ld a,(hl)						0052D7 B7                  B  1620    				or a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 217
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 217
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10426,7 +10426,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005313 7C                  B  1670    				ld a,h
 005314 2A DB 54 00         B  1671    				ld hl,(fs_fat1_position)
 005318 CD 3A 54 00         B  1672    				call set_abs_lba_and_read_secto
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 218
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 218
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10480,7 +10480,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005367 CD 7C 54 00         B  1722    				call fs_write_sector
 00536B C9                  B  1723    ufehwerr		ret
                            B  1724    				
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 219
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 219
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10529,7 +10529,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0053B1 3E01                B  1773    				ld a,1
 0053B3 CD FD 51 00         B  1774    				call fs_search					0053B7 D8                  B  1775    				ret c
 0053B8 C0                  B  1776    				ret nz
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 220
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 220
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10577,7 +10577,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0053E8 2B                  B  1822    				dec hl							0053E9 2B                  B  1823    				dec hl							0053EA 11000000            B  1824    				ld de,0							0053EE 01000000            B  1825    				ld bc,0
 0053F2 5F                  B  1826    				ld e,a
 0053F3 3A D7 54 00         B  1827    				ld a,(fs_cluster_size)			0053F7 CB3F                B  1828    caotllp			srl a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 221
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 221
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10621,7 +10621,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B  1878    ;----------------------------------------------
                            B  1879    
                            B  1880    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 222
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 222
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10673,7 +10673,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00547E E5                  B  1929    				push hl
 00547F DDE5                B  1930    				push ix
 005481 FDE5                B  1931    				push iy
-005483 01080000            B  1932    				ld bc,08h						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 223
+005483 01080000            B  1932    				ld bc,08h						Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 223
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10726,7 +10726,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00551A 00000000            B  1975    fs_existing_file_length 	dw 0,0		; 32 bi
                            B  1976    
 00551E 000000              B  1977    fs_file_transfer_length		dw24 0		; 24 bi
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 224
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 224
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_fat16_code.asm
@@ -10781,7 +10781,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005556 751600              B    13    	dw24 os_check_volume_format		;02		
 005559 A01A00              B    14    	dw24 ext_change_volume			;03		
 00555C D21700              B    15    	dw24 os_get_volume_info			;04		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 225
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 225
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10837,7 +10837,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B    65    
 0055E9 441B00              B    66    	dw24 ext_set_envar				;33		
 0055EC 081B00              B    67    	dw24 ext_get_envar				;34		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 226
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 226
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10892,7 +10892,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0056B7 0B00 
 0056B9 2E657A70 20         B   103    ezp_extension_txt		db ".ezp",32
 0056BE 0B4D6F72 653F0B0B   B   104    os_more_txt				db 11,"More?",11,11,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 227
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 227
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10915,7 +10915,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005741 0053686F 77         B   133    						db 0,"Show"				005746 00435055            B   134    						db 0,"CPU"				00574A 00526567 69737465   B   135    						db 0,"Registers"		005752 7273 
 005754 004173              B   136    						db 0,"As"				005757 00415343 4949       B   137    						db 0,"ASCII"			00575D 00436C65 6172       B   138    						db 0,"Clear"			005763 00536372 65656E     B   139    						db 0,"Screen"			00576A 00446973 61737365   B   140    						db 0,"Disassemble"		005772 6D626C65 
 005776 00537769 746368     B   141    						db 0,"Switch"			00577D 00436F70 79         B   142    						db 0,"Copy"				005782 00446576 696365     B   143    						db 0,"Device"			005789 00436861 6E6765     B   144    						db 0,"Change"			005790 00447269 7665       B   145    						db 0,"Drive"			005796 00446972            B   146    						db 0,"Dir"				00579A 002F                B   147    						db 0,"/"				00579C 00666E              B   148    						db 0,"fn"				                           B   149    						
-00579F 0044656C 657465     B   150    						db 0,"Delete"			0057A6 0046696C 65         B   151    						db 0,"File"				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 228
+00579F 0044656C 657465     B   150    						db 0,"Delete"			0057A6 0046696C 65         B   151    						db 0,"File"				Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 228
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10925,7 +10925,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005802 004F532F 4857       B   167    						db 0,"OS/HW"			005808 00566572 73696F6E   B   168    						db 0,"Version"			005810 005B7065 6E207061   B   169    						db 0,"[pen paper]"		005818 7065725D 
 00581C 803A                B   170    						db 80h,":"				00581E 813E                B   171    						db 81h,">"				005820 002A                B   172    						db 0,"*"				005822 00566F6C 756D6573   B   173    						db 0,"Volumes"			00582A 8343                B   174    						db 83h,"C"				00582C 844344              B   175    						db 84h,"CD"				00582F 85434C53            B   176    						db 85h,"CLS"			005833 8650454E            B   177    						db 86h,"PEN"			005837 8744                B   178    						db 87h,"D"				005839 8844454C            B   179    						db 88h,"DEL"			00583D 89444952            B   180    						db 89h,"DIR"			005841 8A48                B   181    						db 8ah,"H"				005843 8B46                B   182    						db 8bh,"F"				                           B   183    						
 005845 004F6E              B   184    						db 0,"On"				005848 8C464F52 4D4154     B   185    						db 8ch,"FORMAT"			00584F 0047                B   186    						db 0,"G"				005851 8D4C42              B   187    						db 8dh,"LB"				005854 8E4D                B   188    						db 8eh,"M"				005856 8F4D4F55 4E54       B   189    						db 8fh,"MOUNT"			00585C 004265              B   190    						db 0,"Be"				00585F 9052                B   191    						db 90h,"R"				005861 915244              B   192    						db 91h,"RD"				005864 92524E              B   193    						db 92h,"RN"				005867 935258              B   194    						db 93h,"RX"				00586A 945342              B   195    						db 94h,"SB"				00586D 9554                B   196    						db 95h,"T"				00586F 965458              B   197    						db 96h,"TX"				005872 97564552 53         B   198    						db 97h,"VERS"			005877 00577269 7465       B   199    						db 0,"Write"			                           B   200    						
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 229
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 229
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10935,7 +10935,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005918 00526571 75657374   B   232    						db 0,"Request"			005920 00446174 61         B   233    						db 0,"Data"				                           B   234    				
 005925 00454F46            B   235    						db 0,"EOF"				005929 00416674 6572       B   236    						db 0,"After"			00592F 00556E6B 6E6F776E   B   237    						db 0,"Unknown"			005937 00436F6D 6D616E64   B   238    						db 0,"Command"			00593F 00426164            B   239    						db 0,"Bad"				005943 00486578            B   240    						db 0,"Hex"				005947 004E6F              B   241    						db 0,"No"				00594A 0041626F 72746564   B   242    						db 0,"Aborted"			005952 00507265 73656E74   B   243    						db 0,"Present"			00595A 00436865 636B7375   B   244    						db 0,"Checksum"			005962 6D 
 005963 004C6F61 646564     B   245    						db 0,"Loaded"			00596A 00436F6D 6D73       B   246    						db 0,"Comms"			005970 00457272 6F72       B   247    						db 0,"Error"			005976 00417267 756D656E   B   248    						db 0,"Arguments"		00597E 7473 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 230
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 230
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10951,7 +10951,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0059ED 00417070 656E64     B   274    						db 0,"Append"			0059F4 003F                B   275    						db 0,"?"				0059F6 0024                B   276    						db 0,"$"				0059F8 00417761 6974696E   B   277    						db 0,"Awaiting"			005A00 67 
 005A01 00526563 65697669   B   278    						db 0,"Receiving"		005A09 6E67 
 005A0B 0053656E 64696E67   B   279    						db 0,"Sending"			005A13 000B                B   280    						db 0,11					005A15 002E2E              B   281    						db 0,".."				005A18 004E616D 65         B   282    						db 0,"Name"				005A1D 00204279 746573     B   283    						db 0," Bytes"			005A24 00507265 7373       B   284    						db 0,"Press"			005A2A 00416E79            B   285    						db 0,"Any"				005A2E 004B6579            B   286    						db 0,"Key"				005A32 00456E74 6572       B   287    						db 0,"Enter"			005A38 9A455845 43         B   288    						db 9ah,"EXEC"			                           B   289    				
-005A3D 0052756E            B   290    						db 0,"Run"				005A41 00536372 697074     B   291    						db 0,"Script"			005A48 00594553            B   292    yes_txt					db 0,"YES" 				005A4C 00546F              B   293    						db 0,"To"				005A4F 00536574            B   294    						db 0,"Set"				005A53 00436F6E 74696E75   B   295    						db 0,"Continue"			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 231
+005A3D 0052756E            B   290    						db 0,"Run"				005A41 00536372 697074     B   291    						db 0,"Script"			005A48 00594553            B   292    yes_txt					db 0,"YES" 				005A4C 00546F              B   293    						db 0,"To"				005A4F 00536574            B   294    						db 0,"Set"				005A53 00436F6E 74696E75   B   295    						db 0,"Continue"			Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 231
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -10974,7 +10974,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
                            B   334    
 005B28 2199696A 5F916F92   B   335    save_append_msg			db 021h,099h,069h,06ah,
 005B30 9700 
-005B32 2F0A9300            B   336    os_loadaddress_msg 		db 02fh,00ah,093h,0		005B36 21649300            B   337    os_filesize_msg			db 021h,064h,093h,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 232
+005B32 2F0A9300            B   336    os_loadaddress_msg 		db 02fh,00ah,093h,0		005B36 21649300            B   337    os_filesize_msg			db 021h,064h,093h,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 232
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11022,7 +11022,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005C2F AE095F1B AF00       B   386    							db 0aeh,09h,05fh,01
 005C35 3A325F1B 5B00       B   387    							db 03ah,032h,05fh,0
 005C3B BEBF5FA4 C000       B   388    							db 0beh,0bfh,05fh,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 233
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 233
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11044,7 +11044,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005CB6 E93500              B   434    							dw24 os_cmd_set		005CB9 453600              B   435    							dw24 os_cmd_dz		                           B   436    							
                            B   437    								
 005CBC 00                  B   438    packed_msg_list				db 0				                           B   439    		
-005CBD 606100              B   440    							db 060h,061h,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 234
+005CBD 606100              B   440    							db 060h,061h,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 234
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11081,7 +11081,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005D50 763600              B   487    no_vols_msg					db 076h,036h,0		005D53 97A66300            B   488    none_found_msg				db 097h,0a6h,063h,0
                            B   489    							
 005D57 B62100              B   490    							db 0b6h,021h,0		005D5A A9316708 AA00       B   491    							db 0a9h,031h,067h,0
-005D60 21AC00              B   492    							db 021h,0ach,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 235
+005D60 21AC00              B   492    							db 021h,0ach,0		Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 235
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11131,7 +11131,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005E30 2500004E 42484759   C    11                    db 025h,000h,000h,04Eh,042h,048
 005E38 5E000000 4D4A5526 
 005E40 2A00003C 4B494F29   C    12                    db 02Ah,000h,000h,03Ch,04Bh,049
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 236
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 236
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\UK_keymap.asm
@@ -11187,7 +11187,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005EF6 000000              B   552    window_columns			dw24 0				; i
 005EF9 000000              B   553    window_width_bytes		dw24 0				; i
 005EFC 000000              B   554    window_height_lines		dw24 0				; i
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 237
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 237
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11241,7 +11241,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005F6B F4                  B   597    					db 0f4h
                            B   598    					
                            B   599    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 238
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 238
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11297,7 +11297,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 005FC9 00 00 00 00 00 00 
 005FCF 00 00 00 00 00 00 
 005FD5 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 239
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 239
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11352,7 +11352,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00607F 00 00 00 00 00 00 
 006085 00 00 00 00 00 00 
 00608B 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 240
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 240
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11407,7 +11407,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0060D0 000000              B   707    store_ix				dw24 0
 0060D3 000000              B   708    store_iy				dw24 0
 0060D6 000000              B   709    store_pc				dw24 0		;only relev
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 241
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 241
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11463,7 +11463,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 006154 000000              B   744    cmdop_end_address		dw24 0
 006157 000000              B   745    copy_dest_address		dw24 0
 00615A 000000              B   746    hex_address				dw24 0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 242
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 242
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11519,7 +11519,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 006220 00 00 00 00 00 00   B   770    if_name_txt				blkb max_if_chars+2,0
 006226 00 00 00 00 00 00 
 00622C 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 243
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 243
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11575,7 +11575,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 00629C 000000              B   811    mouse_disp_x_old		dw24 0
 00629F 000000              B   812    mouse_disp_y_old		dw24 0
 0062A2 000000              B   813    mouse_disp_x_buffer		dw24 0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 244
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 244
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11631,7 +11631,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 006380 00 00 00 00 00 00 
 006386 00 00 00 00 00 00 
 00638C 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 245
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 245
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_data.asm
@@ -11687,7 +11687,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0064D7 E003007C E6E0EEE6   B    20                    db 0E0h,003h,000h,07Ch,0E6h,0E0
 0064DF E67C0001 E603FE01 
 0064E7 E603007C 0138057C   B    21                    db 0E6h,003h,000h,07Ch,001h,038
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 246
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 246
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_font_packed.asm
@@ -11743,7 +11743,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 006677 3A70FC70 F2BC0100   B    46                    db 03Ah,070h,0FCh,070h,0F2h,0BC
 00667F 297CC6BA A2BAC67C 
 006687 0100147E 06060100   B    47                    db 001h,000h,014h,07Eh,006h,006
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 247
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 247
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_font_packed.asm
@@ -11799,7 +11799,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0067AA 00 00 00 00 00 00 
 0067B0 00 00 00 00 00 00 
 0067B6 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 248
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 248
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
@@ -11855,7 +11855,7 @@ PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\P
 0068D8 00 00 00 00 00 00 
 0068DE 00 00 00 00 00 00 
 0068E4 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     20:41:06     page: 249
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     21:00:34     page: 249
 
 
 PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm
