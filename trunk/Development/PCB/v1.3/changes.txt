@@ -1,0 +1,14 @@
+Changes from v1.1
+-----------------
+
+Soft power system replaced by more straightforward low current latching
+push button switch and MOSFET.
+
+Fixed misrouted connections between FT232RL and Ez80 (and altered
+power connections to FT232RL)
+
+3M SD card connector (obsolete?) replaced with ALPs brand 
+
+Minor changes such as JTAG resistors now use a resistor net,
+separate resistors for status LEDs, position of external
+SD card LED jumper moved.
