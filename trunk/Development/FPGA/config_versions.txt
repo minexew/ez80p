@@ -2,6 +2,8 @@
 Release versions of AMOEBA
 ---------------------------
 
+V104 - Changed NMI flip/flop slightly.
+
 V103 - Updated the PS/2 Keyboard and Mouse Interface logic. (Note: Data sent to the mouse
        and keyboard are no longer echoed into the receiving ports.)
 
