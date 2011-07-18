@@ -1,0 +1,38 @@
+
+
+JTAG config mode
+----------------
+
+Press and hold the reset button and switch the power on. Release the reset button
+and the green LED will flash rapidly until the FPGA has been configured via the
+JTAG pins. Note: The FPGA's JTAG port is always active, it is not actually
+necessary to enter JTAG mode first, but this mode prevents configuration from
+the EEPROM at power-up.
+
+
+Manual config slot selection
+----------------------------
+
+Enter JTAG mode as described above. Whilst the green LED is flashing rapidly,
+press and release the reset button again - the system enters slot selection mode.
+The red LED now flashes 1 to 7 times to indicate the slot to be made active.
+Press and release the reset button following the desired slot - the relevant
+slot will be made active and the system will reconfigure from that slot.
+
+
+Other LED codes
+---------------
+
+Green LED flashes slowly (about once per second) - this means the FPGA
+did not accept the config file sent from the EEPROM. It will be necessary
+to change the active slot to one containing a valid config file. (JTAG mode
+can be entered by pressing the button at this point, the system doesn't need
+to be powered off).
+
+
+Green LED on steady: FPGA started up OK (write mode disabled). In this mode
+pressing the button sends a reset pulse to the eZ80 (note: this does not
+reconfigure the FPGA)
+
+
+Red LED, with yellow pulse: Writing to EEPROM. 
