@@ -30,8 +30,8 @@ load_location		equ 10000h	; anywhere in system ram ($10000 upwards suggested)
 
 ;--------------------------------------------------------------------------------------------
 
-The Small Stack Pointer for Z80 programs is set to $FFFF by default PROSE starts (and so
-the stack will be at the top of whatever 64KB page is being used for that program) but
+The Small Stack Pointer for Z80 programs is set to $FFFF by default when PROSE starts (and
+so the stack will be at the top of whatever 64KB page is being used for that program) but
 it can be set at will by the user program.
 
 The Large Stack Pointer (for ADL programs) is set the top of the top of system memory when
@@ -50,7 +50,7 @@ mode call to "prose_kernal"
 
 EG: To print a line of text:
 
-	ld hl,message_txt			; ADL mode program
+	ld hl,message_txt			; Location of text
 	ld a,kr_print_string			; desired kernal routine
 	call.lil prose_kernal			; call PROSE routine
 
@@ -176,20 +176,21 @@ Notes:
 
    An example Script:
 
-   VERS
-   [DO_THIS]
-   pen 37
-   VERS
-   PEN 26
-   VERS
-   IF my_envar = string_a DO_THIS
-   IF my_envar = string_b DO_THAT
-   PEN 7
-   MOUSE
+   ECHO "This is a test script.."
+   INPUT "Do this or do that? (Enter: THIS or THAT)" response
+   IF response = THIS SOMEPLACE
+   IF response = THAT OTHERPLACE
+   ECHO "INVALID RESPONSE"
    END
-   [DO_THAT]
-   PEN 6
-   MOUNT
+   [SOMEPLACE]
+   PEN 37
+   ECHO "YOU OPTED FOR THIS!"
+   PEN 7
+   END   
+   [OTHERPLACE]
+   PEN 6D
+   ECHO "YOU OPTED FOR THAT!"
+   PEN 7
  
    (The environment variable name, value and label strings are currently limited to a
     maximum of 16 characters)
