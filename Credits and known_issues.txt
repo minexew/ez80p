@@ -19,5 +19,6 @@ Credits:
 
 PCB design*, PROSE operating system and apps, AMOEBA FPGA config by Phil Ruston 2010-2011
 
-(*Some elements of the PCB design were inspired by Dennis Van Weeren's Minimig project).
+(*Some elements of the PCB design were 'inspired' by Dennis Van Weeren's Minimig project
+so kudos to Dennis for releasing the schematics and Gerbers:)
 
