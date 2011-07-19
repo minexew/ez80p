@@ -188,12 +188,44 @@ Notes:
    PEN 7
    END   
    [OTHERPLACE]
-   PEN 6D
+   PEN 2D
    ECHO "YOU OPTED FOR THAT!"
    PEN 7
  
    (The environment variable name, value and label strings are currently limited to a
     maximum of 16 characters)
+
+
+SOUND location length [frequency volume channels loop] - Plays memory (VRAM B) as audio
+
+ Notes:-
+ 
+ "Location" refers to an address between c00000 and c7ffff (VRAM B) IE: the memory that is
+ designated audio RAM in AMOEBA (shared with Sprites). (NB: Only the lowest 19 bits are
+ read by the hardware so a value of 0-7ffff can be supplied and this will automatically
+ be assumed to be an offset from the start of VRAM_B.)
+
+ "Frequency" is a constant derived by the formula:
+
+ (Desired Freq)
+ (------------) X 65556) - 1
+ (   48828    )
+
+ "Channels" selects the audio channels on which the sound will play. Each channel
+  is assigned one bit (bit 0 = channel 0, bit 1 = channel 1 etc..) Unselected
+  channels are not affected and will continue doing whatever they were doing beforehand.
+
+ "loop" is 0 or 1. If 0, the sample is played one. If 1 the sample loops around to
+  the start and plays continually.
+
+ If frequency, volume, channels or loop are omitted the followin default values are used.
+
+ frequency: FFFFh, IE 48828 Hz
+ volume   : 40h, IE: full volume
+ channels : 11h, IE: Channels 0 and 4, (one left and one right)
+ loop     : 01h, IE: sound plays continually
+
+ If no parameters are supplied, all the channels are silenced.
 
 --------------------------------------------------------------------------------------------
 

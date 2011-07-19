@@ -195,6 +195,10 @@ kr_write_rtc					equ 42h
 kr_get_keymap_location			equ 43h
 kr_get_os_high_mem				equ 44h
 
+kr_play_audio					equ 45h
+kr_disable_audio				equ 46h
+kr_get_joysticks				equ 47h
+
 ;---------------------------------------------------------------------------------------------------------------------------
 ; Standard PROSE executable header
 ;--------------------------------------------------------------------------------------------------------------------------

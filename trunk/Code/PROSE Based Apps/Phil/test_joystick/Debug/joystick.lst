@@ -1,9 +1,9 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   1
 
 
 PC     Object              I  Line    Source 
                            A     1    
-                           A     2    ;read/write rtc for time
+                           A     2    ; display joystick status using kernal call
                            A     3    
                            A     4    ;----------------------------------------------
                            A     5    
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
        000000B2            B    39    CS3_UBR			equ 0b2h
        000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B    91    
        00FF0000            B    92    hw_palette				equ 0ff0000h
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -166,7 +166,7 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B   143    
        00000017            B   144    kr_read_sector					equ 17h
        00000018            B   145    kr_write_sector					equ 18h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -222,7 +222,7 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
        00000043            B   195    kr_get_keymap_location			equ 43h
        00000044            B   196    kr_get_os_high_mem				equ 44h
                            B   197    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -272,134 +272,111 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            A    12    
                            A    13    ;----------------------------------------------
                            A    14    
-010010 7E                  A    15    			ld a,(hl)						;if
-010011 B7                  A    16    			or a
-010012 28 6B               A    17    			jr z,no_args
-                           A    18    			
-010014 E5                  A    19    			push hl
-010015 3E41                A    20    			ld a,kr_read_rtc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   6
+010010 21 B6 00 01         A    15    			ld hl,msg_text
+010014 3E25                A    16    			ld a,kr_print_string
+010016 5BCD200A 00         A    17    			call.lil prose_kernal			
+                           A    18    
+                           A    19    
+01001B 3E1E                A    20    joy_loop	ld a,kr_get_key
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-010017 5BCD200A 00         A    21    			call.lil prose_kernal			;ge
-01001C DDE1                A    22    			pop ix
-01001E E5                  A    23    			push hl
-01001F FDE1                A    24    			pop iy
-                           A    25    			
-010021 CD 4C 00 01         A    26    			call ascii_to_bcd
-010025 38 48               A    27    			jr c,bad_bcd
-010027 FD7702              A    28    			ld (iy+2),a
-01002A DD23                A    29    			inc ix
-01002C CD 4C 00 01         A    30    			call ascii_to_bcd
-010030 38 3D               A    31    			jr c,bad_bcd
-010032 FD7701              A    32    			ld (iy+1),a
-010035 DD23                A    33    			inc ix
-010037 CD 4C 00 01         A    34    			call ascii_to_bcd
-01003B 38 32               A    35    			jr c,bad_bcd
-01003D FD7700              A    36    			ld (iy+0),a
-                           A    37    			
-010040 3E42                A    38    			ld a,kr_write_rtc
-010042 5BCD200A 00         A    39    			call.lil prose_kernal
-010047 AF                  A    40    			xor a
-010048 C3140A00            A    41    			jp prose_return
-                           A    42    			
-01004C                     A    43    ascii_to_bcd
-                           A    44    
-01004C DD7E00              A    45    			ld a,(ix)
-01004F DD23                A    46    			inc ix
-010051 D630                A    47    			sub a,30h
-010053 D8                  A    48    			ret c
-010054 FE0A                A    49    			cp 10
-010056 30 15               A    50    			jr nc,bcderr
-010058 0F                  A    51    			rrca
-010059 0F                  A    52    			rrca
-01005A 0F                  A    53    			rrca
-01005B 0F                  A    54    			rrca
-01005C E6F0                A    55    			and 0f0h
-01005E 47                  A    56    			ld b,a
-01005F DD7E00              A    57    			ld a,(ix)
-010062 DD23                A    58    			inc ix
-010064 D630                A    59    			sub a,30h
-010066 D8                  A    60    			ret c
-010067 FE0A                A    61    			cp 10
-010069 30 02               A    62    			jr nc,bcderr
-01006B B0                  A    63    			or b
-01006C C9                  A    64    			ret
-01006D 37                  A    65    bcderr		scf
-01006E C9                  A    66    			ret
-                           A    67    			
-                           A    68    			
-01006F 21 D6 00 01         A    69    bad_bcd		ld hl,bad_bcd_txt
-010073 3E25                A    70    			ld a,kr_print_string
-010075 5BCD200A 00         A    71    			call.lil prose_kernal
-01007A AF                  A    72    			xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   7
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\src\joystick.asm
+01001D 5BCD200A 00         A    21    			call.lil prose_kernal
+010022 20 15               A    22    			jr nz,nokey
+                           A    23    			
+010024 FE76                A    24    			cp 076h						;quit i
+010026 20 11               A    25    			jr nz,nokey
+010028 21 1E 01 01         A    26    			ld hl,new_line
+01002C 3E25                A    27    			ld a,kr_print_string
+01002E 5BCD200A 00         A    28    			call.lil prose_kernal
+010033 AF                  A    29    			xor a
+010034 5BC3140A 00         A    30    			jp.lil prose_return
+                           A    31    
+010039 DD21 09 01 01       A    32    nokey		ld ix,joy0
+01003E FD21 17 01 01       A    33    			ld iy,joy1
+010043 DDE5                A    34    			push ix
+010045 FDE5                A    35    			push iy
+010047 0606                A    36    			ld b,6
+010049 DD36002D            A    37    djlp1		ld (ix),'-'
+01004D FD36002D            A    38    			ld (iy),'-'
+010051 DD23                A    39    			inc ix
+010053 FD23                A    40    			inc iy
+010055 10 F2               A    41    			djnz djlp1
+010057 FDE1                A    42    			pop iy
+010059 DDE1                A    43    			pop ix
+                           A    44    			
+01005B 3E47                A    45    			ld a,kr_get_joysticks
+01005D 5BCD200A 00         A    46    			call.lil prose_kernal
+                           A    47    			
+010062 7B                  A    48    			ld a,e
+010063 DD21 09 01 01       A    49    			ld ix,joy0
+010068 CD 85 00 01         A    50    			call show_dir
+01006C 7A                  A    51    			ld a,d
+01006D DD21 17 01 01       A    52    			ld ix,joy1
+010072 CD 85 00 01         A    53    			call show_dir
+                           A    54    			
+010076 21 01 01 01         A    55    			ld hl,joy_text
+01007A 3E25                A    56    			ld a,kr_print_string
+01007C 5BCD200A 00         A    57    			call.lil prose_kernal			
+                           A    58    
+010081 C3 1B 00 01         A    59    			jp joy_loop
+                           A    60    
+                           A    61    
+                           A    62    
+010085 CB47                A    63    show_dir	bit 0,a
+010087 28 04               A    64    			jr z,notup
+010089 DD360055            A    65    			ld (ix),'U'
+                           A    66    			
+01008D CB4F                A    67    notup		bit 1,a
+01008F 28 04               A    68    			jr z,notdown
+010091 DD360144            A    69    			ld (ix+1),'D'
+                           A    70    
+010095 CB57                A    71    notdown		bit 2,a
+010097 28 04               A    72    			jr z,notleft
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     19:52:18     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-01007B C3140A00            A    73    			jp prose_return
-                           A    74    			
-                           A    75    
-                           A    76    
-                           A    77    
-01007F 3E41                A    78    no_args		ld a,kr_read_rtc
-010081 5BCD200A 00         A    79    			call.lil prose_kernal
-                           A    80    			
-010086 E5                  A    81    			push hl
-010087 DDE1                A    82    			pop ix
-010089 21 E6 00 01         A    83    			ld hl,time_string
-01008D DD7E02              A    84    			ld a,(ix+2)					;hour
-010090 CD BF 00 01         A    85    			call bcd_to_dec
-010094 CD D2 00 01         A    86    			call addcolon
-010098 DD7E01              A    87    			ld a,(ix+1)					;min
-01009B CD BF 00 01         A    88    			call bcd_to_dec
-01009F CD D2 00 01         A    89    			call addcolon
-0100A3 DD7E00              A    90    			ld a,(ix)					;second
-0100A6 CD BF 00 01         A    91    			call bcd_to_dec
-0100AA 360B                A    92    			ld (hl),11
-0100AC 23                  A    93    			inc hl
-0100AD 3600                A    94    			ld (hl),0
-                           A    95    			
-0100AF 3E25                A    96    			ld a,kr_print_string
-0100B1 21 E6 00 01         A    97    			ld hl,time_string
-0100B5 5BCD200A 00         A    98    			call.lil prose_kernal
-0100BA AF                  A    99    			xor a
-0100BB C3140A00            A   100    			jp prose_return
-                           A   101    
-0100BF 47                  A   102    bcd_to_dec	ld b,a
-0100C0 0F                  A   103    			rrca
-0100C1 0F                  A   104    			rrca
-0100C2 0F                  A   105    			rrca
-0100C3 0F                  A   106    			rrca
-0100C4 E60F                A   107    			and a,15
-0100C6 C630                A   108    			add a,30h
-0100C8 77                  A   109    			ld (hl),a
-0100C9 23                  A   110    			inc hl
-0100CA 78                  A   111    			ld a,b
-0100CB E60F                A   112    			and 15
-0100CD C630                A   113    			add a,30h
-0100CF 77                  A   114    			ld (hl),a
-0100D0 23                  A   115    			inc hl
-0100D1 C9                  A   116    			ret
-                           A   117    			
-0100D2 363A                A   118    addcolon	ld (hl),':'
-0100D4 23                  A   119    			inc hl
-0100D5 C9                  A   120    			ret
-                           A   121    			
-                           A   122    ;----------------------------------------------
-                           A   123    
-0100D6 42616420 61726775   A   124    bad_bcd_txt	db 'Bad arguments!',11,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   8
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-0100DE 6D656E74 73210B00 
-                           A   125    
-0100E6 00                  A   126    time_string db 0								                           A   127    
-                           A   128    ;----------------------------------------------
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\src\joystick.asm
+010099 DD36024C            A    73    			ld (ix+2),'L'
+                           A    74    
+01009D CB5F                A    75    notleft		bit 3,a
+01009F 28 04               A    76    			jr z,notright
+0100A1 DD360352            A    77    			ld (ix+3),'R'
+                           A    78    
+0100A5 CB67                A    79    notright	bit 4,a
+0100A7 28 04               A    80    			jr z,notfire0
+0100A9 DD360430            A    81    			ld (ix+4),'0'
+                           A    82    
+0100AD CB6F                A    83    notfire0	bit 5,a
+0100AF 28 04               A    84    			jr z,notfire1
+0100B1 DD360531            A    85    			ld (ix+5),'1'
+0100B5 C9                  A    86    notfire1	ret
+                           A    87    
+                           A    88    			
+                           A    89    ;----------------------------------------------
+                           A    90    
+0100B6 0B446973 706C6179   A    91    msg_text	db 11,'Displaying status of joystic
+0100BE 696E6720 73746174 
+0100C6 7573206F 66206A6F 
+0100CE 79737469 636B2070 
+0100D6 6F727473 0B 
+0100DB 2D2D2D2D 2D2D2D2D   A    92    			db '-------------------------------
+0100E3 2D2D2D2D 2D2D2D2D 
+0100EB 2D2D2D2D 2D2D2D2D 
+0100F3 2D2D2D2D 2D2D2D2D 
+0100FB 2D2D2D0B 0B00 
+                           A    93    
+010101 0D4A6F79 20303A20   A    94    joy_text 	db 13,'Joy 0: '
+010109 2D2D2D2D 2D2D204A   A    95    joy0		db '------ Joy 1: '
+010111 6F792031 3A20 
+010117 2D2D2D2D 2D2D00     A    96    joy1		db '------',0
+                           A    97    
+01011E 0B00                A    98    new_line	db 11,0
+                           A    99    
+                           A   100    ;----------------------------------------------
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 369
+Lines Assembled: 341

@@ -1,6 +1,13 @@
 Current version
 ---------------
 
+030 - Added:  Kernal routine: "kr_play_audio" - sets audio channel(s) playing.
+              kernal routine: "kr_disable_audio" - silences all channels.
+              kernal routine: "kr_get_joysticks" - provides convenient joystick reading. 
+
+Previous
+--------
+
 02f - Changed: kernal keyboard routines now return ASCII codes (0-31) for keys when
                CTRL is held (lower-case ASCII code of the key - 96). Note if these
                characters are displayed, they will show up as garbage so user programs
@@ -10,10 +17,6 @@ Current version
 
       Changed: kr_get_string now null-terminates the ascii string
 
-
-
-Previous
---------
 
 02e - Fixed "EXEC" command and added basic jump features (IF <condition> LABEL), END.
       See docs for usage.

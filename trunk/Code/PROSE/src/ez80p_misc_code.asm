@@ -574,3 +574,124 @@ nkb_hnto	in0 a,(port_ps2_ctrl)
 
 
 ;=====================================================================================================
+
+hwsc_play_audio
+
+; set HL register to location of an audio data structure:
+
+; 0 - start 
+; 3 - length
+; 6 - loop start
+; 9 - loop length
+; c - frequency constant
+; e - volume
+
+; set C register to set channels wave is to play on
+
+				push hl
+				pop iy
+				ld ix,hw_audio_registers
+				call audio_reg_wait						;wait until hw has read audio registers
+				
+				ld b,8
+audchanloop		srl c
+				jr nc,not_this_chan
+				
+				ld de,(iy)
+				ld (ix),de								;location (from start of vram_b)
+
+				ld de,(iy+3)
+				ld (ix+04h),de							;length
+				
+				ld de,(iy+0ch)
+				ld (ix+08h),de							;frequency constant
+				
+				ld e,(iy+0eh)
+				ld (ix+0ch),de							;volume
+				
+				ld de,(iy+6)
+				ld (ix+10h),de							;loop location
+				
+				ld de,(iy+9)
+				ld (ix+14h),de							;loop length
+
+not_this_chan	
+				lea ix,ix+20h			
+				djnz audchanloop
+				xor a
+				ret
+
+
+;-----------------------------------------------------------------------------------------------
+
+audio_reg_wait	
+
+				ld a,1
+				ld (hw_audio_registers+3),a			; enable playback / clear audio register status flag
+				
+wait_audreg		in0 a,(port_hw_flags)				; wait for audio hardware to finish reading registers
+				and 040h
+				jr z,wait_audreg				
+				xor a
+				ret
+				ret
+
+
+;-----------------------------------------------------------------------------------------------
+				
+				
+hwsc_disable_audio
+
+				xor a
+				ld (hw_audio_registers+3),a			;disable audio hardware 
+				
+				ld ix,hw_audio_registers			;silence each channel's volume
+				ld b,8
+				ld de,0
+disaud_lp		ld (ix+0ch),de
+				lea ix,ix+020h
+				djnz disaud_lp
+				ret
+				
+;--------------------------------------------------------------------------------------------
+
+hwsc_get_joysticks
+
+				in0 a,(PC_DR)				
+				cpl
+				ld b,a
+				and 0fh
+				ld e,a
+				ld a,b
+				rrca
+				rrca
+				rrca
+				rrca
+				and 0fh
+				ld d,a
+				
+				in0 a,(PD_DR)	
+				bit 4,a						; fire1 for joystick 1
+				jr nz,noj1b1
+				set 5,d
+
+noj1b1			bit 5,a						; fire0 for joystick 1
+				jr nz,noj1b0
+				set 4,d
+				
+noj1b0			bit 6,a						; fire1 for joystick 0
+				jr nz,noj0b1
+				set 5,e
+
+noj0b1			bit 7,a						; fire0 for joystick 0
+				jr nz,noj0b0
+				set 4,e
+
+noj0b0			xor a
+				ret
+				
+				
+;--------------------------------------------------------------------------------------------
+			
+				
+				
