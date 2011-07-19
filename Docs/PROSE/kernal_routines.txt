@@ -1,4 +1,4 @@
-PROSE KERNAL ROUTINES (last updated 27-6-2011)
+PROSE KERNAL ROUTINES (last updated 19-7-2011)
 ---------------------
 
 General: 
@@ -28,7 +28,7 @@ to the MBASE register).
 |ID | LABEL |
 '-----------'
 
-00 - "kr_mount_volumes"				
+00h - "kr_mount_volumes"				
 -----------------------
 
 Action: Rescans hardware for storage devices.
@@ -37,7 +37,7 @@ Output: None
 
 
 
-01 - "kr_get_device_info"				
+01h - "kr_get_device_info"				
 -------------------------
 
 Action: Returns info about the storage devices
@@ -46,7 +46,7 @@ Output: HL (location of device info table), DE (location of driver table), B (De
 
 
 
-02 - "kr_check_volume_format"				
+02h - "kr_check_volume_format"				
 -----------------------------
 
 Action: Checks if currently selected volume is formatted to FAT16
@@ -55,7 +55,7 @@ Output: See error codes
 
 
 
-03 - "kr_change_volume"					
+03h - "kr_change_volume"					
 -----------------------
 
 Action: Changes selected volume
@@ -64,7 +64,7 @@ Output: See error codes
 
 
 
-04 - "kr_get_volume_info"		
+04h - "kr_get_volume_info"		
 -------------------------
 
 Action: Returns info about storage volumes.
@@ -73,7 +73,7 @@ Output: HL (location of volume mount list), B (volume count), A (currently selec
 
 
 
-05 - "kr_format_device"				
+05h - "kr_format_device"				
 -----------------------
 
 Action: Formats a device to FAT16 (no MBR is created and the entire device is treated a one volume, max 2GB)
@@ -82,7 +82,7 @@ Output: See error codes
 
 
 
-06 - "kr_make_dir"			
+06h - "kr_make_dir"			
 ------------------
 
 Action: Creates a new directory
@@ -91,7 +91,7 @@ Output: See error codes
 
 
 
-07 - "kr_change_dir"			
+07h - "kr_change_dir"			
 --------------------
 
 Action: Changes current directory
@@ -100,7 +100,7 @@ Output: See error codes
 
 
 
-08 - "kr_parent_dir"				
+08h - "kr_parent_dir"				
 --------------------
 
 Action: Moves up the directory tree one place
@@ -109,7 +109,7 @@ Output: See error codes
 
 
 
-09 - "kr_root_dir"			
+09h - "kr_root_dir"			
 ------------------
 
 Action: Sets the root dir as the current directory
@@ -118,7 +118,7 @@ Output: None
 
 
 
-0a - "kr_delete_dir"			
+0ah - "kr_delete_dir"			
 --------------------
 
 Action: Removes an (empty) directory
@@ -127,7 +127,7 @@ Output: See error codes
 
 
 
-0b - "kr_find_file"		
+0bh - "kr_find_file"		
 -------------------
 
 Action: Opens a file so that data from it may be loaded.
@@ -136,7 +136,7 @@ Output: If zero flag set: HL (start cluster of file), C:xDE (length of file) Els
 
 
 
-0c - "kr_set_file_pointer"		
+0ch - "kr_set_file_pointer"		
 --------------------------
 
 Action: Moves the file pointer to a position within the currently opened file
@@ -145,7 +145,7 @@ Output: None
 
 
 
-0d - "kr_set_load_length"		
+0dh - "kr_set_load_length"		
 -------------------------
 
 Action: Sets the maximum data transfer length for a file read
@@ -154,7 +154,7 @@ Output: None
 
 
 
-0e - "kr_read_file"			
+0eh - "kr_read_file"			
 -------------------
 
 Action: Reads data from the currently opened file
@@ -163,7 +163,7 @@ Output: see error codes
 
 
 
-0f - "kr_erase_file"		
+0fh - "kr_erase_file"		
 --------------------
 
 Action: Deletes a file
@@ -172,7 +172,7 @@ Output: See error codes
 
 
 
-10 - "kr_rename_file"			
+10h - "kr_rename_file"			
 ---------------------
 
 Action: Renames a file or directory
@@ -181,7 +181,7 @@ Output: See error codes
 
 
 
-11 - "kr_create_file"			
+11h - "kr_create_file"			
 ---------------------
 
 Action: Creates a new file (zero bytes) for writing data to.
@@ -190,7 +190,7 @@ Output: See error codes
 
 
 
-12 - "kr_write_file"		
+12h - "kr_write_file"		
 --------------------
 
 Action: Appends data to an existing file
@@ -199,7 +199,7 @@ Output: See error codes
 
 
 
-13 - "kr_get_total_sectors"		
+13h - "kr_get_total_sectors"		
 ---------------------------
 
 Action: Returns the total capacity of the currently selected volume
@@ -208,7 +208,7 @@ Output: xDE (sector count)
 
 
 
-14 - "kr_dir_list_first_entry"		
+14h - "kr_dir_list_first_entry"		
 ------------------------------
 
 Action: Returns the first line of a directory
@@ -223,7 +223,7 @@ Output: If zero flag set:
 
 
 
-15 - "kr_dir_list_get_entry"		
+15h - "kr_dir_list_get_entry"		
 ----------------------------
 
 Action: Returns a line from directory 
@@ -238,7 +238,7 @@ Output: If zero flag set:
         
         
 
-16 - "kr_dir_list_next_entry"		
+16h - "kr_dir_list_next_entry"		
 -----------------------------
 
 Action: Returns next line of directory
@@ -253,7 +253,7 @@ Output: If zero flag set:
 
 
 
-17 - "kr_read_sector"		
+17h - "kr_read_sector"		
 ---------------------
 
 Action: Reads a sector from the specified device to the target address
@@ -262,7 +262,7 @@ Output: See error codes
 
 
 
-18 - "kr_write_sector"		
+18h - "kr_write_sector"		
 ----------------------
 
 Action: Writes a sector from specified address to the specified device
@@ -271,7 +271,7 @@ Output: See error codes
 
 
 
-19 - "kr_file_sector_list" 		
+19h - "kr_file_sector_list" 		
 --------------------------
 
 Action: Used to obtain a list of the sectors that a file occupies
@@ -292,7 +292,7 @@ holding the file size every call until variable is = < 0)
 
 
 
-1a - "kr_get_dir_cluster"		
+1ah - "kr_get_dir_cluster"		
 -------------------------
 
 Action: Reads the cluster location of the current directory
@@ -301,7 +301,7 @@ Output: DE (current dir's cluster address)
 
 
 
-1b - "kr_set_dir_cluster"		
+1bh - "kr_set_dir_cluster"		
 -------------------------
 
 Action: Sets the current directory cluster location
@@ -310,7 +310,7 @@ Output: none
 
 
 
-1c - "kr_get_dir_name"			
+1ch - "kr_get_dir_name"			
 ----------------------
 
 Action: Returns current directory name
@@ -323,7 +323,7 @@ Output: xHL (location of directory name ASCII string)
 
 =========================================================================================
 
-1d - "kr_wait_key"			
+1dh - "kr_wait_key"			
 ------------------
 
 Action: Pauses until a key is pressed
@@ -331,7 +331,7 @@ Input : None
 Output: A = Scancode, B  = ASCII character modified by shift/alt/CRTL if applicable. 0 if not
 
 
-1e - "kr_get_key"			
+1eh - "kr_get_key"			
 -----------------
 
 Action: Returns any keypresses that are in the buffer (does not wait)
@@ -340,7 +340,7 @@ Output: If zero flag is set, A = New scancode, B = (ASCII character modified by 
         if applicable. 0 if not)  Else: No new key data is in the buffer
 
 
-1f - "kr_get_key_mod_flags"		
+1fh - "kr_get_key_mod_flags"		
 ---------------------------
 
 Action: Returns the status of the modifier keys
@@ -357,8 +357,7 @@ Output: A, bit 0 - left shift
 ========================================================================================================================
 
 
-
-20 - "kr_serial_receive_header"		
+20h - "kr_serial_receive_header"		
 -------------------------------
 
 Action: Waits for a file header from serial port
@@ -369,7 +368,7 @@ Output: If zero flag set, all OK, IX returns location of serial file header
 
 
 
-21 - "kr_serial_receive_file"		
+21h - "kr_serial_receive_file"		
 -----------------------------
 
 Action: Waits for a serial file transfer following the reception of a header
@@ -378,7 +377,7 @@ Output: If zero flag is set, all OK. Else: A: $84 = memory address out of range,
 
 
 
-22 - "kr_serial_send_file"		
+22h - "kr_serial_send_file"		
 --------------------------
 
 Action: Sends a file to the serial port
@@ -388,7 +387,7 @@ Output: If zero flag is set, all OK.
 
 
 
-23 - "kr_serial_tx_byte"		
+23h - "kr_serial_tx_byte"		
 ------------------------
 
 Action: Sends a single byte to the serial port
@@ -397,7 +396,7 @@ Output: None
 
 
 
-24 - "kr_serial_rx_byte"
+24h - "kr_serial_rx_byte"
 ------------------------
 
 Action: Waits for a single byte from serial port
@@ -410,7 +409,7 @@ Output: Zero Flag set if byte received OK, Else operation timed out (A = $83)
 
 
 
-25 - "kr_print_string"			
+25h - "kr_print_string"			
 ----------------------
 
 Action: Writes a string of text to the display at the current cursor position and in the current pen colour
@@ -419,7 +418,7 @@ Output: HL = address of the string terminating zero  (BC and DE are preserved)
 
 
 
-26 - "kr_clear_screen"			
+26h - "kr_clear_screen"			
 ----------------------
 
 Action: Clears the display window
@@ -428,7 +427,7 @@ Output: None
 
 
 
-27 - "kr_wait_vrt"			
+27h - "kr_wait_vrt"			
 ------------------
 
 Action: Waits for the Vertical Retrace flipflop to become set (last scanline of display)
@@ -437,7 +436,7 @@ Output: None
 
 
 
-28 - "kr_set_cursor_position"		
+28h - "kr_set_cursor_position"		
 -----------------------------
 
 Action: Moves the cursor position to a specific place
@@ -446,7 +445,7 @@ Output: Zero flag is set if coordinates are within the display window, unset if 
 
 
 
-29 - "kr_plot_char"			
+29h - "kr_plot_char"			
 -------------------
 
 Action: Plots a character at a specific location in current pen colour (doesn't affect cursor position)
@@ -455,7 +454,7 @@ Output: Zero flag is set if coordinates are within the display window, unset if 
 
 
 
-2a - "kr_set_pen"			
+2ah - "kr_set_pen"			
 ----------------
 
 Action: Changes the current pen colour
@@ -465,7 +464,7 @@ Output: None
 
 
 
-2b - "kr_background_colours"		
+2bh - "kr_background_colours"		
 ----------------------------
 
 Action: Changes the palette of 16 colours used by the OS
@@ -474,7 +473,7 @@ Output: None
 
 
 
-2c - "kr_draw_cursor"			
+2ch - "kr_draw_cursor"			
 --------------------
 
 Action: Draws the cursor image as defined by the routine "kr_set_cursor_image"
@@ -483,7 +482,7 @@ Output: None
 
 
 
-2d - "kr_get_pen"			
+2dh - "kr_get_pen"			
 ----------------
 
 Action: Returns the current pen colour
@@ -492,7 +491,7 @@ Output: E (pen colour)
 
 
 
-2e - "kr_scroll_up"			
+2eh - "kr_scroll_up"			
 ------------------
 
 Action: Scrolls the display up a line
@@ -501,7 +500,7 @@ Output: None
 
 
 
-2f - "kr_os_display"			
+2fh - "kr_os_display"			
 -------------------
 
 Action: Restores the display hardware settings to that used by the OS
@@ -511,7 +510,7 @@ Output: None
 
 
 
-30 - "kr_get_display_size"		
+30h - "kr_get_display_size"		
 --------------------------
 
 Action: Returns the size of the OS window in characters
@@ -521,7 +520,7 @@ Output: B = Width, C = Height
 
 
 
-31 - "kr_get_charmap_addr_xy" 		
+31h - "kr_get_charmap_addr_xy" 		
 ----------------------------
 
 Action: Returns address of character map and attribute map for a specific coordinate
@@ -530,7 +529,7 @@ Output: xHL = OS character map address, xDE = OS attribute map addresss
 
 
 
-32 - "kr_get_cursor_position"		
+32h - "kr_get_cursor_position"		
 ----------------------------
 
 Action: Returns cursor position
@@ -542,7 +541,7 @@ Output: B (x char coord), C (y char coord)
 =========================================================================================
 
 
-33 - "kr_set_envar"			
+33h - "kr_set_envar"			
 -------------------
 
 Input :  HL = variable name pointer, DE = variable data string
@@ -550,7 +549,7 @@ Output:  ZF set if OK
 
 
 
-34 - "kr_get_envar"			
+34h - "kr_get_envar"			
 -------------------
 
 Input :  HL = variable name pointer
@@ -558,7 +557,7 @@ Output:  ZF set if name found: DE = variable data string
 
 
 
-35 - "kr_delete_envar"			
+35h - "kr_delete_envar"			
 ----------------------
 
 Input :  HL = variable name pointer
@@ -566,7 +565,7 @@ Output:  ZF set if OK
 
 
 
-36 - "kr_set_mouse_window"		
+36h - "kr_set_mouse_window"		
 --------------------------
 
 Action: Sets the constraining dimensions for absolute mouse pointer position
@@ -575,7 +574,7 @@ Output: None
 
 
 
-37 - "kr_get_mouse_position"		
+37h - "kr_get_mouse_position"		
 ---------------------------
 
 Action: Returns the absolute position of the mouse pointer within the window (and button status)
@@ -584,7 +583,7 @@ Output: HL (x coord) DE (y coord) A (buttons - bits 2:0) (Zero Flag set if mouse
 
 
 
-38 - "kr_get_mouse_motion"		
+38h - "kr_get_mouse_motion"		
 -------------------------
 
 Action: Returns the relative motion of the mouse since this routine was last called (and button status)
@@ -593,7 +592,7 @@ Output: HL (x delta) DE (y delta) A (buttons - bits 2:0) (Zero Flag set if mouse
 
 
 
-39 - "kr_time_delay"		
+39h - "kr_time_delay"		
 -------------------
 
 Action: Pauses for up to 2 seconds
@@ -602,7 +601,7 @@ Output: None
 
 
 
-3a - "kr_compare_strings"	
+3ah - "kr_compare_strings"	
 -------------------------
 
 Action: Compares ASCII strings, ignoring the case.
@@ -611,7 +610,7 @@ Output: Zero flag set if strings are the same
 
 
 
-3b - "kr_hex_byte_to_ascii"		
+3bh - "kr_hex_byte_to_ascii"		
 ---------------------------
 
 Action: Puts ascii version of hex byte at (xHL) and (xHL+1)
@@ -620,7 +619,7 @@ Output: HL=HL+2
 
 
 
-3c - "kr_ascii_to_hex_word" 	
+3ch - "kr_ascii_to_hex_word" 	
 --------------------------
 
 Action: Convers ASCII hex characters to 24 bit hexadecimal number
@@ -629,7 +628,7 @@ Output: xDE = result, Zero Flag set if all OK, else A = $81: No ASCII chars, $82
 
 
 
-3d - "kr_get_string"			
+3dh - "kr_get_string"			
 -------------------
 
 Action: Waits for user to enter a string of characters followed by return (Escape quits)
@@ -639,7 +638,7 @@ Output: If zero flag set, all OK, A = number of characters entered.
 
 
 
-3e - "kr_get_version"			
+3eh - "kr_get_version"			
 --------------------
 
 Action: Returns version info for OS and Hardware
@@ -648,7 +647,7 @@ Output: HL = Version of PROSE OS, DE = version of AMOEBA config
 
 
 
-3f - "kr_dont_store_registers"	
+3fh - "kr_dont_store_registers"	
 -----------------------------
 
 Action: Prevents the OS caching the contents of the CPU registers on when app returns control to it.
@@ -657,7 +656,7 @@ Output: None
 
 
 
-40 - "kr_get_font_info"		
+40h - "kr_get_font_info"		
 -----------------------
 
 Action: Returns base address of the font parameter table
@@ -670,7 +669,7 @@ font_addr         = (ix+6)  (Font is stored in VRAM A)
 font_length       = (ix+9)
 
 
-41 - "kr_read_rtc"			
+41h - "kr_read_rtc"			
 ------------------
 
 Action: Reads the real time clock data
@@ -679,7 +678,7 @@ Output: xHL = location of ez80 time data: sec,min,hr,dow,date,mon,year,century
 
 
 
-42 - "kr_write_rtc"			
+42h - "kr_write_rtc"			
 -------------------
 
 Action: Writes data to the real time clock
@@ -688,7 +687,7 @@ Output: None
 
 
 
-43 - "kr_get_keymap_location"		
+43h - "kr_get_keymap_location"		
 -----------------------------
 
 Action: Returns location of keymap within the OS
@@ -696,12 +695,64 @@ Input : None
 Output: xHL = location of keymap data within OS
 
 
-44 - "kr_get_os_high_mem"
+44h - "kr_get_os_high_mem"
 -------------------------
 
 Action: Returns the lowest address unused by the OS in system RAM, VRAM A and VRAM B
 Input : none
 Output: xHL = system RAM high, xDE = VRAM A high, xBC = VRAM B high
+
+
+45h - "kr_play_audio"
+--------------------
+
+Action: Plays sound samples
+Input : xHL = Address of sound description table, C = channel enable bits.
+Output: None
+
+Notes: The sound description table format is:
+
+ 00h [3 bytes]	;location (address in VRAM B)
+ 03h [3 bytes]	;length in bytes
+ 06h [3 bytes]	;loop location (address in VRAM B)
+ 09h [3 bytes]	;loop length in bytes
+ 0ch [2 bytes]	;period constant (see hardware manual)
+ 0eh [1 bytes]	;volume (0-64)
+
+The channel enable bits set in C specify which channels are to play the sound:
+
+Bit 0 = channel 0
+Bit 1 = channel 1
+Bit 2 = channel 2
+etc etc
+
+
+
+46h - "kr_disable_audio"
+----------------------
+
+Action: Silences all channels by disabling the audio hardware and silencing each
+        channel's volume register
+Input : none
+Output: none
+
+
+
+47h - "kr_get_joysticks"
+-----------------------
+
+Action: Reads status of joystick pins
+Input : none
+Output: E = joystick 0, D = joystick 1
+
+	Bit 0 = left
+	Bit 1 = Right
+	Bit 2 = Up
+	Bit 3 = Down
+	Bit 4 = Fire 0
+	Bit 5 = Fire 1
+
+Notes: Bit set = direction / button asserted.
 
 =========================================================================================
 
@@ -723,6 +774,7 @@ $89 - Unsupported Device
 $8a - Device not detected
 $8b - Device error
 $8c - Script error
+$8d - Missing args
 
 
 Errors from Filesystem related routines

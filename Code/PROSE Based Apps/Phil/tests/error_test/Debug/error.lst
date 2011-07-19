@@ -1,17 +1,14 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   1
 
 
 PC     Object              I  Line    Source 
-                           A     1    
-                           A     2    ;read/write rtc for time
-                           A     3    
-                           A     4    ;----------------------------------------------
-                           A     5    
-       00000000            A     6    amoeba_version_req	equ	0				; 0 = d
-       00000000            A     7    prose_version_req	equ 0				; 0 = d
-       00000001            A     8    ADL_mode			equ 1				; 0 if 
-       00010000            A     9    load_location		equ 10000h			; anywh
-                           A    10    
+                           A     1    ;----------------------------------------------
+                           A     2    
+       00000000            A     3    amoeba_version_req	equ	0				; 0 = d
+       00000000            A     4    prose_version_req	equ 0				; 0 = d
+       00000001            A     5    ADL_mode			equ 1				; 0 if 
+       00010000            A     6    load_location		equ 10000h			; anywh
+                           A     7    
                            B     0    			include	'PROSE_header.asm'
                            B     1    ;--- EZ80 Internal CPU Ports ------------------
                            B     2    
@@ -54,13 +51,13 @@ PC     Object              I  Line    Source
        000000B2            B    39    CS3_UBR			equ 0b2h
        000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   2
-
-
-PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            B    43    TMR0_DR_L		equ 081h
        00000081            B    44    TMR0_RR_L		equ 081h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   2
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
        00000082            B    45    TMR0_DR_H		equ 082h
        00000082            B    46    TMR0_RR_H		equ 082h
        00000092            B    47    TMR_ISS			equ 092h
@@ -110,13 +107,13 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B    91    
        00FF0000            B    92    hw_palette				equ 0ff0000h
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   3
-
-
-PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
        00FF1800            B    96    hw_video_settings		equ 0ff1800h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   3
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
                            B    97    
        00FF1000            B    98    tilemap_parameters		equ hw_video_parameters
        00FF1020            B    99    bitmap_parameters		equ hw_video_parameters
@@ -166,13 +163,13 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B   143    
        00000017            B   144    kr_read_sector					equ 17h
        00000018            B   145    kr_write_sector					equ 18h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   4
-
-
-PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
        00000019            B   146    kr_file_sector_list				equ 19h
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
        0000001B            B   148    kr_set_dir_cluster				equ 1bh
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   4
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
        0000001C            B   149    kr_get_dir_name					equ 1ch
        0000001D            B   150    kr_wait_key						equ 1dh
        0000001E            B   151    kr_get_key						equ 1eh
@@ -222,184 +219,82 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
        00000043            B   195    kr_get_keymap_location			equ 43h
        00000044            B   196    kr_get_os_high_mem				equ 44h
                            B   197    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   5
+                           B   198    ;----------------------------------------------
+                           B   199    ; Standard PROSE executable header
+                           B   200    ;----------------------------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   5
 
 
-PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
-       00000045            B   198    kr_play_audio					equ 45h
-       00000046            B   199    kr_disable_audio				equ 46h
-       00000047            B   200    kr_get_joysticks				equ 47h
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
                            B   201    
-                           B   202    ;----------------------------------------------
-                           B   203    ; Standard PROSE executable header
-                           B   204    ;----------------------------------------------
-                           B   205    
-                           B   206    
-                           B   207    	IF ADL_mode = 0
-                           B   208    		org load_location&0ffffh	; if Z80 mo
-                           B   209    	ELSE
-010000                     B   210    		org load_location			; otherwise
-                           B   211    	ENDIF
-                           B   212    	
-                           B   213    		.assume ADL = 1				; All PROSE
-                           B   214    
-010000 18 0E               B   215    		jr skip_header				; $0 - Jump
-010002 50524F              B   216    		db 'PRO'					; $2 - ASCI
-010005 000001              B   217    mb_loc	dw24 load_location			; $5 - Desi
-010008 000000              B   218    		dw24 0						; $8 - If >
-01000B 0000                B   219    		dw prose_version_req		; $B - If >
-01000D 0000                B   220    		dw amoeba_version_req		; $D - If >
-01000F 01                  B   221    		db ADL_mode					; $F - Z80 
-                           B   222    
-010010                     B   223    skip_header
-                           B   224    	
-                           B   225    	IF ADL_mode = 0 
-                           B   226    		
-                           B   227    mbase_offset equ load_location & 0ff0000h
+                           B   202    
+                           B   203    	IF ADL_mode = 0
+                           B   204    		org load_location&0ffffh	; if Z80 mo
+                           B   205    	ELSE
+010000                     B   206    		org load_location			; otherwise
+                           B   207    	ENDIF
+                           B   208    	
+                           B   209    		.assume ADL = 1				; All PROSE
+                           B   210    
+010000 18 0E               B   211    		jr skip_header				; $0 - Jump
+010002 50524F              B   212    		db 'PRO'					; $2 - ASCI
+010005 000001              B   213    mb_loc	dw24 load_location			; $5 - Desi
+010008 000000              B   214    		dw24 0						; $8 - If >
+01000B 0000                B   215    		dw prose_version_req		; $B - If >
+01000D 0000                B   216    		dw amoeba_version_req		; $D - If >
+01000F 01                  B   217    		db ADL_mode					; $F - Z80 
+                           B   218    
+010010                     B   219    skip_header
+                           B   220    	
+                           B   221    	IF ADL_mode = 0 
+                           B   222    		
+                           B   223    mbase_offset equ load_location & 0ff0000h
+                           B   224    
+                           B   225    		ld a,load_location/65536	; Additiona
+                           B   226    		ld MB,a						; Set MBASE
+                           B   227    		jp.sis go_z80_mode			; switches 
                            B   228    
-                           B   229    		ld a,load_location/65536	; Additiona
-                           B   230    		ld MB,a						; Set MBASE
-                           B   231    		jp.sis go_z80_mode			; switches 
+                           B   229    go_z80_mode
+                           B   230    
+                           B   231    		.assume ADL = 0
                            B   232    
-                           B   233    go_z80_mode
-                           B   234    
-                           B   235    		.assume ADL = 0
-                           B   236    
-                           B   237    	ENDIF
-                           B   238    	
-                           B   239    ;----------------------------------------------
-                           B   240    	
-                           A    12    
-                           A    13    ;----------------------------------------------
-                           A    14    
-010010 7E                  A    15    			ld a,(hl)						;if
-010011 B7                  A    16    			or a
-010012 28 6B               A    17    			jr z,no_args
-                           A    18    			
-010014 E5                  A    19    			push hl
-010015 3E41                A    20    			ld a,kr_read_rtc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   6
+                           B   233    	ENDIF
+                           B   234    	
+                           B   235    ;----------------------------------------------
+                           B   236    	
+                           A     9    
+                           A    10    ;----------------------------------------------
+                           A    11    
+010010 CD 19 00 01         A    12    			call my_prog
+                           A    13    			
+010014 5BC3140A 00         A    14    			jp.lil prose_return
+                           A    15    			
+                           A    16    ;----------------------------------------------
+                           A    17    
+010019                     A    18    my_prog
+                           A    19    			
+                           A    20    ;			ld a,0c2h
+                           A    21    ;			or a
+                           A    22    ;			ret
+                           A    23    
+                           A    24    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     16:03:58     page:   6
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-010017 5BCD200A 00         A    21    			call.lil prose_kernal			;ge
-01001C DDE1                A    22    			pop ix
-01001E E5                  A    23    			push hl
-01001F FDE1                A    24    			pop iy
-                           A    25    			
-010021 CD 4C 00 01         A    26    			call ascii_to_bcd
-010025 38 48               A    27    			jr c,bad_bcd
-010027 FD7702              A    28    			ld (iy+2),a
-01002A DD23                A    29    			inc ix
-01002C CD 4C 00 01         A    30    			call ascii_to_bcd
-010030 38 3D               A    31    			jr c,bad_bcd
-010032 FD7701              A    32    			ld (iy+1),a
-010035 DD23                A    33    			inc ix
-010037 CD 4C 00 01         A    34    			call ascii_to_bcd
-01003B 38 32               A    35    			jr c,bad_bcd
-01003D FD7700              A    36    			ld (iy+0),a
-                           A    37    			
-010040 3E42                A    38    			ld a,kr_write_rtc
-010042 5BCD200A 00         A    39    			call.lil prose_kernal
-010047 AF                  A    40    			xor a
-010048 C3140A00            A    41    			jp prose_return
-                           A    42    			
-01004C                     A    43    ascii_to_bcd
-                           A    44    
-01004C DD7E00              A    45    			ld a,(ix)
-01004F DD23                A    46    			inc ix
-010051 D630                A    47    			sub a,30h
-010053 D8                  A    48    			ret c
-010054 FE0A                A    49    			cp 10
-010056 30 15               A    50    			jr nc,bcderr
-010058 0F                  A    51    			rrca
-010059 0F                  A    52    			rrca
-01005A 0F                  A    53    			rrca
-01005B 0F                  A    54    			rrca
-01005C E6F0                A    55    			and 0f0h
-01005E 47                  A    56    			ld b,a
-01005F DD7E00              A    57    			ld a,(ix)
-010062 DD23                A    58    			inc ix
-010064 D630                A    59    			sub a,30h
-010066 D8                  A    60    			ret c
-010067 FE0A                A    61    			cp 10
-010069 30 02               A    62    			jr nc,bcderr
-01006B B0                  A    63    			or b
-01006C C9                  A    64    			ret
-01006D 37                  A    65    bcderr		scf
-01006E C9                  A    66    			ret
-                           A    67    			
-                           A    68    			
-01006F 21 D6 00 01         A    69    bad_bcd		ld hl,bad_bcd_txt
-010073 3E25                A    70    			ld a,kr_print_string
-010075 5BCD200A 00         A    71    			call.lil prose_kernal
-01007A AF                  A    72    			xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   7
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-01007B C3140A00            A    73    			jp prose_return
-                           A    74    			
-                           A    75    
-                           A    76    
-                           A    77    
-01007F 3E41                A    78    no_args		ld a,kr_read_rtc
-010081 5BCD200A 00         A    79    			call.lil prose_kernal
-                           A    80    			
-010086 E5                  A    81    			push hl
-010087 DDE1                A    82    			pop ix
-010089 21 E6 00 01         A    83    			ld hl,time_string
-01008D DD7E02              A    84    			ld a,(ix+2)					;hour
-010090 CD BF 00 01         A    85    			call bcd_to_dec
-010094 CD D2 00 01         A    86    			call addcolon
-010098 DD7E01              A    87    			ld a,(ix+1)					;min
-01009B CD BF 00 01         A    88    			call bcd_to_dec
-01009F CD D2 00 01         A    89    			call addcolon
-0100A3 DD7E00              A    90    			ld a,(ix)					;second
-0100A6 CD BF 00 01         A    91    			call bcd_to_dec
-0100AA 360B                A    92    			ld (hl),11
-0100AC 23                  A    93    			inc hl
-0100AD 3600                A    94    			ld (hl),0
-                           A    95    			
-0100AF 3E25                A    96    			ld a,kr_print_string
-0100B1 21 E6 00 01         A    97    			ld hl,time_string
-0100B5 5BCD200A 00         A    98    			call.lil prose_kernal
-0100BA AF                  A    99    			xor a
-0100BB C3140A00            A   100    			jp prose_return
-                           A   101    
-0100BF 47                  A   102    bcd_to_dec	ld b,a
-0100C0 0F                  A   103    			rrca
-0100C1 0F                  A   104    			rrca
-0100C2 0F                  A   105    			rrca
-0100C3 0F                  A   106    			rrca
-0100C4 E60F                A   107    			and a,15
-0100C6 C630                A   108    			add a,30h
-0100C8 77                  A   109    			ld (hl),a
-0100C9 23                  A   110    			inc hl
-0100CA 78                  A   111    			ld a,b
-0100CB E60F                A   112    			and 15
-0100CD C630                A   113    			add a,30h
-0100CF 77                  A   114    			ld (hl),a
-0100D0 23                  A   115    			inc hl
-0100D1 C9                  A   116    			ret
-                           A   117    			
-0100D2 363A                A   118    addcolon	ld (hl),':'
-0100D4 23                  A   119    			inc hl
-0100D5 C9                  A   120    			ret
-                           A   121    			
-                           A   122    ;----------------------------------------------
-                           A   123    
-0100D6 42616420 61726775   A   124    bad_bcd_txt	db 'Bad arguments!',11,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)19-Jul-11     20:19:05     page:   8
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\time\src\time.asm
-0100DE 6D656E74 73210B00 
-                           A   125    
-0100E6 00                  A   126    time_string db 0								                           A   127    
-                           A   128    ;----------------------------------------------
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\ERROR_~1\source\error.asm
+010019 21 25 00 01         A    25    			ld hl,filename
+01001D 3E0B                A    26    			ld a,kr_find_file
+01001F 5BCD200A 00         A    27    			call.lil prose_kernal
+010024 C9                  A    28    			ret
+                           A    29    			
+                           A    30    ;----------------------------------------------
+                           A    31    
+010025 7A787961 62632E62   A    32    filename	db "zxyabc.bin",0
+01002D 696E00 
+                           A    33    
+                           A    34    ;----------------------------------------------
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 369
+Lines Assembled: 271

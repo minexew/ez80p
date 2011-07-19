@@ -14,7 +14,7 @@
 os_location	 	equ 0a00h
 sys_mem_top		equ 07ffffh
 
-prose_version	equ 2fh
+prose_version	equ 30h
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -108,6 +108,7 @@ dont_resetkb
 				ld (font_length),hl						
 	
 				call hwsc_default_hw_settings
+				call hwsc_disable_audio
 				
 				ld a,(video_mode)
 				call set_vmode							; this also clears the screen
@@ -3031,6 +3032,16 @@ os_get_font_info
 				cp a
 				ret
 
+
+;--------------------------------------------------------------------------------------------
+
+
+ext_play_audio	call z,mbase_hl
+				
+os_play_audio	call hwsc_play_audio
+				ret
+				
+				
 ;==============================================================================================
 ; Internal OS command routines
 ;==============================================================================================
@@ -3068,6 +3079,7 @@ os_get_font_info
 	include 'commands\font.asm'
 	include 'commands\set.asm'
 	include 'commands\dz.asm'
+	include 'commands\sound.asm'
 
 os_cmd_unused	ret		; <- dummy command, should never be called
 

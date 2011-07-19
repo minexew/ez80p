@@ -39,20 +39,20 @@ buildall: clean date
 relink: deltarget date
 
 deltarget: 
-	@if exist $(WORKDIR)\date_set.lod  \
-            $(RM) $(WORKDIR)\date_set.lod
-	@if exist $(WORKDIR)\date_set.hex  \
-            $(RM) $(WORKDIR)\date_set.hex
-	@if exist $(WORKDIR)\date_set.map  \
-            $(RM) $(WORKDIR)\date_set.map
+	@if exist $(WORKDIR)\date.lod  \
+            $(RM) $(WORKDIR)\date.lod
+	@if exist $(WORKDIR)\date.hex  \
+            $(RM) $(WORKDIR)\date.hex
+	@if exist $(WORKDIR)\date.map  \
+            $(RM) $(WORKDIR)\date.map
 
 clean: 
-	@if exist $(WORKDIR)\date_set.lod  \
-            $(RM) $(WORKDIR)\date_set.lod
-	@if exist $(WORKDIR)\date_set.hex  \
-            $(RM) $(WORKDIR)\date_set.hex
-	@if exist $(WORKDIR)\date_set.map  \
-            $(RM) $(WORKDIR)\date_set.map
+	@if exist $(WORKDIR)\date.lod  \
+            $(RM) $(WORKDIR)\date.lod
+	@if exist $(WORKDIR)\date.hex  \
+            $(RM) $(WORKDIR)\date.hex
+	@if exist $(WORKDIR)\date.map  \
+            $(RM) $(WORKDIR)\date.map
 	@if exist $(WORKDIR)\date.obj  \
             $(RM) $(WORKDIR)\date.obj
 

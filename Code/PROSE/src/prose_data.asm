@@ -84,6 +84,10 @@ kernal_table
 	dw24 hwsc_write_rtc				;42		 
 	dw24 os_get_keymap_location		;43		 
 	dw24 os_get_mem_high			;44
+	dw24 ext_play_audio				;45
+	dw24 hwsc_disable_audio			;46
+	dw24 hwsc_get_joysticks			;47
+
 	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
@@ -169,7 +173,7 @@ dictionary				db 0,"DEBUG"			;01
 						db 0,"[pen paper]"		;32				
 						db 80h,":"				;33
 						db 81h,">"				;34
-						db 0,"*"				;35 (command $082h currently not used)
+						db 82h,"SOUND"			;35
 						db 0,"Volumes"			;36
 						db 83h,"C"				;37
 						db 84h,"CD"				;38
@@ -300,7 +304,7 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"Required"			;aa
 						db 0,"FPGA config"		;ab
 						db 0,"Unchanged"		;ac
-						db 0," "				;ad - unused entry
+						db 0,"loc len [per vol chans loop?] " ;ad
 						db 9ch,"PALETTE"		;ae
 						db 0,"palette"			;af
 						
@@ -325,6 +329,8 @@ yes_txt					db 0,"YES" 				;a2
 						db 0a1h,"DZ"			;c1
 						db 0,"ADL"				;c2
 						db 0,"Z80"				;c3
+						db 0,"Play"				;c4
+						db 0,"Audio"			;c5
 						
 						db 0,1					;END MARKER
 
@@ -386,6 +392,7 @@ packed_help1				db 097h,0
 							db 0aeh,09h,05fh,01bh,0afh,0						; "PALETTE a b c - change palette"
 							db 03ah,032h,05fh,01bh,05bh,0						; "PEN [pen paper] change cols"
 							db 0beh,0bfh,05fh,0a4h,0c0h,0						; "SET var=string - set envar" 
+							db 035h,0adh,05fh,0c4h,050h,013h,0c5h,0				; "SOUND loc len [per vol chans loop?] - play mem as audio"
 							db 04eh,05fh,010h,030h,031h,0						; "VERS - show OS/HW version"
 							db 0b7h,09h,5fh,01bh,0b8h,0b9h,0					; "VMODE a - change video mode"
 							db 05ch,05fh,010h,05dh,0							; "? - Show commands"		
@@ -397,7 +404,7 @@ packed_help1				db 097h,0
 
 os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_gtr								;1
-							dw24 os_cmd_unused							;2
+							dw24 os_cmd_sound							;2
 							dw24 os_cmd_c								;3
 							dw24 os_cmd_cd								;4
 							dw24 os_cmd_cls								;5	
@@ -505,7 +512,7 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 
 kernal_error_code_translation
 
-					db 24h,2dh,2eh,14h,08h,11h,0fh,2ah, 02fh,030h,031h,032h,033h			; begins at $80
+					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h, 033h,01fh	    ; begins at $80
 					
 fs_error_code_translation
 

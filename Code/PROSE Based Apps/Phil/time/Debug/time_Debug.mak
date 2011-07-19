@@ -39,20 +39,20 @@ buildall: clean time
 relink: deltarget time
 
 deltarget: 
-	@if exist $(WORKDIR)\RTC.lod  \
-            $(RM) $(WORKDIR)\RTC.lod
-	@if exist $(WORKDIR)\RTC.hex  \
-            $(RM) $(WORKDIR)\RTC.hex
-	@if exist $(WORKDIR)\RTC.map  \
-            $(RM) $(WORKDIR)\RTC.map
+	@if exist $(WORKDIR)\time.lod  \
+            $(RM) $(WORKDIR)\time.lod
+	@if exist $(WORKDIR)\time.hex  \
+            $(RM) $(WORKDIR)\time.hex
+	@if exist $(WORKDIR)\time.map  \
+            $(RM) $(WORKDIR)\time.map
 
 clean: 
-	@if exist $(WORKDIR)\RTC.lod  \
-            $(RM) $(WORKDIR)\RTC.lod
-	@if exist $(WORKDIR)\RTC.hex  \
-            $(RM) $(WORKDIR)\RTC.hex
-	@if exist $(WORKDIR)\RTC.map  \
-            $(RM) $(WORKDIR)\RTC.map
+	@if exist $(WORKDIR)\time.lod  \
+            $(RM) $(WORKDIR)\time.lod
+	@if exist $(WORKDIR)\time.hex  \
+            $(RM) $(WORKDIR)\time.hex
+	@if exist $(WORKDIR)\time.map  \
+            $(RM) $(WORKDIR)\time.map
 	@if exist $(WORKDIR)\time.obj  \
             $(RM) $(WORKDIR)\time.obj
 
