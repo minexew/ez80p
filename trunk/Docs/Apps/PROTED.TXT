@@ -1,0 +1,25 @@
+PROTED - A text editor for PROSE ported by Enzo Calogiuri
+---------------------------------------------------------
+
+The use of the editor is very simple. To start it you can do:
+
+proted <return>: the edited text is saved in the file "noname.txt"
+proted myfile.ext <return>: if the file exists, is loaded into memory,
+otherwise the text typed will be saved as myfile.ext
+
+These commands are usable in the program:
+
+Ctrl + L: insert a line.
+Ctrl + K: delete a line.
+Ctrl + E: end of text.
+Ctrl + T: top of file.
+Ctrl + N: redraw screen.
+Ctrl + B: break a line.
+Ctrl + R: reload file.
+Ctrl + S: save file.
+Ctrl + Q: quit to PROSE.
+
+Also this keys are active: Tab, Cursor Keys, PgUp, PgDown, Home, End, Del.
+
+Note that Return key does not create or divide a new line, simply is Carriage Return.
+To divide a line into two you must use Ctrl + B and Ctrl + L to insert a new blank line.
