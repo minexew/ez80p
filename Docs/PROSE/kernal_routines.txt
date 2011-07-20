@@ -745,10 +745,10 @@ Action: Reads status of joystick pins
 Input : none
 Output: E = joystick 0, D = joystick 1
 
-	Bit 0 = left
-	Bit 1 = Right
-	Bit 2 = Up
-	Bit 3 = Down
+	Bit 0 = Up
+	Bit 1 = Down
+	Bit 2 = Left
+	Bit 3 = Right
 	Bit 4 = Fire 0
 	Bit 5 = Fire 1
 
