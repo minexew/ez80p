@@ -1,0 +1,7263 @@
+; Zilog eZ80 ANSI C Compiler Release 3.3
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\MAIN.C"
+	.assume ADL=1
+	SEGMENT BSS
+_tebuflen:
+	DS	3
+_tebuf:
+	DS	2058
+_scn_virt:
+	DS	4000
+_scn_phys:
+	DS	4000
+_backbuffer:
+	DS	320
+_root:
+	DS	9
+_p_root:
+	DS	3
+_p_curr:
+	DS	3
+_numlines:
+	DS	3
+_cur_line:
+	DS	3
+_cur_char:
+	DS	3
+_cur_row:
+	DS	3
+_cur_col:
+	DS	3
+_linbuf:
+	DS	90
+_Ascii:
+	DS	1
+_Scancode:
+	DS	1
+_B:
+	DS	1
+_C:
+	DS	1
+_E:
+	DS	1
+_K_xHL:
+	DS	3
+_K_xBC:
+	DS	3
+_filesize:
+	DS	3
+	SEGMENT DATA
+_BufferFile:
+	DW24	12582912
+	SEGMENT BSS
+_TxtPnt:
+	DS	3
+	SEGMENT STRSECT
+L__0:
+	DB	"noname.txt"
+	DB	0
+	SEGMENT DATA
+_NonameFile:
+	DW24	L__0
+	SEGMENT BSS
+_UseFile:
+	DS	1
+_convBuf:
+	DS	5
+;    1	#include <stdio.h>
+;    2	#include <stdlib.h>
+;    3	#include <string.h>
+;    4	#include <stddef.h>
+;    5	
+;    6	#include "PROSE_Header.h"
+;    7	
+;    8	#define TEBUFMAX		2048					/* Bytes in the terminal package output buffer.        */
+;    9	#define MAXLNLEN		80						/* Maximum line length this editor can handle.         */
+;   10	#define SCNROWS			50						/* Number of rows    in target terminal.               */
+;   11	#define SCNCOLS			80						/* Number of columns in target terminal.               */
+;   12	#define VERSION			"1.0"					/* Version number of this editor.                      */
+;   13	#define FUDGE			10
+;   14	#define FALSE			0
+;   15	#define TRUE			1
+;   16	#define SCNSIZE 		(SCNROWS * SCNCOLS)
+;   17	
+;   18	#define EOS 			'\0'
+;   19	#define EOL 			'\n'
+;   20	#define CH_TAB 			9
+;   21	
+;   22	int tebuflen;
+;   23	static char tebuf[TEBUFMAX + FUDGE];
+;   24	char scn_virt[SCNROWS][SCNCOLS];
+;   25	char scn_phys[SCNROWS][SCNCOLS];
+;   26	char backbuffer[4][SCNCOLS];
+;   27	
+;   28	typedef struct line_t_ line_t;
+;   29	#define p_line_t line_t *
+;   30	struct line_t_
+;   31	 {
+;   32	   p_line_t 	p_prev;						/* Pointer to the previous line record.                  */
+;   33	   p_line_t 	p_next;						/* Pointer to the next     line record.                  */
+;   34	   char   		*p_data; 					/* Pointer to the line itself (C string in heap).        */
+;   35	 };
+;   36	 
+;   37	line_t root;								/* The root line (unused as a line).               */
+;   38	p_line_t p_root;							/* Pointer to the root line.                       */
+;   39	p_line_t p_curr;							/* Ptr to the current line (or root if at EOF).    */
+;   40	int numlines, cur_line, cur_char, cur_row, cur_col;
+;   41	char linbuf[MAXLNLEN+FUDGE]; 
+;   42	
+;   43	static unsigned char Ascii, Scancode, B, C, E;
+;   44	unsigned int K_xHL, K_xBC, filesize;
+;   45	char *BufferFile = (char *)0x0C00000;		/* Use VGA Ram B to load or save file      */
+;   46	static char *TxtPnt;
+;   47	static char *NonameFile = "noname.txt";
+;   48	char UseFile;
+;   49	
+;   50	void GetCh(void);
+;   51	unsigned char getch(void);
+;   52	void print(const char *Txt);
+;   53	void get_cursor_position(unsigned char *X, unsigned char *Y);
+;   54	void plot_char(unsigned char x, unsigned char y, unsigned char Ch);
+;   55	void clreol(void);
+;   56	void gotoxy(unsigned char x, unsigned char y);
+;   57	int get_prose_version(void);
+;   58	
+;   59	void uitoa(unsigned int val, char *string);
+;   60	char convBuf[5];
+	SEGMENT CODE
+;   61	
+;   62	void ShowMenu(void);
+;   63	void Enable_Back_Color(void);
+;   64	void Disable_Back_Color(void);
+;   65	void Show_Cursor(void);
+;   66	void Show_Cursor_Position(void);
+;   67	
+;   68	char FileExists(void);
+;   69	void load_file(void);
+;   70	void save_file(void);
+;   71	void reload_file(void);
+;   72	
+;   73	void msg_window(char *msg1, char *msg2);
+;   74	void close_msg_window(void);
+;   75	
+;   76	/*-------------------------------------------------------------------------*/
+;   77	
+;   78	void bomb(char *txt);
+;   79	void as(char b, char *txt);
+;   80	void *mymalloc(size_t n);
+;   81	char blankrow(char *p);
+;   82	void zap_trail(char *s);
+;   83	void purify(char *st);
+;   84	void te_flu(void);
+;   85	unsigned char te_gch(void);
+;   86	void te_chr(char ch);
+;   87	void te_str(char *s);
+;   88	void te_mov(unsigned char r, unsigned char c);
+;   89	void te_cln(unsigned char row);
+;   90	void te_clr(void);
+;   91	void te_ini(void);
+;   92	void te_fin(void);
+;   93	
+;   94	void sc_clr(void);
+;   95	void sc_crw(unsigned char row);
+;   96	void sc_chr(unsigned char row, unsigned char col, unsigned char ch);
+;   97	void sc_str(unsigned char row, unsigned char col, char *s);
+;   98	void sc_upd(void);
+;   99	void sc_fup(void);
+;  100	void sc_ini(void);
+;  101	void sc_fin(void);
+;  102	
+;  103	void tx_ini(void);
+;  104	void tx_set(p_line_t p_line, char *s);
+;  105	void tx_ins(p_line_t p_line, char *s);
+;  106	void tx_del(p_line_t p_line);
+;  107	void tx_get(p_line_t p_line);
+;  108	void tx_put(p_line_t p_line);
+;  109	
+;  110	void do_red(void);
+;  111	void do_cup(void);
+;  112	void do_cdw(void);
+;  113	void do_clf(void);
+;  114	void do_crt(void);
+;  115	void do_pdw(void);
+;  116	void do_pup(void);
+;  117	void do_ret(void);
+;  118	void do_enhanced_ret(void);
+;  119	void do_tab(void);
+;  120	void do_top(void);
+;  121	void do_bot(char paint);
+;  122	void do_chr(char ch);
+;  123	void do_dch(void);
+;  124	void do_iln(void);
+;  125	void do_dln(void);
+;  126	void do_del(void);
+;  127	void do_enhanced_del(void);
+;  128	void do_home(void);
+;  129	void do_endline(void);
+;  130	
+;  131	void paintall(void);
+;  132	void paintrow(void);
+;  133	
+;  134	void edit(void);
+;  135	
+;  136	/*-------------------------------------------------------------------------*/
+;  137	void main(void)
+;  138	{
+_main:
+;  139		INIT_HARDWARE;
+PB_DR		equ 09Ah
+PB_DDR		equ 09Bh
+PB_ALT1		equ 09Ch
+PB_ALT2		equ 09Dh
+PC_DR		equ 09Eh
+PC_DDR		equ 09Fh
+PC_ALT1		equ 0A0h
+PC_ALT2		equ 0A1h
+PD_DR		equ 0A2h
+PD_DDR		equ 0A3h
+PD_ALT1		equ 0A4h
+PD_ALT2		equ 0A5h
+UART0_RBR	equ 0C0h
+UART0_THR	equ 0C0h
+UART0_BRG_L	equ 0C0h
+UART0_BRG_H	equ 0C1h
+UART0_IER	equ 0C1h
+UART0_FCTL	equ 0C2h
+UART0_LCTL	equ 0C3h
+UART0_MCTL	equ 0C4h
+UART0_LSR	equ 0C5h
+UART0_MSR	equ 0C6h
+CS0_LBR		equ 0A8h
+CS0_UBR		equ 0A9h
+CS0_CTL		equ 0AAh
+CS1_LBR		equ 0ABh
+CS1_UBR		equ 0ACh
+CS1_CTL		equ 0ADh
+CS2_LBR		equ 0AEh
+CS2_UBR		equ 0AFh
+CS2_CTL		equ 0B0h
+CS3_LBR		equ 0B1h
+CS3_UBR		equ 0B2h
+CS3_CTL		equ 0B3h
+TMR0_CTL		equ 080h
+TMR0_DR_L	equ 081h
+TMR0_RR_L	equ 081h
+TMR0_DR_H	equ 082h
+TMR0_RR_H	equ 082h
+TMR_ISS		equ 092h
+RTC_CTRL		equ 0EDh
+RTC_ACTRL	equ 0ECh
+RTC_SEC		equ 0E0h
+RTC_MIN		equ 0E1h
+RTC_HRS		equ 0E2h
+RTC_DOW		equ 0E3h
+RTC_DOM		equ 0E4h
+RTC_MON		equ 0E5h
+RTC_YR		equ 0E6h
+RTC_CEN		equ 0E7h
+port_pic_data		equ 000h
+port_pic_ctrl		equ 001h
+port_hw_flags		equ 001h
+port_sdc_ctrl		equ 002h
+port_keyboard_data	equ 002h
+port_sdc_data		equ 003h
+port_memory_paging	equ 004h
+port_irq_ctrl		equ 005h
+port_nmi_ack			equ 006h
+port_ps2_ctrl		equ 007h
+port_selector		equ 008h
+port_mouse_data		equ 006h
+port_clear_flags		equ 009h
+sdc_power			equ 0h
+sdc_cs				equ 1h
+sdc_speed			equ 2h
+sdc_serializer_busy	equ 4h
+vrt					equ 5h
+sysram_addr			equ 0000000h
+vram_a_addr			equ 0800000h
+vram_b_addr			equ 0C00000h
+hw_palette			equ 0ff0000h
+hw_sprite_registers	equ 0ff0800h
+hw_video_parameters	equ 0ff1000h
+hw_audio_registers	equ 0ff1400h
+hw_video_settings	equ 0ff1800h
+tilemap_parameters	equ hw_video_parameters + 00h
+bitmap_parameters	equ hw_video_parameters + 20h
+video_control		equ hw_video_settings + 00h
+sprite_control		equ hw_video_settings + 01h
+bgnd_palette_select	equ hw_video_settings + 02h
+sprite_palette_select	equ hw_video_settings + 03h
+right_border_position	equ hw_video_settings + 04h
+os_start			equ 0A00h
+prose_return		equ os_start + 14h
+prose_kernal		equ os_start + 20h
+;  140		INIT_KJT;
+kr_mount_volumes			equ 00h
+kr_get_device_info		equ 01h
+kr_check_volume_format	equ 02h
+kr_change_volume			equ 03h
+kr_get_volume_info		equ 04h
+kr_format_device			equ 05h
+kr_make_dir				equ 06h
+kr_change_dir			equ 07h
+kr_parent_dir			equ 08h
+kr_root_dir				equ 09h
+kr_delete_dir			equ 0Ah
+kr_find_file				equ 0Bh
+kr_set_file_pointer		equ 0Ch
+kr_set_load_length		equ 0Dh
+kr_read_file				equ 0Eh
+kr_erase_file			equ 0Fh
+kr_rename_file			equ 10h
+kr_create_file			equ 11h
+kr_write_file			equ 12h
+kr_get_total_sectors		equ 13h
+kr_dir_list_first_entry	equ 14h
+kr_dir_list_get_entry	equ 15h
+kr_dir_list_next_entry	equ 16h
+kr_read_sector			equ 17h
+kr_write_sector			equ 18h
+kr_file_sector_list		equ 19h
+kr_get_dir_cluster		equ 1Ah
+kr_set_dir_cluster		equ 1Bh
+kr_get_dir_name			equ 1Ch
+kr_wait_key				equ 1Dh
+kr_get_key				equ 1Eh
+kr_get_key_mod_flags		equ 1Fh
+kr_serial_receive_header	equ 20h
+kr_serial_receive_file	equ 21h
+kr_serial_send_file		equ 22h
+kr_serial_tx_byte		equ 23h
+kr_serial_rx_byte		equ 24h
+kr_print_string			equ 25h
+kr_clear_screen			equ 26h
+kr_wait_vrt				equ 27h
+kr_set_cursor_position	equ 28h
+kr_plot_char				equ 29h
+kr_set_pen				equ 2Ah
+kr_background_colours	equ 2Bh
+kr_draw_cursor			equ 2Ch
+kr_get_pen				equ 2Dh
+kr_scroll_up				equ 2Eh
+kr_os_display			equ 2Fh
+kr_get_display_size		equ 30h
+kr_get_charmap_addr_xy	equ 31h
+kr_get_cursor_position	equ 32h
+kr_set_envar				equ 33h
+kr_get_envar				equ 34h
+kr_delete_envar			equ 35h
+kr_set_mouse_window		equ 36h
+kr_get_mouse_position	equ 37h
+kr_get_mouse_motion		equ 38h
+kr_time_delay			equ 39h
+kr_compare_strings		equ 3Ah
+kr_hex_byte_to_ascii		equ 3Bh
+kr_ascii_to_hex_word		equ 3Ch
+kr_get_string			equ 3Dh
+kr_get_version			equ 3Eh
+kr_dont_store_registers	equ 3Fh
+kr_get_font_info			equ 40h
+kr_read_rtc				equ 41h
+kr_write_rtc				equ 42h
+kr_get_keymap_location	equ 43h
+;  141		
+;  142		CREATE_HEADER;
+jr skip_header
+db 'PRO'
+mb_loc dw24 10000h
+dw24 0
+dw 0
+dw 0
+db 1
+skip_header
+;  143		
+;  144		UseFile = 0;
+	XOR	A,A
+	LD	(_UseFile),A
+;  145		
+;  146		asm ("ld a, (hl)");
+ld a, (hl)
+;  147		asm ("or a");
+or a
+;  148		asm ("jr z, no_param");
+jr z, no_param
+;  149		asm ("ld (_K_xHL), hl");	//If parameter passed, save the position in K_xHL
+ld (_K_xHL), hl
+;  150		
+;  151		UseFile = 1;
+	LD	A,1
+	LD	(_UseFile),A
+;  152		
+;  153		asm ("no_param:");
+no_param:
+;  154		
+;  155		if (get_prose_version() < 0x2F)
+	CALL	_get_prose_version
+	LD	BC,47
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__12
+	JP	PE,L_1
+	JR	L__13
+L__12:
+	JP	PO,L_1
+L__13:
+;  156		{
+;  157			print("Proted require PROSE ver 2F or later!\n\r");
+	LD	BC,L__2
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  158			
+;  159			QUIT_TO_PROSE;
+xor a
+jp.lil prose_return
+;  160			
+;  161			return;
+	JR	L_5
+;  162		}
+L_1:
+;  163		
+;  164		asm ("push ix");
+push ix
+;  165		asm ("ld a, kr_clear_screen");
+ld a, kr_clear_screen
+;  166		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  167		asm ("pop ix");
+pop ix
+;  168		
+;  169		memset(BufferFile, 0, 1024 * 512);	
+	LD	BC,524288
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,(_BufferFile)
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  170		
+;  171		ShowMenu();
+	CALL	_ShowMenu
+;  172		
+;  173		te_ini();
+	CALL	_te_ini
+;  174		sc_ini();
+	CALL	_sc_ini
+;  175		tx_ini();
+	CALL	_tx_ini
+;  176		
+;  177		if (UseFile == 1)
+	LD	A,(_UseFile)
+	CP	A,1
+	JR	NZ,L_4
+;  178			if (FileExists() == 1)
+	CALL	_FileExists
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,1
+	SBC	HL,BC
+	JR	NZ,L_4
+;  179				load_file();		
+	CALL	_load_file
+L_4:
+;  180		
+;  181		edit();
+	CALL	_edit
+;  182		
+;  183		sc_fin();
+	CALL	_sc_fin
+;  184		te_fin();
+	CALL	_te_fin
+;  185		
+;  186		asm ("proted_exit:");
+proted_exit:
+;  187		asm ("push ix");
+push ix
+;  188		asm ("ld a, kr_clear_screen");
+ld a, kr_clear_screen
+;  189		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  190		asm ("pop ix");
+pop ix
+;  191		
+;  192		print("\n\r");
+	LD	BC,L__5
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  193		print("PROTED ver ");
+	LD	BC,L__6
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  194		print(VERSION);
+	LD	BC,L__7
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  195		print(" rel.: ");
+	LD	BC,L__8
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  196		print(__DATE__);
+	LD	BC,L__9
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  197		print("\n\r");
+	LD	BC,L__10
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  198		print("Created by Calogiuri Enzo Antonio for eZ80P fans :-)\n\r");	
+	LD	BC,L__11
+	PUSH	BC
+	CALL	_print
+	POP	BC
+;  199		
+;  200		QUIT_TO_PROSE;
+xor a
+jp.lil prose_return
+;  201	}
+L_5:
+	RET	
+
+
+;**************************** _main ***************************
+;Name                         Addr/Register   Size   Type
+;_te_fin                             IMPORT  -----   function
+;_sc_fin                             IMPORT  -----   function
+;_edit                               IMPORT  -----   function
+;_load_file                          IMPORT  -----   function
+;_FileExists                         IMPORT  -----   function
+;_tx_ini                             IMPORT  -----   function
+;_sc_ini                             IMPORT  -----   function
+;_te_ini                             IMPORT  -----   function
+;_ShowMenu                           IMPORT  -----   function
+;_BufferFile                         STATIC      3   variable
+;_memset                             IMPORT  -----   function
+;_print                              IMPORT  -----   function
+;_get_prose_version                  IMPORT  -----   function
+;_UseFile                            STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__2:
+	DB	"Proted require PROSE ver 2F or later!"
+	DB	10,13,0
+L__5:
+	DB	10,13,0
+L__6:
+	DB	"PROTED ver "
+	DB	0
+L__7:
+	DB	"1.0"
+	DB	0
+L__8:
+	DB	" rel.: "
+	DB	0
+L__9:
+	DB	"Jul 20 2011"
+	DB	0
+L__10:
+	DB	10,13,0
+L__11:
+	DB	"Created by Calogiuri Enzo Antonio for eZ80P fans :-)"
+	DB	10,13,0
+	SEGMENT CODE
+;  202	
+;  203	/* Get ascii and scancode value of key pressed */
+;  204	void GetCh(void)
+;  205	{
+_GetCh:
+;  206		Ascii = Scancode = 0;
+	XOR	A,A
+	LD	(_Scancode),A
+	XOR	A,A
+	LD	(_Ascii),A
+;  207		
+;  208		asm ("push ix");
+push ix
+;  209		asm ("ld a, kr_get_key");
+ld a, kr_get_key
+;  210		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  211		asm ("jr nz, NoKeyInB");
+jr nz, NoKeyInB
+;  212		asm ("ld (_Scancode), a");
+ld (_Scancode), a
+;  213		asm ("ld a, b");
+ld a, b
+;  214		asm ("ld (_Ascii), a");
+ld (_Ascii), a
+;  215		asm ("NoKeyInB:");
+NoKeyInB:
+;  216		asm ("pop ix");
+pop ix
+;  217	}
+	RET	
+
+
+;**************************** _GetCh ***************************
+;Name                         Addr/Register   Size   Type
+;_Ascii                              STATIC      1   variable
+;_Scancode                           STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  218	
+;  219	/* Manage the input from keyboard */
+;  220	unsigned char getch(void)
+;  221	{
+_getch:
+;  222		while (1)
+L_26:
+;  223		{	
+;  224			GetCh();	
+	CALL	_GetCh
+;  225			
+;  226			switch (Scancode)
+	LD	A,(_Scancode)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+L__18:
+	LD	DE,105
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L__19
+	LD	HL,108
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L__21
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	DE,L__16-315
+	ADD	HL,DE
+	LD	HL,(HL)
+	JP	(HL)
+L__16:
+	DW24	L_21	
+
+	DW24	L_24	
+
+	DW24	L_17	
+
+	DW24	L_20	
+
+L__19:
+	LD	DE,90
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	Z,L_12
+	LD	HL,90
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L__24
+	LD	DE,18
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	Z,L_14
+	LD	HL,18
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_24
+	LD	DE,13
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	Z,L_11
+	JR	L_24
+L__24:
+	LD	DE,102
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	Z,L_10
+	JR	L_24
+L__21:
+	LD	DE,122
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	Z,L_9
+	LD	HL,122
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L__29
+	LD	DE,113
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L_24
+	LD	HL,117
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_24
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	DE,L__17-339
+	ADD	HL,DE
+	LD	HL,(HL)
+	JP	(HL)
+L__17:
+	DW24	L_8	
+
+	DW24	L_19	
+
+	DW24	L_24	
+
+	DW24	L_22	
+
+	DW24	L_18	
+
+L__29:
+	LD	DE,125
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	NZ,L_24
+;  227			{
+;  228				case 0x7D	: Ascii = 3; break;
+	LD	A,3
+	LD	(_Ascii),A
+	JR	L_24
+;  229				
+;  230				case 0x71	: Ascii = 4; break;	
+L_8:
+	LD	A,4
+	LD	(_Ascii),A
+	JR	L_24
+;  231	
+;  232				case 0x7A	: Ascii = 6; break;
+L_9:
+	LD	A,6
+	LD	(_Ascii),A
+	JR	L_24
+;  233				
+;  234				case 102	: Ascii = 8; break;
+L_10:
+	LD	A,8
+	LD	(_Ascii),A
+	JR	L_24
+;  235				
+;  236				case 0xD	: Ascii = 9; break;			
+L_11:
+	LD	A,9
+	LD	(_Ascii),A
+	JR	L_24
+;  237				
+;  238				case 90		: Ascii = 13; break;			
+L_12:
+	LD	A,13
+	LD	(_Ascii),A
+	JR	L_24
+;  239				
+;  240				case 0x12	: while (Ascii == 0)
+L_15:
+;  241								GetCh();
+	CALL	_GetCh
+L_14:
+	LD	A,(_Ascii)
+	OR	A,A
+	JR	Z,L_15
+;  242								
+;  243							  break;
+	JR	L_24
+;  244				
+;  245				case 0x6B	:
+L_17:
+;  246				case 0x75	:
+L_18:
+;  247				case 0x72	:
+L_19:
+;  248				case 0x6C	:
+L_20:
+;  249				case 0x69	:
+L_21:
+;  250				case 0x74	: Ascii = 1; break;
+L_22:
+	LD	A,1
+	LD	(_Ascii),A
+;  251			}
+L_24:
+;  252			
+;  253			if (Ascii != 0)
+	LD	A,(_Ascii)
+	OR	A,A
+	JR	Z,L_26
+;  254				break;		
+;  255		}	
+;  256			
+;  257		return Ascii;
+	LD	A,(_Ascii)
+;  258	}
+	RET	
+
+
+;**************************** _getch ***************************
+;Name                         Addr/Register   Size   Type
+;_Ascii                              STATIC      1   variable
+;_Scancode                           STATIC      1   variable
+;_GetCh                              IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  259	
+;  260	/* Print on screen a text at current x,y position */
+;  261	void print(const char *Txt)
+;  262	{
+_print:
+	CALL	__frameset0
+;  263		TxtPnt = Txt;
+	LD	BC,(IX+6)
+	LD	(_TxtPnt),BC
+;  264		
+;  265		asm ("push ix");
+push ix
+;  266		asm ("ld hl, (_TxtPnt)");
+ld hl, (_TxtPnt)
+;  267		asm ("ld a, kr_print_string");
+ld a, kr_print_string
+;  268		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  269		asm ("pop ix");
+pop ix
+;  270	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _print ***************************
+;Name                         Addr/Register   Size   Type
+;_TxtPnt                             STATIC      3   variable
+;Txt                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  271	
+;  272	/* Get the x and the y of screen cursor */
+;  273	void get_cursor_position(unsigned char *X, unsigned char *Y)
+;  274	{
+_get_cursor_position:
+	CALL	__frameset0
+;  275		asm ("push ix");
+push ix
+;  276		asm ("ld a, kr_get_cursor_position");
+ld a, kr_get_cursor_position
+;  277		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  278		asm ("ld a, b");
+ld a, b
+;  279		asm ("ld (_B), a");
+ld (_B), a
+;  280		asm ("ld a, c");
+ld a, c
+;  281		asm ("ld (_C), a");
+ld (_C), a
+;  282		asm ("pop ix");
+pop ix
+;  283		
+;  284		*X = B;
+	LD	HL,(IX+6)
+	LD	A,(_B)
+	LD	(HL),A
+;  285		*Y = C;
+	LD	HL,(IX+9)
+	LD	A,(_C)
+	LD	(HL),A
+;  286	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _get_cursor_position ***************************
+;Name                         Addr/Register   Size   Type
+;_C                                  STATIC      1   variable
+;_B                                  STATIC      1   variable
+;Y                                     IX+9      3   parameter
+;X                                     IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  287	
+;  288	/* Draw a character at X, Y coordinates */
+;  289	void plot_char(unsigned char x, unsigned char y, unsigned char Ch)
+;  290	{
+_plot_char:
+	CALL	__frameset0
+;  291		B = x;
+	LD	A,(IX+6)
+	LD	(_B),A
+;  292		C = y;
+	LD	A,(IX+9)
+	LD	(_C),A
+;  293		E = Ch;
+	LD	A,(IX+12)
+	LD	(_E),A
+;  294		
+;  295		asm ("push ix");
+push ix
+;  296		asm ("ld hl, _B");
+ld hl, _B
+;  297		asm ("ld B, (hl)");
+ld B, (hl)
+;  298		asm ("ld hl, _C");
+ld hl, _C
+;  299		asm ("ld C, (hl)");
+ld C, (hl)
+;  300		asm ("ld hl, _E");
+ld hl, _E
+;  301		asm ("ld E, (hl)");
+ld E, (hl)
+;  302		asm ("ld a, kr_plot_char");
+ld a, kr_plot_char
+;  303		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  304		asm ("pop ix");
+pop ix
+;  305	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _plot_char ***************************
+;Name                         Addr/Register   Size   Type
+;_E                                  STATIC      1   variable
+;_C                                  STATIC      1   variable
+;_B                                  STATIC      1   variable
+;Ch                                   IX+12      1   parameter
+;y                                     IX+9      1   parameter
+;x                                     IX+6      1   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  306	
+;  307	/* Clear the row on screen from current x,y position */
+;  308	void clreol(void)
+;  309	{
+_clreol:
+	LD	HL,-3
+	CALL	__frameset
+;  310		unsigned char x, y;
+;  311		register char i;
+;  312		
+;  313		get_cursor_position(&x, &y);
+	PEA	IX+-2
+	PEA	IX+-3
+	CALL	_get_cursor_position
+	POP	BC
+	POP	BC
+	LD	A,(IX+-3)
+	LD	(IX+-1),A
+;  314		
+;  315		for (i = x; i < 80; i++)
+	JR	L_35
+L_33:
+;  316			plot_char(i, y, ' ');		
+	LD	BC,32
+	PUSH	BC
+	LD	C,(IX+-2)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+	INC	(IX+-1)
+L_35:
+	LD	A,(IX+-1)
+	CP	A,80
+	JP	M,L_33
+;  317	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _clreol ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_get_cursor_position                IMPORT  -----   function
+;x                                     IX-3      1   variable
+;y                                     IX-2      1   variable
+;i                                     IX-1      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  318	
+;  319	/* Move screen cursor at x,y position */
+;  320	void gotoxy(unsigned char x, unsigned char y)
+;  321	{
+_gotoxy:
+	CALL	__frameset0
+;  322		B = x;
+	LD	A,(IX+6)
+	LD	(_B),A
+;  323		C = y;
+	LD	A,(IX+9)
+	LD	(_C),A
+;  324		
+;  325		asm ("push ix");
+push ix
+;  326		asm ("ld hl, _B");
+ld hl, _B
+;  327		asm ("ld B, (hl)");
+ld B, (hl)
+;  328		asm ("ld hl, _C");
+ld hl, _C
+;  329		asm ("ld C, (hl)");
+ld C, (hl)
+;  330		asm ("ld a, kr_set_cursor_position");
+ld a, kr_set_cursor_position
+;  331		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  332		asm ("pop ix");
+pop ix
+;  333	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _gotoxy ***************************
+;Name                         Addr/Register   Size   Type
+;_C                                  STATIC      1   variable
+;_B                                  STATIC      1   variable
+;y                                     IX+9      1   parameter
+;x                                     IX+6      1   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  334	
+;  335	/* Return only PROSE version */
+;  336	int get_prose_version(void)
+;  337	{
+_get_prose_version:
+;  338		asm ("push ix");
+push ix
+;  339		asm ("push de");
+push de
+;  340		asm ("push hl");
+push hl
+;  341		asm ("ld a, kr_get_version");
+ld a, kr_get_version
+;  342		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+;  343		asm ("ld (_K_xBC), hl");
+ld (_K_xBC), hl
+;  344		asm ("pop hl");
+pop hl
+;  345		asm ("pop de");
+pop de
+;  346		asm ("pop ix");
+pop ix
+;  347		
+;  348		return K_xBC;
+	LD	HL,(_K_xBC)
+;  349	}
+	RET	
+
+
+;**************************** _get_prose_version ***************************
+;Name                         Addr/Register   Size   Type
+;_K_xBC                              STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  350	
+;  351	/*-------------------------------------------------------------------------*/
+;  352	
+;  353	/* Writes out its argument string and then halt the program. */
+;  354	void bomb(char *txt)
+;  355	{
+_bomb:
+	CALL	__frameset0
+;  356		msg_window("Proted assertion failure. Press RETURN to abort!", txt);
+	LD	BC,(IX+6)
+	PUSH	BC
+	LD	BC,L__43
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+;  357		
+;  358		while (1)
+L_41:
+;  359		{
+;  360			getch();
+	CALL	_getch
+;  361			
+;  362			if (Ascii == 13)
+	LD	A,(_Ascii)
+	CP	A,13
+	JR	NZ,L_41
+;  363				break;
+;  364		}
+;  365	
+;  366		asm ("ld a, 0ffh");
+ld a, 0ffh
+;  367		asm ("jp.lil prose_return");
+jp.lil prose_return
+;  368	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _bomb ***************************
+;Name                         Addr/Register   Size   Type
+;_Ascii                              STATIC      1   variable
+;_getch                              IMPORT  -----   function
+;_msg_window                         IMPORT  -----   function
+;txt                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__43:
+	DB	"Proted assertion failure. Press RETURN to abort!"
+	DB	0
+	SEGMENT CODE
+;  369	
+;  370	/* Bombs with an assertion failure if its first argument is FALSE. */
+;  371	void as(char b, char *txt)
+;  372	{
+_as:
+	CALL	__frameset0
+;  373		if (!b)
+	LD	A,(IX+6)
+	OR	A,A
+	JR	NZ,L_45
+;  374			bomb(txt);
+	LD	BC,(IX+9)
+	PUSH	BC
+	CALL	_bomb
+	POP	BC
+;  375	}
+L_45:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _as ***************************
+;Name                         Addr/Register   Size   Type
+;_bomb                               IMPORT  -----   function
+;txt                                   IX+9      3   parameter
+;b                                     IX+6      1   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  376	
+;  377	/* Convert an unsigned int into string */
+;  378	void uitoa(unsigned int val, char *string)
+;  379	{
+_uitoa:
+	LD	HL,-6
+	CALL	__frameset
+;  380		char index = 0, i = 0;
+	LD	(IX+-1),0
+	LD	(IX+-2),0
+;  381		
+;  382		do {
+L_48:
+;  383			string[index] = '0' + (val % 10);
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	(IX+-5),HL
+	LD	HL,(IX+6)
+	LD	BC,10
+	CALL	__iremu
+	LD	A,L
+	ADD	A,48
+	LD	HL,(IX+-5)
+	LD	(HL),A
+;  384			
+;  385			if (string[index] > '9')
+	LD	HL,(IX+-5)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	BC,HL
+	LD	HL,57
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L_47
+;  386				string[index] += 'A' - '9' - 1;
+	LD	HL,(IX+-5)
+	LD	A,(HL)
+	ADD	A,7
+	LD	HL,(IX+-5)
+	LD	(HL),A
+L_47:
+;  387			
+;  388			val /= 10;
+	LD	BC,10
+	LD	HL,(IX+6)
+	CALL	__idivu
+	LD	(IX+6),HL
+;  389			++index;
+	INC	(IX+-1)
+;  390	  } while (val != 0);
+	LD	HL,(IX+6)
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_48
+;  391	  
+;  392	  string[index--] = '\0'; 
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	(HL),0
+	DEC	(IX+-1)
+;  393	  
+;  394	  while (index > i)
+	JR	L_52
+L_53:
+;  395	  {
+;  396	    char tmp = string[i];
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-6),A
+;  397		  
+;  398	    string[i] = string[index];
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	A,(IX+-2)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	IY,HL
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	A,(IY)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	(HL),A
+;  399	    string[index] = tmp;
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	A,(IX+-6)
+	LD	BC,(IX+9)
+	ADD	HL,BC
+	LD	(HL),A
+;  400	    ++i;
+	INC	(IX+-2)
+;  401	    --index;
+	DEC	(IX+-1)
+;  402	  }
+L_52:
+	LD	A,(IX+-2)
+	CP	A,(IX+-1)
+	JP	M,L__51
+	JP	PE,L_53
+	JR	L__52
+L__51:
+	JP	PO,L_53
+L__52:
+;  403	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _uitoa ***************************
+;Name                         Addr/Register   Size   Type
+;tmp                                   IX-6      1   variable
+;G_0                                   IX-5      3   variable
+;i                                     IX-2      1   variable
+;index                                 IX-1      1   variable
+;string                                IX+9      3   parameter
+;val                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 18 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  404	
+;  405	/* The same as malloc except it bombs if it cannot perform the allocation. */
+;  406	void *mymalloc(size_t n)
+;  407	{
+_mymalloc:
+	LD	HL,-3
+	CALL	__frameset
+;  408		void *p;
+;  409		
+;  410		if (n == 0)
+	LD	BC,0
+	LD	HL,(IX+6)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_57
+;  411			n++;
+	LD	BC,(IX+6)
+	INC	BC
+	LD	(IX+6),BC
+L_57:
+;  412		
+;  413		p = malloc(n);
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_malloc
+	POP	BC
+	LD	(IX+-3),HL
+;  414		
+;  415		as(p != NULL, "out of memory!");
+	LD	BC,L__55
+	PUSH	BC
+	LD	HL,(IX+-3)
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L__57
+	LD	A,1
+	JR	L__58
+L__57:
+	XOR	A,A
+L__58:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  416		
+;  417		return p;
+	LD	HL,(IX+-3)
+;  418	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _mymalloc ***************************
+;Name                         Addr/Register   Size   Type
+;_as                                 IMPORT  -----   function
+;_malloc                             IMPORT  -----   function
+;p                                     IX-3      3   variable
+;n                                     IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__55:
+	DB	"out of memory!"
+	DB	0
+	SEGMENT CODE
+;  419	
+;  420	/* Returns TRUE if p[0..SCNCOLS - 1] are all blanks. */
+;  421	char blankrow(char *p)
+;  422	{
+_blankrow:
+	LD	HL,-1
+	CALL	__frameset
+	LD	(IX+-1),0
+;  423		register unsigned char i;
+;  424		
+;  425		for (i = 0; i < SCNCOLS; i++)
+	JR	L_63
+L_61:
+;  426			if (p[i] != ' ')
+	LD	A,(IX+-1)
+	UEXT	HL
+	LD	L,A
+	LD	BC,(IX+6)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,32
+	SBC	HL,BC
+	JR	Z,L_62
+;  427				return FALSE;
+	XOR	A,A
+	JR	L_65
+L_62:
+	INC	(IX+-1)
+L_63:
+	LD	A,(IX+-1)
+	CP	A,80
+	JR	C,L_61
+;  428			
+;  429		return TRUE;
+	LD	A,1
+;  430	}
+L_65:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _blankrow ***************************
+;Name                         Addr/Register   Size   Type
+;i                                     IX-1      1   variable
+;p                                     IX+6      3   parameter
+
+
+; Stack Frame Size: 10 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  431	
+;  432	/* Deletes trailing blanks from its argument string. */
+;  433	void zap_trail(char *s)
+;  434	{
+_zap_trail:
+	LD	HL,-3
+	CALL	__frameset
+;  435		char *p = s;
+	LD	BC,(IX+6)
+	LD	(IX+-3),BC
+;  436		
+;  437		while (*s != EOS)
+	JR	L_69
+L_70:
+;  438		{
+;  439			if (*s != ' ')
+	LD	HL,(IX+6)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,32
+	SBC	HL,BC
+	JR	Z,L_68
+;  440				p = s + 1;
+	LD	BC,(IX+6)
+	INC	BC
+	LD	(IX+-3),BC
+L_68:
+;  441			
+;  442			s++;
+	LD	BC,(IX+6)
+	INC	BC
+	LD	(IX+6),BC
+;  443		}
+L_69:
+	LD	HL,(IX+6)
+	LD	A,(HL)
+	OR	A,A
+	JR	NZ,L_70
+;  444		
+;  445		*p = EOS;
+	LD	HL,(IX+-3)
+	LD	(HL),0
+;  446	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _zap_trail ***************************
+;Name                         Addr/Register   Size   Type
+;p                                     IX-3      3   variable
+;s                                     IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  447	
+;  448	/* Deletes all non-printables from the argument string. */
+;  449	/* Replaces each TAB by a space.                        */
+;  450	void purify(char *st)
+;  451	{
+_purify:
+	LD	HL,-12
+	CALL	__frameset
+;  452		char *s = st;
+	LD	BC,(IX+6)
+	LD	(IX+-3),BC
+;  453		char *d = st;
+	LD	BC,(IX+6)
+	LD	(IX+-6),BC
+;  454		
+;  455		while (*s)
+	JR	L_81
+L_82:
+;  456		{
+;  457			if ((' ' <= *s) && (*s <= '~'))
+	LD	HL,(IX+-3)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,32
+	SBC	HL,BC
+	JP	M,L_78
+	LD	HL,(IX+-3)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	BC,HL
+	LD	HL,126
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__70
+	JP	PE,L_78
+	JR	L__71
+L__70:
+	JP	PO,L_78
+L__71:
+;  458				*d++ = *s;
+	LD	BC,(IX+-6)
+	LD	(IX+-9),BC
+	LD	HL,(IX+-3)
+	LD	A,(HL)
+	LD	HL,(IX+-9)
+	LD	(HL),A
+	LD	BC,(IX+-6)
+	INC	BC
+	LD	(IX+-6),BC
+L_78:
+;  459			
+;  460			if (*s == CH_TAB)		
+	LD	HL,(IX+-3)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,9
+	SBC	HL,BC
+	JR	NZ,L_80
+;  461				*d++ = ' ';
+	LD	BC,(IX+-6)
+	LD	(IX+-12),BC
+	LD	HL,BC
+	LD	(HL),32
+	LD	BC,(IX+-6)
+	INC	BC
+	LD	(IX+-6),BC
+L_80:
+;  462			
+;  463			s++;
+	LD	BC,(IX+-3)
+	INC	BC
+	LD	(IX+-3),BC
+;  464		}
+L_81:
+	LD	HL,(IX+-3)
+	LD	A,(HL)
+	OR	A,A
+	JR	NZ,L_82
+;  465		
+;  466		*d = EOS;
+	LD	HL,(IX+-6)
+	LD	(HL),0
+;  467	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _purify ***************************
+;Name                         Addr/Register   Size   Type
+;d                                     IX-6      3   variable
+;s                                     IX-3      3   variable
+;st                                    IX+6      3   parameter
+
+
+; Stack Frame Size: 21 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  468	
+;  469	/* Flushes the terminal's output buffer tebuf to screen. */
+;  470	void te_flu(void)
+;  471	{
+_te_flu:
+;  472		if (tebuflen == 0)
+	LD	BC,0
+	LD	HL,(_tebuflen)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_87
+;  473			return;
+;  474		
+;  475		tebuf[tebuflen] = EOS;
+;  476		
+;  477		print(tebuf);
+	LD	BC,_tebuf
+	PUSH	BC
+	LD	HL,(_tebuflen)
+	ADD	HL,BC
+	LD	(HL),0
+	CALL	_print
+	POP	BC
+;  478		
+;  479		tebuflen = 0;
+	LD	BC,0
+	LD	(_tebuflen),BC
+;  480	}
+L_87:
+	RET	
+
+
+;**************************** _te_flu ***************************
+;Name                         Addr/Register   Size   Type
+;_print                              IMPORT  -----   function
+;_tebuf                              STATIC   2058   variable
+;_tebuflen                           STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  481	
+;  482	/* Get a character from the console. */
+;  483	unsigned char te_gch(void)
+;  484	{
+_te_gch:
+;  485		te_flu();
+	CALL	_te_flu
+;  486		
+;  487		return getch();
+	CALL	_getch
+;  488	}
+	RET	
+
+
+;**************************** _te_gch ***************************
+;Name                         Addr/Register   Size   Type
+;_getch                              IMPORT  -----   function
+;_te_flu                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  489	
+;  490	/* Writes its argument character to the terminal. */
+;  491	void te_chr(char ch)
+;  492	{
+_te_chr:
+	CALL	__frameset0
+;  493		tebuf[tebuflen++] = (char) ch;
+	LD	BC,_tebuf
+	LD	HL,(_tebuflen)
+	ADD	HL,BC
+	LD	A,(IX+6)
+	LD	(HL),A
+	LD	BC,(_tebuflen)
+	INC	BC
+	LD	(_tebuflen),BC
+;  494		
+;  495		if (tebuflen == TEBUFMAX)
+	LD	HL,(_tebuflen)
+	OR	A,A
+	LD	BC,2048
+	SBC	HL,BC
+	JR	NZ,L_91
+;  496			te_flu();
+	CALL	_te_flu
+;  497	}
+L_91:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _te_chr ***************************
+;Name                         Addr/Register   Size   Type
+;_te_flu                             IMPORT  -----   function
+;_tebuflen                           STATIC      3   variable
+;_tebuf                              STATIC   2058   variable
+;ch                                    IX+6      1   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  498	
+;  499	/* Writes its argument string to the terminal. */
+;  500	void te_str(char *s)
+;  501	{
+_te_str:
+	LD	HL,-3
+	CALL	__frameset
+;  502		while (*s)
+	JR	L_93
+L_94:
+;  503			te_chr((unsigned char)(*s++));
+	LD	BC,(IX+6)
+	LD	(IX+-3),BC
+	LD	BC,(IX+6)
+	INC	BC
+	LD	(IX+6),BC
+	LD	HL,(IX+-3)
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	CALL	_te_chr
+	POP	BC
+L_93:
+	LD	HL,(IX+6)
+	LD	A,(HL)
+	OR	A,A
+	JR	NZ,L_94
+;  504	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _te_str ***************************
+;Name                         Addr/Register   Size   Type
+;_te_chr                             IMPORT  -----   function
+;s                                     IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  505	
+;  506	/* Moves the cursor to the specified row and column on the screen. */
+;  507	void te_mov(unsigned char r, unsigned char c)
+;  508	{
+_te_mov:
+	LD	HL,-6
+	CALL	__frameset
+;  509		as((0 <= r) && (r <= SCNROWS), "te_mov: Bad row.");	//Mod
+	LD	A,(IX+6)
+	OR	A,A
+	JR	C,L_98
+	LD	A,50
+	CP	A,(IX+6)
+	JR	C,L_98
+	LD	BC,1
+	LD	(IX+-3),BC
+	JR	L_99
+L_98:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_99:
+	LD	BC,L__82
+	PUSH	BC
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  510		
+;  511		as((0 <= c) && (c <= SCNCOLS), "te_mov: Bad col.");	//Mod
+	LD	A,(IX+9)
+	OR	A,A
+	JR	C,L_103
+	LD	A,80
+	CP	A,(IX+9)
+	JR	C,L_103
+	LD	BC,1
+	LD	(IX+-6),BC
+	JR	L_104
+L_103:
+	LD	BC,0
+	LD	(IX+-6),BC
+L_104:
+	LD	BC,L__85
+	PUSH	BC
+	LD	C,(IX+-6)
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  512		
+;  513		te_flu();
+	CALL	_te_flu
+;  514		
+;  515		gotoxy(c, r);
+	LD	C,(IX+6)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+9)
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+;  516	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _te_mov ***************************
+;Name                         Addr/Register   Size   Type
+;_gotoxy                             IMPORT  -----   function
+;_te_flu                             IMPORT  -----   function
+;_as                                 IMPORT  -----   function
+;temp105                               IX-6      3   variable
+;temp100                               IX-3      3   variable
+;c                                     IX+9      1   parameter
+;r                                     IX+6      1   parameter
+
+
+; Stack Frame Size: 18 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__82:
+	DB	"te_mov: Bad row."
+	DB	0
+L__85:
+	DB	"te_mov: Bad col."
+	DB	0
+	SEGMENT CODE
+;  517	
+;  518	/* Sets the specified row of the terminal to blanks.   */
+;  519	/* Leaves the cursor at the start of the cleared line. */
+;  520	void te_cln(unsigned char row)
+;  521	{
+_te_cln:
+	CALL	__frameset0
+;  522		te_mov(row, 0);
+	LD	BC,0
+	PUSH	BC
+	LD	C,(IX+6)
+	LD	B,0
+	PUSH	BC
+	CALL	_te_mov
+	POP	BC
+	POP	BC
+;  523		
+;  524		clreol();
+	CALL	_clreol
+;  525	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _te_cln ***************************
+;Name                         Addr/Register   Size   Type
+;_clreol                             IMPORT  -----   function
+;_te_mov                             IMPORT  -----   function
+;row                                   IX+6      1   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  526	
+;  527	/* Homes the cursor and clears the screen. */
+;  528	void te_clr(void)
+;  529	{
+_te_clr:
+	LD	HL,-1
+	CALL	__frameset
+	LD	(IX+-1),0
+;  530		register unsigned char r;
+;  531		
+;  532		for (r = 0; r < SCNROWS; r++)
+	JR	L_111
+L_109:
+;  533			te_cln(r);
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	CALL	_te_cln
+	POP	BC
+	INC	(IX+-1)
+L_111:
+	LD	A,(IX+-1)
+	CP	A,50
+	JR	C,L_109
+;  534		
+;  535		te_mov(0, 0);
+	LD	BC,0
+	PUSH	BC
+	PUSH	BC
+	CALL	_te_mov
+	POP	BC
+	POP	BC
+;  536	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _te_clr ***************************
+;Name                         Addr/Register   Size   Type
+;_te_mov                             IMPORT  -----   function
+;_te_cln                             IMPORT  -----   function
+;r                                     IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  537	
+;  538	/* Initializes the terminal package. */
+;  539	void te_ini(void)
+;  540	{
+_te_ini:
+;  541		tebuflen = 0;
+	LD	BC,0
+	LD	(_tebuflen),BC
+;  542	}
+	RET	
+
+
+;**************************** _te_ini ***************************
+;Name                         Addr/Register   Size   Type
+;_tebuflen                           STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  543	
+;  544	/* Finalize the terminal package. */
+;  545	void te_fin(void)
+;  546	{
+_te_fin:
+;  547		te_flu();
+	CALL	_te_flu
+;  548	}
+	RET	
+
+
+;**************************** _te_fin ***************************
+;Name                         Addr/Register   Size   Type
+;_te_flu                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  549	
+;  550	/* Clear the virtual screen. */
+;  551	void sc_clr(void)
+;  552	{
+_sc_clr:
+;  553		memset(&scn_virt[0][0], ' ', SCNSIZE);
+	LD	BC,4000
+	PUSH	BC
+	LD	BC,32
+	PUSH	BC
+	LD	BC,_scn_virt
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  554	}
+	RET	
+
+
+;**************************** _sc_clr ***************************
+;Name                         Addr/Register   Size   Type
+;_scn_virt                           STATIC   4000   variable
+;_memset                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  555	
+;  556	/* Clear the specified row of the virtual screen. */
+;  557	void sc_crw(unsigned char row)
+;  558	{
+_sc_crw:
+	LD	HL,-3
+	CALL	__frameset
+;  559		as((0 <= row) && (row <= SCNROWS), "sc_crw: Bad row number.");
+	LD	A,(IX+6)
+	OR	A,A
+	JR	C,L_119
+	LD	A,50
+	CP	A,(IX+6)
+	JR	C,L_119
+	LD	BC,1
+	LD	(IX+-3),BC
+	JR	L_120
+L_119:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_120:
+	LD	BC,L__95
+	PUSH	BC
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  560		
+;  561		memset(&scn_virt[row][0], ' ', SCNCOLS);
+	LD	BC,80
+	PUSH	BC
+	LD	BC,32
+	PUSH	BC
+	LD	A,(IX+6)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_virt
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  562	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _sc_crw ***************************
+;Name                         Addr/Register   Size   Type
+;_scn_virt                           STATIC   4000   variable
+;_memset                             IMPORT  -----   function
+;_as                                 IMPORT  -----   function
+;temp121                               IX-3      3   variable
+;row                                   IX+6      1   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__95:
+	DB	"sc_crw: Bad row number."
+	DB	0
+	SEGMENT CODE
+;  563	
+;  564	/* Places the specified character at the specified row and column on the      */
+;  565	/* screen. If the row and column are off screen, it simply does nothing.      */
+;  566	void sc_chr(unsigned char row, unsigned char col, unsigned char ch)
+;  567	{
+_sc_chr:
+	CALL	__frameset0
+;  568		if (((0 <= row) && (row < SCNROWS)) && ((0 <= col) && (col < SCNCOLS)))
+	LD	A,(IX+6)
+	OR	A,A
+	JR	C,L_127
+	LD	A,(IX+6)
+	CP	A,50
+	JR	NC,L_127
+	LD	A,(IX+9)
+	OR	A,A
+	JR	C,L_127
+	LD	A,(IX+9)
+	CP	A,80
+	JR	NC,L_127
+;  569			scn_virt[row - 0][col - 0] = (char) ch;
+	LD	A,(IX+6)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	HL,BC
+	LD	A,(IX+9)
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_virt
+	ADD	HL,BC
+	LD	BC,HL
+	UEXT	HL
+	LD	L,A
+	LD	A,(IX+12)
+	ADD	HL,BC
+	LD	(HL),A
+;  570	}
+L_127:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _sc_chr ***************************
+;Name                         Addr/Register   Size   Type
+;_scn_virt                           STATIC   4000   variable
+;ch                                   IX+12      1   parameter
+;col                                   IX+9      1   parameter
+;row                                   IX+6      1   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  571	
+;  572	/* Writes the specified string on the virtual screen at the specified row and column. */
+;  573	/* The function ignores any part of the string that falls off the screen.     		  */
+;  574	void sc_str(unsigned char row, unsigned char col, char *s)
+;  575	{
+_sc_str:
+	LD	HL,-7
+	CALL	__frameset
+;  576		unsigned char c = col;
+	LD	A,(IX+9)
+	LD	(IX+-1),A
+;  577		char *t = s;
+	LD	BC,(IX+12)
+	LD	(IX+-4),BC
+;  578		
+;  579		while (*t)
+	JR	L_130
+L_131:
+;  580			sc_chr(row, c++, (unsigned char)(*t++));
+	LD	A,(IX+-1)
+	LD	BC,(IX+-4)
+	LD	(IX+-7),BC
+	INC	(IX+-1)
+	LD	BC,(IX+-4)
+	INC	BC
+	LD	(IX+-4),BC
+	LD	HL,(IX+-7)
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	LD	C,(IX+6)
+	PUSH	BC
+	CALL	_sc_chr
+	POP	BC
+	POP	BC
+	POP	BC
+L_130:
+	LD	HL,(IX+-4)
+	LD	A,(HL)
+	OR	A,A
+	JR	NZ,L_131
+;  581	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _sc_str ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_chr                             IMPORT  -----   function
+;t                                     IX-4      3   variable
+;c                                     IX-1      1   variable
+;s                                    IX+12      3   parameter
+;col                                   IX+9      1   parameter
+;row                                   IX+6      1   parameter
+
+
+; Stack Frame Size: 22 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  582	
+;  583	/* Updates the physical screen from the virtual screen by:                    */
+;  584	/* - Identifying the differences between the physical and virtual screens.    */
+;  585	/* - Sending characters to the terminal package to implement the changes.     */
+;  586	/* - Setting the physical screen to the virtual screen.                       */
+;  587	void sc_upd(void)
+;  588	{
+_sc_upd:
+	LD	HL,-13
+	CALL	__frameset
+	LD	(IX+-4),0
+;  589		register unsigned char r, c;
+;  590		
+;  591		for (r = 0; r < SCNROWS; r++)
+	JR	L_150
+L_148:
+;  592		{
+;  593			if (memcmp(&scn_virt[r - 0][0], &scn_phys[r - 0][0], SCNCOLS) == 0)
+	LD	A,(IX+-4)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	(IX+-3),HL
+	LD	BC,80
+	PUSH	BC
+	LD	HL,(IX+-3)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	PUSH	HL
+	LD	HL,(IX+-3)
+	LD	BC,_scn_virt
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_memcmp
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_149
+;  594				continue;
+;  595			
+;  596			if ((blankrow(&scn_virt[r - 0][0])) && (!blankrow(&scn_phys[r - 0][0])))
+	LD	BC,(IX+-3)
+	LD	(IX+-13),BC
+	LD	BC,(IX+-3)
+	LD	(IX+-8),BC
+	LD	HL,(IX+-3)
+	LD	BC,_scn_virt
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_blankrow
+	POP	BC
+	OR	A,A
+	JR	Z,L_145
+	LD	BC,(IX+-3)
+	LD	(IX+-13),BC
+	LD	BC,(IX+-3)
+	LD	(IX+-8),BC
+	LD	HL,(IX+-3)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_blankrow
+	POP	BC
+	OR	A,A
+	JR	NZ,L_145
+;  597				te_cln(r);
+	LD	C,(IX+-4)
+	LD	B,0
+	PUSH	BC
+	CALL	_te_cln
+	POP	BC
+;  598			else
+	JR	L_147
+L_145:
+;  599			{
+;  600				char there = FALSE;
+	LD	(IX+-9),0
+	LD	(IX+-5),0
+;  601				
+;  602				for (c = 0; c < SCNCOLS; c++)
+	JR	L_143
+L_141:
+;  603				{
+;  604					char ch = scn_virt[r - 0][c - 0];
+	LD	BC,(IX+-13)
+	LD	(IX+-8),BC
+	LD	HL,BC
+	LD	BC,_scn_virt
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-5)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-10),A
+;  605					
+;  606					if (ch != scn_phys[r - 0][c - 0])
+	LD	HL,(IX+-8)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-5)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	A,(HL)
+	CP	A,(IX+-10)
+	JR	Z,L_140
+;  607					{
+;  608						if (!there)
+	LD	A,(IX+-9)
+	OR	A,A
+	JR	NZ,L_138
+;  609							te_mov(r, c);
+	LD	C,(IX+-5)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-4)
+	PUSH	BC
+	CALL	_te_mov
+	POP	BC
+	POP	BC
+L_138:
+;  610						
+;  611						te_chr((unsigned char)(ch));
+	LD	C,(IX+-10)
+	LD	B,0
+	PUSH	BC
+	CALL	_te_chr
+	POP	BC
+;  612						
+;  613						there = TRUE;
+	LD	(IX+-9),1
+;  614					}
+;  615					else
+	JR	L_142
+L_140:
+;  616						there = FALSE;
+	LD	(IX+-9),0
+;  617				}
+L_142:
+	INC	(IX+-5)
+L_143:
+	LD	A,(IX+-5)
+	CP	A,80
+	JR	C,L_141
+;  618			}
+L_147:
+;  619			
+;  620			memmove(&scn_phys[r - 0][0], &scn_virt[r - 0][0], SCNCOLS);
+	LD	BC,(IX+-8)
+	LD	HL,BC
+	LD	DE,80
+	PUSH	DE
+	LD	DE,_scn_virt
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+;  621		}	
+L_149:
+	INC	(IX+-4)
+L_150:
+	LD	A,(IX+-4)
+	CP	A,50
+	JR	C,L_148
+;  622		
+;  623		te_flu();	
+	CALL	_te_flu
+;  624	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _sc_upd ***************************
+;Name                         Addr/Register   Size   Type
+;_te_flu                             IMPORT  -----   function
+;_memmove                            IMPORT  -----   function
+;_te_chr                             IMPORT  -----   function
+;_te_mov                             IMPORT  -----   function
+;_te_cln                             IMPORT  -----   function
+;_blankrow                           IMPORT  -----   function
+;_scn_virt                           STATIC   4000   variable
+;_scn_phys                           STATIC   4000   variable
+;_memcmp                             IMPORT  -----   function
+;G_3                                  IX-13      3   variable
+;ch                                   IX-10      1   variable
+;there                                 IX-9      1   variable
+;G_4                                   IX-8      3   variable
+;c                                     IX-5      1   variable
+;r                                     IX-4      1   variable
+;G_1                                   IX-3      3   variable
+
+
+; Stack Frame Size: 19 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  625	
+;  626	/* Forced update. Forces the terminals screen to be redrawn from scratch from */
+;  627	/* the virtual screen.                                                        */
+;  628	void sc_fup(void)
+;  629	{
+_sc_fup:
+;  630		memset(&scn_phys[0][0], 0, SCNSIZE);
+	LD	BC,4000
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,_scn_phys
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  631		
+;  632		sc_upd();
+	CALL	_sc_upd
+;  633	}
+	RET	
+
+
+;**************************** _sc_fup ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_upd                             IMPORT  -----   function
+;_scn_phys                           STATIC   4000   variable
+;_memset                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  634	
+;  635	/* Initializes the screen package, clearing the screen. */
+;  636	void sc_ini(void)
+;  637	{
+_sc_ini:
+;  638		sc_clr();
+	CALL	_sc_clr
+;  639		
+;  640		sc_fup();
+	CALL	_sc_fup
+;  641	}
+	RET	
+
+
+;**************************** _sc_ini ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_fup                             IMPORT  -----   function
+;_sc_clr                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  642	
+;  643	/* Finalizes the screen package, clearing the screen. */
+;  644	void sc_fin(void)
+;  645	{
+_sc_fin:
+;  646		sc_clr();
+	CALL	_sc_clr
+;  647		
+;  648		sc_fup();
+	CALL	_sc_fup
+;  649	}
+	RET	
+
+
+;**************************** _sc_fin ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_fup                             IMPORT  -----   function
+;_sc_clr                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  650	
+;  651	/* Initialize the text data structure to the empty list. */
+;  652	void tx_ini(void)
+;  653	{
+_tx_ini:
+;  654		p_root = &root;
+	LD	BC,_root
+	LD	(_p_root),BC
+;  655		p_root->p_next = p_root;
+	LD	(_root+3),BC
+;  656		p_root->p_prev = p_root;
+	LD	(_root),BC
+;  657		p_root->p_data = NULL;
+	LD	BC,0
+	LD	(_root+6),BC
+;  658		
+;  659		numlines = 0;
+	LD	(_numlines),BC
+;  660	}
+	RET	
+
+
+;**************************** _tx_ini ***************************
+;Name                         Addr/Register   Size   Type
+;_numlines                           STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_root                               STATIC      9   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  661	
+;  662	/* Sets the specified line to the specified string value. */
+;  663	/* Deletes trailing spaces from the argument string first. */
+;  664	void tx_set(p_line_t p_line, char *s)
+;  665	{
+_tx_set:
+	LD	HL,-3
+	CALL	__frameset
+;  666		size_t len;
+;  667		
+;  668		zap_trail(s);
+	LD	BC,(IX+9)
+	PUSH	BC
+	CALL	_zap_trail
+	POP	BC
+;  669		
+;  670		len = strlen(s);
+	LD	BC,(IX+9)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-3),HL
+;  671		
+;  672		as(len <= MAXLNLEN, "tx_set: Line too long.");	
+	LD	BC,L__116
+	PUSH	BC
+	LD	BC,(IX+-3)
+	LD	HL,80
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L__118
+	LD	A,1
+	JR	L__119
+L__118:
+	XOR	A,A
+L__119:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  673		as(p_line != p_root, "tx_set: Attempt to set the root line.");
+	LD	BC,L__120
+	PUSH	BC
+	LD	BC,(IX+6)
+	LD	HL,(_p_root)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L__122
+	LD	A,1
+	JR	L__123
+L__122:
+	XOR	A,A
+L__123:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  674		as(p_line->p_data != NULL, "tx_set: p_data=NULL.");
+	LD	BC,L__124
+	PUSH	BC
+	LD	IY,(IX+6)
+	LD	HL,(IY+6)
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L__126
+	LD	A,1
+	JR	L__127
+L__126:
+	XOR	A,A
+L__127:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  675		
+;  676		free(p_line->p_data);
+	LD	IY,(IX+6)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_free
+	POP	BC
+;  677		
+;  678		p_line->p_data = mymalloc(len + 1);
+	LD	BC,(IX+-3)
+	INC	BC
+	PUSH	BC
+	CALL	_mymalloc
+	POP	BC
+	LD	IY,(IX+6)
+	LD	(IY+6),HL
+;  679		
+;  680		strcpy(p_line->p_data, s);
+	LD	BC,(IX+9)
+	PUSH	BC
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strcpy
+	POP	BC
+	POP	BC
+;  681	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _tx_set ***************************
+;Name                         Addr/Register   Size   Type
+;_strcpy                             IMPORT  -----   function
+;_mymalloc                           IMPORT  -----   function
+;_free                               IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_as                                 IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;_zap_trail                          IMPORT  -----   function
+;len                                   IX-3      3   variable
+;s                                     IX+9      3   parameter
+;p_line                                IX+6      3   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__116:
+	DB	"tx_set: Line too long."
+	DB	0
+L__120:
+	DB	"tx_set: Attempt to set the root line."
+	DB	0
+L__124:
+	DB	"tx_set: p_data=NULL."
+	DB	0
+	SEGMENT CODE
+;  682	
+;  683	/* Insert a line containing the specified string */
+;  684	/* just before the specified line.               */
+;  685	void tx_ins(p_line_t p_line, char *s)
+;  686	{
+_tx_ins:
+	LD	HL,-3
+	CALL	__frameset
+;  687		p_line_t p_new = mymalloc(sizeof(line_t));
+	LD	BC,9
+	PUSH	BC
+	CALL	_mymalloc
+	POP	BC
+	LD	(IX+-3),HL
+;  688		
+;  689		p_new->p_prev = p_line->p_prev;
+	LD	IY,(IX+6)
+	LD	BC,(IY+0)
+	LD	IY,(IX+-3)
+	LD	(IY+0),BC
+;  690		p_new->p_next = p_line;
+	LD	BC,(IX+6)
+	LD	(IY+3),BC
+;  691		
+;  692		p_line->p_prev = p_new;
+	LD	BC,(IX+-3)
+	LD	IY,(IX+6)
+	LD	(IY+0),BC
+;  693		p_new->p_prev->p_next = p_new;
+	LD	IY,(IX+-3)
+	LD	IY,(IY+0)
+	LD	BC,(IX+-3)
+;  694		
+;  695		p_new->p_data = mymalloc(0);
+	LD	DE,0
+	PUSH	DE
+	LD	(IY+3),BC
+	CALL	_mymalloc
+	POP	BC
+	LD	IY,(IX+-3)
+	LD	(IY+6),HL
+;  696		
+;  697		tx_set(p_new, s);
+	LD	BC,(IX+9)
+	PUSH	BC
+	LD	BC,(IX+-3)
+	PUSH	BC
+	CALL	_tx_set
+	POP	BC
+	POP	BC
+;  698		
+;  699		numlines++;
+	LD	BC,(_numlines)
+	INC	BC
+	LD	(_numlines),BC
+;  700	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _tx_ins ***************************
+;Name                         Addr/Register   Size   Type
+;_numlines                           STATIC      3   variable
+;_tx_set                             IMPORT  -----   function
+;_mymalloc                           IMPORT  -----   function
+;p_new                                 IX-3      3   variable
+;s                                     IX+9      3   parameter
+;p_line                                IX+6      3   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  701	
+;  702	/* Deletes the specified line. */
+;  703	void tx_del(p_line_t p_line)
+;  704	{
+_tx_del:
+	LD	HL,-3
+	CALL	__frameset
+;  705		as(p_line != NULL, "tx_del: NULL.");
+	LD	BC,L__130
+	PUSH	BC
+	LD	HL,(IX+6)
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L__132
+	LD	A,1
+	JR	L__133
+L__132:
+	XOR	A,A
+L__133:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  706		as(p_line != p_root, "tx_del: Attempt to delete the root line.");
+	LD	BC,L__134
+	PUSH	BC
+	LD	BC,(IX+6)
+	LD	HL,(_p_root)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L__136
+	LD	A,1
+	JR	L__137
+L__136:
+	XOR	A,A
+L__137:
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_as
+	POP	BC
+	POP	BC
+;  707		
+;  708		p_line->p_prev->p_next = p_line->p_next;
+	LD	IY,(IX+6)
+	LD	BC,(IY+0)
+	LD	(IX+-3),BC
+	LD	BC,(IY+3)
+	LD	IY,(IX+-3)
+	LD	(IY+3),BC
+;  709		p_line->p_next->p_prev = p_line->p_prev;
+	LD	IY,(IX+6)
+	LD	IY,(IY+3)
+	LD	BC,(IX+-3)
+	LD	(IY+0),BC
+;  710		
+;  711		free(p_line->p_data);
+	LD	IY,(IX+6)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_free
+	POP	BC
+;  712		free(p_line);
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_free
+	POP	BC
+;  713		
+;  714		numlines--;
+	LD	BC,(_numlines)
+	DEC	BC
+	LD	(_numlines),BC
+;  715	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _tx_del ***************************
+;Name                         Addr/Register   Size   Type
+;_numlines                           STATIC      3   variable
+;_free                               IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_as                                 IMPORT  -----   function
+;p_line                                IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__130:
+	DB	"tx_del: NULL."
+	DB	0
+L__134:
+	DB	"tx_del: Attempt to delete the root line."
+	DB	0
+	SEGMENT CODE
+;  716	
+;  717	/* Writes the contents of the line to the global line buffer as a blank       */
+;  718	/* padded array of MAXLNLEN characters.                                       */
+;  719	void tx_get(p_line_t p_line)
+;  720	{
+_tx_get:
+	LD	HL,-3
+	CALL	__frameset
+;  721		size_t len = strlen(p_line->p_data);
+	LD	IY,(IX+6)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-3),HL
+;  722		
+;  723		memset((void *)linbuf, ' ', MAXLNLEN);
+	LD	BC,80
+	PUSH	BC
+	LD	BC,32
+	PUSH	BC
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  724		
+;  725		memmove((void *)linbuf, p_line->p_data, len);
+	LD	BC,(IX+-3)
+	PUSH	BC
+	LD	IY,(IX+6)
+	LD	BC,(IY+6)
+	PUSH	BC
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+;  726	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _tx_get ***************************
+;Name                         Addr/Register   Size   Type
+;_memmove                            IMPORT  -----   function
+;_linbuf                             STATIC     90   variable
+;_memset                             IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;len                                   IX-3      3   variable
+;p_line                                IX+6      3   parameter
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  727	
+;  728	/* Sets the value of the specified line to the value of the global linebuffer.*/
+;  729	void tx_put(p_line_t p_line)
+;  730	{
+_tx_put:
+	CALL	__frameset0
+;  731		linbuf[MAXLNLEN] = EOS;
+	LD	HL,_linbuf+80
+;  732		
+;  733		tx_set(p_line, linbuf);
+	LD	BC,_linbuf
+	PUSH	BC
+	LD	(HL),0
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_tx_set
+	POP	BC
+	POP	BC
+;  734	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _tx_put ***************************
+;Name                         Addr/Register   Size   Type
+;_tx_set                             IMPORT  -----   function
+;_linbuf                             STATIC     90   variable
+;p_line                                IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  735	
+;  736	/* Redraw the screen. */
+;  737	void do_red(void)
+;  738	{
+_do_red:
+;  739		sc_fup();
+	CALL	_sc_fup
+;  740	}
+	RET	
+
+
+;**************************** _do_red ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_fup                             IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  741	
+;  742	/* Cursor up. */
+;  743	void do_cup(void)
+;  744	{
+_do_cup:
+	LD	HL,-1
+	CALL	__frameset
+;  745		char ch;
+;  746		
+;  747		if (cur_line == 1)
+	LD	BC,1
+	LD	HL,(_cur_line)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_167
+;  748		{
+;  749			Show_Cursor();
+	CALL	_Show_Cursor
+;  750			
+;  751			return;
+	JR	L_171
+;  752		}
+L_167:
+;  753		
+;  754		cur_line--;
+	LD	BC,(_cur_line)
+	DEC	BC
+	LD	(_cur_line),BC
+;  755		
+;  756		p_curr = p_curr->p_prev;
+	LD	IY,(_p_curr)
+	LD	BC,(IY+0)
+	LD	(_p_curr),BC
+;  757		
+;  758		if (cur_row == 0)
+	LD	HL,(_cur_row)
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_170
+;  759			paintall();
+	CALL	_paintall
+;  760		else
+	JR	L_171
+L_170:
+;  761		{
+;  762			ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-1),A
+;  763			
+;  764			cur_row--;
+	LD	BC,(_cur_row)
+	DEC	BC
+	LD	(_cur_row),BC
+;  765			
+;  766			plot_char(cur_col, cur_row + 1, ch);
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	LD	A,(_cur_row)
+	INC	A
+	LD	C,A
+	PUSH	BC
+	LD	A,(_cur_col)
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  767		}
+;  768	}
+L_171:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_cup ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_cur_row                            STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_Show_Cursor                        IMPORT  -----   function
+;_cur_line                           STATIC      3   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  769	
+;  770	/* Cursor down. */
+;  771	void do_cdw(void)
+;  772	{
+_do_cdw:
+	LD	HL,-4
+	CALL	__frameset
+;  773		char ch;
+;  774		
+;  775		if (p_curr->p_next == p_root)
+	LD	IY,(_p_curr)
+	LD	BC,(IY+3)
+	LD	(IX+-4),BC
+	LD	HL,(_p_root)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_173
+;  776		{
+;  777			Show_Cursor();
+	CALL	_Show_Cursor
+;  778			
+;  779			return;
+	JR	L_178
+;  780		}
+L_173:
+;  781		
+;  782		p_curr = p_curr->p_next;
+	LD	BC,(IX+-4)
+	LD	(_p_curr),BC
+;  783		
+;  784		cur_line++;
+	LD	BC,(_cur_line)
+	INC	BC
+	LD	(_cur_line),BC
+;  785		
+;  786		if (cur_row == SCNROWS - 1)
+	LD	HL,(_cur_row)
+	OR	A,A
+	LD	BC,49
+	SBC	HL,BC
+	JR	NZ,L_177
+;  787			paintall();	
+	CALL	_paintall
+;  788		else
+	JR	L_178
+L_177:
+;  789		{
+;  790			ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-1),A
+;  791			
+;  792			cur_row++;
+	LD	BC,(_cur_row)
+	INC	BC
+	LD	(_cur_row),BC
+;  793			
+;  794			plot_char(cur_col, cur_row - 1, ch);		
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	LD	A,(_cur_row)
+	DEC	A
+	LD	C,A
+	PUSH	BC
+	LD	A,(_cur_col)
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  795		}
+;  796	}
+L_178:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_cdw ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_cur_row                            STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_Show_Cursor                        IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;G_5                                   IX-4      3   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 10 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  797	
+;  798	/* Cursor left. */
+;  799	void do_clf(void)
+;  800	{
+_do_clf:
+	LD	HL,-1
+	CALL	__frameset
+;  801		char ch;
+;  802		
+;  803		if (cur_char == 1)
+	LD	BC,1
+	LD	HL,(_cur_char)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_181
+;  804		{
+;  805			Show_Cursor();
+	CALL	_Show_Cursor
+;  806			
+;  807			return;
+	JR	L_185
+;  808		}
+L_181:
+;  809		
+;  810		cur_char--;
+	LD	BC,(_cur_char)
+	DEC	BC
+	LD	(_cur_char),BC
+;  811		
+;  812		if (cur_col == 0)
+	LD	HL,(_cur_col)
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_184
+;  813			paintall();
+	CALL	_paintall
+;  814		else
+	JR	L_185
+L_184:
+;  815		{
+;  816			ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-1),A
+;  817			
+;  818			cur_col--;
+	LD	BC,(_cur_col)
+	DEC	BC
+	LD	(_cur_col),BC
+;  819			
+;  820			plot_char(cur_col + 1, cur_row, ch);
+	LD	C,(IX+-1)
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	LD	A,(_cur_col)
+	INC	A
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  821		}
+;  822	}
+L_185:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_clf ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_row                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_Show_Cursor                        IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  823	
+;  824	/* Cursor right. */
+;  825	void do_crt(void)
+;  826	{
+_do_crt:
+	LD	HL,-1
+	CALL	__frameset
+;  827		char ch;
+;  828		
+;  829		if (cur_char == MAXLNLEN)
+	LD	BC,80
+	LD	HL,(_cur_char)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_188
+;  830		{
+;  831			Show_Cursor();
+	CALL	_Show_Cursor
+;  832			
+;  833			return;
+	JR	L_192
+;  834		}
+L_188:
+;  835		
+;  836		cur_char++;
+	LD	BC,(_cur_char)
+	INC	BC
+	LD	(_cur_char),BC
+;  837		
+;  838		if (cur_col == SCNCOLS - 1)
+	LD	HL,(_cur_col)
+	OR	A,A
+	LD	BC,79
+	SBC	HL,BC
+	JR	NZ,L_191
+;  839			paintall();
+	CALL	_paintall
+;  840		else
+	JR	L_192
+L_191:
+;  841		{
+;  842			ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-1),A
+;  843			
+;  844			cur_col++;
+	LD	BC,(_cur_col)
+	INC	BC
+	LD	(_cur_col),BC
+;  845			
+;  846			plot_char(cur_col - 1, cur_row, ch);
+	LD	C,(IX+-1)
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	LD	A,(_cur_col)
+	DEC	A
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  847		}
+;  848	}
+L_192:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_crt ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_row                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_Show_Cursor                        IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  849	
+;  850	/* Page down. */
+;  851	void do_pdw(void)
+;  852	{
+_do_pdw:
+	LD	HL,-3
+	CALL	__frameset
+;  853		register char i;
+;  854		char ch, oldr = cur_row;
+	LD	A,(_cur_row)
+	LD	(IX+-2),A
+	LD	(IX+-1),0
+;  855		
+;  856		for (i = 0; i < SCNROWS; i++)
+	JR	L_200
+L_198:
+;  857		{
+;  858			if (cur_line == numlines + 1)
+	LD	HL,(_numlines)
+	INC	HL
+	OR	A,A
+	LD	BC,(_cur_line)
+	SBC	HL,BC
+	JR	Z,L_202
+;  859				break;
+;  860			
+;  861			p_curr = p_curr->p_next;
+	LD	IY,(_p_curr)
+	LD	BC,(IY+3)
+	LD	(_p_curr),BC
+;  862			
+;  863			cur_line++;
+	LD	BC,(_cur_line)
+	INC	BC
+	LD	(_cur_line),BC
+;  864			cur_row++;
+	LD	BC,(_cur_row)
+	INC	BC
+	LD	(_cur_row),BC
+	INC	(IX+-1)
+;  865		}
+L_200:
+	LD	A,(IX+-1)
+	CP	A,50
+	JP	M,L_198
+L_202:
+;  866		
+;  867		if (cur_row > SCNROWS - 1)
+	LD	BC,(_cur_row)
+	LD	HL,49
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__157
+	JP	PE,L_203
+	JR	L__158
+L__157:
+	JP	PO,L_203
+L__158:
+;  868			cur_row = SCNROWS - 1;
+	LD	BC,49
+	LD	(_cur_row),BC
+L_203:
+;  869		
+;  870		paintall();
+	CALL	_paintall
+;  871		
+;  872		ch = scn_phys[oldr][cur_col];
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-3),A
+;  873		
+;  874		plot_char(cur_col, oldr, ch);
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-2)
+	LD	A,(_cur_col)
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  875		
+;  876		Show_Cursor();
+	CALL	_Show_Cursor
+;  877	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_pdw ***************************
+;Name                         Addr/Register   Size   Type
+;_Show_Cursor                        IMPORT  -----   function
+;_plot_char                          IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_numlines                           STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;ch                                    IX-3      1   variable
+;oldr                                  IX-2      1   variable
+;i                                     IX-1      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  878	
+;  879	/* Page up. */
+;  880	void do_pup(void)
+;  881	{
+_do_pup:
+	LD	HL,-3
+	CALL	__frameset
+;  882		register char i;
+;  883		char ch, oldr = cur_row;
+	LD	A,(_cur_row)
+	LD	(IX+-2),A
+	LD	(IX+-1),0
+;  884		
+;  885		for (i = 0; i < SCNROWS; i++)
+	JR	L_212
+L_210:
+;  886		{
+;  887			if (cur_line == 1)
+	LD	BC,1
+	LD	HL,(_cur_line)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_214
+;  888				break;
+;  889			
+;  890			p_curr = p_curr->p_prev;
+	LD	IY,(_p_curr)
+	LD	BC,(IY+0)
+	LD	(_p_curr),BC
+;  891			
+;  892			cur_line--;
+	LD	BC,(_cur_line)
+	DEC	BC
+	LD	(_cur_line),BC
+;  893			cur_row--;
+	LD	BC,(_cur_row)
+	DEC	BC
+	LD	(_cur_row),BC
+	INC	(IX+-1)
+;  894		}
+L_212:
+	LD	A,(IX+-1)
+	CP	A,50
+	JP	M,L__163
+	JP	PE,L_210
+	JR	L__164
+L__163:
+	JP	PO,L_210
+L__164:
+L_214:
+;  895		
+;  896		if (cur_row < 0)
+	LD	BC,0
+	LD	HL,(_cur_row)
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__165
+	JP	PE,L_215
+	JR	L__166
+L__165:
+	JP	PO,L_215
+L__166:
+;  897			cur_row = 0;	
+	LD	BC,0
+	LD	(_cur_row),BC
+L_215:
+;  898		
+;  899		paintall();
+	CALL	_paintall
+;  900		
+;  901		ch = scn_phys[oldr][cur_col];
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-3),A
+;  902		
+;  903		plot_char(cur_col, oldr, ch);
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-2)
+	LD	A,(_cur_col)
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  904		
+;  905		Show_Cursor();
+	CALL	_Show_Cursor
+;  906	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_pup ***************************
+;Name                         Addr/Register   Size   Type
+;_Show_Cursor                        IMPORT  -----   function
+;_plot_char                          IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_paintall                           IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;ch                                    IX-3      1   variable
+;oldr                                  IX-2      1   variable
+;i                                     IX-1      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  907	
+;  908	/* Return. */
+;  909	void do_ret(void)
+;  910	{
+_do_ret:
+	LD	HL,-4
+	CALL	__frameset
+;  911		char len = strlen(p_curr->p_data);
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-4),L
+;  912		char ch, oldr = cur_row, oldc = cur_col;
+	LD	A,(_cur_row)
+	LD	(IX+-1),A
+	LD	A,(_cur_col)
+	LD	(IX+-2),A
+;  913		
+;  914		gotoxy(len, cur_row);
+	LD	A,(_cur_row)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-4)
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+;  915		
+;  916		clreol();
+	CALL	_clreol
+;  917		
+;  918		ch = scn_phys[oldr][oldc];
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	A,(IX+-2)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-2)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-3),A
+;  919		
+;  920		plot_char(oldc, oldr, ch);
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  921		
+;  922		cur_char = 1;
+	LD	BC,1
+	LD	(_cur_char),BC
+;  923		cur_col  = 0;
+	LD	BC,0
+	LD	(_cur_col),BC
+;  924		
+;  925		ch = scn_phys[oldr][oldc];
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	A,(IX+-2)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-2)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-3),A
+;  926		
+;  927		plot_char(oldc, oldr, ch);
+	LD	C,(IX+-3)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  928		
+;  929		do_cdw();
+	CALL	_do_cdw
+;  930	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_ret ***************************
+;Name                         Addr/Register   Size   Type
+;_do_cdw                             IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_plot_char                          IMPORT  -----   function
+;_scn_phys                           STATIC   4000   variable
+;_clreol                             IMPORT  -----   function
+;_gotoxy                             IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_strlen                             IMPORT  -----   function
+;len                                   IX-4      1   variable
+;ch                                    IX-3      1   variable
+;oldc                                  IX-2      1   variable
+;oldr                                  IX-1      1   variable
+
+
+; Stack Frame Size: 10 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  931	
+;  932	/* Enhanced Return. Break a line into two lines */
+;  933	void do_enhanced_ret(void)
+;  934	{
+_do_enhanced_ret:
+	LD	HL,-161
+	CALL	__frameset
+;  935		char len = strlen(p_curr->p_data);
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-1),L
+;  936		char app[MAXLNLEN], app2[MAXLNLEN];
+;  937		
+;  938		if (cur_col < len)
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,(_cur_col)
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__170
+	JP	PE,L_219
+	JR	L__171
+L__170:
+	JP	PO,L_219
+L__171:
+;  939		{
+;  940			memset(app, 0, MAXLNLEN);
+	LD	BC,80
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	PEA	IX+-81
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  941			memset(app2, 0, MAXLNLEN);
+	LD	BC,80
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	HL,IX
+	LD	BC,-161
+	ADD	HL,BC
+	LD	BC,HL
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+;  942			
+;  943			memmove(app, p_curr->p_data + cur_col, len - cur_col);
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	OR	A,A
+	LD	BC,(_cur_col)
+	LD	IY,(_p_curr)
+	LD	DE,(_cur_col)
+	SBC	HL,BC
+	PUSH	HL
+	LD	HL,(IY+6)
+	ADD	HL,DE
+	PUSH	HL
+	PEA	IX+-81
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+;  944			
+;  945			memmove(app2, p_curr->p_data, cur_col);
+	LD	BC,(_cur_col)
+	PUSH	BC
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	LD	HL,IX
+	LD	BC,-161
+	ADD	HL,BC
+	LD	BC,HL
+	PUSH	BC
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+;  946			
+;  947			do_iln();
+	CALL	_do_iln
+;  948			
+;  949			tx_set(p_curr, app);
+	PEA	IX+-81
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_set
+	POP	BC
+	POP	BC
+;  950			
+;  951			tx_set(p_curr->p_prev, app2);
+	LD	HL,IX
+	LD	BC,-161
+	ADD	HL,BC
+	LD	BC,HL
+	PUSH	BC
+	LD	IY,(_p_curr)
+	LD	BC,(IY+0)
+	PUSH	BC
+	CALL	_tx_set
+	POP	BC
+	POP	BC
+;  952			
+;  953			paintall();
+	CALL	_paintall
+;  954			
+;  955			do_cup();
+	CALL	_do_cup
+;  956		}
+L_219:
+;  957		
+;  958		do_ret();
+	CALL	_do_ret
+;  959	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_enhanced_ret ***************************
+;Name                         Addr/Register   Size   Type
+;_do_ret                             IMPORT  -----   function
+;_do_cup                             IMPORT  -----   function
+;_paintall                           IMPORT  -----   function
+;_tx_set                             IMPORT  -----   function
+;_do_iln                             IMPORT  -----   function
+;_memmove                            IMPORT  -----   function
+;_memset                             IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_strlen                             IMPORT  -----   function
+;app2                                IX-161     80   variable
+;app                                  IX-81     80   variable
+;len                                   IX-1      1   variable
+
+
+; Stack Frame Size: 167 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  960	
+;  961	/* Tab. */
+;  962	void do_tab(void)
+;  963	{
+_do_tab:
+	LD	HL,-3
+	CALL	__frameset
+;  964		int x = cur_char;
+	LD	BC,(_cur_char)
+	LD	(IX+-3),BC
+;  965		
+;  966		do
+L_222:
+;  967		{
+;  968			do_crt();
+	CALL	_do_crt
+;  969			x++;
+	LD	BC,(IX+-3)
+	INC	BC
+	LD	(IX+-3),BC
+;  970		} while (((x - 1) % 8) != 0);
+	LD	HL,BC
+	DEC	HL
+	LD	BC,8
+	CALL	__irems
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_222
+;  971	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_tab ***************************
+;Name                         Addr/Register   Size   Type
+;_do_crt                             IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;x                                     IX-3      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  972	
+;  973	/* Jump to top of document. */
+;  974	void do_top(void)
+;  975	{
+_do_top:
+	LD	HL,-2
+	CALL	__frameset
+;  976		char oldr, oldc;
+;  977		
+;  978		oldr = cur_row;
+	LD	A,(_cur_row)
+	LD	(IX+-1),A
+;  979		oldc = cur_col;
+	LD	A,(_cur_col)
+	LD	(IX+-2),A
+;  980		
+;  981		p_curr = p_root->p_next;
+	LD	IY,(_p_root)
+	LD	BC,(IY+3)
+	LD	(_p_curr),BC
+;  982		
+;  983		cur_line = 1;
+	LD	BC,1
+	LD	(_cur_line),BC
+;  984		cur_char = 1;
+	LD	(_cur_char),BC
+;  985		cur_row = 0;
+	LD	BC,0
+	LD	(_cur_row),BC
+;  986		cur_col = 0;
+	LD	(_cur_col),BC
+;  987		
+;  988		paintall();
+	CALL	_paintall
+;  989		
+;  990		plot_char(oldc, oldr, scn_phys[oldr][oldc]);
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	ADD	HL,BC
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+;  991	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_top ***************************
+;Name                         Addr/Register   Size   Type
+;_scn_phys                           STATIC   4000   variable
+;_plot_char                          IMPORT  -----   function
+;_paintall                           IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;oldc                                  IX-2      1   variable
+;oldr                                  IX-1      1   variable
+
+
+; Stack Frame Size: 8 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  992	
+;  993	/* Jump to bottom of document. */
+;  994	void do_bot(char paint)
+;  995	{
+_do_bot:
+	LD	HL,-2
+	CALL	__frameset
+;  996		char oldr, oldc;
+;  997		
+;  998		oldr = cur_row;
+	LD	A,(_cur_row)
+	LD	(IX+-1),A
+;  999		oldc = cur_col;
+	LD	A,(_cur_col)
+	LD	(IX+-2),A
+; 1000		
+; 1001		p_curr = p_root;
+	LD	BC,(_p_root)
+	LD	(_p_curr),BC
+; 1002		
+; 1003		cur_line = numlines + 1;
+	LD	BC,(_numlines)
+	INC	BC
+	LD	(_cur_line),BC
+; 1004		cur_row = numlines;
+	LD	BC,(_numlines)
+	LD	(_cur_row),BC
+; 1005		cur_char = 1;
+	LD	BC,1
+	LD	(_cur_char),BC
+; 1006		cur_col = 0;
+	LD	BC,0
+	LD	(_cur_col),BC
+; 1007		
+; 1008		if (cur_row > SCNROWS - 1)
+	LD	BC,(_numlines)
+	OR	A,A
+	LD	HL,49
+	SBC	HL,BC
+	JP	P,L__178
+	JP	PE,L_228
+	JR	L__179
+L__178:
+	JP	PO,L_228
+L__179:
+; 1009			cur_row = SCNROWS - 1;
+	LD	BC,49
+	LD	(_cur_row),BC
+L_228:
+; 1010		
+; 1011		if (paint)
+	LD	A,(IX+6)
+	OR	A,A
+	JR	Z,L_229
+; 1012			paintall();
+	CALL	_paintall
+L_229:
+; 1013		
+; 1014		plot_char(oldc, oldr, scn_phys[oldr][oldc]);
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	ADD	HL,BC
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+; 1015	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_bot ***************************
+;Name                         Addr/Register   Size   Type
+;_scn_phys                           STATIC   4000   variable
+;_plot_char                          IMPORT  -----   function
+;_paintall                           IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_numlines                           STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;oldc                                  IX-2      1   variable
+;oldr                                  IX-1      1   variable
+;paint                                 IX+6      1   parameter
+
+
+; Stack Frame Size: 11 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1016	
+; 1017	/* Type the specified character. */
+; 1018	void do_chr(char ch)
+; 1019	{
+_do_chr:
+	LD	HL,-6
+	CALL	__frameset
+; 1020		register int i;
+; 1021		
+; 1022		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_240
+; 1023			return;
+; 1024	
+; 1025		if (cur_char == MAXLNLEN + 1)
+	LD	BC,81
+	LD	HL,(_cur_char)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_234
+; 1026		{
+; 1027			Show_Cursor();
+	CALL	_Show_Cursor
+; 1028			
+; 1029			return;
+	JR	L_240
+; 1030		}
+L_234:
+; 1031		
+; 1032		tx_get(p_curr);	
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_get
+	POP	BC
+	LD	BC,79
+	LD	(IX+-3),BC
+; 1033		
+; 1034		for (i = MAXLNLEN - 1; i > cur_char - 1; i--)
+	JR	L_238
+L_236:
+; 1035			linbuf[i] = linbuf[i - 1];	
+	LD	BC,(IX+-3)
+	DEC	BC
+	LD	HL,BC
+	LD	DE,_linbuf
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,(IX+-3)
+	ADD	HL,DE
+	LD	A,(IY)
+	LD	(HL),A
+	LD	(IX+-3),BC
+L_238:
+	LD	BC,(_cur_char)
+	DEC	BC
+	LD	(IX+-6),BC
+	LD	BC,(IX+-3)
+	LD	HL,(IX+-6)
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L_236
+; 1036		
+; 1037		linbuf[cur_char - 1] = (char)(ch);
+	LD	BC,_linbuf
+	LD	HL,(IX+-6)
+	ADD	HL,BC
+	LD	A,(IX+6)
+	LD	(HL),A
+; 1038		
+; 1039		tx_put(p_curr);
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_put
+	POP	BC
+; 1040		
+; 1041		do_crt();
+	CALL	_do_crt
+; 1042		paintrow();
+	CALL	_paintrow
+; 1043	}
+L_240:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_chr ***************************
+;Name                         Addr/Register   Size   Type
+;_paintrow                           IMPORT  -----   function
+;_do_crt                             IMPORT  -----   function
+;_tx_put                             IMPORT  -----   function
+;_linbuf                             STATIC     90   variable
+;_tx_get                             IMPORT  -----   function
+;_Show_Cursor                        IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;G_6                                   IX-6      3   variable
+;i                                     IX-3      3   variable
+;ch                                    IX+6      1   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1044	
+; 1045	/* Delete character. */
+; 1046	void do_dch(void)
+; 1047	{
+_do_dch:
+	LD	HL,-3
+	CALL	__frameset
+; 1048		register int i;
+; 1049		
+; 1050		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_248
+; 1051			return;
+; 1052		
+; 1053		tx_get(p_curr);
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_get
+	POP	BC
+	LD	BC,(_cur_char)
+	DEC	BC
+	LD	(IX+-3),BC
+; 1054		
+; 1055		for (i = cur_char - 1; i < MAXLNLEN - 1; i++)
+	JR	L_246
+L_244:
+; 1056			linbuf[i] = linbuf[i + 1];
+	LD	BC,(IX+-3)
+	INC	BC
+	LD	HL,BC
+	LD	DE,_linbuf
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,(IX+-3)
+	ADD	HL,DE
+	LD	A,(IY)
+	LD	(HL),A
+	LD	(IX+-3),BC
+L_246:
+	LD	BC,79
+	LD	HL,(IX+-3)
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__187
+	JP	PE,L_244
+	JR	L__188
+L__187:
+	JP	PO,L_244
+L__188:
+; 1057		
+; 1058		linbuf[MAXLNLEN - 1] = ' ';
+	LD	HL,_linbuf+79
+	LD	(HL),32
+; 1059		
+; 1060		tx_put(p_curr);
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_put
+	POP	BC
+; 1061		
+; 1062		paintrow();
+	CALL	_paintrow
+; 1063	}
+L_248:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_dch ***************************
+;Name                         Addr/Register   Size   Type
+;_paintrow                           IMPORT  -----   function
+;_tx_put                             IMPORT  -----   function
+;_linbuf                             STATIC     90   variable
+;_cur_char                           STATIC      3   variable
+;_tx_get                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;i                                     IX-3      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1064	
+; 1065	/* Insert line. */
+; 1066	void do_iln(void)
+; 1067	{
+_do_iln:
+; 1068		paintrow();
+	CALL	_paintrow
+; 1069		
+; 1070		if (cur_line < numlines)
+	LD	BC,(_numlines)
+	LD	HL,(_cur_line)
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__193
+	JP	PE,L_250
+	JR	L__194
+L__193:
+	JP	PO,L_250
+L__194:
+; 1071		{
+; 1072			do_cdw();
+	CALL	_do_cdw
+; 1073			
+; 1074			tx_ins(p_curr, "");
+	LD	BC,L__191
+	PUSH	BC
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_ins
+	POP	BC
+	POP	BC
+; 1075			
+; 1076			p_curr = p_curr->p_prev;
+	LD	IY,(_p_curr)
+	LD	BC,(IY+0)
+	LD	(_p_curr),BC
+; 1077		}		
+; 1078		else
+	JR	L_251
+L_250:
+; 1079		{
+; 1080			tx_ins(p_root, "");		
+	LD	BC,L__192
+	PUSH	BC
+	LD	BC,(_p_root)
+	PUSH	BC
+	CALL	_tx_ins
+	POP	BC
+	POP	BC
+; 1081			
+; 1082			do_bot(0);
+	LD	BC,0
+	PUSH	BC
+	CALL	_do_bot
+	POP	BC
+; 1083		}
+L_251:
+; 1084		
+; 1085		cur_char = 1;
+	LD	BC,1
+	LD	(_cur_char),BC
+; 1086		cur_col = 0;
+	LD	BC,0
+	LD	(_cur_col),BC
+; 1087		
+; 1088		paintall();	
+	CALL	_paintall
+; 1089	}
+	RET	
+
+
+;**************************** _do_iln ***************************
+;Name                         Addr/Register   Size   Type
+;_paintall                           IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_cur_char                           STATIC      3   variable
+;_do_bot                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;_tx_ins                             IMPORT  -----   function
+;_do_cdw                             IMPORT  -----   function
+;_numlines                           STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_paintrow                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__191:
+	DB	0
+L__192:
+	DB	0
+	SEGMENT CODE
+; 1090	
+; 1091	/* Delete line. */
+; 1092	void do_dln(void)
+; 1093	{
+_do_dln:
+	LD	HL,-3
+	CALL	__frameset
+; 1094		p_line_t save = p_curr->p_next;
+	LD	IY,(_p_curr)
+	LD	BC,(IY+3)
+	LD	(IX+-3),BC
+; 1095		
+; 1096		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_255
+; 1097			return;
+; 1098		
+; 1099		tx_del(p_curr);
+	LD	BC,(_p_curr)
+	PUSH	BC
+	CALL	_tx_del
+	POP	BC
+; 1100		
+; 1101		p_curr = save;
+	LD	BC,(IX+-3)
+	LD	(_p_curr),BC
+; 1102		
+; 1103		paintall();
+	CALL	_paintall
+; 1104	}
+L_255:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_dln ***************************
+;Name                         Addr/Register   Size   Type
+;_paintall                           IMPORT  -----   function
+;_tx_del                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;save                                  IX-3      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1105	
+; 1106	/* Delete. */
+; 1107	void do_del(void)
+; 1108	{
+_do_del:
+; 1109		if (cur_char == 1)
+	LD	BC,1
+	LD	HL,(_cur_char)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_259
+; 1110			if (strlen(p_curr->p_data) <= 0)
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	JR	NC,L_260
+; 1111				return;
+; 1112			else
+; 1113			{
+; 1114				do_enhanced_del();
+	CALL	_do_enhanced_del
+; 1115				
+; 1116				return;
+	JR	L_260
+; 1117			}
+L_259:
+; 1118		
+; 1119		do_clf();
+	CALL	_do_clf
+; 1120		
+; 1121		do_dch();
+	CALL	_do_dch
+; 1122	}
+L_260:
+	RET	
+
+
+;**************************** _do_del ***************************
+;Name                         Addr/Register   Size   Type
+;_do_dch                             IMPORT  -----   function
+;_do_clf                             IMPORT  -----   function
+;_do_enhanced_del                    IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_strlen                             IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1123	
+; 1124	/* Enhanced Delete. Can join current line with previous line. */
+; 1125	void do_enhanced_del(void)
+; 1126	{
+_do_enhanced_del:
+	LD	HL,-82
+	CALL	__frameset
+; 1127		char app[MAXLNLEN], i, oldPos;
+; 1128		
+; 1129		if (cur_line == 1)
+	LD	BC,1
+	LD	HL,(_cur_line)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_262
+; 1130		{
+; 1131			Show_Cursor();
+	CALL	_Show_Cursor
+; 1132			
+; 1133			return;		
+	JR	L_268
+; 1134		}
+L_262:
+; 1135		
+; 1136		memset(app, 0, MAXLNLEN);	
+	LD	BC,80
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	PEA	IX+-82
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+; 1137		
+; 1138		memmove(app, p_curr->p_data, strlen(p_curr->p_data));
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	PUSH	HL
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	PEA	IX+-82
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+; 1139		
+; 1140		do_dln();	
+	CALL	_do_dln
+; 1141		
+; 1142		do_cup();
+	CALL	_do_cup
+; 1143		do_endline();
+	CALL	_do_endline
+; 1144		
+; 1145		oldPos = cur_col;
+	LD	A,(_cur_col)
+	LD	(IX+-2),A
+	LD	(IX+-1),0
+; 1146		
+; 1147		for (i = 0; i < strlen(app); i++)
+	JR	L_266
+L_264:
+; 1148			do_chr(app[i]);	
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LEA	HL,IX+-82
+	ADD	HL,BC
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	CALL	_do_chr
+	POP	BC
+	INC	(IX+-1)
+L_266:
+	PEA	IX+-82
+	CALL	_strlen
+	POP	BC
+	LD	A,(IX+-1)
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-1)
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_264
+; 1149		
+; 1150		paintrow();
+	CALL	_paintrow
+; 1151		
+; 1152		cur_col = oldPos;
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	(_cur_col),HL
+; 1153		cur_char = cur_col + 1;
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	INC	HL
+	LD	(_cur_char),HL
+; 1154	}
+L_268:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_enhanced_del ***************************
+;Name                         Addr/Register   Size   Type
+;_cur_char                           STATIC      3   variable
+;_paintrow                           IMPORT  -----   function
+;_do_chr                             IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_do_endline                         IMPORT  -----   function
+;_do_cup                             IMPORT  -----   function
+;_do_dln                             IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_strlen                             IMPORT  -----   function
+;_memmove                            IMPORT  -----   function
+;_memset                             IMPORT  -----   function
+;_Show_Cursor                        IMPORT  -----   function
+;_cur_line                           STATIC      3   variable
+;app                                  IX-82     80   variable
+;oldPos                                IX-2      1   variable
+;i                                     IX-1      1   variable
+
+
+; Stack Frame Size: 88 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1155	
+; 1156	/* Go to the start of current line. */
+; 1157	void do_home(void)
+; 1158	{
+_do_home:
+	LD	HL,-2
+	CALL	__frameset
+; 1159		char ch, oldcol;
+; 1160		
+; 1161		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_271
+; 1162			return;
+; 1163		
+; 1164		ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-1),A
+; 1165		oldcol = cur_col;
+	LD	A,(_cur_col)
+	LD	(IX+-2),A
+; 1166		
+; 1167		cur_char = 1;
+	LD	BC,1
+	LD	(_cur_char),BC
+; 1168		cur_col = 0;
+	LD	BC,0
+	LD	(_cur_col),BC
+; 1169		
+; 1170		plot_char(oldcol, cur_row, ch);
+	LD	C,(IX+-1)
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+; 1171	}
+L_271:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_home ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;oldcol                                IX-2      1   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 8 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1172	
+; 1173	/* Go to the end of current line. */
+; 1174	void do_endline(void)
+; 1175	{
+_do_endline:
+	LD	HL,-3
+	CALL	__frameset
+; 1176		char len, ch, oldcol;
+; 1177		
+; 1178		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_274
+; 1179			return;
+; 1180		
+; 1181		len = strlen(p_curr->p_data);	
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-1),L
+; 1182		
+; 1183		ch = scn_phys[cur_row][cur_col];
+	LD	HL,(_cur_row)
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,(_cur_row)
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,(_cur_col)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	(IX+-2),A
+; 1184		oldcol = cur_col;
+	LD	A,(_cur_col)
+	LD	(IX+-3),A
+; 1185		
+; 1186		cur_col = len;
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	(_cur_col),HL
+; 1187		cur_char = len + 1;
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	INC	HL
+	LD	(_cur_char),HL
+; 1188		
+; 1189		plot_char(oldcol, cur_row, ch);
+	LD	C,(IX+-2)
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	LD	C,(IX+-3)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+; 1190	}
+L_274:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _do_endline ***************************
+;Name                         Addr/Register   Size   Type
+;_plot_char                          IMPORT  -----   function
+;_cur_char                           STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;_scn_phys                           STATIC   4000   variable
+;_strlen                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;oldcol                                IX-3      1   variable
+;ch                                    IX-2      1   variable
+;len                                   IX-1      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1191	
+; 1192	/* Redraws the virtual screen from scratch from the current settings. */
+; 1193	void paintall(void)
+; 1194	{
+_paintall:
+	LD	HL,-8
+	CALL	__frameset
+; 1195		register unsigned char r;
+; 1196		p_line_t p = p_curr;
+	LD	BC,(_p_curr)
+	LD	(IX+-4),BC
+; 1197		int left_pos = cur_char - cur_col;
+	LD	HL,(_cur_char)
+	LD	BC,(_cur_col)
+	OR	A,A
+	SBC	HL,BC
+	LD	(IX+-8),HL
+	LD	(IX+-1),0
+; 1198		unsigned char len;
+; 1199		
+; 1200		for (r = 0; r < cur_row; r++)
+	JR	L_278
+L_276:
+; 1201			p = p->p_prev;
+	LD	IY,(IX+-4)
+	LD	BC,(IY+0)
+	LD	(IX+-4),BC
+	INC	(IX+-1)
+L_278:
+	LD	A,(IX+-1)
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,(_cur_row)
+	SBC	HL,BC
+	JP	M,L__214
+	JP	PE,L_276
+	JR	L__215
+L__214:
+	JP	PO,L_276
+L__215:
+; 1202		
+; 1203		sc_clr();
+	CALL	_sc_clr
+	LD	(IX+-1),0
+; 1204		
+; 1205		for (r = 0; r < SCNROWS; r++)
+	JR	L_289
+L_287:
+; 1206		{
+; 1207			if (p == p_root)
+	LD	BC,(IX+-4)
+	LD	HL,(_p_root)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_282
+; 1208			{
+; 1209				sc_str(r, 0, "<eof>");
+	LD	BC,L__210
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	CALL	_sc_str
+	POP	BC
+	POP	BC
+	POP	BC
+; 1210				
+; 1211				do_cup();
+	CALL	_do_cup
+; 1212				
+; 1213				break;
+	JR	L_290
+; 1214			}
+L_282:
+; 1215			
+; 1216			len = strlen(p->p_data);
+	LD	IY,(IX+-4)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-5),L
+; 1217			
+; 1218			if (len >= left_pos)
+	LD	A,(IX+-5)
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,(IX+-8)
+	SBC	HL,BC
+	JP	M,L__216
+	JP	PE,L_285
+	JR	L__217
+L__216:
+	JP	PO,L_285
+L__217:
+; 1219				sc_str(r, 0, p->p_data + (left_pos - 1));
+	LD	BC,(IX+-8)
+	LD	IY,(IX+-4)
+	LD	HL,(IY+6)
+	DEC	BC
+	ADD	HL,BC
+	PUSH	HL
+	LD	BC,0
+	PUSH	BC
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	CALL	_sc_str
+	POP	BC
+	POP	BC
+	POP	BC
+; 1220			else
+	JR	L_286
+L_285:
+; 1221				if (len == 0)
+	LD	A,(IX+-5)
+	OR	A,A
+	JR	NZ,L_286
+; 1222					plot_char(0, r, ' ');
+	LD	BC,32
+	PUSH	BC
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+L_286:
+; 1223			
+; 1224			p = p->p_next;
+	LD	IY,(IX+-4)
+	LD	BC,(IY+3)
+	LD	(IX+-4),BC
+	INC	(IX+-1)
+; 1225		}
+L_289:
+	LD	A,(IX+-1)
+	CP	A,50
+	JR	C,L_287
+L_290:
+; 1226		
+; 1227		te_mov(cur_row, cur_col);
+	LD	A,(_cur_col)
+	LD	C,A
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	CALL	_te_mov
+	POP	BC
+	POP	BC
+; 1228	
+; 1229		Show_Cursor();
+	CALL	_Show_Cursor
+; 1230	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _paintall ***************************
+;Name                         Addr/Register   Size   Type
+;_Show_Cursor                        IMPORT  -----   function
+;_te_mov                             IMPORT  -----   function
+;_plot_char                          IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;_do_cup                             IMPORT  -----   function
+;_sc_str                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_sc_clr                             IMPORT  -----   function
+;_cur_row                            STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_char                           STATIC      3   variable
+;_p_curr                             STATIC      3   variable
+;left_pos                              IX-8      3   variable
+;len                                   IX-5      1   variable
+;p                                     IX-4      3   variable
+;r                                     IX-1      1   variable
+
+
+; Stack Frame Size: 14 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__210:
+	DB	"<eof>"
+	DB	0
+	SEGMENT CODE
+; 1231	
+; 1232	/* Redraws the current row of the virtual screen */
+; 1233	/* from scratch from the current settings.       */
+; 1234	void paintrow(void)
+; 1235	{
+_paintrow:
+	LD	HL,-2
+	CALL	__frameset
+; 1236		unsigned char left_pos = cur_char - cur_col;
+	LD	A,(_cur_char)
+	LD	B,A
+	LD	A,(_cur_col)
+	LD	C,A
+	LD	A,B
+	SUB	A,C
+	LD	(IX+-1),A
+; 1237		char len;
+; 1238		
+; 1239		len = strlen(p_curr->p_data);
+	LD	IY,(_p_curr)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-2),L
+; 1240		
+; 1241		sc_crw(cur_row);
+	LD	A,(_cur_row)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_sc_crw
+	POP	BC
+; 1242		
+; 1243		if (p_curr == p_root)
+	LD	BC,(_p_root)
+	LD	HL,(_p_curr)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_294
+; 1244			sc_str(cur_row, 0, "<eof>");
+	LD	BC,L__220
+	PUSH	BC
+	LD	A,(_cur_row)
+	LD	C,A
+	LD	DE,0
+	PUSH	DE
+	LD	B,0
+	PUSH	BC
+	CALL	_sc_str
+	POP	BC
+	POP	BC
+	POP	BC
+; 1245		else
+	JR	L_295
+L_294:
+; 1246			if (len >= left_pos)
+	LD	A,(IX+-2)
+	CP	A,(IX+-1)
+	JR	C,L_295
+; 1247			{
+; 1248				sc_str(cur_row, 0, p_curr->p_data + (left_pos - 1));			
+	LD	A,(IX+-1)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	IY,(_p_curr)
+	LD	HL,(IY+6)
+	DEC	BC
+	ADD	HL,BC
+	PUSH	HL
+	LD	A,(_cur_row)
+	LD	C,A
+	LD	DE,0
+	PUSH	DE
+	LD	B,0
+	PUSH	BC
+	CALL	_sc_str
+	POP	BC
+	POP	BC
+	POP	BC
+; 1249		
+; 1250				gotoxy(len, cur_row);
+	LD	A,(_cur_row)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1251				
+; 1252				clreol();
+	CALL	_clreol
+; 1253			}
+; 1254	}
+L_295:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _paintrow ***************************
+;Name                         Addr/Register   Size   Type
+;_clreol                             IMPORT  -----   function
+;_gotoxy                             IMPORT  -----   function
+;_sc_str                             IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;_sc_crw                             IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_strlen                             IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_cur_char                           STATIC      3   variable
+;len                                   IX-2      1   variable
+;left_pos                              IX-1      1   variable
+
+
+; Stack Frame Size: 8 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__220:
+	DB	"<eof>"
+	DB	0
+	SEGMENT CODE
+; 1255	
+; 1256	/* Show curson on screen. */
+; 1257	void Show_Cursor(void)
+; 1258	{
+_Show_Cursor:
+; 1259		asm ("push ix");
+push ix
+; 1260		asm ("ld a, kr_draw_cursor");
+ld a, kr_draw_cursor
+; 1261		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1262		asm ("pop ix");	
+pop ix
+; 1263	}
+	RET	
+
+
+;**************************** _Show_Cursor ***************************
+;Name                         Addr/Register   Size   Type
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1264	
+; 1265	/* Show PROTED menù */
+; 1266	void ShowMenu(void)
+; 1267	{
+_ShowMenu:
+; 1268		Enable_Back_Color();
+	CALL	_Enable_Back_Color
+; 1269		
+; 1270		gotoxy(0, 50);	
+	LD	BC,50
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1271		print("+==================================]PROTED[====================================+");
+	LD	BC,L__224
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1272		print("| Ln:       , Col:                                                             |");
+	LD	BC,L__225
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1273		print("|                                                                              |");
+	LD	BC,L__226
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1274		print("| Command  shortcuts:                                                          |");
+	LD	BC,L__227
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1275		print("| Ctrl + L: insert a line.   Ctrl + E: end of text.   Ctrl + K: delete a line. |");
+	LD	BC,L__228
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1276		print("| Ctrl + N: redraw screen.   Ctrl + T: top of file.   Ctrl + S: save file.     |");
+	LD	BC,L__229
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1277		print("| Ctrl + B: break a line.    Ctrl + R: reload file.   Ctrl + Q: quit to PROSE. |");
+	LD	BC,L__230
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1278		print("|         Key enabled: Tab, Cursor Keys, PgUp, PgDown, Home, End, Del.         |");
+	LD	BC,L__231
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1279		print("+==============================================================================+");
+	LD	BC,L__232
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1280		
+; 1281		Disable_Back_Color();
+	CALL	_Disable_Back_Color
+; 1282	}
+	RET	
+
+
+;**************************** _ShowMenu ***************************
+;Name                         Addr/Register   Size   Type
+;_Disable_Back_Color                 IMPORT  -----   function
+;_print                              IMPORT  -----   function
+;_gotoxy                             IMPORT  -----   function
+;_Enable_Back_Color                  IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__224:
+	DB	"+==================================]PROTED[====================================+"
+	DB	0
+L__225:
+	DB	"| Ln:       , Col:                                                             |"
+	DB	0
+L__226:
+	DB	"|                                                                              |"
+	DB	0
+L__227:
+	DB	"| Command  shortcuts:                                                          |"
+	DB	0
+L__228:
+	DB	"| Ctrl + L: insert a line.   Ctrl + E: end of text.   Ctrl + K: delete a line. |"
+	DB	0
+L__229:
+	DB	"| Ctrl + N: redraw screen.   Ctrl + T: top of file.   Ctrl + S: save file.     |"
+	DB	0
+L__230:
+	DB	"| Ctrl + B: break a line.    Ctrl + R: reload file.   Ctrl + Q: quit to PROSE. |"
+	DB	0
+L__231:
+	DB	"|         Key enabled: Tab, Cursor Keys, PgUp, PgDown, Home, End, Del.         |"
+	DB	0
+L__232:
+	DB	"+==============================================================================+"
+	DB	0
+	SEGMENT CODE
+; 1283	
+; 1284	/* Enable the background color for print string */
+; 1285	void Enable_Back_Color(void)
+; 1286	{
+_Enable_Back_Color:
+; 1287		asm ("push ix");
+push ix
+; 1288		asm ("ld E, E7h");
+ld E, E7h
+; 1289		asm ("ld a, kr_set_pen");
+ld a, kr_set_pen
+; 1290		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1291		asm ("pop ix");
+pop ix
+; 1292	}
+	RET	
+
+
+;**************************** _Enable_Back_Color ***************************
+;Name                         Addr/Register   Size   Type
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1293	
+; 1294	/* Disable the background color for print string */
+; 1295	void Disable_Back_Color(void)
+; 1296	{
+_Disable_Back_Color:
+; 1297		asm ("push ix");
+push ix
+; 1298		asm ("ld E, 07h");
+ld E, 07h
+; 1299		asm ("ld a, kr_set_pen");
+ld a, kr_set_pen
+; 1300		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1301		asm ("pop ix");
+pop ix
+; 1302	}
+	RET	
+
+
+;**************************** _Disable_Back_Color ***************************
+;Name                         Addr/Register   Size   Type
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1303	
+; 1304	/* Main edit loop */
+; 1305	void edit(void)
+; 1306	{
+_edit:
+	LD	HL,-1
+	CALL	__frameset
+; 1307		cur_row = 0;
+	LD	BC,0
+	LD	(_cur_row),BC
+; 1308		cur_col = 0;
+	LD	(_cur_col),BC
+; 1309		cur_line = 1;
+	LD	BC,1
+	LD	(_cur_line),BC
+; 1310		cur_char = 1;
+	LD	(_cur_char),BC
+; 1311		p_curr = p_root->p_next;	
+	LD	IY,(_p_root)
+	LD	BC,(IY+3)
+	LD	(_p_curr),BC
+; 1312		
+; 1313		paintall();
+	CALL	_paintall
+; 1314		
+; 1315		sc_fup();
+	CALL	_sc_fup
+; 1316		
+; 1317		while (TRUE)
+L_331:
+; 1318		{
+; 1319			char ch;
+; 1320			
+; 1321			sc_upd();
+	CALL	_sc_upd
+; 1322			
+; 1323			Show_Cursor_Position();
+	CALL	_Show_Cursor_Position
+; 1324			
+; 1325			te_mov(cur_row, cur_col);
+	LD	A,(_cur_col)
+	LD	C,A
+	LD	A,(_cur_row)
+	LD	B,0
+	PUSH	BC
+	LD	C,A
+	PUSH	BC
+	CALL	_te_mov
+	POP	BC
+	POP	BC
+; 1326	
+; 1327			Show_Cursor();		
+	CALL	_Show_Cursor
+; 1328			
+; 1329			ch = te_gch();
+	CALL	_te_gch
+	LD	(IX+-1),A
+; 1330			
+; 1331			if ((' ' <= ch) && (ch <= '~'))
+	CP	A,32
+	JP	M,L_329
+	LD	A,126
+	CP	A,(IX+-1)
+	JP	M,L__254
+	JP	PE,L_329
+	JR	L__255
+L__254:
+	JP	PO,L_329
+L__255:
+; 1332				do_chr(ch);
+	LD	C,(IX+-1)
+	LD	B,0
+	PUSH	BC
+	CALL	_do_chr
+	POP	BC
+; 1333			else
+	JR	L_331
+L_329:
+; 1334				switch (ch)
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+L__239:
+	LD	DE,1
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L_331
+	LD	HL,20
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_331
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,L__238-3
+	ADD	HL,BC
+	LD	HL,(HL)
+	JP	(HL)
+L__238:
+	DW24	L_320	
+
+	DW24	L_301	
+
+	DW24	L_302	
+
+	DW24	L_303	
+
+	DW24	L_304	
+
+	DW24	L_305	
+
+	DW24	L_331	
+
+	DW24	L_306	
+
+	DW24	L_307	
+
+	DW24	L_331	
+
+	DW24	L_308	
+
+	DW24	L_309	
+
+	DW24	L_310	
+
+	DW24	L_311	
+
+	DW24	L_331	
+
+	DW24	L_331	
+
+	DW24	L_315	
+
+	DW24	L_312	
+
+	DW24	L_313	
+
+	DW24	L_314	
+
+; 1335				{
+; 1336					case		2: do_enhanced_ret(); break;		/* Control-B. Break Line.             */
+L_301:
+	CALL	_do_enhanced_ret
+	JR	L_331
+; 1337					case		3: do_pup(); break;					/* PageUp.             				  */
+L_302:
+	CALL	_do_pup
+	JR	L_331
+; 1338					case		4: do_dch(); break;					/* Delete character, Canc Key.		  */
+L_303:
+	CALL	_do_dch
+	JR	L_331
+; 1339					case		5: do_bot(1); break;				/* Control-E. End of text.      	  */
+L_304:
+	LD	BC,1
+	PUSH	BC
+	CALL	_do_bot
+	POP	BC
+	JR	L_331
+; 1340					case 		6: do_pdw(); break;					/* PageDown.           				  */
+L_305:
+	CALL	_do_pdw
+	JR	L_331
+; 1341					case 		8: do_del(); break;					/* Delete character, Backspace Key.	  */
+L_306:
+	CALL	_do_del
+	JR	L_331
+; 1342					case		9: do_tab(); break;					/* Tab.           				  	  */
+L_307:
+	CALL	_do_tab
+	JR	L_331
+; 1343					case		11: do_dln(); break;				/* Control-K. Delete line.      	  */
+L_308:
+	CALL	_do_dln
+	JR	L_331
+; 1344					case		12: do_iln(); break;				/* Control-L. Insert line.      	  */
+L_309:
+	CALL	_do_iln
+	JR	L_331
+; 1345					case 		13: do_ret(); break;				/* Return (No new line)				  */
+L_310:
+	CALL	_do_ret
+	JR	L_331
+; 1346					case		14: do_red(); break;				/* Control-N. Redraw screen.    	  */
+L_311:
+	CALL	_do_red
+	JR	L_331
+; 1347					case		18: reload_file(); break;			/* Control-R. Reload file.	     	  */
+L_312:
+	CALL	_reload_file
+	JR	L_331
+; 1348					case		19: save_file(); break;				/* Control-S. Save file.	     	  */
+L_313:
+	CALL	_save_file
+	JR	L_331
+; 1349					case		20: do_top(); break;				/* Control-T. Top of file.      	  */
+L_314:
+	CALL	_do_top
+	JR	L_331
+; 1350					
+; 1351					case		17: msg_window("Quit to PROSE ?", "Y/n");	/* Control-Q. Exit.      	  */
+L_315:
+	LD	BC,L__242
+	PUSH	BC
+	LD	BC,L__243
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1352									getch();
+	CALL	_getch
+; 1353									close_msg_window();
+	CALL	_close_msg_window
+; 1354									
+; 1355									if ((Ascii != 89) && (Ascii != 121))
+	LD	A,(_Ascii)
+	CP	A,89
+	JR	Z,L_318
+	LD	A,(_Ascii)
+	CP	A,121
+	JR	NZ,L_331
+	JR	L_318
+; 1356									 continue;
+; 1357									
+; 1358									goto quit;
+; 1359						
+; 1360					case		1:
+L_320:
+; 1361						switch (Scancode)
+	LD	A,(_Scancode)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+L__248:
+	LD	DE,114
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L__249
+	LD	HL,117
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_331
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	DE,L__247-342
+	ADD	HL,DE
+	LD	HL,(HL)
+	JP	(HL)
+L__247:
+	DW24	L_324	
+
+	DW24	L_331	
+
+	DW24	L_321	
+
+	DW24	L_323	
+
+L__249:
+	LD	DE,105
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L_331
+	LD	HL,108
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_331
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,L__246-315
+	ADD	HL,BC
+	LD	HL,(HL)
+	JP	(HL)
+L__246:
+	DW24	L_326	
+
+	DW24	L_331	
+
+	DW24	L_322	
+
+	DW24	L_325	
+
+; 1362						{
+; 1363							case	0x74: do_crt(); break;			/* Cursor right.					  */
+L_321:
+	CALL	_do_crt
+	JR	L_331
+; 1364							case	0x6B: do_clf(); break;			/* Cursor left.					  	  */
+L_322:
+	CALL	_do_clf
+	JR	L_331
+; 1365							case	0x75: do_cup(); break;			/* Cursor up.					  	  */
+L_323:
+	CALL	_do_cup
+	JR	L_331
+; 1366							case	0x72: do_cdw(); break;			/* Cursor down.					  	  */
+L_324:
+	CALL	_do_cdw
+	JR	L_331
+; 1367							case	0x6C: do_home(); break;			/* Home key.					  	  */
+L_325:
+	CALL	_do_home
+	JR	L_331
+; 1368							case	0x69: do_endline(); break;		/* End key.					  	  	  */
+L_326:
+	CALL	_do_endline
+	JR	L_331
+L_318:
+; 1369						}
+; 1370						break;
+; 1371				}
+; 1372		}
+; 1373		
+; 1374		quit:;
+; 1375	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _edit ***************************
+;Name                         Addr/Register   Size   Type
+;_do_endline                         IMPORT  -----   function
+;_do_home                            IMPORT  -----   function
+;_do_cdw                             IMPORT  -----   function
+;_do_cup                             IMPORT  -----   function
+;_do_clf                             IMPORT  -----   function
+;_do_crt                             IMPORT  -----   function
+;_Scancode                           STATIC      1   variable
+;_Ascii                              STATIC      1   variable
+;_close_msg_window                   IMPORT  -----   function
+;_getch                              IMPORT  -----   function
+;_msg_window                         IMPORT  -----   function
+;_do_top                             IMPORT  -----   function
+;_save_file                          IMPORT  -----   function
+;_reload_file                        IMPORT  -----   function
+;_do_red                             IMPORT  -----   function
+;_do_ret                             IMPORT  -----   function
+;_do_iln                             IMPORT  -----   function
+;_do_dln                             IMPORT  -----   function
+;_do_tab                             IMPORT  -----   function
+;_do_del                             IMPORT  -----   function
+;_do_pdw                             IMPORT  -----   function
+;_do_bot                             IMPORT  -----   function
+;_do_dch                             IMPORT  -----   function
+;_do_pup                             IMPORT  -----   function
+;_do_enhanced_ret                    IMPORT  -----   function
+;_do_chr                             IMPORT  -----   function
+;_te_gch                             IMPORT  -----   function
+;_Show_Cursor                        IMPORT  -----   function
+;_te_mov                             IMPORT  -----   function
+;_Show_Cursor_Position               IMPORT  -----   function
+;_sc_upd                             IMPORT  -----   function
+;_sc_fup                             IMPORT  -----   function
+;_paintall                           IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_cur_char                           STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;ch                                    IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__242:
+	DB	"Y/n"
+	DB	0
+L__243:
+	DB	"Quit to PROSE ?"
+	DB	0
+	SEGMENT CODE
+; 1376	
+; 1377	/* Draw on screen the cursor position */
+; 1378	void Show_Cursor_Position(void)
+; 1379	{
+_Show_Cursor_Position:
+; 1380		Enable_Back_Color();
+	CALL	_Enable_Back_Color
+; 1381		
+; 1382		uitoa(cur_line, convBuf);
+	LD	BC,_convBuf
+	PUSH	BC
+	LD	BC,(_cur_line)
+	PUSH	BC
+	CALL	_uitoa
+	POP	BC
+	POP	BC
+; 1383		
+; 1384		gotoxy(5, 51);
+	LD	BC,51
+	PUSH	BC
+	LD	BC,5
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1385		
+; 1386		print("      ");
+	LD	BC,L__257
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1387		
+; 1388		gotoxy(5, 51);
+	LD	BC,51
+	PUSH	BC
+	LD	BC,5
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1389		
+; 1390		print(convBuf);	
+	LD	BC,_convBuf
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1391		
+; 1392		uitoa(cur_col + 1, convBuf);
+	LD	BC,_convBuf
+	PUSH	BC
+	LD	BC,(_cur_col)
+	INC	BC
+	PUSH	BC
+	CALL	_uitoa
+	POP	BC
+	POP	BC
+; 1393		
+; 1394		gotoxy(18, 51);
+	LD	BC,51
+	PUSH	BC
+	LD	BC,18
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1395		
+; 1396		print("         ");
+	LD	BC,L__258
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1397		
+; 1398		gotoxy(18, 51);
+	LD	BC,51
+	PUSH	BC
+	LD	BC,18
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1399		
+; 1400		print(convBuf);	
+	LD	BC,_convBuf
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1401		
+; 1402		Disable_Back_Color();
+	CALL	_Disable_Back_Color
+; 1403	}
+	RET	
+
+
+;**************************** _Show_Cursor_Position ***************************
+;Name                         Addr/Register   Size   Type
+;_Disable_Back_Color                 IMPORT  -----   function
+;_cur_col                            STATIC      3   variable
+;_print                              IMPORT  -----   function
+;_gotoxy                             IMPORT  -----   function
+;_cur_line                           STATIC      3   variable
+;_convBuf                            STATIC      5   variable
+;_uitoa                              IMPORT  -----   function
+;_Enable_Back_Color                  IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__257:
+	DB	"      "
+	DB	0
+L__258:
+	DB	"         "
+	DB	0
+	SEGMENT CODE
+; 1404	
+; 1405	/* Return 1 if the filename passed as parameter exists */
+; 1406	char FileExists(void)
+; 1407	{
+_FileExists:
+	LD	HL,-1
+	CALL	__frameset
+; 1408		char ret;
+; 1409		
+; 1410		ret = 0;
+	LD	(IX+-1),0
+; 1411		
+; 1412		asm ("push ix");
+push ix
+; 1413		asm ("ld hl, (_K_xHL)");
+ld hl, (_K_xHL)
+; 1414		asm ("ld a, kr_find_file");
+ld a, kr_find_file
+; 1415		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1416		asm ("pop ix");	
+pop ix
+; 1417		asm ("jr nz, FindError");
+jr nz, FindError
+; 1418		
+; 1419		ret = 1;
+	LD	(IX+-1),1
+; 1420		
+; 1421		asm ("FindError:");
+FindError:
+; 1422		
+; 1423		return ret;
+	LD	A,(IX+-1)
+; 1424	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _FileExists ***************************
+;Name                         Addr/Register   Size   Type
+;ret                                   IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1425	
+; 1426	/* Load file into Video Ram B, after build the text list */
+; 1427	void load_file(void)
+; 1428	{
+_load_file:
+	LD	HL,-8
+	CALL	__frameset
+; 1429		register unsigned int i;
+; 1430		char pos = 0, len;
+	LD	(IX+-1),0
+; 1431		
+; 1432		msg_window("Loading file", "Please wait...");
+	LD	BC,L__261
+	PUSH	BC
+	LD	BC,L__262
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1433		
+; 1434		asm ("push ix");
+push ix
+; 1435		asm ("ld hl, (_K_xHL)");
+ld hl, (_K_xHL)
+; 1436		asm ("ld a, kr_find_file");
+ld a, kr_find_file
+; 1437		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1438		asm ("pop ix");	
+pop ix
+; 1439		asm ("jr nz, LoadError");
+jr nz, LoadError
+; 1440		asm ("ld (_filesize), de");
+ld (_filesize), de
+; 1441		
+; 1442		asm ("push ix");
+push ix
+; 1443		asm ("ld de, (_filesize)");
+ld de, (_filesize)
+; 1444		asm ("ld a, kr_set_load_length");
+ld a, kr_set_load_length
+; 1445		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1446		asm ("pop ix");
+pop ix
+; 1447		
+; 1448		asm ("push ix");
+push ix
+; 1449		asm ("ld hl, (_BufferFile)");
+ld hl, (_BufferFile)
+; 1450		asm ("ld a, kr_read_file");
+ld a, kr_read_file
+; 1451		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1452		asm ("jr nz, LoadError");
+jr nz, LoadError
+; 1453		asm ("pop ix");
+pop ix
+; 1454		
+; 1455		memset(linbuf, 0, sizeof(linbuf));
+	LD	BC,90
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_memset
+; 1456		
+; 1457		linbuf[0] = EOS;
+	XOR	A,A
+	LD	(_linbuf),A
+; 1458		i = 0;	
+	LD	DE,0
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	(IX+-4),DE
+; 1459		
+; 1460		while (i <= filesize)
+	JR	L_349
+L_350:
+; 1461		{
+; 1462			if (pos < MAXLNLEN - 1)
+	LD	A,(IX+-1)
+	CP	A,79
+	JP	P,L__272
+	JP	PE,L_348
+	JR	L__273
+L__272:
+	JP	PO,L_348
+L__273:
+; 1463			{
+; 1464				linbuf[pos] = BufferFile[i];
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,_linbuf
+	ADD	HL,BC
+	LD	(IX+-8),HL
+	LD	BC,(IX+-4)
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	HL,(IX+-8)
+	LD	(HL),A
+; 1465				
+; 1466				if ((linbuf[pos] == EOL) || (i == filesize))
+	LD	HL,(IX+-8)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,10
+	SBC	HL,BC
+	JR	Z,L_341
+	LD	BC,(IX+-4)
+	LD	HL,(_filesize)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_342
+L_341:
+; 1467				{
+; 1468					len = strlen(linbuf);
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-5),L
+; 1469					
+; 1470					if (linbuf[pos] == EOL)
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,_linbuf
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,10
+	SBC	HL,BC
+	JR	NZ,L_338
+; 1471						linbuf[len - 1] = EOS;
+	LD	A,(IX+-5)
+	SEXT	HL
+	LD	L,(IX+-5)
+	DEC	HL
+	LD	BC,_linbuf
+	ADD	HL,BC
+	LD	(HL),0
+; 1472					else
+	JR	L_339
+L_338:
+; 1473						linbuf[pos + 1] = EOS;				
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	INC	HL
+	LD	BC,_linbuf
+	ADD	HL,BC
+	LD	(HL),0
+L_339:
+; 1474					
+; 1475					purify(linbuf);
+	PUSH	BC
+	CALL	_purify
+	POP	BC
+; 1476						
+; 1477					tx_ins(p_root, linbuf);
+	LD	BC,_linbuf
+	PUSH	BC
+	LD	BC,(_p_root)
+	PUSH	BC
+	CALL	_tx_ins
+	POP	BC
+	POP	BC
+; 1478				
+; 1479					pos = 0;
+	LD	(IX+-1),0
+; 1480					memset(linbuf, 0, sizeof(linbuf));
+	LD	BC,90
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+; 1481				}
+; 1482				else
+	JR	L_344
+L_342:
+; 1483					pos++;
+	INC	(IX+-1)
+L_344:
+; 1484				
+; 1485				i++;
+	LD	BC,(IX+-4)
+	INC	BC
+	LD	(IX+-4),BC
+; 1486			}
+; 1487			else
+	JR	L_349
+L_348:
+; 1488			{
+; 1489				purify(linbuf);
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_purify
+	POP	BC
+; 1490				
+; 1491				tx_ins(p_root, linbuf);
+	LD	BC,_linbuf
+	PUSH	BC
+	LD	BC,(_p_root)
+	PUSH	BC
+	CALL	_tx_ins
+	POP	BC
+	POP	BC
+; 1492				
+; 1493				pos = 0;
+	LD	(IX+-1),0
+; 1494				memset(linbuf, 0, sizeof(linbuf));
+	LD	BC,90
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,_linbuf
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+; 1495				
+; 1496				if ((BufferFile[i] == 0x0D) && (BufferFile[i + 1] == 0x0A))
+	LD	BC,(IX+-4)
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,13
+	SBC	HL,BC
+	JR	NZ,L_349
+	LD	BC,(IX+-4)
+	INC	BC
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,10
+	SBC	HL,BC
+	JR	NZ,L_349
+; 1497					i += 2;
+	LD	IY,(IX+-4)
+	LEA	IY,IY+2
+	LD	(IX+-4),IY
+; 1498			}
+; 1499		}	
+L_349:
+	LD	BC,(IX+-4)
+	LD	HL,(_filesize)
+	OR	A,A
+	SBC	HL,BC
+	JR	NC,L_350
+; 1500		
+; 1501		asm ("jp f_end");
+jp f_end
+; 1502		
+; 1503		asm ("LoadError:");
+LoadError:
+; 1504		msg_window("Loading file", "File error!");
+	LD	BC,L__270
+	PUSH	BC
+	LD	BC,L__271
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1505		getch();	
+	CALL	_getch
+; 1506		
+; 1507		asm ("f_end:");
+f_end:
+; 1508		
+; 1509		close_msg_window();
+	CALL	_close_msg_window
+; 1510	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _load_file ***************************
+;Name                         Addr/Register   Size   Type
+;_close_msg_window                   IMPORT  -----   function
+;_getch                              IMPORT  -----   function
+;_p_root                             STATIC      3   variable
+;_tx_ins                             IMPORT  -----   function
+;_purify                             IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;_filesize                           STATIC      3   variable
+;_BufferFile                         STATIC      3   variable
+;_linbuf                             STATIC     90   variable
+;_memset                             IMPORT  -----   function
+;_msg_window                         IMPORT  -----   function
+;len                                   IX-5      1   variable
+;i                                     IX-4      3   variable
+;pos                                   IX-1      1   variable
+
+
+; Stack Frame Size: 14 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__261:
+	DB	"Please wait..."
+	DB	0
+L__262:
+	DB	"Loading file"
+	DB	0
+L__270:
+	DB	"File error!"
+	DB	0
+L__271:
+	DB	"Loading file"
+	DB	0
+	SEGMENT CODE
+; 1511	
+; 1512	/* From text list create the file into Video Ram B, after save it */
+; 1513	void save_file(void)
+; 1514	{
+_save_file:
+	LD	HL,-6
+	CALL	__frameset
+; 1515		p_line_t p_line = p_root->p_next;
+	LD	IY,(_p_root)
+	LD	BC,(IY+3)
+	LD	(IX+-3),BC
+; 1516		int slen;	
+; 1517		
+; 1518		
+; 1519		if (UseFile == 0)
+	LD	A,(_UseFile)
+	OR	A,A
+	JR	NZ,L_354
+; 1520		{
+; 1521			asm ("ld hl, (_NonameFile)");
+ld hl, (_NonameFile)
+; 1522			asm ("ld (_K_xHL), hl");
+ld (_K_xHL), hl
+; 1523			
+; 1524			msg_window("Please wait, saving", NonameFile);
+	LD	BC,(_NonameFile)
+	PUSH	BC
+	LD	BC,L__276
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1525		}
+; 1526		else
+	JR	L_355
+L_354:
+; 1527			msg_window("Saving file", "Please wait...");
+	LD	BC,L__277
+	PUSH	BC
+	LD	BC,L__278
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+L_355:
+; 1528		
+; 1529		asm ("push ix");
+push ix
+; 1530		asm ("ld hl, (_K_xHL)");
+ld hl, (_K_xHL)
+; 1531		asm ("ld a, kr_erase_file");
+ld a, kr_erase_file
+; 1532		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1533		asm ("pop ix");	
+pop ix
+; 1534		
+; 1535		asm ("push ix");
+push ix
+; 1536		asm ("ld hl, (_K_xHL)");
+ld hl, (_K_xHL)
+; 1537		asm ("ld a, kr_create_file");
+ld a, kr_create_file
+; 1538		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1539		asm ("pop ix");
+pop ix
+; 1540		asm ("jr nz, SaveError");	
+jr nz, SaveError
+; 1541		
+; 1542		filesize = 0;	
+	LD	BC,0
+	LD	(_filesize),BC
+; 1543		
+; 1544		while (p_line != p_root)
+	JR	L_358
+L_359:
+; 1545		{
+; 1546			slen = strlen(p_line->p_data);
+	LD	IY,(IX+-3)
+	LD	BC,(IY+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-6),HL
+; 1547			
+; 1548			if (slen > 0)
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L_357
+; 1549				memmove(BufferFile + filesize, p_line->p_data, slen);
+	LD	BC,(IX+-6)
+	PUSH	BC
+	LD	IY,(IX+-3)
+	LD	BC,(IY+6)
+	PUSH	BC
+	LD	BC,(_filesize)
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_memmove
+	POP	BC
+	POP	BC
+	POP	BC
+L_357:
+; 1550			
+; 1551			filesize += slen;
+	LD	BC,(IX+-6)
+	LD	HL,(_filesize)
+	ADD	HL,BC
+	LD	(_filesize),HL
+; 1552			
+; 1553			BufferFile[filesize] = 0x0D;
+	LD	BC,(_filesize)
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	LD	(HL),13
+; 1554			BufferFile[filesize + 1] = 0x0A;
+	LD	BC,(_filesize)
+	INC	BC
+	LD	HL,(_BufferFile)
+	ADD	HL,BC
+	LD	(HL),10
+; 1555			
+; 1556			filesize += 2;
+	LD	IY,(_filesize)
+	LEA	BC,IY+2
+	LD	(_filesize),BC
+; 1557			
+; 1558			p_line = p_line->p_next;
+	LD	IY,(IX+-3)
+	LD	BC,(IY+3)
+	LD	(IX+-3),BC
+; 1559		}
+L_358:
+	LD	BC,(IX+-3)
+	LD	HL,(_p_root)
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_359
+; 1560		
+; 1561		filesize -= 2;
+	LD	IY,(_filesize)
+	LEA	BC,IY+-2
+	LD	(_filesize),BC
+; 1562		
+; 1563		asm ("push ix");
+push ix
+; 1564		asm ("ld hl, (_K_xHL)");
+ld hl, (_K_xHL)
+; 1565		asm ("ld de, (_BufferFile)");
+ld de, (_BufferFile)
+; 1566		asm ("ld bc, (_filesize)");
+ld bc, (_filesize)
+; 1567		asm ("ld a, kr_write_file");
+ld a, kr_write_file
+; 1568		asm ("call.lil prose_kernal");
+call.lil prose_kernal
+; 1569		asm ("pop ix");	
+pop ix
+; 1570		
+; 1571		asm ("jp s_end");
+jp s_end
+; 1572		
+; 1573		asm ("SaveError:");
+SaveError:
+; 1574		msg_window("Saving file", "File error!");
+	LD	BC,L__281
+	PUSH	BC
+	LD	BC,L__282
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1575		getch();	
+	CALL	_getch
+; 1576		
+; 1577		asm ("s_end:");
+s_end:
+; 1578		close_msg_window();
+	CALL	_close_msg_window
+; 1579	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _save_file ***************************
+;Name                         Addr/Register   Size   Type
+;_close_msg_window                   IMPORT  -----   function
+;_getch                              IMPORT  -----   function
+;_BufferFile                         STATIC      3   variable
+;_memmove                            IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;_filesize                           STATIC      3   variable
+;_NonameFile                         STATIC      3   variable
+;_msg_window                         IMPORT  -----   function
+;_UseFile                            STATIC      1   variable
+;_p_root                             STATIC      3   variable
+;slen                                  IX-6      3   variable
+;p_line                                IX-3      3   variable
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__276:
+	DB	"Please wait, saving"
+	DB	0
+L__277:
+	DB	"Please wait..."
+	DB	0
+L__278:
+	DB	"Saving file"
+	DB	0
+L__281:
+	DB	"File error!"
+	DB	0
+L__282:
+	DB	"Saving file"
+	DB	0
+	SEGMENT CODE
+; 1580	
+; 1581	/* Reload the file if exist */
+; 1582	void reload_file(void)
+; 1583	{
+_reload_file:
+; 1584		if (UseFile == 1)
+	LD	A,(_UseFile)
+	CP	A,1
+	JR	NZ,L_367
+; 1585			if (FileExists() == 1)
+	CALL	_FileExists
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,1
+	SBC	HL,BC
+	JR	NZ,L_367
+; 1586			{
+; 1587				msg_window("Reload file ?", "Y/n");
+	LD	BC,L__286
+	PUSH	BC
+	LD	BC,L__287
+	PUSH	BC
+	CALL	_msg_window
+	POP	BC
+	POP	BC
+; 1588				getch();
+	CALL	_getch
+; 1589				close_msg_window();
+	CALL	_close_msg_window
+; 1590				
+; 1591				if ((Ascii != 89) && (Ascii != 121))
+	LD	A,(_Ascii)
+	CP	A,89
+	JR	Z,L_364
+	LD	A,(_Ascii)
+	CP	A,121
+	JR	NZ,L_367
+; 1592					return;
+L_364:
+; 1593				
+; 1594				sc_fin();
+	CALL	_sc_fin
+; 1595				te_fin();
+	CALL	_te_fin
+; 1596				
+; 1597				memset(BufferFile, 0, 1024 * 512);
+	LD	BC,524288
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,(_BufferFile)
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+; 1598				
+; 1599				te_ini();
+	CALL	_te_ini
+; 1600				sc_ini();
+	CALL	_sc_ini
+; 1601				tx_ini();			
+	CALL	_tx_ini
+; 1602				
+; 1603				load_file();
+	CALL	_load_file
+; 1604				
+; 1605				cur_row = 0;
+	LD	BC,0
+	LD	(_cur_row),BC
+; 1606				cur_col = 0;
+	LD	(_cur_col),BC
+; 1607				cur_line = 1;
+	LD	BC,1
+	LD	(_cur_line),BC
+; 1608				cur_char = 1;
+	LD	(_cur_char),BC
+; 1609				p_curr = p_root->p_next;	
+	LD	IY,(_p_root)
+	LD	BC,(IY+3)
+	LD	(_p_curr),BC
+; 1610		
+; 1611				paintall();
+	CALL	_paintall
+; 1612		
+; 1613				sc_fup();
+	CALL	_sc_fup
+; 1614			}
+; 1615	}
+L_367:
+	RET	
+
+
+;**************************** _reload_file ***************************
+;Name                         Addr/Register   Size   Type
+;_sc_fup                             IMPORT  -----   function
+;_paintall                           IMPORT  -----   function
+;_p_curr                             STATIC      3   variable
+;_p_root                             STATIC      3   variable
+;_cur_char                           STATIC      3   variable
+;_cur_line                           STATIC      3   variable
+;_cur_col                            STATIC      3   variable
+;_cur_row                            STATIC      3   variable
+;_load_file                          IMPORT  -----   function
+;_tx_ini                             IMPORT  -----   function
+;_sc_ini                             IMPORT  -----   function
+;_te_ini                             IMPORT  -----   function
+;_BufferFile                         STATIC      3   variable
+;_memset                             IMPORT  -----   function
+;_te_fin                             IMPORT  -----   function
+;_sc_fin                             IMPORT  -----   function
+;_Ascii                              STATIC      1   variable
+;_close_msg_window                   IMPORT  -----   function
+;_getch                              IMPORT  -----   function
+;_msg_window                         IMPORT  -----   function
+;_FileExists                         IMPORT  -----   function
+;_UseFile                            STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__286:
+	DB	"Y/n"
+	DB	0
+L__287:
+	DB	"Reload file ?"
+	DB	0
+	SEGMENT CODE
+; 1616	
+; 1617	/* Draw on screen the message box width 2 lines of text */
+; 1618	void msg_window(char *msg1, char *msg2)
+; 1619	{
+_msg_window:
+	LD	HL,-4
+	CALL	__frameset
+; 1620		char r, c, len, posx;
+; 1621	
+; 1622		memset(backbuffer, 0, sizeof(backbuffer));
+	LD	BC,320
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,_backbuffer
+	PUSH	BC
+	CALL	_memset
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	(IX+-2),0
+; 1623		
+; 1624		for (r = 0; r < 4; r++)
+	JR	L_375
+L_373:
+	LD	(IX+-1),0
+; 1625			for (c = 0; c < SCNCOLS; c++)
+	JR	L_372
+L_370:
+; 1626				backbuffer[r][c] = scn_phys[r + 23][c];
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	IY,HL
+	LEA	BC,IY+23
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	A,(IX+-1)
+	LD	BC,_scn_phys
+	ADD	HL,BC
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	A,(IX+-2)
+	ADD	HL,BC
+	LD	IY,HL
+	SEXT	HL
+	LD	L,(IX+-2)
+	LD	A,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_backbuffer
+	ADD	HL,BC
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	A,(IY)
+	ADD	HL,BC
+	LD	(HL),A
+	INC	(IX+-1)
+L_372:
+	LD	A,(IX+-1)
+	CP	A,80
+	JP	M,L__307
+	JP	PE,L_370
+	JR	L__308
+L__307:
+	JP	PO,L_370
+L__308:
+	INC	(IX+-2)
+L_375:
+	LD	A,(IX+-2)
+	CP	A,4
+	JP	M,L__309
+	JP	PE,L_373
+	JR	L__310
+L__309:
+	JP	PO,L_373
+L__310:
+; 1627		
+; 1628		Enable_Back_Color();
+	CALL	_Enable_Back_Color
+; 1629		
+; 1630		gotoxy(0, 23);
+	LD	BC,23
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	CALL	_gotoxy
+	POP	BC
+	POP	BC
+; 1631			
+; 1632		len = strlen(msg1);
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-3),L
+; 1633		posx = 40 - (len / 2);
+	LD	A,(IX+-3)
+	SEXT	HL
+	LD	L,(IX+-3)
+	LD	BC,2
+	CALL	__idivs
+	LD	A,40
+	SUB	A,L
+	LD	(IX+-4),A
+; 1634		
+; 1635		print("+==================================]PROTED[====================================+");
+	LD	BC,L__293
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1636		print("|");
+	LD	BC,L__294
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	LD	(IX+-1),1
+; 1637		
+; 1638		for (c = 1; c < posx - 1; c++)
+	JR	L_380
+L_378:
+; 1639			print(" ");
+	LD	BC,L__295
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	INC	(IX+-1)
+L_380:
+	LD	A,(IX+-4)
+	SEXT	HL
+	LD	L,(IX+-4)
+	LD	BC,HL
+	DEC	BC
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__311
+	JP	PE,L_378
+	JR	L__312
+L__311:
+	JP	PO,L_378
+L__312:
+; 1640		
+; 1641		print(msg1);
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	LD	A,(IX+-1)
+	ADD	A,(IX+-3)
+	LD	(IX+-2),A
+; 1642		
+; 1643		for (r = c + len; r < SCNCOLS - 1; r++)
+	JR	L_385
+L_383:
+; 1644			print(" ");
+	LD	BC,L__297
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	INC	(IX+-2)
+L_385:
+	LD	A,(IX+-2)
+	CP	A,79
+	JP	M,L__313
+	JP	PE,L_383
+	JR	L__314
+L__313:
+	JP	PO,L_383
+L__314:
+; 1645		
+; 1646		print("|");
+	LD	BC,L__299
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1647		
+; 1648		len = strlen(msg2);
+	LD	BC,(IX+9)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	(IX+-3),L
+; 1649		posx = 40 - (len / 2);
+	LD	A,(IX+-3)
+	SEXT	HL
+	LD	L,(IX+-3)
+	LD	BC,2
+	CALL	__idivs
+	LD	A,40
+	SUB	A,L
+	LD	(IX+-4),A
+; 1650		print("|");
+	LD	BC,L__300
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	LD	(IX+-1),1
+; 1651		
+; 1652		for (c = 1; c < posx - 1; c++)
+	JR	L_390
+L_388:
+; 1653			print(" ");
+	LD	BC,L__301
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	INC	(IX+-1)
+L_390:
+	LD	A,(IX+-4)
+	SEXT	HL
+	LD	L,(IX+-4)
+	LD	BC,HL
+	DEC	BC
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__315
+	JP	PE,L_388
+	JR	L__316
+L__315:
+	JP	PO,L_388
+L__316:
+; 1654		
+; 1655		print(msg2);
+	LD	BC,(IX+9)
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	LD	A,(IX+-1)
+	ADD	A,(IX+-3)
+	LD	(IX+-2),A
+; 1656		
+; 1657		for (r = c + len; r < SCNCOLS - 1; r++)
+	JR	L_395
+L_393:
+; 1658			print(" ");
+	LD	BC,L__303
+	PUSH	BC
+	CALL	_print
+	POP	BC
+	INC	(IX+-2)
+L_395:
+	LD	A,(IX+-2)
+	CP	A,79
+	JP	M,L__317
+	JP	PE,L_393
+	JR	L__318
+L__317:
+	JP	PO,L_393
+L__318:
+; 1659		
+; 1660		print("|");
+	LD	BC,L__305
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1661		
+; 1662		print("+==============================================================================+");
+	LD	BC,L__306
+	PUSH	BC
+	CALL	_print
+	POP	BC
+; 1663		
+; 1664		Disable_Back_Color();
+	CALL	_Disable_Back_Color
+; 1665	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _msg_window ***************************
+;Name                         Addr/Register   Size   Type
+;_Disable_Back_Color                 IMPORT  -----   function
+;_print                              IMPORT  -----   function
+;_strlen                             IMPORT  -----   function
+;_gotoxy                             IMPORT  -----   function
+;_Enable_Back_Color                  IMPORT  -----   function
+;_scn_phys                           STATIC   4000   variable
+;_backbuffer                         STATIC    320   variable
+;_memset                             IMPORT  -----   function
+;posx                                  IX-4      1   variable
+;len                                   IX-3      1   variable
+;r                                     IX-2      1   variable
+;c                                     IX-1      1   variable
+;msg2                                  IX+9      3   parameter
+;msg1                                  IX+6      3   parameter
+
+
+; Stack Frame Size: 16 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__293:
+	DB	"+==================================]PROTED[====================================+"
+	DB	0
+L__294:
+	DB	"|"
+	DB	0
+L__295:
+	DB	" "
+	DB	0
+L__297:
+	DB	" "
+	DB	0
+L__299:
+	DB	"|"
+	DB	0
+L__300:
+	DB	"|"
+	DB	0
+L__301:
+	DB	" "
+	DB	0
+L__303:
+	DB	" "
+	DB	0
+L__305:
+	DB	"|"
+	DB	0
+L__306:
+	DB	"+==============================================================================+"
+	DB	0
+	SEGMENT CODE
+; 1666	
+; 1667	/* Close the message box */
+; 1668	void close_msg_window(void)
+; 1669	{
+_close_msg_window:
+	LD	HL,-2
+	CALL	__frameset
+; 1670		register char r, c;
+; 1671		
+; 1672		Disable_Back_Color();
+	CALL	_Disable_Back_Color
+	LD	(IX+-1),0
+; 1673		
+; 1674		for (r = 0; r < 4; r++)
+	JR	L_405
+L_403:
+	LD	(IX+-2),0
+; 1675			for (c = 0; c < SCNCOLS; c++)
+	JR	L_402
+L_400:
+; 1676				plot_char(c, r + 23, backbuffer[r][c]);
+	LD	A,(IX+-1)
+	SEXT	HL
+	LD	L,(IX+-1)
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,_backbuffer
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-2)
+	SEXT	HL
+	LD	L,(IX+-2)
+	ADD	HL,BC
+	LD	C,(HL)
+	LD	B,0
+	PUSH	BC
+	LD	A,(IX+-1)
+	ADD	A,23
+	LD	C,A
+	PUSH	BC
+	LD	C,(IX+-2)
+	PUSH	BC
+	CALL	_plot_char
+	POP	BC
+	POP	BC
+	POP	BC
+	INC	(IX+-2)
+L_402:
+	LD	A,(IX+-2)
+	CP	A,80
+	JP	M,L__322
+	JP	PE,L_400
+	JR	L__323
+L__322:
+	JP	PO,L_400
+L__323:
+	INC	(IX+-1)
+L_405:
+	LD	A,(IX+-1)
+	CP	A,4
+	JP	M,L__324
+	JP	PE,L_403
+	JR	L__325
+L__324:
+	JP	PO,L_403
+L__325:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _close_msg_window ***************************
+;Name                         Addr/Register   Size   Type
+;_backbuffer                         STATIC    320   variable
+;_plot_char                          IMPORT  -----   function
+;_Disable_Back_Color                 IMPORT  -----   function
+;c                                     IX-2      1   variable
+;r                                     IX-1      1   variable
+
+
+; Stack Frame Size: 8 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	XREF _strlen:ROM
+	XREF _memmove:ROM
+	XREF _memset:ROM
+	XREF _memcmp:ROM
+	XREF _strcpy:ROM
+	XREF _malloc:ROM
+	XREF _free:ROM
+	XREF __idivs:ROM
+	XREF __idivu:ROM
+	XREF __irems:ROM
+	XREF __iremu:ROM
+	XREF __frameset0:ROM
+	XREF __frameset:ROM
+	XDEF _close_msg_window
+	XDEF _msg_window
+	XDEF _reload_file
+	XDEF _save_file
+	XDEF _load_file
+	XDEF _FileExists
+	XDEF _Show_Cursor_Position
+	XDEF _edit
+	XDEF _Disable_Back_Color
+	XDEF _Enable_Back_Color
+	XDEF _ShowMenu
+	XDEF _Show_Cursor
+	XDEF _paintrow
+	XDEF _paintall
+	XDEF _do_endline
+	XDEF _do_home
+	XDEF _do_enhanced_del
+	XDEF _do_del
+	XDEF _do_dln
+	XDEF _do_iln
+	XDEF _do_dch
+	XDEF _do_chr
+	XDEF _do_bot
+	XDEF _do_top
+	XDEF _do_tab
+	XDEF _do_enhanced_ret
+	XDEF _do_ret
+	XDEF _do_pup
+	XDEF _do_pdw
+	XDEF _do_crt
+	XDEF _do_clf
+	XDEF _do_cdw
+	XDEF _do_cup
+	XDEF _do_red
+	XDEF _tx_put
+	XDEF _tx_get
+	XDEF _tx_del
+	XDEF _tx_ins
+	XDEF _tx_set
+	XDEF _tx_ini
+	XDEF _sc_fin
+	XDEF _sc_ini
+	XDEF _sc_fup
+	XDEF _sc_upd
+	XDEF _sc_str
+	XDEF _sc_chr
+	XDEF _sc_crw
+	XDEF _sc_clr
+	XDEF _te_fin
+	XDEF _te_ini
+	XDEF _te_clr
+	XDEF _te_cln
+	XDEF _te_mov
+	XDEF _te_str
+	XDEF _te_chr
+	XDEF _te_gch
+	XDEF _te_flu
+	XDEF _purify
+	XDEF _zap_trail
+	XDEF _blankrow
+	XDEF _mymalloc
+	XDEF _uitoa
+	XDEF _as
+	XDEF _bomb
+	XDEF _get_prose_version
+	XDEF _gotoxy
+	XDEF _clreol
+	XDEF _plot_char
+	XDEF _get_cursor_position
+	XDEF _print
+	XDEF _getch
+	XDEF _GetCh
+	XDEF _main
+	XDEF _convBuf
+	XDEF _UseFile
+	XDEF _BufferFile
+	XDEF _filesize
+	XDEF _K_xBC
+	XDEF _K_xHL
+	XDEF _linbuf
+	XDEF _cur_col
+	XDEF _cur_row
+	XDEF _cur_char
+	XDEF _cur_line
+	XDEF _numlines
+	XDEF _p_curr
+	XDEF _p_root
+	XDEF _root
+	XDEF _backbuffer
+	XDEF _scn_phys
+	XDEF _scn_virt
+	XDEF _tebuflen
+	END
