@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Wed Jul 20 11:48:41 2011
+DATE:      Thu Jul 21 13:54:37 2011
 PROCESSOR: assembler
 FILES:     .\main.obj             
            C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib
@@ -85,13 +85,13 @@ SPACE ALLOCATION:
 
 Group: MEMORY                            Base        Top       Size  
 ------------------------------------ ----------- ----------- ----------
-Space: ROM                                010000      01258A    258bh
-Space: RAM                                01258B      015498    2f0eh
+Space: ROM                                010000      012645    2646h
+Space: RAM                                012646      0155B9    2f74h
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-RAM                   D:01258B    D:015498     2f0eh
-ROM                   C:010000    C:01258A     258bh
+RAM                   D:012646    D:0155B9     2f74h
+ROM                   C:010000    C:012645     2646h
 
 
 SEGMENTS WITHIN SPACE:
@@ -99,148 +99,148 @@ SEGMENTS WITHIN SPACE:
 
 RAM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-BSS                normal data            D:012B6E    D:01548F     2922h
-DATA               normal data            D:015490    D:015498        9h
-STRSECT            normal data            D:01258B    D:012B6D      5e3h
+BSS                normal data            D:012C8E    D:0155B0     2923h
+DATA               normal data            D:0155B1    D:0155B9        9h
+STRSECT            normal data            D:012646    D:012C8D      648h
 
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               normal data            C:010000    C:01258A     258bh
+CODE               normal data            C:010000    C:012645     2646h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: ..\MAIN.C (File: main.obj) Version: 1:0 07/20/2011 11:48:40
+Module: ..\MAIN.C (File: main.obj) Version: 1:0 07/21/2011 13:51:32
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:012B6E    D:015489     291ch
-    Segment: CODE                              C:010000    C:01223E     223fh
-    Segment: DATA                              D:015490    D:015495        6h
-    Segment: STRSECT                           D:01258B    D:012B6D      5e3h
+    Segment: BSS                               D:012C8E    D:0155AA     291dh
+    Segment: CODE                              C:010000    C:0122F9     22fah
+    Segment: DATA                              D:0155B1    D:0155B6        6h
+    Segment: STRSECT                           D:012646    D:012C8D      648h
 
 
 Module: ..\src\boot\common\zsldevinitdummy.asm (File: zsldevinitdummy.obj) Version: 1:0 06/17/2010 14:49:12
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01223F    C:01223F        1h
+    Segment: CODE                              C:0122FA    C:0122FA        1h
 
 
 Module: .\rtl\common\frameset.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01247E    C:01248D       10h
+    Segment: CODE                              C:012539    C:012548       10h
 
 
 Module: .\rtl\common\frameset0.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:012471    C:01247D        dh
+    Segment: CODE                              C:01252C    C:012538        dh
 
 
 Module: .\RTL\COMMON\FREE.C (Library: nokernel.lib) Version: 1:0 06/17/2010 14:48:50
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:012240    C:012332       f3h
+    Segment: CODE                              C:0122FB    C:0123ED       f3h
 
 
 Module: .\rtl\common\icmpzero.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0124DD    C:0124E8        ch
+    Segment: CODE                              C:012598    C:0125A3        ch
 
 
 Module: .\rtl\common\idivs.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0124E9    C:012521       39h
+    Segment: CODE                              C:0125A4    C:0125DC       39h
 
 
 Module: .\rtl\common\idivu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:012450    C:012470       21h
+    Segment: CODE                              C:01250B    C:01252B       21h
 
 
 Module: .\rtl\common\irems.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0123FA    C:012431       38h
+    Segment: CODE                              C:0124B5    C:0124EC       38h
 
 
 Module: .\rtl\common\iremu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:012432    C:01243A        9h
+    Segment: CODE                              C:0124ED    C:0124F5        9h
 
 
 Module: .\RTL\COMMON\MALLOC.C (Library: nokernel.lib) Version: 1:0 06/17/2010 14:48:50
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:01548A    D:01548F        6h
-    Segment: CODE                              C:012333    C:0123F9       c7h
+    Segment: BSS                               D:0155AB    D:0155B0        6h
+    Segment: CODE                              C:0123EE    C:0124B4       c7h
 
 
 Module: .\rtl\common\memcmp.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01248E    C:0124B7       2ah
+    Segment: CODE                              C:012549    C:012572       2ah
 
 
 Module: .\rtl\common\memmove.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01255D    C:01258A       2eh
+    Segment: CODE                              C:012618    C:012645       2eh
 
 
 Module: .\rtl\common\memset.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01253C    C:01255C       21h
+    Segment: CODE                              C:0125F7    C:012617       21h
 
 
 Module: .\rtl\common\sbrk.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0124B8    C:0124DC       25h
-    Segment: DATA                              D:015496    D:015498        3h
+    Segment: CODE                              C:012573    C:012597       25h
+    Segment: DATA                              D:0155B7    D:0155B9        3h
 
 
 Module: .\strcpy.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:012522    C:01253B       1ah
+    Segment: CODE                              C:0125DD    C:0125F6       1ah
 
 
 Module: .\strlen.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01243B    C:01244F       15h
+    Segment: CODE                              C:0124F6    C:01250A       15h
 
 EXTERNAL DEFINITIONS:
 =====================
 
 Symbol                             Address   Module          Segment
 -------------------------------- ----------- --------------- --------------------------------
-__alloc_base                        D:01548A MALLOC          BSS                             
-__close_periphdevice                C:01223F zsldevinitdummy CODE                            
+__alloc_base                        D:0155AB MALLOC          BSS                             
+__close_periphdevice                C:0122FA zsldevinitdummy CODE                            
 __crtl                              00000001 (User Defined)
 __CS0_BMC_INIT_PARAM                00000082 (User Defined)
 __CS0_CTL_INIT_PARAM                00000088 (User Defined)
@@ -258,126 +258,129 @@ __CS3_BMC_INIT_PARAM                00000084 (User Defined)
 __CS3_CTL_INIT_PARAM                00000018 (User Defined)
 __CS3_LBR_INIT_PARAM                00000003 (User Defined)
 __CS3_UBR_INIT_PARAM                00000003 (User Defined)
-__frameset                          C:01247E frameset        CODE                            
-__frameset0                         C:012471 frameset0       CODE                            
-__heapbot                           00015499 (User Defined)
+__frameset                          C:012539 frameset        CODE                            
+__frameset0                         C:01252C frameset0       CODE                            
+__heapbot                           000155BA (User Defined)
 __heaptop                           000FFFFF (User Defined)
-__icmpzero                          C:0124DD icmpzero        CODE                            
-__idivs                             C:0124E9 idivs           CODE                            
-__idivu                             C:012450 idivu           CODE                            
-__idvrmu                            C:01245A idivu           CODE                            
-__irems                             C:0123FA irems           CODE                            
-__iremu                             C:012432 iremu           CODE                            
-__open_periphdevice                 C:01223F zsldevinitdummy CODE                            
+__icmpzero                          C:012598 icmpzero        CODE                            
+__idivs                             C:0125A4 idivs           CODE                            
+__idivu                             C:01250B idivu           CODE                            
+__idvrmu                            C:012515 idivu           CODE                            
+__irems                             C:0124B5 irems           CODE                            
+__iremu                             C:0124ED iremu           CODE                            
+__open_periphdevice                 C:0122FA zsldevinitdummy CODE                            
 __PLL_CTL0_INIT_PARAM               00000000 (User Defined)
-__s_sbrk                            C:0124B8 sbrk            CODE                            
-_as                                 C:010388 MAIN            CODE                            
-_backbuffer                         D:0152BB MAIN            BSS                             
-_blankrow                           C:0104D4 MAIN            CODE                            
-_bomb                               C:01035D MAIN            CODE                            
-_BufferFile                         D:015490 MAIN            DATA                            
-_close_msg_window                   C:0121BB MAIN            CODE                            
-_close_periphdevice                 C:01223F zsldevinitdummy CODE                            
-_clreol                             C:0102D6 MAIN            CODE                            
-_convBuf                            D:015485 MAIN            BSS                             
-_cur_char                           D:015410 MAIN            BSS                             
-_cur_col                            D:015416 MAIN            BSS                             
-_cur_line                           D:01540D MAIN            BSS                             
-_cur_row                            D:015413 MAIN            BSS                             
-_Disable_Back_Color                 C:0118C1 MAIN            CODE                            
-_do_bot                             C:011221 MAIN            CODE                            
-_do_cdw                             C:010C90 MAIN            CODE                            
-_do_chr                             C:0112D2 MAIN            CODE                            
-_do_clf                             C:010D21 MAIN            CODE                            
-_do_crt                             C:010DA3 MAIN            CODE                            
-_do_cup                             C:010C01 MAIN            CODE                            
-_do_dch                             C:011362 MAIN            CODE                            
-_do_del                             C:01148A MAIN            CODE                            
-_do_dln                             C:01144D MAIN            CODE                            
-_do_endline                         C:0115EB MAIN            CODE                            
-_do_enhanced_del                    C:0114BE MAIN            CODE                            
-_do_enhanced_ret                    C:01107A MAIN            CODE                            
-_do_home                            C:011581 MAIN            CODE                            
-_do_iln                             C:0113D9 MAIN            CODE                            
-_do_pdw                             C:010E25 MAIN            CODE                            
-_do_pup                             C:010EE2 MAIN            CODE                            
-_do_red                             C:010BFC MAIN            CODE                            
-_do_ret                             C:010FA6 MAIN            CODE                            
-_do_tab                             C:01116D MAIN            CODE                            
-_do_top                             C:0111A1 MAIN            CODE                            
-_edit                               C:0118CF MAIN            CODE                            
-_Enable_Back_Color                  C:0118B3 MAIN            CODE                            
-_FileExists                         C:011B98 MAIN            CODE                            
-_filesize                           D:01547E MAIN            BSS                             
-_free                               C:012240 FREE            CODE                            
-_get_cursor_position                C:010270 MAIN            CODE                            
-_get_prose_version                  C:010345 MAIN            CODE                            
-_GetCh                              C:010104 MAIN            CODE                            
-_getch                              C:010125 MAIN            CODE                            
-_gotoxy                             C:010319 MAIN            CODE                            
-_K_xBC                              D:01547B MAIN            BSS                             
-_K_xHL                              D:015478 MAIN            BSS                             
-_linbuf                             D:015419 MAIN            BSS                             
-_load_file                          C:011BC1 MAIN            CODE                            
+__s_sbrk                            C:012573 sbrk            CODE                            
+_as                                 C:0103A8 MAIN            CODE                            
+_backbuffer                         D:0153DB MAIN            BSS                             
+_blankrow                           C:0104F4 MAIN            CODE                            
+_bomb                               C:01037D MAIN            CODE                            
+_BufferFile                         D:0155B1 MAIN            DATA                            
+_close_msg_window                   C:012276 MAIN            CODE                            
+_close_periphdevice                 C:0122FA zsldevinitdummy CODE                            
+_clreol                             C:0102E0 MAIN            CODE                            
+_convBuf                            D:0155A6 MAIN            BSS                             
+_cur_char                           D:015530 MAIN            BSS                             
+_cur_col                            D:015536 MAIN            BSS                             
+_cur_line                           D:01552D MAIN            BSS                             
+_cur_row                            D:015533 MAIN            BSS                             
+_Disable_Back_Color                 C:011964 MAIN            CODE                            
+_do_bot                             C:011241 MAIN            CODE                            
+_do_cdw                             C:010CB0 MAIN            CODE                            
+_do_chr                             C:0112F2 MAIN            CODE                            
+_do_clf                             C:010D41 MAIN            CODE                            
+_do_crt                             C:010DC3 MAIN            CODE                            
+_do_cup                             C:010C21 MAIN            CODE                            
+_do_dch                             C:011384 MAIN            CODE                            
+_do_del                             C:0114AC MAIN            CODE                            
+_do_dln                             C:01146F MAIN            CODE                            
+_do_endline                         C:01160D MAIN            CODE                            
+_do_enhanced_del                    C:0114E0 MAIN            CODE                            
+_do_enhanced_ret                    C:01109A MAIN            CODE                            
+_do_home                            C:0115A3 MAIN            CODE                            
+_do_iln                             C:0113FB MAIN            CODE                            
+_do_ins                             C:011691 MAIN            CODE                            
+_do_pdw                             C:010E45 MAIN            CODE                            
+_do_pup                             C:010F02 MAIN            CODE                            
+_do_red                             C:010C1C MAIN            CODE                            
+_do_ret                             C:010FC6 MAIN            CODE                            
+_do_tab                             C:01118D MAIN            CODE                            
+_do_top                             C:0111C1 MAIN            CODE                            
+_edit                               C:011972 MAIN            CODE                            
+_Enable_Back_Color                  C:011956 MAIN            CODE                            
+_FileExists                         C:011C53 MAIN            CODE                            
+_filesize                           D:01559F MAIN            BSS                             
+_free                               C:0122FB FREE            CODE                            
+_get_cursor_position                C:01027A MAIN            CODE                            
+_get_display_size                   C:010367 MAIN            CODE                            
+_get_prose_version                  C:01034F MAIN            CODE                            
+_GetCh                              C:01012C MAIN            CODE                            
+_getch                              C:01014D MAIN            CODE                            
+_gotoxy                             C:010323 MAIN            CODE                            
+_K_xBC                              D:01559C MAIN            BSS                             
+_K_xHL                              D:015599 MAIN            BSS                             
+_linbuf                             D:015539 MAIN            BSS                             
+_load_file                          C:011C7C MAIN            CODE                            
 _main                               C:010000 MAIN            CODE                            
-_malloc                             C:012364 MALLOC          CODE                            
-_memcmp                             C:01248E memcmp          CODE                            
-_memmove                            C:01255D memmove         CODE                            
-_memset                             C:01253C memset          CODE                            
-_msg_window                         C:011F97 MAIN            CODE                            
-_mymalloc                           C:010485 MAIN            CODE                            
-_numlines                           D:01540A MAIN            BSS                             
-_open_periphdevice                  C:01223F zsldevinitdummy CODE                            
+_malloc                             C:01241F MALLOC          CODE                            
+_memcmp                             C:012549 memcmp          CODE                            
+_memmove                            C:012618 memmove         CODE                            
+_memset                             C:0125F7 memset          CODE                            
+_msg_window                         C:012052 MAIN            CODE                            
+_mymalloc                           C:0104A5 MAIN            CODE                            
+_numlines                           D:01552A MAIN            BSS                             
+_open_periphdevice                  C:0122FA zsldevinitdummy CODE                            
 _OSC_FREQ                           01312D00 (User Defined)
 _OSC_FREQ_MULT                      00000001 (User Defined)
-_p_curr                             D:015407 MAIN            BSS                             
-_p_root                             D:015404 MAIN            BSS                             
-_paintall                           C:01166F MAIN            CODE                            
-_paintrow                           C:01178B MAIN            CODE                            
-_plot_char                          C:01029E MAIN            CODE                            
-_print                              C:010250 MAIN            CODE                            
-_purify                             C:010551 MAIN            CODE                            
-_reload_file                        C:011EF0 MAIN            CODE                            
-_root                               D:0153FB MAIN            BSS                             
-_save_file                          C:011DB8 MAIN            CODE                            
-_sc_chr                             C:0107D6 MAIN            CODE                            
-_sc_clr                             C:01075B MAIN            CODE                            
-_sc_crw                             C:010772 MAIN            CODE                            
-_sc_fin                             C:0109C6 MAIN            CODE                            
-_sc_fup                             C:0109A2 MAIN            CODE                            
-_sc_ini                             C:0109BD MAIN            CODE                            
-_sc_str                             C:01081E MAIN            CODE                            
-_sc_upd                             C:010867 MAIN            CODE                            
-_scn_phys                           D:01431B MAIN            BSS                             
-_scn_virt                           D:01337B MAIN            BSS                             
-_Show_Cursor                        C:011834 MAIN            CODE                            
-_Show_Cursor_Position               C:011B04 MAIN            CODE                            
-_ShowMenu                           C:011840 MAIN            CODE                            
-_strcpy                             C:012522 strcpy          CODE                            
-_strlen                             C:01243B strlen          CODE                            
+_p_curr                             D:015527 MAIN            BSS                             
+_p_root                             D:015524 MAIN            BSS                             
+_paintall                           C:0116C2 MAIN            CODE                            
+_paintrow                           C:0117D4 MAIN            CODE                            
+_plot_char                          C:0102A8 MAIN            CODE                            
+_print                              C:01025A MAIN            CODE                            
+_purify                             C:010571 MAIN            CODE                            
+_reload_file                        C:011FAB MAIN            CODE                            
+_root                               D:01551B MAIN            BSS                             
+_save_file                          C:011E73 MAIN            CODE                            
+_sc_chr                             C:0107F6 MAIN            CODE                            
+_sc_clr                             C:01077B MAIN            CODE                            
+_sc_crw                             C:010792 MAIN            CODE                            
+_sc_fin                             C:0109E6 MAIN            CODE                            
+_sc_fup                             C:0109C2 MAIN            CODE                            
+_sc_ini                             C:0109DD MAIN            CODE                            
+_sc_str                             C:01083E MAIN            CODE                            
+_sc_upd                             C:010887 MAIN            CODE                            
+_scn_phys                           D:01443B MAIN            BSS                             
+_scn_virt                           D:01349B MAIN            BSS                             
+_Show_Cursor                        C:01187D MAIN            CODE                            
+_Show_Cursor_Position               C:011BBF MAIN            CODE                            
+_ShowInsertMode                     C:0118FC MAIN            CODE                            
+_ShowMenu                           C:011889 MAIN            CODE                            
+_strcpy                             C:0125DD strcpy          CODE                            
+_strlen                             C:0124F6 strlen          CODE                            
 _SYS_CLK_FREQ                       01312D00 (User Defined)
 _SYS_CLK_SRC                        00000000 (User Defined)
-_te_chr                             C:01061C MAIN            CODE                            
-_te_cln                             C:0106FA MAIN            CODE                            
-_te_clr                             C:010718 MAIN            CODE                            
-_te_fin                             C:010756 MAIN            CODE                            
-_te_flu                             C:0105EB MAIN            CODE                            
-_te_gch                             C:010613 MAIN            CODE                            
-_te_ini                             C:01074C MAIN            CODE                            
-_te_mov                             C:01067D MAIN            CODE                            
-_te_str                             C:01064E MAIN            CODE                            
-_tebuflen                           D:012B6E MAIN            BSS                             
-_tx_del                             C:010B0A MAIN            CODE                            
-_tx_get                             C:010B95 MAIN            CODE                            
-_tx_ini                             C:0109CF MAIN            CODE                            
-_tx_ins                             C:010AA0 MAIN            CODE                            
-_tx_put                             C:010BDE MAIN            CODE                            
-_tx_set                             C:0109F1 MAIN            CODE                            
-_uitoa                              C:0103A0 MAIN            CODE                            
-_UseFile                            D:015484 MAIN            BSS                             
-_zap_trail                          C:010510 MAIN            CODE                            
+_te_chr                             C:01063C MAIN            CODE                            
+_te_cln                             C:01071A MAIN            CODE                            
+_te_clr                             C:010738 MAIN            CODE                            
+_te_fin                             C:010776 MAIN            CODE                            
+_te_flu                             C:01060B MAIN            CODE                            
+_te_gch                             C:010633 MAIN            CODE                            
+_te_ini                             C:01076C MAIN            CODE                            
+_te_mov                             C:01069D MAIN            CODE                            
+_te_str                             C:01066E MAIN            CODE                            
+_tebuflen                           D:012C8E MAIN            BSS                             
+_tx_del                             C:010B2A MAIN            CODE                            
+_tx_get                             C:010BB5 MAIN            CODE                            
+_tx_ini                             C:0109EF MAIN            CODE                            
+_tx_ins                             C:010AC0 MAIN            CODE                            
+_tx_put                             C:010BFE MAIN            CODE                            
+_tx_set                             C:010A11 MAIN            CODE                            
+_uitoa                              C:0103C0 MAIN            CODE                            
+_UseFile                            D:0155A5 MAIN            BSS                             
+_zap_trail                          C:010530 MAIN            CODE                            
 
-137 external symbol(s).
+140 external symbol(s).
 
 SYMBOL CROSS REFERENCE:
 =======================
@@ -460,6 +463,7 @@ _do_enhanced_del                  Defined     ..\MAIN.C
 _do_enhanced_ret                  Defined     ..\MAIN.C
 _do_home                          Defined     ..\MAIN.C
 _do_iln                           Defined     ..\MAIN.C
+_do_ins                           Defined     ..\MAIN.C
 _do_pdw                           Defined     ..\MAIN.C
 _do_pup                           Defined     ..\MAIN.C
 _do_red                           Defined     ..\MAIN.C
@@ -473,6 +477,7 @@ _filesize                         Defined     ..\MAIN.C
 _free                             Defined     .\RTL\COMMON\FREE.C
                                   Referenced  ..\MAIN.C
 _get_cursor_position              Defined     ..\MAIN.C
+_get_display_size                 Defined     ..\MAIN.C
 _get_prose_version                Defined     ..\MAIN.C
 _GetCh                            Defined     ..\MAIN.C
 _getch                            Defined     ..\MAIN.C
@@ -518,6 +523,7 @@ _scn_phys                         Defined     ..\MAIN.C
 _scn_virt                         Defined     ..\MAIN.C
 _Show_Cursor                      Defined     ..\MAIN.C
 _Show_Cursor_Position             Defined     ..\MAIN.C
+_ShowInsertMode                   Defined     ..\MAIN.C
 _ShowMenu                         Defined     ..\MAIN.C
 _strcpy                           Defined     .\strcpy.asm
                                   Referenced  ..\MAIN.C

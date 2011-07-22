@@ -15,7 +15,7 @@
 #define MAXLNLEN		80						/* Maximum line length this editor can handle.         */
 #define SCNROWS			50						/* Number of rows    in target terminal.               */
 #define SCNCOLS			80						/* Number of columns in target terminal.               */
-#define VERSION			"1.0"					/* Version number of this editor.                      */
+#define VERSION			"1.1"					/* Version number of this editor.                      */
 #define FUDGE			10
 #define FALSE			0
 #define TRUE			1
@@ -46,7 +46,7 @@ p_line_t p_curr;							/* Ptr to the current line (or root if at EOF).    */
 int numlines, cur_line, cur_char, cur_row, cur_col;
 char linbuf[MAXLNLEN+FUDGE]; 
 
-static unsigned char Ascii, Scancode, B, C, E;
+static unsigned char Ascii, Scancode, B, C, E, InsertMode;
 unsigned int K_xHL, K_xBC, filesize;
 char *BufferFile = (char *)0x0C00000;		/* Use VGA Ram B to load or save file      */
 static char *TxtPnt;
@@ -61,11 +61,13 @@ void plot_char(unsigned char x, unsigned char y, unsigned char Ch);
 void clreol(void);
 void gotoxy(unsigned char x, unsigned char y);
 int get_prose_version(void);
+void get_display_size(void);
 
 void uitoa(unsigned int val, char *string);
 char convBuf[5];
 
 void ShowMenu(void);
+void ShowInsertMode(void);
 void Enable_Back_Color(void);
 void Disable_Back_Color(void);
 void Show_Cursor(void);
@@ -133,6 +135,7 @@ void do_del(void);
 void do_enhanced_del(void);
 void do_home(void);
 void do_endline(void);
+void do_ins(void);
 
 void paintall(void);
 void paintrow(void);
@@ -147,7 +150,7 @@ void main(void)
 	
 	CREATE_HEADER;
 	
-	UseFile = 0;
+	UseFile = 0;	
 	
 	asm ("ld a, (hl)");
 	asm ("or a");
@@ -161,6 +164,17 @@ void main(void)
 	if (get_prose_version() < 0x2F)
 	{
 		print("Proted require PROSE ver 2F or later!\n\r");
+		
+		QUIT_TO_PROSE;
+		
+		return;
+	}
+	
+	get_display_size();
+	
+	if (!((B == 80) && (C == 60)))
+	{
+		print("Proted require 80x60 characters mode (VMODE 0)!\n\r");
 		
 		QUIT_TO_PROSE;
 		
@@ -253,6 +267,7 @@ unsigned char getch(void)
 			case 0x72	:
 			case 0x6C	:
 			case 0x69	:
+			case 0x70	:
 			case 0x74	: Ascii = 1; break;
 		}
 		
@@ -352,6 +367,19 @@ int get_prose_version(void)
 	asm ("pop ix");
 	
 	return K_xBC;
+}
+
+/* Return PROSE screen dimension stored in B = Width, C = Height */
+void get_display_size(void)
+{
+	asm ("push ix");
+	asm ("ld a, kr_get_display_size");
+	asm ("call.lil prose_kernal");
+	asm ("ld a, b");
+	asm ("ld (_B), a");
+	asm ("ld a, c");
+	asm ("ld (_C), a");
+	asm ("pop ix");
 }
 
 /*-------------------------------------------------------------------------*/
@@ -1037,8 +1065,11 @@ void do_chr(char ch)
 	
 	tx_get(p_curr);	
 	
-	for (i = MAXLNLEN - 1; i > cur_char - 1; i--)
-		linbuf[i] = linbuf[i - 1];	
+	if (InsertMode != 0)
+	{
+		for (i = MAXLNLEN - 1; i > cur_char - 1; i--)
+			linbuf[i] = linbuf[i - 1];
+	}	
 	
 	linbuf[cur_char - 1] = (char)(ch);
 	
@@ -1195,6 +1226,21 @@ void do_endline(void)
 	plot_char(oldcol, cur_row, ch);
 }
 
+/* Set insert or overwrite mode */
+void do_ins(void)
+{
+	if (InsertMode != 0)
+		InsertMode = 0;
+	else
+		InsertMode = 1;
+	
+	ShowInsertMode();
+	
+	gotoxy(cur_col, cur_row);
+	
+	Show_Cursor();
+}
+
 /* Redraws the virtual screen from scratch from the current settings. */
 void paintall(void)
 {
@@ -1281,8 +1327,27 @@ void ShowMenu(void)
 	print("| Ctrl + L: insert a line.   Ctrl + E: end of text.   Ctrl + K: delete a line. |");
 	print("| Ctrl + N: redraw screen.   Ctrl + T: top of file.   Ctrl + S: save file.     |");
 	print("| Ctrl + B: break a line.    Ctrl + R: reload file.   Ctrl + Q: quit to PROSE. |");
-	print("|         Key enabled: Tab, Cursor Keys, PgUp, PgDown, Home, End, Del.         |");
+	print("|      Key enabled: Tab, Cursor Keys, PgUp, PgDown, Home, End, Del, Ins.       |");
 	print("+==============================================================================+");
+	
+	Disable_Back_Color();
+}
+
+/* Show Type Mode */
+void ShowInsertMode(void)
+{
+	Enable_Back_Color();
+	
+	gotoxy(54, 51);	
+	print("                     ");
+	
+	gotoxy(54, 51);
+	print("Type mode: ");
+	
+	if (InsertMode)
+		print("Insert");
+	else
+		print("Overwrite");
 	
 	Disable_Back_Color();
 }
@@ -1314,11 +1379,14 @@ void edit(void)
 	cur_col = 0;
 	cur_line = 1;
 	cur_char = 1;
+	InsertMode = 1;
 	p_curr = p_root->p_next;	
 	
 	paintall();
 	
 	sc_fup();
+	
+	ShowInsertMode();
 	
 	while (TRUE)
 	{
@@ -1372,6 +1440,7 @@ void edit(void)
 						case	0x72: do_cdw(); break;			/* Cursor down.					  	  */
 						case	0x6C: do_home(); break;			/* Home key.					  	  */
 						case	0x69: do_endline(); break;		/* End key.					  	  	  */
+						case	0x70: do_ins(); break;			/* Ins key.           				  */
 					}
 					break;
 			}
