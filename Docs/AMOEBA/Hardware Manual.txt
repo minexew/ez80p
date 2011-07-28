@@ -19,17 +19,18 @@ AMOEBA 1.02 Features
  The following parameters allow control of the video window:
 
   + Start Location
-  + Width of the video datafetch (granularity of 8 bytes)
+  + Width of the video datafetch (has a granularity of 8 bytes)
   + Modulo (bytes to add to location count at the right side of scanlines)
   + Pixel count increment
 
  Tilemap mode uses 8x8 pixel tiles with two bytes per map entry (13-bit indexing
  allowing theoretical maximum of 8192 tile definitions). The tile data uses 256
- colour index mode. The size of the tilemap can be set with following parameters:
+ colour index mode. The following tilemap parameters can be set:
 
   + Start address of tilemap in VRAM  
-  + Horizontal tile increment (Normally 2, two bytes per map entry) 
-  + Modulo (the number of bytes to skip at the end of each row of tiles)
+  + Horizontal tile increment (Normally 2, IE: two bytes per map entry) 
+  + Map Line Modulo (the number of bytes to skip at the end of each row of tiles)
+  + Scan Line Modulo (negative width of data fetch)
   + Data fetch length
   + Horizontal pixel scroll position (0-7)
   + Vertical line scroll position (0-7)
@@ -192,7 +193,6 @@ $6 - definition start [14:0] (IE: Location in Sprite RAM / 16)
 Bitmap mode parameters @ $ff1020h
 -----------------------------------------------------------------------------------------
 
-The tilemap registers ar located at $fc0020
 
 a) $00 - Start address of bitmap in VRAM 
 
@@ -213,18 +213,18 @@ Values written to registers A - D are 19 bit values
 EZ80P Tilemap Registers @ $ff1000h
 -----------------------------------------------------------------------------------------
 
-The tilemap registers ar located at $fc0000
 
 a) $00 - Start address of tilemap in VRAM 
 
-b) $04 - Horizontal tile increment (Normally 0002h)
+b) $04 - Tile step (Normally 0002h, IE: use consecutive 16bit words for map)
 
-c) $08 - Set to (80000h - (tilemap data fetch length * 2)), Normally 07ff60h
+c) $08 - Scan Line Modulo. Set to 80000h - (data fetch length * 2), EG: 07ff60h for 80 columns.
 
-d) $0c - Modulo (the number of bytes to skip at the end of each row of tiles)
-         This depends on the overall width of the user's tile map and the data fetch)
+d) $0c - Map Line Modulo (the number of bytes to skip at the end of each row of tiles)
+         This depends on the overall width of the user's tile map and the data fetch.
+         Use the formula: Tile Step * (Overal map midth in tiles - Window width in tiles)
 
-e) $10 - Data fetch length
+e) $10 - Data fetch length minus one. (IE: The number of tiles to read from map per line - 1)
 
 e) $11 - Horizontal-fine pixel scroll position (0-7)
 
@@ -233,8 +233,9 @@ f) $12 - Vertical-fine line scroll position (0-7)
 
 Values written to registers A - D are 19 bit values
 
-Each map entry is two bytes long (little endian), and refers to the location of
-the tiles in VRAM / 64 (as each tile is 64 bytes in size)
+Each map entry is two bytes long (little endian format) and refers to the location of
+the tile image in VRAM. As each tile is 64 bytes in size (8x8), the map entry value
+is internally multiplied by 64 to get to the correct location.
 
 
 -----------------------------------------------------------------------------------------
