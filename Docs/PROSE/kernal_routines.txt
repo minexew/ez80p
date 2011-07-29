@@ -1,5 +1,5 @@
-PROSE KERNAL ROUTINES (last updated 19-7-2011)
----------------------
+PROSE KERNAL ROUTINES (last updated 29-7-2011)
+----------------------------------------------
 
 General: 
 
