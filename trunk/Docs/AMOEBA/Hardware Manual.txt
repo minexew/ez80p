@@ -5,23 +5,24 @@ AMOEBA 1.06 Features
 Video Display Modes
 -------------------
 
-Bitmap mode	: 16 or 256 colours
+Bitmap mode		: 16 or 256 colours
 Character map mode	: 16 colours
-Tile map mode	: 256 colours
+Tile map mode		: 256 colours
  
-Resolution supported in all modes are: 640x480, 640x240, 320x480, 320x240
+Resolution supported in all modes: 640x480, 640x240, 320x480, 320x240
  
 
 Bitmap mode:
 ------------
 
- In 256 colour modes, this operates in the simple "chunky" VGA-style where each byte of
- the display is an index into the colour palette. There are four palettes available.
+ In 256 colour mode, this operates in the simple "chunky" VGA-style where each byte read
+ from video RAM is an index in a colour table. A 12bit value is read from the indexed
+ table location and displayed as a pixel with 4 bits assigned to its red, green and blue
+ components.  There are four tables (palettes) available.
  
- In 16 colour mode, except each byte read from VRAM holds the colour indexes for two
- pixels. Bits [7:4] = Leftmost pixel index, [3:0] = Rightmost pixel index. Naturally 
- only the first 16 colours of a palette are used (The four individual palettes are
- still available.)
+ In 16 colour mode, each byte read from VRAM holds the colour indexes for two
+ pixels. Bits [7:4] = Leftmost pixel index, [3:0] = Rightmost pixel index. Only the
+ first 16 colours of a palette are used (The four individual palettes are still available.)
 
  The following parameters can be set:
 
@@ -34,11 +35,11 @@ Bitmap mode:
 Tile map Mode
 -------------
 
- Each word (pair of bytes) read from VRAM is an index to an 8x8 tile. Each
- tile is defined by 64 bytes (in a linear 1 byte=1 pixel colour index format,
- left to right, top to bottom). Tile  0 is aligned to the start of video RAM
+ Each word (pair of bytes) read from VRAM selects an 8x8 tile to display. Each
+ tile definition is 64 bytes long (in a linear 1 byte=1 pixel colour index format,
+ left to right, top to bottom). Tile 0 is aligned to the start of video RAM
  (800000h), tile 1 is at 800040h, etc etc.. Theoretically 8192 tiles can be
- defined although VRAM space is needed for the tile map.
+ defined although VRAM space is needed for the tile map too.
 
 The following tilemap parameters can be set:
 
@@ -54,18 +55,18 @@ The following tilemap parameters can be set:
  hide new map data when scrolling horizontally.
 
 
-Character Map Mode
-------------------
+Character Map/Text Mode
+-----------------------
 
  This is a variation of Tile map mode. Each pair of bytes read from video RAM
- are interpreted as a character index (first byte) and character colours (2nd
+ are interpreted as a character index (first byte) and character colours (second
  byte). As a single byte is used for the index, only 256 character tiles can be
  selected. The colour byte is interpreted as: bits [7:4] background colour,
  bits and [3:0] pixel colour - therefore only 2 colours can appear within each
  8x8 tile. As this mode is a modification of Tilemap Mode, the character
  "tiles" still take up 64 bytes of memory, however only the first byte of each line
  is used. This byte is the binary representation of the 8-pixel character line
- image and is drawn serially from bit 7 (leftmost pixel) to bit 0 (rightmos pixel)
+ image and is drawn serially from bit 7 (leftmost pixel) to bit 0 (rightmost pixel)
  by the video hardware.
  
  800000h Character 0 line 0 (single byte)
@@ -73,8 +74,8 @@ Character Map Mode
  800010h Character 0 line 2 (single byte) .. etc, for 5 more lines
   ..
  800040h Character 1 line 0 (single byte)
- 800008h Character 1 line 1 (single byte)
- 800010h Character 1 line 2 (single byte) .. etc. for 5 more lines.
+ 800048h Character 1 line 1 (single byte)
+ 800050h Character 1 line 2 (single byte) .. etc. for 5 more lines.
  
  The following tilemap parameters can be set:
 
@@ -298,7 +299,7 @@ $00 - W - "video_control"
 	1 - Line doubling (240 lines when set, 480 when zero) 
         2 - Pixel doubling (320 pixels horizontally when set, 640 when zero)
         3 - Tilemap Mode (on when set)
-	4 - Character Mode (on when set, also set tilemode when using character mode)
+	4 - Character/Text Mode (on when set, also set tilemode when using character mode)
 	
 $01 - W - "sprite_control"
 
