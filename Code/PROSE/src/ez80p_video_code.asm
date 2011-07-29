@@ -1,130 +1,77 @@
-;-------------------------------------------
-; ez80p-specific video code v0.05 (ADL mode)
-; 16 colour mode routines
-;-------------------------------------------
+;---------------------------------
+; ez80p-specific video code v0.10
+; Character Mode Routines
+;---------------------------------
 
-set_bitmap_parameters
-				
-				ld a,b
-				ld (window_pixel_doubling),a
-				ld (window_width_bytes),hl			;prepares internal variables, clears screen etc
-				ld (window_height_lines),de
-			
-				ld hl,vram_a_addr					; calculate locations for data in VRAM
-				ld (video_window_address),hl
-				ld hl,0
-				ld de,(window_width_bytes)
-				ld bc,(window_height_lines)
-cwsblp			add hl,de
-				dec bc
-				ld a,b
-				or c
-				jr nz,cwsblp
-				ld (total_window_bytes),hl
-				
-				call os_set_video_hw_regs
-				
-				xor a
-				ret
-
-
-
-set_font_parameters
-
-				ld a,b								;set b = char width (in bytes *displayed*), set c = char height
-				ld (font_width_bytes),a
-				ld a,c
-				ld (font_height_lines),a				
-				ld de,0
-				ld e,c
-				ld d,b
-				mlt de
-				ld hl,0
-				ld b,224/4							;divide by 4 because 1 byte of bitmap src font = 4 bytes on display
-cfslp			add hl,de
-				djnz cfslp
-				ld (font_length),hl
-							
-				ld b,c
-				ld hl,0
-				ld de,(window_width_bytes)
-csualp			add hl,de
-				djnz csualp
-				ld (total_row_bytes),hl				;number of bytes in one character line of bitmap
-				
-				xor a
-				ret
-				
-				
+charmap_addr	equ vram_a_addr+04000h				;IE immediately following 16KB font
 
 set_charmap_parameters
 
-				ld a,c
-				ld (window_rows),a
-				ld a,b
-				ld (window_columns),a
-				
-				ld hl,(video_window_address)
-				ld de,(total_window_bytes)
-				add hl,de
-				ld (charmap_address),hl
+;set
+; a = line/pixel doubling (bit 0 = line double, bit 1 = pixel double)
+; b = columns
+; c = rows
 
-				ld de,0
-				ld a,(window_rows)
-				ld e,a
-				ld a,(window_columns)
-				ld d,a
-				mlt de
-				ld (total_charmap_bytes),de
+				and 3
+				ld (video_doubling),a
+				ld a,c
+				ld (charmap_rows),a
+				ld a,b
+				ld (charmap_columns),a
+				ld hl,0
+				ld l,c
+				ld h,b
+				mlt hl
+				add hl,hl
+				ld (charmap_size),hl
+				ld de,charmap_addr
 				add hl,de
-				ld (attributes_address),hl
-				add hl,de
-				ld (cursor_image_address),hl
-				ld de,0
-				ld a,(font_height_lines)
-				ld e,a
-				ld a,(font_width_bytes)
-				ld d,a
-				push de
-				mlt de
-				add hl,de
-				ld (font_addr),hl
-				pop de
-				ld d,224
-				mlt de
-				add hl,de				
-				ld (vram_a_high),hl
+				ld (vram_a_os_highest),hl			;first free location in VRAM_A (for OS-friendly apps)
+				
+				call os_set_video_hw_regs
 				xor a
 				ret
 				
 
 os_set_video_hw_regs
 
-				ld ix,video_control						; set up bitmap mode for OS window
-				ld a,(window_pixel_doubling)
+				ld a,(video_doubling)
 				sla a
-				or 1
-				ld (ix),a								; 16 colour, bitmap mode 
-				ld (ix+1),0								; disable sprites
-				ld (ix+2),0								; palette 0
-				ld (ix+4),99							; normal right border position
+				or 00011000b
+				ld (video_control),a					;tile mode:on, charmode:on, no pixel doubling, no line doubling
+				xor a
+				ld (bgnd_palette_select),a
+				ld a,99
+				ld (right_border_position),a
 
-				ld ix,bitmap_parameters					
-				ld de,(video_window_address)			; bitmap parameters:
-				ld (ix),de								; display window address
-				ld (ix+04h),1							; pixel_step
-				ld (ix+08h),0							; unused, set at 0
-				ld (ix+0ch),0							; modulo = 0
-				ld bc,(window_width_bytes)				; bytes across display window
-				srl b									; divide by 8 and sub 1 for hw register
-				rr c
-				srl b
-				rr c
-				srl b
-				rr c
-				dec c
-				ld (ix+10h),c
+				ld ix,tilemap_parameters			   ; set up char-map mode parameters 
+				ld hl,charmap_addr
+				ld (ix),hl			   			  	   ; location of charmap
+
+				ld hl,2
+				ld (ix+04h),hl						   ; map increment per charpos (char_def, attrib)
 				
+				ld hl,80000h
+				ld de,0
+				ld a,(charmap_columns)
+				ld e,a
+				xor a
+				sbc hl,de
+				xor a
+				sbc hl,de
+				ld (ix+08h),hl							; scan line modulo
+				
+				ld hl,0
+				ld (ix+0ch),hl							; map line modulo
+				
+				ld a,(charmap_columns)
+				dec a
+				ld (ix+10h),a							; datafetch (chars across window - 1)
+				
+				ld a,0
+				ld (ix+11h),a							; x pixel scroll position
+				ld (ix+12h),a							; y pixel scroll position
+
 				ld hl,pen_palette
 				call hswc_set_ui_colours
 				
@@ -132,7 +79,6 @@ os_set_video_hw_regs
 				ret
 
 ;--------------------------------------------------------------------------------------------------
-				
 				
 hswc_set_ui_colours
 
@@ -147,47 +93,40 @@ hswc_set_ui_colours
 
 hwsc_clear_screen
 
-				ld hl,(video_window_address)			;clear video ram area
-				ld a,(background_colour)
-				and 0fh
-				ld b,a
-				rlca
-				rlca
-				rlca
-				rlca
-				or b
+				ld hl,charmap_addr						; clear charmap to spaces, attributes to
+				ld (hl),32								; background colour
+				inc hl
+				call get_fill_attr
 				ld (hl),a
-				push hl
-				pop de
-				inc de
-				ld bc,(total_window_bytes)
+				inc hl
+				ex de,hl
+				ld hl,charmap_addr
+				ld bc,(charmap_size)
+				dec bc
 				dec bc
 				ldir
 				
-				ld hl,(attributes_address)				;clear attributes area to transparent pen colour
-				ld bc,(total_charmap_bytes)
-				dec bc
-				ld (hl),0
-				push hl
-				pop de
-				inc de
-				ldir				
-
-				ld hl,(charmap_address)					;clear char map area (fill with spaces)
-				ld bc,(total_charmap_bytes)
-				dec bc
-				ld (hl),' '
-				push hl
-				pop de
-				inc de
-				ldir				
-
 				ld bc,0
 				ld (cursor_y),bc
-				xor a									;ZF set, no error
+				xor a										; ZF set, no error
 				ret
 				
 				
+get_fill_attr	push de
+				ld a,(current_pen)
+				and 0fh
+				ld e,a
+				ld a,(background_colour)
+				rrca
+				rrca
+				rrca
+				rrca
+				and 0f0h
+				or e
+				pop de
+				ret
+				
+
 ;-------------------------------------------------------------------------------------------------
 
 hwsc_scroll_up	
@@ -196,89 +135,48 @@ hwsc_scroll_up
 				push de
 				push hl
 
-				ld hl,(total_window_bytes)
-				ld de,(total_row_bytes)
+				ld hl,(charmap_size)
+				ld de,(charmap_columns)
 				xor a
 				sbc hl,de
+				sbc hl,de									;one less line than in charmap (bottom line = new data)
 				push hl
-				pop bc									;bc = bytes to shift
-				ld hl,(video_window_address)
-				ld de,(total_row_bytes)
-				add hl,de								;hl = source (one charline down)
-				ld de,(video_window_address)			;de = dest top of display
+				pop bc										;bytes to shift
+				ld hl,charmap_addr
+				push hl
+				add hl,de
+				add hl,de
+				pop de
 				ldir
 				
-				ex de,hl								;clear the bottom bitmap character line
-				ld a,(background_colour)
-				and 0fh
-				ld c,a
-				rlca
-				rlca
-				rlca
-				rlca
-				or c
+				ex de,hl									;put spaces of fill_attr on last line
+				push hl
+				ld (hl),32
+				inc hl
+				call get_fill_attr
 				ld (hl),a
-				ld bc,(total_row_bytes)
-				dec bc
+				ld hl,(charmap_columns)
+				dec hl
+				add hl,hl
+				push hl
+				pop bc
+				pop hl
 				push hl
 				pop de
 				inc de
-				ldir
-
-				ld hl,(charmap_address)				; scroll the charmap
-				ld de,(window_columns)
-				add hl,de
-				ld de,(charmap_address)
-				ld bc,(window_rows)
-				dec c
-				ld a,(window_columns)
-				ld b,a
-				mlt bc
-				push bc
-				ldir
-				pop bc								
-
-				ld hl,(charmap_address)				;fill bottom line with spaces
-				add hl,bc
-				ld (hl),' '
-				ld bc,(window_columns)
-				dec bc
-				push hl
-				pop de
 				inc de
 				ldir
-					
-				ld hl,(attributes_address)			; scroll the colour attributes
-				ld de,(window_columns)
-				add hl,de
-				ld de,(attributes_address)
-				ld bc,(window_rows)
-				dec c
-				ld a,(window_columns)
-				ld b,a
-				mlt bc
-				push bc
-				ldir
-				pop bc			
-
-				ld hl,(attributes_address)			;fill bottom line with 0
-				add hl,bc
-				ld (hl),0
-				ld bc,(window_columns)
-				dec bc
-				push hl
-				pop de
-				inc de
-				ldir
-
+				
 				pop hl
 				pop de
 				pop bc
-				xor a								; ZF set, no error
+				xor a										; ZF set, no error
 				ret
 
 
 ;-------------------------------------------------------------------------------------------------
+
+hwsc_plot_char
 
 ; Set:
 ; ----
@@ -286,298 +184,102 @@ hwsc_scroll_up
 ; B = x character coordinate 
 ; C = y character coordinate
 
-; Can only use 8_bits * n_line fonts at present (IE: 8 pixels wide)
-
-hwsc_plot_char
 				push hl									; plots a character using the current pen colour
+				push de
 				push af
-				ld a,(current_pen)
-				ld (plotchar_colour),a
-				jr plotc_go
-				
-hwsc_plotchar_specific_attr	
 
-				push hl
-				push af									; plots a char without setting pen to the current colour
-plotc_go		ld a,(window_rows)						; if either coordinate is outside the display, nothing is
+				ld a,(charmap_rows)						; if either coordinate is outside the display, nothing is
 				dec a
 				cp c									; plotted and the routine returns with the zero flag unset
 				jr c,win_err
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				dec a
 				cp b
 				jr nc,win_ok
 win_err			pop af
+				pop de
 				pop hl
-				ld a,82h								;zero flag not set (error=bad data) if outside of diplay
+				ld a,88h								; zero flag not set (error=out of range) if outside of diplay
 				or a
 				ret
 				
-win_ok			pop af
-				push de
-				push bc
-				push ix
-				push iy
-				ld hl,(font_height_lines)				;calc source address in font data
-				sub a,32
-				ld h,a
-				add a,32
-				mlt hl									;hl = char - 32 * lines_per_char (assumes each line = 1 byte)
-				ld de,(font_addr)
-				add hl,de
-				push hl
-				pop ix									;ix = source address
-				
-				ld de,0
-				ld hl,(total_row_bytes)					;calc dest address in vram
-				ld e,l
-				ld d,c
-				mlt de									;de = bytes per row [0:7] * y coord
-				ld l,c									
-				mlt hl									;hl = bytes per row [15:8] * y coord
-				add hl,hl								;hl << 8
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,de								; hl=hl+de
-				ld de,(font_width_bytes)
-				ld d,b	
-				mlt de									; de = width of DISPLAYED char in bytes * x coord	
-				add hl,de								; add on cursor x position
-				ld de,(video_window_address)
-				add hl,de
-				push hl
-				pop iy									; iy = dest address
-				
-				ld hl,(window_columns)					; store the character code in character map
-				ld h,c									
+win_ok			ld hl,(charmap_columns)					; must be a 24 bit value
+				ld h,c
 				mlt hl
 				ld de,0
 				ld e,b
 				add hl,de
-				ex de,hl
-				ld hl,(charmap_address)
+				add hl,hl
+				ld de,charmap_addr
 				add hl,de
+				pop af
 				ld (hl),a
-
-				ld a,(plotchar_colour)					;store colour in attribute map
-				ld hl,(attributes_address)
-				add hl,de
+				inc hl
+				ld a,(current_pen)
 				ld (hl),a
-
-				ld d,a				
-				and 0f0h
-				jr nz,notransbg
-				ld a,(background_colour)
-				and 0fh
-				ld b,a
-				rlca
-				rlca
-				rlca
-				rlca
-				ld c,a
-				jr gotbg
-notransbg		ld c,a									;background for left
-				rrca
-				rrca
-				rrca
-				rrca
-				ld b,a									;background for right
-gotbg			ld a,d
-				and 0fh
-				jr nz,notransfg
-				ld a,(background_colour)
-				and 0fh
-				ld d,a
-				rlca
-				rlca
-				rlca
-				rlca
-				ld e,a
-				jr gotfg
-notransfg		ld d,a									;foreground for right
-				rlca
-				rlca
-				rlca
-				rlca
-				ld e,a									;foreground for left
-				
-gotfg			exx
-				ld a,(font_height_lines)
-				ld b,a
-				ld hl,(window_width_bytes)
-				ld de,(font_width_bytes)
-				xor a
-				sbc hl,de
-				ex de,hl
-						
-charloop		exx
-				ld l,(ix)								;draw the character
-				sla l
-				ld a,c
-				jr nc,nbgmsb7
-				ld a,e
-nbgmsb7			sla l
-				jr nc,nfgmsb6
-				or d
-				jr gotpixcol76
-nfgmsb6			or b
-gotpixcol76		ld (iy),a
-				inc iy
-
-				sla l
-				ld a,c
-				jr nc,nbgmsb5
-				ld a,e
-nbgmsb5			sla l
-				jr nc,nfgmsb4
-				or d
-				jr gotpixcol54
-nfgmsb4			or b
-gotpixcol54		ld (iy),a
-				inc iy
-				
-				sla l
-				ld a,c
-				jr nc,nbgmsb3
-				ld a,e
-nbgmsb3			sla l
-				jr nc,nfgmsb2
-				or d
-				jr gotpixcol32
-nfgmsb2			or b
-gotpixcol32		ld (iy),a
-				inc iy
-				
-				sla l
-				ld a,c
-				jr nc,nbgmsb1
-				ld a,e
-nbgmsb1			sla l
-				jr nc,nfgmsb0
-				or d
-				jr gotpixcol10
-nfgmsb0			or b
-gotpixcol10		ld (iy),a
-				inc iy
-				
-				inc ix
-				exx
-				add iy,de
-				djnz charloop
-				exx 
-				
-				pop iy
-				pop ix
-				pop bc
 				pop de
 				pop hl
 				xor a
 				ret
-
+				
+				
 ;--------------------------------------------------------------------------------------------------
 
 hwsc_remove_cursor
 
+				ld a,(cursor_present)					;dont do anything if no cursor present
+				or a
+				ret z
 				ld bc,(cursor_y)
 				call hwsc_get_charmap_addr_xy
-				ld a,(de)
-				ld (plotchar_colour),a
-				ld a,(hl)				
-				jp hwsc_plotchar_specific_attr
-				
+				ld a,(char_under_cursor)
+				ld (hl),a
+				xor a
+				ld (cursor_present),a
+				ret
+
 
 hwsc_draw_cursor
-
-				ld hl,active_cursor_image
-				ld a,(req_cursor_image)
-				cp (hl)
-				call nz,hwsc_set_cursor_image
-
+								
+				ld a,(cursor_present)				;dont do anything if a cursor already present
+				or a
+				ret nz
+				inc a
+				ld (cursor_present),a
+				
 				ld bc,(cursor_y)
-				ld hl,(total_row_bytes)					;calc dest address in vram
-				ld e,l
-				ld d,c
+				call hwsc_get_charmap_addr_xy
+				ld a,(hl)							
+				ld (char_under_cursor),a			;store the char that was under the cursor
+				ld (hl),ffh							;replace char with char $ff - the cursor character
+				
+				ld de,64							;find location of original char to make a unique cursor character
+				ld d,a
 				mlt de
-				ld l,c
-				mlt hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,hl
-				add hl,de
-				ld de,(font_width_bytes)
-				ld d,b
-				mlt de		
-				add hl,de								; add on cursor x position
-				ld de,(video_window_address)
-				add hl,de								
-				push hl
-				pop iy
+				ld iy,vram_a_addr					;start of font in VRAM
+				add iy,de							;iy = location of character image in font
 				
-				ld bc,(font_height_lines)
-				ld ix,(cursor_image_address)	
-				ld de,(window_width_bytes)
-
-curlp2			lea hl,iy+0
-				ld b,4									; fixed at 4 byte width at present
-curlp1			ld a,(hl)
-				xor (ix)
-				ld (hl),a
-				inc ix
-				inc hl
-				djnz curlp1
-											
-				add iy,de
-				dec c
-				jr nz,curlp2
-
-				xor a									;ZF set, no error
-				ret
-				
-	
-;--------------------------------------------------------------------------------------------------
-
-hwsc_set_cursor_image
-
-				ld (active_cursor_image),a
-				sub a,32								; set A to ascii char for cursor
-				ld hl,(font_height_lines)
+				ld hl,64
+				ld a,(cursor_image_char)
 				ld h,a
 				mlt hl
-				ld de,(font_addr)
+				ld de,vram_a_addr
 				add hl,de
-				ld de,(cursor_image_address)						
-				ld a,(font_height_lines)
-				ld b,a
-fclp2			push bc
-
-				ld c,(hl)
-				ld b,4									; fixed to 4 byte width at present
-fclp1			ld a,0
-				sla c
-				jr nc,nopixl
-				or a,0f0h							
-nopixl			sla c
-				jr nc,nopixr
-				or a,0fh
-nopixr			ld (de),a
-				inc de
-				djnz fclp1
-			
-				inc hl
-				pop bc
-				djnz fclp2
-				ret	
-
+				
+				ld ix,vram_a_addr+03fc0h
+				ld de,8
+				ld b,8
+cur_loop		ld a,(iy)							;original char
+				xor (hl)							;cursor image
+				ld (ix),a							;char ff
+				add iy,de
+				add ix,de
+				add hl,de
+				djnz cur_loop
+				
+				xor a
+				ret
+				
 
 ;--------------------------------------------------------------------------------------------------
 
@@ -586,24 +288,19 @@ hwsc_get_charmap_addr_xy
 ; returns address of charmap in xHL for character at (x,y) b=x, c=y
 ; and attrmap in xDE
 				
+				ld hl,(charmap_columns)					; must be a 24 bit value
+				ld h,c
+				mlt hl
 				ld de,0
-				ld a,(window_columns)				
-				ld e,a									;e = window char columns
-				ld d,c									;d = y coord 
-				mlt de
-				ld a,e
-				add a,b
-				ld e,a
-				jr nc,choffh_ok
-				inc d
-choffh_ok		ld hl,(charmap_address)
+				ld e,b
+				add hl,de
+				add hl,hl
+				ld de,charmap_addr
 				add hl,de
 				push hl
-				ld hl,(attributes_address)
-				add hl,de
-				ex de,hl
-				pop hl
-				xor a									; zero flag set, no error
+				pop de
+				inc de
+				xor a
 				ret
 								
 ;--------------------------------------------------------------------------------------------------
@@ -612,52 +309,45 @@ hwsc_chars_left
 
 ; moves characters (in character map) on the current line one char left, from x position in b
 
-				push bc
-				push de
 				push hl
-
+				push de
+				push bc
+				
+				ld hl,(charmap_columns)
 				ld a,(cursor_y)
-				ld hl,(window_columns)
 				ld h,a
 				mlt hl
 				ld de,0
 				ld e,b
 				add hl,de
-				ex de,hl
-				push de
-				ld hl,(charmap_address)
-				add hl,de							; hl = first source char
-
-				push hl
-				pop de
-				dec de								; de = dest
-				ld a,(window_columns)
-				sub b
-				ld bc,0
-				ld c,a								; c = number of chars to do
-				push bc
-				ldir
-				pop bc
-				ld a,32
-				ld (de),a							; put a space at right side
-				
-				ld hl,(attributes_address)			; shift attributes also
-				pop de
+				add hl,hl
+				ld de,charmap_addr
 				add hl,de
+				
+				ld a,(charmap_columns)
+				sub b
+				sla a
+				ld bc,0
+				ld c,a
 				push hl
 				pop de
-				dec de								; de = dest
-				ldir								; c = number of chars to do
-				ld a,(background_colour)
-				ld (de),a							; put paper colour at right side
-
-				call hwsc_redraw_line				
-
-				pop hl
-				pop de
+				dec de
+				dec de
+				ldir
+				
+				ld a,32						;put a space with colour: background at right side
+				ld (de),a
+				inc de
+				call get_fill_attr
+				ld (de),a
+				
 				pop bc
+				pop de
+				pop hl
 				ret
 
+
+;--------------------------------------------------------------------------------------------------
 
 
 hwsc_chars_right
@@ -669,63 +359,38 @@ hwsc_chars_right
 				push hl
 	
 				ld hl,cursor_x				
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				dec a
 				cp (hl)			
 				jr z,chright_end
-
 				ld b,(hl)
-				ld de,0
-				ld d,a
-				inc d
+				
+				ld hl,(charmap_columns)
 				ld a,(cursor_y)
-				ld e,a
-				mlt de
-				push de 
-				
-				push bc
-				ld hl,(charmap_address)
-				ld bc,(window_columns)
-				dec bc
-				dec bc
-				add hl,bc
-				pop bc
-				
-				add hl,de												; hl = first source char
+				inc a									;move down an extra row, the back up to get right side
+				ld h,a
+				mlt hl
+				add hl,hl
+				ld de,charmap_addr
+				add hl,de					
+				dec hl									
 				push hl
-				pop de
-				inc de													; de = dest
-				ld a,(window_columns)
-				dec a
+				pop de									;de = location of last byte of line (attr)
+				dec hl
+				dec hl									;hl = location of previous attr
+				ld a,(charmap_columns)
 				sub b
-				ld b,a
-				push bc													; bytes to copy	
-mchrlp			ld a,(hl)
-				ld (de),a
-				dec hl
-				dec de
-				djnz mchrlp
-
-				ld hl,(attributes_address)								;shift attributes also
-				ld bc,(window_columns)
-				dec bc
-				dec bc
-				add hl,bc
-
-				pop bc
-				pop de
-				add hl,de												
-				push hl
-				pop de
-				inc de													
-mattrlp			ld a,(hl)
-				ld (de),a
-				dec hl
-				dec de
-				djnz mattrlp
-
-				call hwsc_redraw_line				
-
+				dec a
+				sla a
+				ld bc,0
+				ld c,a									;bc = bytes to move
+				lddr
+				inc hl									;put space with fill_attr in the created "void"
+				ld (hl),32
+				inc hl
+				call get_fill_attr
+				ld (hl),a
+							
 chright_end		pop hl	
 				pop de
 				pop bc
@@ -733,48 +398,29 @@ chright_end		pop hl
 
 ;--------------------------------------------------------------------------------------------
 
-hwsc_redraw_line
-				
-				ld a,(cursor_y)
-				ld c,a
-		
-hwsc_redraw_ui_line
-
-				ld de,(window_columns)							; set C = line to redraw
-				ld d,c
-				mlt de
-				ld b,0											; b = x coordinate							
-rs_xloop		ld hl,(attributes_address)				 
-				add hl,de
-				ld a,(hl)										;fetch attribute colour
-				ld (plotchar_colour),a
-				ld hl,(charmap_address)
-				add hl,de
-				ld a,(hl)				
-				call hwsc_plotchar_specific_attr				;plot character with specified attribute
-				inc de
-				inc b
-				ld a,(window_columns)
-				cp b
-				jr nz,rs_xloop
-				ret	
-
-;--------------------------------------------------------------------------------------------
 
 hwsc_charline_to_command_string	
-								
-				ld de,(window_columns)
-				ld a,(cursor_y)								; copy the cursor's line to the command string buffer
-				ld d,a
-				mlt de
-				ld hl,(charmap_address)
+				
+				
+				ld hl,(charmap_columns)					; copy the cursor's line to the command string buffer
+				ld a,(cursor_y)
+				ld h,a
+				mlt hl
+				add hl,hl
+				ld de,charmap_addr
 				add hl,de
-				ld de,commandstring				
-				ld bc,(window_columns)
-				ldir
+				ld de,commandstring
+				ld b,max_buffer_chars					;copy just the ascii, skipping the attributes
+copy_to_cmdline	ld a,(hl)
+				ld (de),a
+				inc de
+				inc hl
+				inc hl
+				djnz copy_to_cmdline
 				ret
 
 ;--------------------------------------------------------------------------------------------------
+
 
 hwsc_wait_vrt	push bc
 

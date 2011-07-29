@@ -59,7 +59,7 @@ kernal_table
 	dw24 os_get_pen					;2d		
 	dw24 hwsc_scroll_up				;2e		
 	dw24 os_set_video_hw_regs		;2f		
-	dw24 os_get_display_size		;30		
+	dw24 os_get_vmode				;30			; originally "os_get_display_size"	
 	dw24 hwsc_get_charmap_addr_xy	;31		
 	dw24 os_get_cursor_position		;32		 
 
@@ -79,7 +79,7 @@ kernal_table
 
 	dw24 hwsc_get_version			;3e		
 	dw24 os_dont_store_registers	;3f		
-	dw24 os_get_font_info			;40 	
+	dw24 os_cmd_unused				;40 		; Obsolete! (Was "get_font_info")
 	dw24 hwsc_read_rtc				;41     
 	dw24 hwsc_write_rtc				;42		 
 	dw24 os_get_keymap_location		;43		 
@@ -87,7 +87,10 @@ kernal_table
 	dw24 ext_play_audio				;45
 	dw24 hwsc_disable_audio			;46
 	dw24 hwsc_get_joysticks			;47
-
+	dw24 ext_set_vmode				;48
+	dw24 ext_set_cursor_image		;49
+	dw24 hwsc_remove_cursor			;4a
+	dw24 char_to_font				;4b
 	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
@@ -113,6 +116,8 @@ to_txt					db " to ",0
 error_txt				db "ERROR",0
 if_command_txt			db "IF "
 end_command_txt			db "END "
+hw_warn_txt1			db "OS REQUIRES AMOEBA V:"
+hw_warn_txt2			db "----",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -541,40 +546,36 @@ ui_string_addr			dw24 0				; ""      ""
 ;---------------------------------------------------------------------------------------------
 
 video_mode				db 0
-current_pen				dw 07h				; current pen selection. NOTE: 16bit padded for COLOUR cmd etc.
-background_colour		dw 00h				; for areas where characters have not been plotted. 16bit padded ""
+current_pen				dw 07h				; Current pen selection. NOTE: 16bit padded for COLOUR cmd etc.
+background_colour		dw 00h				; For areas where characters have not been plotted. 16bit padded ""
 
 pen_palette				dw 0000h,000fh,0f00h,0f0fh,00f0h,00ffh,0ff0h,0fffh
 						dw 0555h,0999h,0ccch,0f71h,007fh,0df8h,0840h,038ch
 
-plotchar_colour			db 0				; colour that the plotchat routine will use.
+plotchar_colour			db 0				; colour that the plot_char routine will use.
 
-req_cursor_image		db 0
-active_cursor_image		db 0
+char_under_cursor		db 0			
+cursor_present			db 0				; 1 if a character has been replaced by cursor
+overwrite_mode			db 0
+cursor_image_char		db 0
 
-display_parameters							; Don't change list order!!
-;-----------------
+;----------------------------------------------------------------------------------
 
-window_rows				dw24 0				; in characters		 
-window_columns			dw24 0				; in characters
-window_width_bytes		dw24 0				; in pixels (half the datafetch in 16 colour mode)
-window_height_lines		dw24 0				; in scanlines
+display_parameters
 
-font_parameters			dw24 4,8,0,0
-font_width_bytes		equ font_parameters+0		; this is the number of bytes plotted at destination, not in source font
-font_height_lines		equ font_parameters+3
-font_addr				equ font_parameters+6
-font_length				equ font_parameters+9
+video_doubling			db 0
+charmap_rows			dw24 0					 
+charmap_columns			dw24 0				
 
-video_window_address	dw24 0
-charmap_address			dw24 0
-attributes_address		dw24 0
-cursor_image_address	dw24 0
-total_window_bytes		dw24 0
-total_charmap_bytes		dw24 0
-total_row_bytes			dw24 0				; ie: font lines * window_width
-window_pixel_doubling	db 0
+;------------------------------------------------------------------------------------------
 
+vmode_parameter_list
+
+				db 00b, 80,60	; vmode 0 (video doubling bits, columns, lines)
+				db 01b, 80,30	; vmode 1
+				db 10b, 40,60	; vmode 2	
+				db 11b, 40,30	; vmode 3
+				
 ;==================================================================================
 ;  Serial Routine Data
 ;==================================================================================
@@ -697,9 +698,11 @@ devices_connected		db 1					; bit 0 = keyboard, bit 1 = mouse
 
 ;--------------------------------------------------------------------------------------
 
-sys_ram_high			dw24 os_max_addr
-vram_a_high				dw24 vram_a_addr
-vram_b_high				dw24 vram_b_addr
+sysram_os_highest		dw24 os_max_addr
+vram_a_os_highest		dw24 vram_a_addr
+vram_b_os_highest		dw24 vram_b_addr
+
+charmap_size			dw24 0
 
 ;----------------------------------------------------------------------------------
 
@@ -792,7 +795,6 @@ key_buf_rd_idx			db 0
 key_release_mode		db 0		
 not_currently_used		db 0
 key_mod_flags			db 0
-insert_mode				db 0
 current_scancode		db 0
 current_asciicode		db 0
 

@@ -22,7 +22,7 @@ os_cmd_lb
 				ld (data_load_addr),de
 
 os_lbnao		ld de,(data_load_addr)				
-				ld hl,(sys_ram_high)					;ensure load doesn't overwrite OS
+				ld hl,(sysram_os_highest)				;ensure load doesn't overwrite OS
 				dec hl
 				xor a
 				sbc hl,de

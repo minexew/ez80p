@@ -11,10 +11,11 @@
 
 ;----------------------------------------------------------------------
 
-os_location	 	equ 0a00h
-sys_mem_top		equ 07ffffh
+prose_version			equ 31h
+amoeba_version_required	equ 105h
 
-prose_version	equ 30h
+os_location			 	equ 0a00h
+sys_mem_top				equ 07ffffh
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -98,31 +99,29 @@ os_cold_start
 kb_ok			xor a
 				ld (first_run),a
 dont_resetkb
+				
+				ld hl,packed_font_start
+				ld de,vram_a_addr
+				ld bc,packed_font_end-packed_font_start
+				call unpack_rle
+				call convert_font
 
+				call test_amoeba_vers
+				
 				ld hl,os_variables						; Clear all OS system variables
 				ld bc,last_os_var-os_variables
 				xor a
 				call os_bchl_memfill
-
-				ld hl,1
-				ld (font_length),hl						
 	
 				call hwsc_default_hw_settings
 				call hwsc_disable_audio
 				
 				ld a,(video_mode)
-				call set_vmode							; this also clears the screen
-
-				ld hl,packed_font_start
-				ld de,(font_addr)
-				ld bc,packed_font_end-packed_font_start
-				call unpack_rle
-
-				ld a,5fh
-				ld (req_cursor_image),a
-
+				call os_set_vmode						; this also clears the screen
+				
 				ld hl,welcome_message					; set up initial os display	
 				call os_print_string
+				
 				call os_get_mem_high					; hl = sys mem high, de = vram a mem high, bc = vram b mem high 
 				ex de,hl
 				call os_show_hex_address
@@ -160,12 +159,10 @@ kb_present
 				call os_print_string
 				call os_cmd_r
 				
-	
+
 ;============================================================================================
 
-os_main_loop
-								
-				call hwsc_wait_vrt					; flash cursor whilst waiting for key press
+os_main_loop	call hwsc_wait_vrt					; flash cursor whilst waiting for key press
 
 				call os_cursor_flash
 
@@ -182,16 +179,12 @@ os_main_loop
 				xor a
 				ld (cursor_status),a
 				
-				ld a,(current_scancode)				; insert mode on/off?
+				ld a,(current_scancode)				; insert/overwrite mode?
 				cp 70h
 				jr nz,os_notins
- 				ld a,(insert_mode)
+ 				ld a,(overwrite_mode)
 				xor 1
-				ld (insert_mode),a
-				ld a,5fh
-				jr z,linecurs
-				ld a,7fh
-linecurs		ld (req_cursor_image),a
+				ld (overwrite_mode),a
 				jr os_main_loop
 
 os_notins		ld hl,cursor_x						; arrow key moving cursor left?
@@ -201,7 +194,7 @@ os_notins		ld hl,cursor_x						; arrow key moving cursor left?
 				ld a,(hl)
 				cp 0ffh	
 				jr nz,os_main_loop
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				dec a
 				ld (hl),a							; wrapped around
 				jr os_main_loop
@@ -209,7 +202,7 @@ os_notins		ld hl,cursor_x						; arrow key moving cursor left?
 os_ntlft		cp 074h								; arrow key moving cursor right?
 				jr nz,os_ntrig
 				inc (hl)
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				cp (hl)
 				jr nz,os_main_loop
 				ld (hl),0							; wrapped around
@@ -227,7 +220,7 @@ os_ntrig		ld hl,cursor_y
 os_ntup			cp 072h
 				jr nz,os_ntdwn						; arrow key moving cursor down?
 				inc (hl)
-				ld a,(window_rows)
+				ld a,(charmap_rows)
 				cp (hl)
 				jr nz,os_main_loop
 				dec a
@@ -272,7 +265,7 @@ os_ntupc		cp 05bh
 				jr c,os_gtcha
 				add a,020h
 os_gtcha		ld d,a								; need to print character on screen 
-				ld a,(insert_mode)					; check for insert mode
+				ld a,(overwrite_mode)				; check for cursor mode
 				or a
 				call z,hwsc_chars_right
 				
@@ -281,7 +274,7 @@ os_schi			ld bc,(cursor_pos)					; b = x, c = y
 				call hwsc_plot_char		
 				ld hl,cursor_x						; move cursor right after char displayed
 				inc (hl)
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				cp (hl)								; wrapped around?
 				jr nz,os_nvdun
 				ld (hl),0
@@ -299,7 +292,7 @@ os_enter_pressed
 				ld (cursor_x),a						; home the cursor at the left
 				ld hl,cursor_y						; move cursor down a line
 				inc (hl)
-				ld a,(window_rows)
+				ld a,(charmap_rows)
 				cp (hl)
 				jr nz,os_esdok
 				dec a
@@ -535,7 +528,7 @@ loc_header		ld a,(scratch_pad+15)				; store default ADL mode of command (for R 
 				jr nz,os_ndfxc
 				ld hl,(scratch_pad+5)				; set load address from previously loaded header
 				ld (fs_ez80_address),hl
-				ld de,(sys_ram_high)
+				ld de,(sysram_os_highest)
 				xor a
 				push hl
 				sbc hl,de
@@ -694,12 +687,12 @@ not_cr			cp 10
 				jr z,next_line
 				call hwsc_plot_char
 				inc b
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				cp b
 				jr nz,prstr_lp
 next_line		ld b,0
 line_feed		inc c
-				ld a,(window_rows)
+				ld a,(charmap_rows)
 				cp c
 				jr nz,prstr_lp
 				dec c
@@ -734,21 +727,30 @@ os_cursor_flash
 				xor 1
 				ld (cursor_status),a
 				jr z,no_cursor
+				ld a,05fh
+				ld hl,overwrite_mode
+				bit 0,(hl)
+				jr z,cursor_selected
+				ld a,07fh
+				
+cursor_selected	call os_set_cursor_image
 				call hwsc_draw_cursor						
 				ret
+
 no_cursor		call hwsc_remove_cursor
 				ret
 
-;---------------------------------------------------------------------------------------------------
 
-os_refresh_screen
+;-------------------------------------------------------------------------------------------------
 
-				ld c,0								;(re)create bitmap screen from charmap/attributes
-rs_yloop		call hwsc_redraw_ui_line
-				inc c
-				ld a,(window_rows)		
-				cp c
-				jr nz,rs_yloop
+ext_set_cursor_image
+
+				ld a,e
+				
+os_set_cursor_image
+			
+				ld (cursor_image_char),a
+				cp a
 				ret
 
 ;---------------------------------------------------------------------------------------------
@@ -917,7 +919,7 @@ claze			pop hl
 		
 n_hexbytes_to_ascii
 
-				ld a,(de)							; set b to number of digits.
+				ld a,(de)							; set b to number of bytes
 				call hexbyte_to_ascii				; set de to most significant byte address
 				dec de
 				djnz n_hexbytes_to_ascii
@@ -1049,10 +1051,10 @@ os_user_input
 				ld a,e
 				ld (ui_maxchars),a
 				
-				ld a,(insert_mode)
+				ld a,(overwrite_mode)
 				ld (ui_im_cache),a
 				xor a
-				ld (insert_mode),a				;user input routine always shows underscore cursor
+				ld (overwrite_mode),a				;user input routine always shows underscore cursor
 				
 ui_loop			call hwsc_draw_cursor			;draw underscore cursor
 				call os_wait_key_press			;wait for a new scan code in buffer
@@ -1107,7 +1109,7 @@ ui_gtcha		ld d,a
 				call hwsc_plot_char		
 				ld hl,cursor_x					; ..and move cursor right
 				inc (hl)
-				ld a,(window_columns)			; if at screen right, wrap to 0
+				ld a,(charmap_columns)			; if at screen right, wrap to 0
 				cp (hl)
 				jp nz,ui_loop
 				ld (hl),0
@@ -1116,7 +1118,7 @@ ui_gtcha		ld d,a
 ui_enter_pressed
 				
 				ld a,(ui_im_cache)				; restore original insert mode 
-				ld (insert_mode),a
+				ld (overwrite_mode),a
 				ld a,(ui_index)					; A = number of characters
 				or a
 				jr nz,ui_data
@@ -1132,7 +1134,7 @@ ui_data			ld hl,(ui_string_addr)
 				ret
 
 ui_aborted		ld a,(ui_im_cache)				; restore original insert mode 
-				ld (insert_mode),a
+				ld (overwrite_mode),a
 				ld a,080h						; on exit a = 80h if escape pressed / aborted
 				or a							; zero flag not set = error indicator
 				ret
@@ -1145,7 +1147,7 @@ os_count_lines
 				ld b,'y'						; b (ascii code) = 'y' by default	
 				ld hl,os_linecount			
 				inc (hl)							
-				ld a,(window_rows)
+				ld a,(charmap_rows)
 				sub 4
 				cp (hl)
 				jr nz,os_nntpo
@@ -1554,14 +1556,14 @@ os_new_line
 os_set_cursor_position
 				
 														; if either coordinate is out of range
-				ld a,(window_rows)						; the routine returns with zero flag not set
-				dec a									; and a = $82 
+				ld a,(charmap_rows)						; the routine returns with zero flag not set
+				dec a									; and a = $88 
 				cp c
 				jr c,badpos
 				ld a,c
 				ld (cursor_y),a
 				
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				dec a
 				cp b
 				jr c,badpos
@@ -1570,7 +1572,7 @@ os_set_cursor_position
 				xor a
 				ret				
 
-badpos			ld a,82h
+badpos			ld a,88h								;out of range error
 				or a
 				ret
 
@@ -1797,16 +1799,44 @@ os_get_key_mod_flags
 
 ;-----------------------------------------------------------------------------------------------
 
-os_get_display_size
+os_get_vmode
 			
-				push af
-				ld a,(window_rows)
+				ld a,(charmap_rows)
 				ld c,a
-				ld a,(window_columns)
+				ld a,(charmap_columns)
 				ld b,a
-				pop af
+				ld a,(video_mode)
 				cp a						; ZF set, no error
 				ret
+
+;-----------------------------------------------------------------------------------------------
+
+ext_set_vmode	ld a,e
+
+os_set_vmode	cp 4
+				jr c,vm_range_ok
+				ld a,88h					;out of range error return
+				or a
+				ret
+				
+vm_range_ok		ld (video_mode),a
+				ld hl,3
+				ld h,a
+				mlt hl
+				ld de,vmode_parameter_list
+				add hl,de
+				ld a,(hl)
+				inc hl
+				ld b,(hl)
+				inc hl
+				ld c,(hl)
+				call set_charmap_parameters
+				
+				call hwsc_clear_screen
+
+				xor a				
+				ret
+
 
 ;------------------------------------------------------------------------------------------
 
@@ -3024,14 +3054,6 @@ os_get_keymap_location
 				cp a									; set zero flag = no error
 				ret
 
-;--------------------------------------------------------------------------------------------
-
-os_get_font_info
-
-				ld ix,font_parameters
-				cp a
-				ret
-
 
 ;--------------------------------------------------------------------------------------------
 
@@ -3087,12 +3109,89 @@ os_cmd_unused	ret		; <- dummy command, should never be called
 
 os_get_mem_high
 
-		ld hl,(sys_ram_high)
-		ld de,(vram_a_high)
-		ld bc,(vram_b_high)
+		ld hl,(sysram_os_highest)
+		ld de,(vram_a_os_highest)
+		ld bc,(vram_b_os_highest)
 		xor a
 		ret
+
+;-----------------------------------------------------------------------------------------------
+
+test_amoeba_vers
+
+				call hwsc_get_version				;returns only if hardware version correct
+				ld hl,amoeba_version_required-1		;otherwise shows error message
+				xor a
+				sbc hl,de
+				ret c
+				
+				ld hl,hw_warn_txt2
+				ld de,amoeba_version_required
+				call hexword_to_ascii
+				
+				ld hl,vram_a_addr+16384				;clear screen (use video settings from ROM code
+				ld (bitmap_parameters),hl			;except reposition the display location)
+				ld (hl),0
+				push hl
+				pop de
+				inc de
+				ld bc,320*240
+				ldir
+					
+				ld ix,vram_a_addr+16384+(320*116)+56		;display error message - use bitmap mode as charmap mode
+				ld iy,hw_warn_txt1							;was a later addition to hardware
+nextwchar		ld a,(iy)
+				or a
+				jr z,wmsg_done
+				ld hl,64
+				ld h,a
+				mlt hl
+				ld de,vram_a_addr
+				add hl,de									;hl = char pattern address
+				ld c,8
+wpixlp2			ld a,(hl)
+				ld b,8
+wpixlp1			rl a
+				jr nc,nowpix
+				ld (ix),1
+				jr wpixd
+nowpix			ld (ix),0
+wpixd			inc ix
+				djnz wpixlp1
+				ld de,320-8
+				add ix,de
+				ld de,8
+				add hl,de
+				dec c
+				jr nz,wpixlp2
+				
+				ld de,8-(320*8)
+				add ix,de
+				inc iy
+				jr nextwchar
+
+
+wmsg_done		call purge_keyboard
+				call set_irq_vector
+				call enable_os_irqs
+				ei
+
+wmsg_loop		call hwsc_wait_vrt			;	flash error message until ESC pressed (reset)
+				
+				ld de,ccch
+				ld hl,cursorflashtimer
+				inc (hl)
+				ld a,(hl)
+				and 64
+				jr z,got_wcolour
+				ld de,000h
+got_wcolour		ld (hw_palette+2),de
 								
+				call os_get_key_press
+				cp 76h
+				jr nz,wmsg_loop
+				jp 0
+				
 ;-----------------------------------------------------------------------------------------------
 ; Drivers
 ;-----------------------------------------------------------------------------------------------
@@ -3109,7 +3208,7 @@ os_get_mem_high
 	include		'ez80p_video_code.asm'
 	include		'ez80p_misc_code.asm'
 
-	include		'prose_keyboard_routines.asm'		; generic OS-level code
+	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
 	include		'prose_fat16_code.asm'
 
@@ -3118,7 +3217,7 @@ os_get_mem_high
 ;-----------------------------------------------------------------------------------------------
 
 	include		'prose_data.asm'					; OS data
-	include		'prose_font_packed.asm'
+	include		'phil_font_packed.asm'				; Default font
 
 sector_buffer	blkb 512,0
 
@@ -3128,7 +3227,10 @@ scratch_pad		blkb 256,0
 	
 os_max_addr		db 0								; address marker for start of safe user RAM
 	
-				end		
+
 ;================================================================================================
 
-		
+				end	
+				
+;================================================================================================
+	

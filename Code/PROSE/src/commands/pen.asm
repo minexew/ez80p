@@ -16,8 +16,7 @@ chpenlp			call hexword_or_bust				;the call only returns here if the hex in DE i
 				inc ix
 				djnz chpenlp	
 				
-pendone			call os_refresh_screen
-				xor a
+pendone			xor a
 				ret
 
 ;------------------------------------------------------------------------------------------

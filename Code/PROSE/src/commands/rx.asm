@@ -176,7 +176,7 @@ notrxe			call clear_serial_filename
 				call hexword_or_bust					;the call only returns here if the hex in DE is valid
 				jp z,os_no_start_addr					;gets load location in DE
 				ld (data_load_addr),de					;stash the load address									
-				ld hl,(sys_ram_high)					;make sure it isnt going to overwrite the OS
+				ld hl,(sysram_os_highest)				;make sure it isnt going to overwrite the OS
 				dec hl
 				xor a
 				sbc hl,de

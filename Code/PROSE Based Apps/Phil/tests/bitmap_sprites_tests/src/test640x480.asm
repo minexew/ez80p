@@ -75,10 +75,27 @@ boing1lp		ld (ix),l
 				dec a
 				jr nz,boing1lp
 
-				ld a,kr_wait_key
+loopit			ld a,kr_wait_vrt
 				call.lil prose_kernal
 				
-				ld a,0ffh
+				ld hl,55fh							;contention indicator
+				ld (hw_palette),hl
+				ld bc,4000h
+				ld hl,vram_a_addr
+loop1			ld (hl),255
+				dec bc
+				ld a,b
+				or c
+				jr nz,loop1
+				ld hl,0h
+				ld (hw_palette),hl
+				
+				ld a,kr_get_key
+				call.lil prose_kernal
+				cp 76h
+				jr nz,loopit
+
+quit			ld a,0ffh
 				jp prose_return						;restart prose on exit
 
 ;----------------------------------------------------------------------------------------------

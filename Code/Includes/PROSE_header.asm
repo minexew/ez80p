@@ -168,7 +168,10 @@ kr_draw_cursor					equ 2ch
 kr_get_pen						equ 2dh
 kr_scroll_up					equ 2eh
 kr_os_display					equ 2fh
-kr_get_display_size				equ 30h
+
+kr_get_display_size				equ 30h	
+kr_get_video_mode				equ 30h	;prefered name for above
+
 kr_get_charmap_addr_xy			equ 31h
 kr_get_cursor_position			equ 32h
 
@@ -198,6 +201,10 @@ kr_get_os_high_mem				equ 44h
 kr_play_audio					equ 45h
 kr_disable_audio				equ 46h
 kr_get_joysticks				equ 47h
+kr_set_video_mode				equ 48h
+kr_set_cursor_image				equ 49h
+kr_remove_cursor				equ 4ah
+kr_char_to_font				equ 4bh
 
 ;---------------------------------------------------------------------------------------------------------------------------
 ; Standard PROSE executable header
