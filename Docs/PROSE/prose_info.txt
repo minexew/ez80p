@@ -37,8 +37,8 @@ it can be set at will by the user program.
 The Large Stack Pointer (for ADL programs) is set the top of the top of system memory when
 PROSE starts.
 
-Remember to set the includes directory in your ZDS II project.
-
+Remember to set the includes directory in your ZDS II project so that the "PROSE_header.asm"
+file can be located.
 
 
 Calling PROSE kernal routines:
@@ -73,17 +73,17 @@ JP.LIL prose_return
 PROSE Internal Commands: 
 ------------------------
 
-Change the look/settings of PROSE:
-----------------------------------
+Change the appearance of PROSE:
+-------------------------------
 
-VMODE   x     		- Set video resolution 0-3 (320x240 to 640x480)
+VMODE   x     		- Set video mode 0-3 (80x60 to 40x30 characters)
 FONT    x.fnt 		- Change font (see "fonts" folder)
 KEYMAP  x.bin 		- Change from default UK keymap (see "keymaps" folder)
 PEN     xy z  		- Change character attributes (x=background,y=foreground z = window colour)
 PALETTE abc,def.. 	- Set the colour palette (up to 16 $0RGB values) 
 CLS			- Clear screen
 
-(The default video mode used by PROSE is 16 colour mode bitmap, 640x480)
+(The default video mode used by PROSE is 80x60 characters)
 
 
 
@@ -228,4 +228,32 @@ SOUND location length [frequency volume channels loop] - Plays memory (VRAM B) a
  If no parameters are supplied, all the channels are silenced.
 
 --------------------------------------------------------------------------------------------
+
+External commands 
+-----------------
+
+These are loaded in from the SD card like normal programs, if placed in the "commands"
+folder they can be launched whilst the user is in any directory. Documentation (where
+applicable) for these programs can be found in the "docs/apps" folder.
+
+Commands by Phil:
+-----------------
+
+DATE [xx:yy:zzzz]    - show/change date
+ECHO "string" 	     - shows a line of text
+FPGACFG x y filename - FPGA configuration operations
+INPUT "string" envar - Request a string from user and assign it to a environment variable
+KEYMAP filename	     - changes the keymap locale
+PTPLAY filename      - Play a protracker format music module
+SHOWBMP filename     - show 256 colour, uncompressed .BMP format files
+TIME [xx:yy:zz]	     - show/change date
+TYPE filename 	     - shows a text file
+
+
+Commands by Enzo:
+-----------------
+
+PCXVIEW	[filename] - display PCX format pictures
+PROTED  filename   - text editor
+
 
