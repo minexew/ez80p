@@ -503,19 +503,19 @@ Output: None
 2fh - "kr_os_display"			
 -------------------
 
-Action: Restores the display hardware settings to that used by the OS
+Action: Restores the display hardware settings to that used by the OS (does not clear screen etc)
 Input : None
 Output: None
 
 
 
 
-30h - "kr_get_display_size"		
---------------------------
+30h - "kr_get_video_mode" (previously "kr_get_display_size"		
+-----------------------------------------------------------
 
-Action: Returns the size of the OS window in characters
+Action: Returns the size of the OS window
 Input : None
-Output: B = Width, C = Height
+Output: A = Video Mode, B = Columns, C = Lines
 
 
 
@@ -529,6 +529,7 @@ Output: xHL = OS character map address, xDE = OS attribute map addresss
 
 
 
+
 32h - "kr_get_cursor_position"		
 ----------------------------
 
@@ -536,6 +537,42 @@ Action: Returns cursor position
 Input : None
 Output: B (x char coord), C (y char coord)
 
+
+
+48h - "kr_set_video_mode"
+-------------------------
+
+Action: Sets the Video Mode
+Input : E: 0=80x60, 1=80x30, 2=40x60, 3=40x30
+Output: ZF set if all OK. Error code 88h if A is out of range.
+
+
+
+
+49h - "kr_set_cursor_image"
+---------------------------
+
+Action: Selects which character is to be used for the cursor.
+Input : E: ASCII character to use (EG: 05fh = underscore, 07fh = block)
+Output: None.
+
+
+
+4ah - "kr_remove_cursor"
+------------------------
+
+Action: Removes the cursor image from the character map (replaces with saved character)
+Input : None
+Output: None
+
+
+
+4bh - "kr_char_to_font"
+-----------------------
+
+Action: Patches the PROSE font (User defined graphics)
+Input : E = ASCII character to change, HL = address of font data (8 bytes)
+Output: None
 
 
 =========================================================================================
@@ -659,14 +696,8 @@ Output: None
 40h - "kr_get_font_info"		
 -----------------------
 
-Action: Returns base address of the font parameter table
-Input : None
-Output: xIX = location of first parameter
+Obsolete in PROSE v31+  - Do not call
 
-font_width_bytes  = (ix+0)  (The number of bytes written AT DESTINATION per line)
-font_height_lines = (ix+3)  
-font_addr         = (ix+6)  (Font is stored in VRAM A)
-font_length       = (ix+9)
 
 
 41h - "kr_read_rtc"			
@@ -695,12 +726,14 @@ Input : None
 Output: xHL = location of keymap data within OS
 
 
+
 44h - "kr_get_os_high_mem"
 -------------------------
 
 Action: Returns the lowest address unused by the OS in system RAM, VRAM A and VRAM B
 Input : none
 Output: xHL = system RAM high, xDE = VRAM A high, xBC = VRAM B high
+
 
 
 45h - "kr_play_audio"
