@@ -10,7 +10,7 @@ os_cmd_d_go		call hexword_or_bust			; the call only returns here if the hex in D
 				jr z,d_no_hex					; or there's no hex - if no hex, use old address
 				ld (dis_addr),de
 				
-d_no_hex		ld a,(window_rows)				; do this many lines - 2
+d_no_hex		ld a,(charmap_rows)				; do this many lines - 2
 				sub a,2
 				ld b,a
 dis_loop		push bc

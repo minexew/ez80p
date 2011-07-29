@@ -1,12 +1,32 @@
 Current version
 ---------------
 
-030 - Added:  Kernal routine: "kr_play_audio" - sets audio channel(s) playing.
-              kernal routine: "kr_disable_audio" - silences all channels.
-              kernal routine: "kr_get_joysticks" - provides convenient joystick reading. 
+(29-7-2011)
+
+031 - Changed: Font rendering. Uses new character map mode (much faster) Requires AMOEBA v106
+
+      Removed: Variable font size support code.
+               Kernal routine: "kr_get_font_parameters" - obsolete.
+
+      Added:   kernal routine: "kr_set_video_mode" 
+               kernal routine: "kr_set_cursor_image"
+               kernal routine: "kr_remove_cursor"
+	       kernal routine: "kr_char_to_font" - for user defined graphics
+
+      Renamed: kernal routine: "kr_get_display_size" to "kr_get_video_mode", 
+               now returns video mode in A (B = width, C = height as before)
+
+      Added:   Checks AMOEBA version on start-up, shows message if not the required version.
+     
+      Changed: PROSE fonts are now the full 256 character set (256x8 bytes)
+               Cursor handling is handled via character swap (def modification)
 
 Previous
 --------
+
+030 - Added:  Kernal routine: "kr_play_audio" - sets audio channel(s) playing.
+              kernal routine: "kr_disable_audio" - silences all channels.
+              kernal routine: "kr_get_joysticks" - provides convenient joystick reading. 
 
 02f - Changed: kernal keyboard routines now return ASCII codes (0-31) for keys when
                CTRL is held (lower-case ASCII code of the key - 96). Note if these
