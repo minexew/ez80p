@@ -1,0 +1,32 @@
+
+The font files used by PROSE are 256 characters x 8 bytes long. Each character is
+defined as "1 byte x 8 lines" (linear single bitplane format). IE:
+
+
+Font byte $0: Char 0, Line 0
+Font byte $1: Char 0, Line 1
+Font byte $2: Char 0, Line 2
+Font byte $3: Char 0, Line 3
+Font byte $4: Char 0, Line 4
+Font byte $5: Char 0, Line 5
+Font byte $6: Char 0, Line 6
+Font byte $7: Char 0, Line 7     
+
+Font byte $8: Char 1, Line 0
+Font byte $9: Char 1, Line 1
+Font byte $a: Char 1, Line 2
+Font byte $b: Char 1, Line 3
+Font byte $c: Char 1, Line 4
+Font byte $d: Char 1, Line 5
+Font byte $e: Char 1, Line 6
+Font byte $f: Char 1, Line 7  
+
+etc etc..
+
+
+Use the PC program "bmp_to_prose_font.exe" to convert an image file, see example .bmps
+provided.
+
+
+
+                         
