@@ -8,13 +8,13 @@
 /* -define:_DEBUG -define:_EZ80L92 -define:_EZ80 -define:_SIMULATE */
 /* -define:_MULTI_THREAD -NOgenprintf -keepasm -keeplst -NOlist */
 /* -NOlistinc -NOmodsect -optspeed -promote -NOreduceopt */
-/* -stdinc:"..;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -stdinc:"..;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -usrinc:"..;" -multithread -NOdebug -cpu:eZ80L92 */
-/* -asmsw:" -cpu:eZ80L92 -define:_EZ80=1 -define:_SIMULATE=1 -include:..;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -asmsw:" -cpu:eZ80L92 -define:_EZ80=1 -define:_SIMULATE=1 -include:..;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\zilog" */
 
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"..;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -NOdebug -NOigcase -cpu:eZ80L92 */
 
@@ -52,12 +52,12 @@ define _SYS_CLK_SRC = 0
 define _OSC_FREQ_MULT = 1
 define __PLL_CTL0_INIT_PARAM = $00
 
-"C:\DOCUME~1\_Enzo_\Desktop\pcxview\Debug\pcxview"= \
+"G:\eZ80P\pcxview\Debug\pcxview"= \
  .\main.obj, \
- C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib, \
- C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\std\crt.lib, \
- C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\std\crtM.lib, \
- C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\std\nokernel.lib, \
- C:\PROGRA~1\ZiLOG\ZDSII_~1.1\lib\zilog\zsldevinitdummy.obj
+ C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib, \
+ C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crt.lib, \
+ C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crtM.lib, \
+ C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\nokernel.lib, \
+ C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\zilog\zsldevinitdummy.obj
 
 GROUP MEMORY = ROM, RAM

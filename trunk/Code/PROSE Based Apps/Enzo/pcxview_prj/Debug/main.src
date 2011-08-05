@@ -61,7 +61,7 @@ _Header:
 _PntHeader:
 	DW24	_Header
 _VideoMem:
-	DW24	8388608
+	DW24	8409088
 _VideoMemTmp:
 	DW24	12582912
 	SEGMENT BSS
@@ -112,46 +112,47 @@ _YOffset:
 ;    9	#include "PROSE_Header.h"
 ;   10	
 ;   11	#define RGB2WORD(r,g,b)         ((unsigned short) ((r/16<<8)+(g/16<<4)+(b/16)))
-;   12	
-;   13	static char *UseTxt = "USE: PCXVIEW [filename]\n\r";
-;   14	static char *FileOpenError = "File not found!\n\r";
-;   15	static char *NonPcxFile = "Invalid PCX file!\n\r";
-;   16	static char *PcxSize = "Graphics Resolution: ";
-;   17	
-;   18	static char *TxtPnt;
-;   19	static char Header[128];
-;   20	char *PntHeader = Header;
-;   21	char *VideoMem = (char *)0x0800000;
-;   22	char *VideoMemTmp = (char *)0x0C00000;
-;   23	char convBuf[4];
-;   24	short MinX, MinY, MaxX, MaxY;
-;   25	short XSize, YSize, StartX, StartY;
-;   26	short VideoX, VideoY, PosX, PosY;
-;   27	unsigned short PcxPalette[256];
-;   28	unsigned char TmpPal[256*3];
-;   29	unsigned char *PntPal = TmpPal;
-;   30	unsigned int YOffset[480];
+;   12	#define VMEMOFFSET				(1024 * 20)
+;   13	
+;   14	static char *UseTxt = "USE: PCXVIEW [filename]\n\r";
+;   15	static char *FileOpenError = "File not found!\n\r";
+;   16	static char *NonPcxFile = "Invalid PCX file!\n\r";
+;   17	static char *PcxSize = "Graphics Resolution: ";
+;   18	
+;   19	static char *TxtPnt;
+;   20	static char Header[128];
+;   21	char *PntHeader = Header;
+;   22	char *VideoMem = (char *)(0x0800000 + VMEMOFFSET);
+;   23	char *VideoMemTmp = (char *)0x0C00000;
+;   24	char convBuf[4];
+;   25	short MinX, MinY, MaxX, MaxY;
+;   26	short XSize, YSize, StartX, StartY;
+;   27	short VideoX, VideoY, PosX, PosY;
+;   28	unsigned short PcxPalette[256];
+;   29	unsigned char TmpPal[256*3];
+;   30	unsigned char *PntPal = TmpPal;
+;   31	unsigned int YOffset[480];
 	SEGMENT CODE
-;   31	
-;   32	void ShowMsg(const char *Txt);
-;   33	void Make_Short(unsigned char a, unsigned char b, short *Val);
-;   34	void uitoa(unsigned int val, char *string);
-;   35	
-;   36	void BuildOffset(void);
-;   37	
-;   38	void LoadPcxPalette(void);
-;   39	void LoadPcxFile(void);
-;   40	void DecodePcxFile(void);
-;   41	
-;   42	void PutPcxPixel(unsigned char Px);
-;   43	
-;   44	void Set_320_240_Mode(void);
-;   45	void Set_640_480_Mode(void);
-;   46	
-;   47	void main(void)
-;   48	{
+;   32	
+;   33	void ShowMsg(const char *Txt);
+;   34	void Make_Short(unsigned char a, unsigned char b, short *Val);
+;   35	void uitoa(unsigned int val, char *string);
+;   36	
+;   37	void BuildOffset(void);
+;   38	
+;   39	void LoadPcxPalette(void);
+;   40	void LoadPcxFile(void);
+;   41	void DecodePcxFile(void);
+;   42	
+;   43	void PutPcxPixel(unsigned char Px);
+;   44	
+;   45	void Set_320_240_Mode(void);
+;   46	void Set_640_480_Mode(void);
+;   47	
+;   48	void main(void)
+;   49	{
 _main:
-;   49		INIT_HARDWARE;
+;   50		INIT_HARDWARE;
 PB_DR		equ 09Ah
 PB_DDR		equ 09Bh
 PB_ALT1		equ 09Ch
@@ -238,7 +239,7 @@ right_border_position	equ hw_video_settings + 04h
 os_start			equ 0A00h
 prose_return		equ os_start + 14h
 prose_kernal		equ os_start + 20h
-;   50		INIT_KJT;
+;   51		INIT_KJT;
 kr_mount_volumes			equ 00h
 kr_get_device_info		equ 01h
 kr_check_volume_format	equ 02h
@@ -307,8 +308,8 @@ kr_get_font_info			equ 40h
 kr_read_rtc				equ 41h
 kr_write_rtc				equ 42h
 kr_get_keymap_location	equ 43h
-;   51		
-;   52		CREATE_HEADER;
+;   52		
+;   53		CREATE_HEADER;
 jr skip_header
 db 'PRO'
 mb_loc dw24 10000h
@@ -317,38 +318,38 @@ dw 0
 dw 0
 db 1
 skip_header
-;   53		
-;   54		asm ("ld a, (hl)");				//Test command line
+;   54		
+;   55		asm ("ld a, (hl)");				//Test command line
 ld a, (hl)
-;   55		asm ("or a");
+;   56		asm ("or a");
 or a
-;   56		asm ("jr z, no_param");
+;   57		asm ("jr z, no_param");
 jr z, no_param
-;   57		
-;   58		asm ("ld (_K_xHL), hl");		//Save pointer to commandline in global pseudoregister
+;   58		
+;   59		asm ("ld (_K_xHL), hl");		//Save pointer to commandline in global pseudoregister
 ld (_K_xHL), hl
-;   59		asm ("ld a, kr_find_file");
+;   60		asm ("ld a, kr_find_file");
 ld a, kr_find_file
-;   60		asm ("call.lil prose_kernal");
+;   61		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;   61		asm ("jr nz, FileError");
+;   62		asm ("jr nz, FileError");
 jr nz, FileError
-;   62		
-;   63		asm ("ld de, 128");				//If kr_find_file = OK then load a pcx header (128 bytes length)
+;   63		
+;   64		asm ("ld de, 128");				//If kr_find_file = OK then load a pcx header (128 bytes length)
 ld de, 128
-;   64		asm ("ld a, kr_set_load_length");
+;   65		asm ("ld a, kr_set_load_length");
 ld a, kr_set_load_length
-;   65		asm ("call.lil prose_kernal");
+;   66		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;   66		
-;   67		asm ("ld hl, (_PntHeader)");
+;   67		
+;   68		asm ("ld hl, (_PntHeader)");
 ld hl, (_PntHeader)
-;   68		asm ("ld a, kr_read_file");
+;   69		asm ("ld a, kr_read_file");
 ld a, kr_read_file
-;   69		asm ("call.lil prose_kernal");
+;   70		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;   70		
-;   71		if (Header[0] != 10)		//If the first byte of header is not 10 then error
+;   71		
+;   72		if (Header[0] != 10)		//If the first byte of header is not 10 then error
 	LD	A,(_Header)
 	LD	B,A
 	SEXT	HL
@@ -357,21 +358,21 @@ call.lil prose_kernal
 	LD	BC,10
 	SBC	HL,BC
 	JR	Z,L_1
-;   72		{
-;   73			ShowMsg(NonPcxFile);
+;   73		{
+;   74			ShowMsg(NonPcxFile);
 	LD	BC,(_NonPcxFile)
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   74			
-;   75			asm ("xor a");
+;   75			
+;   76			asm ("xor a");
 xor a
-;   76			asm ("jp quitnow");
+;   77			asm ("jp quitnow");
 jp quitnow
-;   77		}
+;   78		}
 L_1:
-;   78		
-;   79		Make_Short(Header[4], Header[5], &MinX);	//Build the limits of image
+;   79		
+;   80		Make_Short(Header[4], Header[5], &MinX);	//Build the limits of image
 	LD	IY,_Header
 	LEA	HL,IY+5
 	LD	C,(HL)
@@ -385,7 +386,7 @@ L_1:
 	POP	BC
 	POP	BC
 	POP	BC
-;   80		Make_Short(Header[6], Header[7], &MinY);
+;   81		Make_Short(Header[6], Header[7], &MinY);
 	LD	IY,_Header
 	LEA	HL,IY+7
 	LD	C,(HL)
@@ -399,7 +400,7 @@ L_1:
 	POP	BC
 	POP	BC
 	POP	BC
-;   81		Make_Short(Header[8], Header[9], &MaxX);
+;   82		Make_Short(Header[8], Header[9], &MaxX);
 	LD	IY,_Header
 	LEA	HL,IY+9
 	LD	C,(HL)
@@ -413,7 +414,7 @@ L_1:
 	POP	BC
 	POP	BC
 	POP	BC
-;   82		Make_Short(Header[10], Header[11], &MaxY);
+;   83		Make_Short(Header[10], Header[11], &MaxY);
 	LD	IY,_Header
 	LEA	HL,IY+11
 	LD	C,(HL)
@@ -427,8 +428,8 @@ L_1:
 	POP	BC
 	POP	BC
 	POP	BC
-;   83		
-;   84		XSize = MaxX - MinX + 1;					//Dimensions of image
+;   84		
+;   85		XSize = MaxX - MinX + 1;					//Dimensions of image
 	LD	BC,(_MinX)
 	LD	HL,(_MaxX)
 	OR	A,A
@@ -439,7 +440,7 @@ L_1:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;   85		YSize = MaxY - MinY + 1;
+;   86		YSize = MaxY - MinY + 1;
 	LD	BC,(_MinY)
 	LD	HL,(_MaxY)
 	OR	A,A
@@ -450,20 +451,20 @@ L_1:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;   86		
-;   87		if (XSize > 1)								//If image is valid
+;   87		
+;   88		if (XSize > 1)								//If image is valid
 	LD	BC,(_XSize)
 	LD.LIS	HL,1
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	P,L__22
+	JP	P,L__20
 	JP	PE,L_21
-	JR	L__23
-L__22:
+	JR	L__21
+L__20:
 	JP	PO,L_21
-L__23:
-;   88		{
-;   89			uitoa(XSize, convBuf);
+L__21:
+;   89		{
+;   90			uitoa(XSize, convBuf);
 	LD	BC,_convBuf
 	PUSH	BC
 	LD	BC,(_XSize)
@@ -472,24 +473,24 @@ L__23:
 	CALL	_uitoa
 	POP	BC
 	POP	BC
-;   90			
-;   91			ShowMsg(PcxSize);
+;   91			
+;   92			ShowMsg(PcxSize);
 	LD	BC,(_PcxSize)
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   92			ShowMsg(convBuf);
+;   93			ShowMsg(convBuf);
 	LD	BC,_convBuf
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   93			ShowMsg("x");
+;   94			ShowMsg("x");
 	LD	BC,L__6
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   94			
-;   95			uitoa(YSize, convBuf);
+;   95			
+;   96			uitoa(YSize, convBuf);
 	LD	BC,_convBuf
 	PUSH	BC
 	LD	BC,(_YSize)
@@ -498,68 +499,78 @@ L__23:
 	CALL	_uitoa
 	POP	BC
 	POP	BC
-;   96			ShowMsg(convBuf);
+;   97			ShowMsg(convBuf);
 	LD	BC,_convBuf
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   97			ShowMsg("\n\r");						//Show on screen image dimensions
+;   98			ShowMsg("\n\r");						//Show on screen image dimensions
 	LD	BC,L__7
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;   98			
-;   99			if (XSize > 640)
+;   99			
+;  100			if (XSize > 640)
 	LD	BC,(_XSize)
 	LD.LIS	HL,640
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	P,L__24
+	JP	P,L__22
 	JP	PE,L_4
-	JR	L__25
-L__24:
+	JR	L__23
+L__22:
 	JP	PO,L_4
-L__25:
-;  100			{
-;  101				ShowMsg("Image too big!\n\r");
+L__23:
+;  101			{
+;  102				ShowMsg("Image too big!\n\r");
 	LD	BC,L__9
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  102				asm ("xor a");
+;  103				asm ("xor a");
 xor a
-;  103				asm ("jp quitnow");
+;  104				asm ("jp quitnow");
 jp quitnow
-;  104			}
+;  105			}
 L_4:
-;  105			
-;  106			if (YSize > 480)
+;  106			
+;  107			if (YSize > 480)
 	LD	BC,(_YSize)
 	LD.LIS	HL,480
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	P,L__26
+	JP	P,L__24
 	JP	PE,L_8
-	JR	L__27
-L__26:
+	JR	L__25
+L__24:
 	JP	PO,L_8
-L__27:
-;  107			{
-;  108				ShowMsg("Image too big!\n\r");
+L__25:
+;  108			{
+;  109				ShowMsg("Image too big!\n\r");
 	LD	BC,L__11
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  109				asm ("xor a");
+;  110				asm ("xor a");
 xor a
-;  110				asm ("jp quitnow");
+;  111				asm ("jp quitnow");
 jp quitnow
-;  111			}		
+;  112			}		
 L_8:
-;  112				
-;  113			if ((XSize <= 320) && (YSize <= 240))
+;  113				
+;  114			if ((XSize <= 320) && (YSize <= 240))
 	LD	BC,(_XSize)
 	LD.LIS	HL,320
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	M,L__26
+	JP	PE,L_7
+	JR	L__27
+L__26:
+	JP	PO,L_7
+L__27:
+	LD	BC,(_YSize)
+	LD.LIS	HL,240
 	OR	A,A
 	SBC.SIS	HL,BC
 	JP	M,L__28
@@ -568,60 +579,50 @@ L_8:
 L__28:
 	JP	PO,L_7
 L__29:
-	LD	BC,(_YSize)
-	LD.LIS	HL,240
-	OR	A,A
-	SBC.SIS	HL,BC
-	JP	M,L__30
-	JP	PE,L_7
-	JR	L__31
-L__30:
-	JP	PO,L_7
-L__31:
-;  114			{
-;  115				VideoX = 320;
+;  115			{
+;  116				VideoX = 320;
 	LD	HL,_VideoX
 	LD	(HL),64
 	INC	HL
 	LD	(HL),1
-;  116				VideoY = 240;
+;  117				VideoY = 240;
 	LD	HL,_VideoY
 	LD	(HL),240
 	INC	HL
 	LD	(HL),0
-;  117			}
-;  118			else
+;  118			}
+;  119			else
 	JR	L_9
 L_7:
-;  119			{
-;  120				VideoX = 640;
+;  120			{
+;  121				VideoX = 640;
 	LD	HL,_VideoX
 	LD	(HL),128
 	INC	HL
 	LD	(HL),2
-;  121				VideoY = 480;
+;  122				VideoY = 480;
 	LD	HL,_VideoY
 	LD	(HL),224
 	INC	HL
 	LD	(HL),1
-;  122			}
+;  123			}
 L_9:
-;  123			
-;  124			BuildOffset();						//Precalculation Y Offset table
+;  124			
+;  125			BuildOffset();						//Precalculation Y Offset table
 	CALL	_BuildOffset
-;  125			
-;  126			if (XSize < VideoX)					//Center the image?
+;  126			
+;  127			if (XSize < VideoX)					//Center the image?
 	LD	BC,(_VideoX)
 	LD	HL,(_XSize)
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	P,L__32
+	JP	P,L__30
 	JP	PE,L_11
-	JR	L__33
-L__32:
+	JR	L__31
+L__30:
 	JP	PO,L_11
-L__33:
-;  127				StartX = (VideoX - XSize) / 2;
+L__31:
+;  128				StartX = (VideoX - XSize) / 2;
 	LD	BC,(_VideoX)
 	CALL	__stoi
 	LD	DE,HL
@@ -638,28 +639,28 @@ L__33:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  128			else
+;  129			else
 	JR	L_14
 L_11:
-;  129				StartX = 0;
+;  130				StartX = 0;
 	LD	HL,_StartX
 	LD	(HL),0
 	INC	HL
 	LD	(HL),0
 L_14:
-;  130			
-;  131			if (YSize < VideoY)
+;  131			
+;  132			if (YSize < VideoY)
 	LD	BC,(_VideoY)
 	LD	HL,(_YSize)
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	P,L__34
+	JP	P,L__32
 	JP	PE,L_13
-	JR	L__35
-L__34:
+	JR	L__33
+L__32:
 	JP	PO,L_13
-L__35:
-;  132				StartY = (VideoY - YSize) / 2;
+L__33:
+;  133				StartY = (VideoY - YSize) / 2;
 	LD	BC,(_VideoY)
 	CALL	__stoi
 	LD	DE,HL
@@ -676,25 +677,25 @@ L__35:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  133			else
+;  134			else
 	JR	L_15
 L_13:
-;  134				StartY = 0;		
+;  135				StartY = 0;		
 	LD	HL,_StartY
 	LD	(HL),0
 	INC	HL
 	LD	(HL),0
 L_15:
-;  135			
-;  136			PosX = 0;
+;  136			
+;  137			PosX = 0;
 	LD	HL,_PosX
 	LD	(HL),0
 	INC	HL
 	LD	(HL),0
-;  137			PosY = 0;
+;  138			PosY = 0;
 	LD	HL,_PosY
-;  138			
-;  139			ShowMsg("Press a key...\n\r");
+;  139			
+;  140			ShowMsg("Press a key...\n\r");
 	LD	BC,L__16
 	PUSH	BC
 	LD	(HL),0
@@ -702,17 +703,17 @@ L_15:
 	LD	(HL),0
 	CALL	_ShowMsg
 	POP	BC
-;  140			asm ("ld a, kr_wait_key");
+;  141			asm ("ld a, kr_wait_key");
 ld a, kr_wait_key
-;  141			asm ("call.lil prose_kernal");
+;  142			asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  142			
-;  143			LoadPcxPalette();
+;  143			
+;  144			LoadPcxPalette();
 	CALL	_LoadPcxPalette
-;  144			LoadPcxFile();
+;  145			LoadPcxFile();
 	CALL	_LoadPcxFile
-;  145			
-;  146			if ((VideoX == 320) && (VideoY == 240))		//Choose right video mode
+;  146			
+;  147			if ((VideoX == 320) && (VideoY == 240))		//Choose right video mode
 	LD.LIS	BC,320
 	LD	HL,(_VideoX)
 	OR	A,A
@@ -723,16 +724,16 @@ call.lil prose_kernal
 	OR	A,A
 	SBC.SIS	HL,BC
 	JR	NZ,L_18
-;  147				Set_320_240_Mode();
+;  148				Set_320_240_Mode();
 	CALL	_Set_320_240_Mode
-;  148			else
+;  149			else
 	JR	L_19
 L_18:
-;  149				Set_640_480_Mode();		
+;  150				Set_640_480_Mode();		
 	CALL	_Set_640_480_Mode
 L_19:
-;  150			
-;  151			memcpy((void *)0x0ff0000, PcxPalette, sizeof(PcxPalette));	//Copy local palette to sistem's palette
+;  151			
+;  152			memcpy((void *)0x0ff0000, PcxPalette, sizeof(PcxPalette));	//Copy local palette to sistem's palette
 	LD	BC,512
 	PUSH	BC
 	LD	BC,_PcxPalette
@@ -743,95 +744,82 @@ L_19:
 	POP	BC
 	POP	BC
 	POP	BC
-;  152			
-;  153			DecodePcxFile();
+;  153			
+;  154			DecodePcxFile();
 	CALL	_DecodePcxFile
-;  154			
-;  155			asm ("ld a, kr_wait_key");
+;  155			
+;  156			asm ("ld a, kr_wait_key");
 ld a, kr_wait_key
-;  156			asm ("call.lil prose_kernal");
+;  157			asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  157		}
-;  158		else
+;  158		}
+;  159		else
 	JR	L_22
 L_21:
-;  159		{
-;  160			ShowMsg("Invalid image dimensions!\n\r");
+;  160		{
+;  161			ShowMsg("Invalid image dimensions!\n\r");
 	LD	BC,L__19
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  161			
-;  162			asm ("xor a");
+;  162			
+;  163			asm ("xor a");
 xor a
-;  163			asm ("jp quitnow");
+;  164			asm ("jp quitnow");
 jp quitnow
-;  164		}
+;  165		}
 L_22:
-;  165		
-;  166		asm ("jp endprogram");
+;  166		
+;  167		asm ("jp endprogram");
 jp endprogram
-;  167		
-;  168		asm ("no_param:");
+;  168		
+;  169		asm ("no_param:");
 no_param:
-;  169		ShowMsg(UseTxt);
+;  170		ShowMsg(UseTxt);
 	LD	BC,(_UseTxt)
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  170		asm ("xor a");
+;  171		asm ("xor a");
 xor a
-;  171		asm ("jp quitnow");
+;  172		asm ("jp quitnow");
 jp quitnow
-;  172		
-;  173		asm ("FileError:");
+;  173		
+;  174		asm ("FileError:");
 FileError:
-;  174		ShowMsg(FileOpenError);
+;  175		ShowMsg(FileOpenError);
 	LD	BC,(_FileOpenError)
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  175		asm ("xor a");
+;  176		asm ("xor a");
 xor a
-;  176		asm ("jp quitnow");
+;  177		asm ("jp quitnow");
 jp quitnow
-;  177		
-;  178		asm ("endprogram:");	
+;  178		
+;  179		asm ("endprogram:");	
 endprogram:
-;  179		asm ("ld a, kr_os_display");
+;  180		asm ("ld a, kr_os_display");
 ld a, kr_os_display
-;  180		asm ("call.lil prose_kernal");
+;  181		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  181		asm ("ld a, kr_clear_screen");
+;  182		asm ("ld a, kr_clear_screen");
 ld a, kr_clear_screen
-;  182		asm ("call.lil prose_kernal");	
+;  183		asm ("call.lil prose_kernal");	
 call.lil prose_kernal
-;  183		
-;  184		if ((VideoX == 320) && (VideoY == 240))		
-	LD.LIS	BC,320
-	LD	HL,(_VideoX)
-	OR	A,A
-	SBC.SIS	HL,BC
-	JR	NZ,L_25
-	LD.LIS	BC,240
-	LD	HL,(_VideoY)
-	OR	A,A
-	SBC.SIS	HL,BC
-	JR	NZ,L_25
-;  185			asm ("xor a");
+;  184		
+;  185		/*if ((VideoX == 320) && (VideoY == 240))		
+;  186			asm ("xor a");
+;  187		else
+;  188			asm ("ld a, 0ffh");*/
+;  189			
+;  190		asm ("xor a");
 xor a
-;  186		else
-	JR	L_26
-L_25:
-;  187			asm ("ld a, 0ffh");
-ld a, 0ffh
-L_26:
-;  188		
-;  189		asm ("quitnow:");	
+;  191		asm ("quitnow:");	
 quitnow:
-;  190		asm ("jp.lil prose_return");
+;  192		asm ("jp.lil prose_return");
 jp.lil prose_return
-;  191	}
+;  193	}
 	RET	
 
 
@@ -891,13 +879,13 @@ L__19:
 	DB	"Invalid image dimensions!"
 	DB	10,13,0
 	SEGMENT CODE
-;  192	
-;  193	//Join to bytes and make a 16 bit value
-;  194	void Make_Short(unsigned char a, unsigned char b, short *Val)
-;  195	{
+;  194	
+;  195	//Join to bytes and make a 16 bit value
+;  196	void Make_Short(unsigned char a, unsigned char b, short *Val)
+;  197	{
 _Make_Short:
 	CALL	__frameset0
-;  196		*Val = (a + (b << 8));
+;  198		*Val = (a + (b << 8));
 	LD	C,(IX+9)
 	LD	B,0
 	LD	HL,BC
@@ -910,7 +898,7 @@ _Make_Short:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  197	}
+;  199	}
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -927,20 +915,20 @@ _Make_Short:
 ;       Spill Code: 0 (instruction)
 
 
-;  198	
-;  199	//convert an integer in ascii string
-;  200	void uitoa(unsigned int val, char *string)
-;  201	{
+;  200	
+;  201	//convert an integer in ascii string
+;  202	void uitoa(unsigned int val, char *string)
+;  203	{
 _uitoa:
 	LD	HL,-6
 	CALL	__frameset
-;  202		char index = 0, i = 0;
+;  204		char index = 0, i = 0;
 	LD	(IX+-1),0
 	LD	(IX+-2),0
-;  203		
-;  204		do {
-L_31:
-;  205			string[index] = '0' + (val % 10);
+;  205		
+;  206		do {
+L_27:
+;  207			string[index] = '0' + (val % 10);
 	LD	A,(IX+-1)
 	SEXT	HL
 	LD	L,(IX+-1)
@@ -954,8 +942,8 @@ L_31:
 	ADD	A,48
 	LD	HL,(IX+-5)
 	LD	(HL),A
-;  206			
-;  207			if (string[index] > '9')
+;  208			
+;  209			if (string[index] > '9')
 	LD	HL,(IX+-5)
 	LD	A,(HL)
 	LD	B,A
@@ -965,35 +953,35 @@ L_31:
 	LD	HL,57
 	OR	A,A
 	SBC	HL,BC
-	JP	P,L__41
-	JP	PE,L_30
-	JR	L__42
-L__41:
-	JP	PO,L_30
-L__42:
-;  208				string[index] += 'A' - '9' - 1;
+	JP	P,L__39
+	JP	PE,L_26
+	JR	L__40
+L__39:
+	JP	PO,L_26
+L__40:
+;  210				string[index] += 'A' - '9' - 1;
 	LD	HL,(IX+-5)
 	LD	A,(HL)
 	ADD	A,7
 	LD	HL,(IX+-5)
 	LD	(HL),A
-L_30:
-;  209			
-;  210			val /= 10;
+L_26:
+;  211			
+;  212			val /= 10;
 	LD	BC,10
 	LD	HL,(IX+6)
 	CALL	__idivu
 	LD	(IX+6),HL
-;  211			++index;
+;  213			++index;
 	INC	(IX+-1)
-;  212	  } while (val != 0);
+;  214	  } while (val != 0);
 	LD	HL,(IX+6)
 	OR	A,A
 	LD	BC,0
 	SBC	HL,BC
-	JR	NZ,L_31
-;  213	  
-;  214	  string[index--] = '\0'; 
+	JR	NZ,L_27
+;  215	  
+;  216	  string[index--] = '\0'; 
 	LD	A,(IX+-1)
 	SEXT	HL
 	LD	L,(IX+-1)
@@ -1001,12 +989,12 @@ L_30:
 	ADD	HL,BC
 	LD	(HL),0
 	DEC	(IX+-1)
-;  215	  
-;  216	  while (index > i)
-	JR	L_35
-L_36:
-;  217	  {
-;  218	    char tmp = string[i];
+;  217	  
+;  218	  while (index > i)
+	JR	L_31
+L_32:
+;  219	  {
+;  220	    char tmp = string[i];
 	LD	A,(IX+-2)
 	SEXT	HL
 	LD	L,(IX+-2)
@@ -1014,8 +1002,8 @@ L_36:
 	ADD	HL,BC
 	LD	A,(HL)
 	LD	(IX+-6),A
-;  219		  
-;  220	    string[i] = string[index];
+;  221		  
+;  222	    string[i] = string[index];
 	LD	A,(IX+-1)
 	SEXT	HL
 	LD	L,(IX+-1)
@@ -1029,7 +1017,7 @@ L_36:
 	LD	BC,(IX+9)
 	ADD	HL,BC
 	LD	(HL),A
-;  221	    string[index] = tmp;
+;  223	    string[index] = tmp;
 	LD	A,(IX+-1)
 	SEXT	HL
 	LD	L,(IX+-1)
@@ -1037,21 +1025,21 @@ L_36:
 	LD	BC,(IX+9)
 	ADD	HL,BC
 	LD	(HL),A
-;  222	    ++i;
+;  224	    ++i;
 	INC	(IX+-2)
-;  223	    --index;
+;  225	    --index;
 	DEC	(IX+-1)
-;  224	  }
-L_35:
+;  226	  }
+L_31:
 	LD	A,(IX+-2)
 	CP	A,(IX+-1)
-	JP	M,L__43
-	JP	PE,L_36
-	JR	L__44
-L__43:
-	JP	PO,L_36
-L__44:
-;  225	}
+	JP	M,L__41
+	JP	PE,L_32
+	JR	L__42
+L__41:
+	JP	PO,L_32
+L__42:
+;  227	}
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -1071,27 +1059,27 @@ L__44:
 ;       Spill Code: 0 (instruction)
 
 
-;  226	
-;  227	//Show a text :-)
-;  228	void ShowMsg(const char *Txt)
-;  229	{
+;  228	
+;  229	//Show a text :-)
+;  230	void ShowMsg(const char *Txt)
+;  231	{
 _ShowMsg:
 	CALL	__frameset0
-;  230		TxtPnt = Txt;
+;  232		TxtPnt = Txt;
 	LD	BC,(IX+6)
 	LD	(_TxtPnt),BC
-;  231		
-;  232		asm ("push ix");
+;  233		
+;  234		asm ("push ix");
 push ix
-;  233		asm ("ld hl, (_TxtPnt)");
+;  235		asm ("ld hl, (_TxtPnt)");
 ld hl, (_TxtPnt)
-;  234		asm ("ld a, kr_print_string");
+;  236		asm ("ld a, kr_print_string");
 ld a, kr_print_string
-;  235		asm ("call.lil prose_kernal");
+;  237		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  236		asm ("pop ix");	
+;  238		asm ("pop ix");	
 pop ix
-;  237	}
+;  239	}
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -1107,87 +1095,87 @@ pop ix
 ;       Spill Code: 0 (instruction)
 
 
-;  238	
-;  239	//Load a 768 bytes palette, then convert it in a palette useful for eZ80P
-;  240	void LoadPcxPalette(void)
-;  241	{
+;  240	
+;  241	//Load a 768 bytes palette, then convert it in a palette useful for eZ80P
+;  242	void LoadPcxPalette(void)
+;  243	{
 _LoadPcxPalette:
 	LD	HL,-4
 	CALL	__frameset
-;  242		short i, a;
-;  243		
-;  244		ShowMsg("Loading Palette...\n\r");
-	LD	BC,L__47
+;  244		short i, a;
+;  245		
+;  246		ShowMsg("Loading Palette...\n\r");
+	LD	BC,L__45
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  245		
-;  246		asm ("push ix");
+;  247		
+;  248		asm ("push ix");
 push ix
-;  247		asm ("ld hl, (_K_xHL)");
+;  249		asm ("ld hl, (_K_xHL)");
 ld hl, (_K_xHL)
-;  248		asm ("ld a, kr_find_file");
+;  250		asm ("ld a, kr_find_file");
 ld a, kr_find_file
-;  249		asm ("call.lil prose_kernal");
+;  251		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  250		asm ("pop ix");	
+;  252		asm ("pop ix");	
 pop ix
-;  251		asm ("jr nz, PaletteError");
+;  253		asm ("jr nz, PaletteError");
 jr nz, PaletteError
-;  252		asm ("ld (_K_xDE), de");
+;  254		asm ("ld (_K_xDE), de");
 ld (_K_xDE), de
-;  253		
-;  254		K_xDE -= 768;
+;  255		
+;  256		K_xDE -= 768;
 	LD	HL,(_K_xDE)
 	LD	BC,-768
 	ADD	HL,BC
 	LD	(_K_xDE),HL
-;  255		
-;  256		asm ("push ix");
+;  257		
+;  258		asm ("push ix");
 push ix
-;  257		asm ("ld de, (_K_xDE)");	
+;  259		asm ("ld de, (_K_xDE)");	
 ld de, (_K_xDE)
-;  258		asm ("ld a, kr_set_file_pointer");
+;  260		asm ("ld a, kr_set_file_pointer");
 ld a, kr_set_file_pointer
-;  259		asm ("call.lil prose_kernal");
+;  261		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  260		asm ("pop ix");
+;  262		asm ("pop ix");
 pop ix
-;  261		
-;  262		asm ("push ix");
+;  263		
+;  264		asm ("push ix");
 push ix
-;  263		asm ("ld de, 768");
+;  265		asm ("ld de, 768");
 ld de, 768
-;  264		asm ("ld a, kr_set_load_length");
+;  266		asm ("ld a, kr_set_load_length");
 ld a, kr_set_load_length
-;  265		asm ("call.lil prose_kernal");
+;  267		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  266		asm ("pop ix");
+;  268		asm ("pop ix");
 pop ix
-;  267		
-;  268		asm ("push ix");
+;  269		
+;  270		asm ("push ix");
 push ix
-;  269		asm ("ld hl, (_PntPal)");
+;  271		asm ("ld hl, (_PntPal)");
 ld hl, (_PntPal)
-;  270		asm ("ld a, kr_read_file");
+;  272		asm ("ld a, kr_read_file");
 ld a, kr_read_file
-;  271		asm ("call.lil prose_kernal");
+;  273		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  272		asm ("jr nz, PaletteError");
+;  274		asm ("jr nz, PaletteError");
 jr nz, PaletteError
-;  273		asm ("pop ix");
+;  275		asm ("pop ix");
 pop ix
-;  274		
-;  275		a = 0;
+;  276		
+;  277		a = 0;
 	LD	(IX+-4),0
 	LD	(IX+-3),0
 	LD	(IX+-2),0
 	LD	(IX+-1),0
-;  276		for (i = 0; i < 256; i++)
-	JR	L_42
-L_40:
-;  277		{
-;  278			PcxPalette[i] = RGB2WORD(TmpPal[a], TmpPal[a + 1], TmpPal[a + 2]);
+;  278		for (i = 0; i < 256; i++)
+	JR	L_38
+L_36:
+;  279		{
+;  280			PcxPalette[i] = RGB2WORD(TmpPal[a], TmpPal[a + 1], TmpPal[a + 2]);
 	LD	BC,(IX+-4)
 	CALL	__stoi
 	LD	BC,_TmpPal
@@ -1238,8 +1226,8 @@ L_40:
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  279			
-;  280			a+=3;
+;  281			
+;  282			a+=3;
 	LD	IY,(IX+-4)
 	LEA	HL,IY+3
 	LD	(IX+-4),L
@@ -1248,33 +1236,33 @@ L_40:
 	INC	HL
 	LD	(IX+-2),L
 	LD	(IX+-1),H
-;  281		}
-L_42:
+;  283		}
+L_38:
 	LD.LIS	BC,256
 	LD	HL,(IX+-2)
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	M,L__50
-	JP	PE,L_40
-	JR	L__51
-L__50:
-	JP	PO,L_40
-L__51:
-;  282		
-;  283		asm ("jp EndPalette");
-jp EndPalette
+	JP	M,L__48
+	JP	PE,L_36
+	JR	L__49
+L__48:
+	JP	PO,L_36
+L__49:
 ;  284		
-;  285		asm("PaletteError:");
+;  285		asm ("jp EndPalette");
+jp EndPalette
+;  286		
+;  287		asm("PaletteError:");
 PaletteError:
-;  286		ShowMsg("Palette Reading error\n\r");
-	LD	BC,L__49
+;  288		ShowMsg("Palette Reading error\n\r");
+	LD	BC,L__47
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  287		
-;  288		asm ("EndPalette:");
+;  289		
+;  290		asm ("EndPalette:");
 EndPalette:
-;  289	}
+;  291	}
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -1295,94 +1283,94 @@ EndPalette:
 
 
 	SEGMENT STRSECT
-L__47:
+L__45:
 	DB	"Loading Palette..."
 	DB	10,13,0
-L__49:
+L__47:
 	DB	"Palette Reading error"
 	DB	10,13,0
 	SEGMENT CODE
-;  290	
-;  291	//Load the Pcx compress data in second video page mem
-;  292	void LoadPcxFile(void)
-;  293	{
+;  292	
+;  293	//Load the Pcx compress data in second video page mem
+;  294	void LoadPcxFile(void)
+;  295	{
 _LoadPcxFile:
-;  294		ShowMsg("Loading Pcx Data...\n\r");
-	LD	BC,L__53
+;  296		ShowMsg("Loading Pcx Data...\n\r");
+	LD	BC,L__51
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  295		
-;  296		asm ("push ix");
+;  297		
+;  298		asm ("push ix");
 push ix
-;  297		asm ("ld hl, (_K_xHL)");
+;  299		asm ("ld hl, (_K_xHL)");
 ld hl, (_K_xHL)
-;  298		asm ("ld a, kr_find_file");
+;  300		asm ("ld a, kr_find_file");
 ld a, kr_find_file
-;  299		asm ("call.lil prose_kernal");
+;  301		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  300		asm ("pop ix");	
+;  302		asm ("pop ix");	
 pop ix
-;  301		asm ("jr nz, LoadPcxError");
+;  303		asm ("jr nz, LoadPcxError");
 jr nz, LoadPcxError
-;  302		asm ("ld (_K_xDE), de");
+;  304		asm ("ld (_K_xDE), de");
 ld (_K_xDE), de
-;  303		
-;  304		asm ("push ix");
+;  305		
+;  306		asm ("push ix");
 push ix
-;  305		asm ("ld de, 128");
+;  307		asm ("ld de, 128");
 ld de, 128
-;  306		asm ("ld a, kr_set_file_pointer");
+;  308		asm ("ld a, kr_set_file_pointer");
 ld a, kr_set_file_pointer
-;  307		asm ("call.lil prose_kernal");
+;  309		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  308		asm ("pop ix");
+;  310		asm ("pop ix");
 pop ix
-;  309		
-;  310		K_xDE = K_xDE - (128 + 768);
+;  311		
+;  312		K_xDE = K_xDE - (128 + 768);
 	LD	HL,(_K_xDE)
 	LD	BC,-896
 	ADD	HL,BC
 	LD	(_K_xDE),HL
-;  311		
-;  312		asm ("push ix");
+;  313		
+;  314		asm ("push ix");
 push ix
-;  313		asm ("ld de, (_K_xDE)");
+;  315		asm ("ld de, (_K_xDE)");
 ld de, (_K_xDE)
-;  314		asm ("ld a, kr_set_load_length");
+;  316		asm ("ld a, kr_set_load_length");
 ld a, kr_set_load_length
-;  315		asm ("call.lil prose_kernal");
+;  317		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  316		asm ("pop ix");
+;  318		asm ("pop ix");
 pop ix
-;  317		
-;  318		asm ("push ix");
+;  319		
+;  320		asm ("push ix");
 push ix
-;  319		asm ("ld hl, (_VideoMemTmp)");
+;  321		asm ("ld hl, (_VideoMemTmp)");
 ld hl, (_VideoMemTmp)
-;  320		asm ("ld a, kr_read_file");
+;  322		asm ("ld a, kr_read_file");
 ld a, kr_read_file
-;  321		asm ("call.lil prose_kernal");
+;  323		asm ("call.lil prose_kernal");
 call.lil prose_kernal
-;  322		asm ("jr nz, LoadPcxError");
+;  324		asm ("jr nz, LoadPcxError");
 jr nz, LoadPcxError
-;  323		asm ("pop ix");
+;  325		asm ("pop ix");
 pop ix
-;  324		
-;  325		asm ("jp EndLoadPcx");
-jp EndLoadPcx
 ;  326		
-;  327		asm("LoadPcxError:");
+;  327		asm ("jp EndLoadPcx");
+jp EndLoadPcx
+;  328		
+;  329		asm("LoadPcxError:");
 LoadPcxError:
-;  328		ShowMsg("PCX Reading error\n\r");
-	LD	BC,L__54
+;  330		ShowMsg("PCX Reading error\n\r");
+	LD	BC,L__52
 	PUSH	BC
 	CALL	_ShowMsg
 	POP	BC
-;  329		
-;  330		asm ("EndLoadPcx:");
+;  331		
+;  332		asm ("EndLoadPcx:");
 EndLoadPcx:
-;  331	}
+;  333	}
 	RET	
 
 
@@ -1397,66 +1385,69 @@ EndLoadPcx:
 
 
 	SEGMENT STRSECT
-L__53:
+L__51:
 	DB	"Loading Pcx Data..."
 	DB	10,13,0
-L__54:
+L__52:
 	DB	"PCX Reading error"
 	DB	10,13,0
 	SEGMENT CODE
-;  332	
-;  333	//Enable 320x240x256 colors
-;  334	void Set_320_240_Mode(void)
-;  335	{
+;  334	
+;  335	//Enable 320x240x256 colors
+;  336	void Set_320_240_Mode(void)
+;  337	{
 _Set_320_240_Mode:
-;  336		asm ("push ix");
+;  338		asm ("push ix");
 push ix
-;  337		
-;  338		asm ("ld a, 0110b");
+;  339		
+;  340		asm ("ld a, 0110b");
 ld a, 0110b
-;  339		asm ("ld (video_control), a");
+;  341		asm ("ld (video_control), a");
 ld (video_control), a
-;  340		asm ("ld a, 0");
+;  342		asm ("ld a, 0");
 ld a, 0
-;  341		asm ("ld (bgnd_palette_select), a");
+;  343		asm ("ld (bgnd_palette_select), a");
 ld (bgnd_palette_select), a
-;  342		asm ("ld a, 99");
+;  344		asm ("ld a, 99");
 ld a, 99
-;  343		asm ("ld (right_border_position), a");
+;  345		asm ("ld (right_border_position), a");
 ld (right_border_position), a
-;  344		asm ("ld ix, bitmap_parameters");
+;  346		asm ("ld ix, bitmap_parameters");
 ld ix, bitmap_parameters
-;  345		asm ("ld (ix), 0");
-ld (ix), 0
-;  346		asm ("ld (ix+04h), 1");
+;  347		asm ("ld hl, 1024 * 20");
+ld hl, 1024 * 20
+;  348		asm ("ld (ix), hl");
+ld (ix), hl
+;  349		asm ("ld (ix+04h), 1");
 ld (ix+04h), 1
-;  347		asm ("ld (ix+08h), 0");
+;  350		asm ("ld (ix+08h), 0");
 ld (ix+08h), 0
-;  348		asm ("ld (ix+0ch), 0");
+;  351		asm ("ld (ix+0ch), 0");
 ld (ix+0ch), 0
-;  349		asm ("ld (ix+10h), 0 + (320 / 8) - 1");
+;  352		asm ("ld (ix+10h), 0 + (320 / 8) - 1");
 ld (ix+10h), 0 + (320 / 8) - 1
-;  350		
-;  351		asm ("ld hl, vram_a_addr");
-ld hl, vram_a_addr
-;  352		asm ("ld (hl), 0");
+;  353		
+;  354		//asm ("ld hl, vram_a_addr");
+;  355		asm ("ld hl, (_VideoMem)");
+ld hl, (_VideoMem)
+;  356		asm ("ld (hl), 0");
 ld (hl), 0
-;  353		asm ("push hl");
+;  357		asm ("push hl");
 push hl
-;  354		asm ("pop de");
+;  358		asm ("pop de");
 pop de
-;  355		asm ("inc de");
+;  359		asm ("inc de");
 inc de
-;  356		asm ("ld bc, 320*240");
+;  360		asm ("ld bc, 320*240");
 ld bc, 320*240
-;  357		asm ("dec bc");
+;  361		asm ("dec bc");
 dec bc
-;  358		asm ("ldir");
+;  362		asm ("ldir");
 ldir
-;  359		
-;  360		asm ("pop ix");
+;  363		
+;  364		asm ("pop ix");
 pop ix
-;  361	}
+;  365	}
 	RET	
 
 
@@ -1468,59 +1459,62 @@ pop ix
 ;       Spill Code: 0 (instruction)
 
 
-;  362	
-;  363	//Enable 640x480x256 colors
-;  364	void Set_640_480_Mode(void)
-;  365	{
+;  366	
+;  367	//Enable 640x480x256 colors
+;  368	void Set_640_480_Mode(void)
+;  369	{
 _Set_640_480_Mode:
-;  366		asm ("push ix");
+;  370		asm ("push ix");
 push ix
-;  367		
-;  368		asm ("ld a, 0000b");
+;  371		
+;  372		asm ("ld a, 0000b");
 ld a, 0000b
-;  369		asm ("ld (video_control), a");
+;  373		asm ("ld (video_control), a");
 ld (video_control), a
-;  370		asm ("ld a, 0");
+;  374		asm ("ld a, 0");
 ld a, 0
-;  371		asm ("ld (bgnd_palette_select), a");
+;  375		asm ("ld (bgnd_palette_select), a");
 ld (bgnd_palette_select), a
-;  372		asm ("ld a, 99");
+;  376		asm ("ld a, 99");
 ld a, 99
-;  373		asm ("ld (right_border_position), a");
+;  377		asm ("ld (right_border_position), a");
 ld (right_border_position), a
-;  374		asm ("ld ix, bitmap_parameters");	
+;  378		asm ("ld ix, bitmap_parameters");	
 ld ix, bitmap_parameters
-;  375		asm ("ld (ix), 0");
-ld (ix), 0
-;  376		asm ("ld (ix+04h), 1");
+;  379		asm ("ld hl, 1024 * 20");
+ld hl, 1024 * 20
+;  380		asm ("ld (ix), hl");
+ld (ix), hl
+;  381		asm ("ld (ix+04h), 1");
 ld (ix+04h), 1
-;  377		asm ("ld (ix+08h), 0");
+;  382		asm ("ld (ix+08h), 0");
 ld (ix+08h), 0
-;  378		asm ("ld (ix+0ch), 0");
+;  383		asm ("ld (ix+0ch), 0");
 ld (ix+0ch), 0
-;  379		asm ("ld (ix+10h), 0 + (640 / 8) - 1");
+;  384		asm ("ld (ix+10h), 0 + (640 / 8) - 1");
 ld (ix+10h), 0 + (640 / 8) - 1
-;  380		
-;  381		asm ("ld hl, vram_a_addr");
-ld hl, vram_a_addr
-;  382		asm ("ld (hl), 0");
+;  385		
+;  386		//asm ("ld hl, vram_a_addr");
+;  387		asm ("ld hl, (_VideoMem)");
+ld hl, (_VideoMem)
+;  388		asm ("ld (hl), 0");
 ld (hl), 0
-;  383		asm ("push hl");
+;  389		asm ("push hl");
 push hl
-;  384		asm ("pop de");
+;  390		asm ("pop de");
 pop de
-;  385		asm ("inc de");
+;  391		asm ("inc de");
 inc de
-;  386		asm ("ld bc, 640*480");
+;  392		asm ("ld bc, 640*480");
 ld bc, 640*480
-;  387		asm ("dec bc");
+;  393		asm ("dec bc");
 dec bc
-;  388		asm ("ldir");
+;  394		asm ("ldir");
 ldir
-;  389		
-;  390		asm ("pop ix");
+;  395		
+;  396		asm ("pop ix");
 pop ix
-;  391	}
+;  397	}
 	RET	
 
 
@@ -1532,20 +1526,20 @@ pop ix
 ;       Spill Code: 0 (instruction)
 
 
-;  392	
-;  393	//Expand compress Pcx data into raw image
-;  394	void DecodePcxFile(void)
-;  395	{
+;  398	
+;  399	//Expand compress Pcx data into raw image
+;  400	void DecodePcxFile(void)
+;  401	{
 _DecodePcxFile:
 	LD	HL,-13
 	CALL	__frameset
-;  396		unsigned int NumData, fsize, tmp;
-;  397		register unsigned char Data;
-;  398		
-;  399		fsize = 0;
+;  402		unsigned int NumData, fsize, tmp;
+;  403		register unsigned char Data;
+;  404		
+;  405		fsize = 0;
 	LD	BC,0
 	LD	(IX+-4),BC
-;  400		tmp = (unsigned int)XSize * (unsigned int)YSize;
+;  406		tmp = (unsigned int)XSize * (unsigned int)YSize;
 	LD	BC,(_XSize)
 	CALL	__stoi
 	LD	DE,HL
@@ -1555,12 +1549,12 @@ _DecodePcxFile:
 	LD	HL,DE
 	CALL	__imulu
 	LD	(IX+-10),HL
-;  401		
-;  402		while (fsize <= tmp)
-	JR	L_56
-L_57:
-;  403		{
-;  404			Data = *VideoMemTmp++;
+;  407		
+;  408		while (fsize <= tmp)
+	JR	L_52
+L_53:
+;  409		{
+;  410			Data = *VideoMemTmp++;
 	LD	BC,(_VideoMemTmp)
 	LD	(IX+-13),BC
 	LD	HL,BC
@@ -1569,57 +1563,57 @@ L_57:
 	LD	BC,(_VideoMemTmp)
 	INC	BC
 	LD	(_VideoMemTmp),BC
-;  405			
-;  406			if (Data < 192)
+;  411			
+;  412			if (Data < 192)
 	LD	A,(IX+-1)
 	CP	A,192
-	JR	NC,L_51
-;  407			{
-;  408				PutPcxPixel(Data);
+	JR	NC,L_47
+;  413			{
+;  414				PutPcxPixel(Data);
 	LD	C,(IX+-1)
 	LD	B,0
 	PUSH	BC
 	CALL	_PutPcxPixel
 	POP	BC
-;  409				
-;  410				fsize++;
+;  415				
+;  416				fsize++;
 	LD	BC,(IX+-4)
 	INC	BC
 	LD	(IX+-4),BC
-;  411				
-;  412				continue;
-	JR	L_56
-;  413			}
-L_51:
-;  414			
-;  415			NumData = Data & 0x3F;
+;  417				
+;  418				continue;
+	JR	L_52
+;  419			}
+L_47:
+;  420			
+;  421			NumData = Data & 0x3F;
 	LD	A,(IX+-1)
 	AND	A,63
 	UEXT	HL
 	LD	L,A
 	LD	(IX+-7),HL
-;  416			fsize += NumData;
+;  422			fsize += NumData;
 	LD	BC,(IX+-4)
 	ADD	HL,BC
 	LD	(IX+-4),HL
-;  417			Data = *VideoMemTmp++;
+;  423			Data = *VideoMemTmp++;
 	LD	HL,(_VideoMemTmp)
 	LD	A,(HL)
 	LD	(IX+-1),A
 	LD	BC,(_VideoMemTmp)
 	INC	BC
 	LD	(_VideoMemTmp),BC
-;  418			
-;  419			while(NumData-- > 0)
-	JR	L_54
-L_55:
-;  420				PutPcxPixel(Data);
+;  424			
+;  425			while(NumData-- > 0)
+	JR	L_50
+L_51:
+;  426				PutPcxPixel(Data);
 	LD	C,(IX+-1)
 	LD	B,0
 	PUSH	BC
 	CALL	_PutPcxPixel
 	POP	BC
-L_54:
+L_50:
 	LD	BC,(IX+-7)
 	OR	A,A
 	SBC	HL,HL
@@ -1628,15 +1622,15 @@ L_54:
 	LD	IY,(IX+-7)
 	LEA	IY,IY+-1
 	LD	(IX+-7),IY
-	JR	C,L_55
-;  421		}
-L_56:
+	JR	C,L_51
+;  427		}
+L_52:
 	LD	BC,(IX+-4)
 	LD	HL,(IX+-10)
 	OR	A,A
 	SBC	HL,BC
-	JR	NC,L_57
-;  422	}
+	JR	NC,L_53
+;  428	}
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -1658,13 +1652,13 @@ L_56:
 ;       Spill Code: 0 (instruction)
 
 
-;  423	
-;  424	//Put image pixel on screen
-;  425	void PutPcxPixel(unsigned char Px)
-;  426	{
+;  429	
+;  430	//Put image pixel on screen
+;  431	void PutPcxPixel(unsigned char Px)
+;  432	{
 _PutPcxPixel:
 	CALL	__frameset0
-;  427		VideoMem[YOffset[PosY + StartY] + (PosX + StartX)] = Px;
+;  433		VideoMem[YOffset[PosY + StartY] + (PosX + StartX)] = Px;
 	LD	BC,(_PosY)
 	CALL	__stoi
 	LD	DE,HL
@@ -1692,42 +1686,42 @@ _PutPcxPixel:
 	ADD	HL,BC
 	LD	A,(IX+6)
 	LD	(HL),A
-;  428		
-;  429		PosX++;
+;  434		
+;  435		PosX++;
 	LD	BC,(_PosX)
 	INC	BC
 	LD	HL,_PosX
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  430		
-;  431		if (PosX >= XSize)
+;  436		
+;  437		if (PosX >= XSize)
 	LD	BC,(_XSize)
 	LD	HL,(_PosX)
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	M,L__63
-	JP	PE,L_62
-	JR	L__64
-L__63:
-	JP	PO,L_62
-L__64:
-;  432		{
-;  433			PosX = 0;
+	JP	M,L__61
+	JP	PE,L_58
+	JR	L__62
+L__61:
+	JP	PO,L_58
+L__62:
+;  438		{
+;  439			PosX = 0;
 	LD	HL,_PosX
 	LD	(HL),0
 	INC	HL
 	LD	(HL),0
-;  434			PosY++;
+;  440			PosY++;
 	LD	BC,(_PosY)
 	INC	BC
 	LD	HL,_PosY
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B
-;  435		}
-;  436	}
-L_62:
+;  441		}
+;  442	}
+L_58:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -1749,20 +1743,20 @@ L_62:
 ;       Spill Code: 0 (instruction)
 
 
-;  437	
-;  438	void BuildOffset(void)
-;  439	{
+;  443	
+;  444	void BuildOffset(void)
+;  445	{
 _BuildOffset:
 	LD	HL,-2
 	CALL	__frameset
 	LD	(IX+-2),0
 	LD	(IX+-1),0
-;  440		short i;
-;  441		
-;  442		for (i = 0; i < VideoY; i++)
-	JR	L_66
-L_64:
-;  443			YOffset[i] = (unsigned int)i * (unsigned int)VideoX;
+;  446		short i;
+;  447		
+;  448		for (i = 0; i < VideoY; i++)
+	JR	L_62
+L_60:
+;  449			YOffset[i] = (unsigned int)i * (unsigned int)VideoX;
 	LD	BC,(_VideoX)
 	CALL	__stoi
 	LD	DE,HL
@@ -1787,17 +1781,17 @@ L_64:
 	INC	HL
 	LD	(IX+-2),L
 	LD	(IX+-1),H
-L_66:
+L_62:
 	LD	BC,(_VideoY)
 	LD	HL,(IX+-2)
 	OR	A,A
 	SBC.SIS	HL,BC
-	JP	M,L__67
-	JP	PE,L_64
-	JR	L__68
-L__67:
-	JP	PO,L_64
-L__68:
+	JP	M,L__65
+	JP	PE,L_60
+	JR	L__66
+L__65:
+	JP	PO,L_60
+L__66:
 	LD	SP,IX
 	POP	IX
 	RET	

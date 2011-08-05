@@ -9,6 +9,7 @@
 #include "PROSE_Header.h"
 
 #define RGB2WORD(r,g,b)         ((unsigned short) ((r/16<<8)+(g/16<<4)+(b/16)))
+#define VMEMOFFSET				(1024 * 20)	// To skip charmap in videoram
 
 static char *UseTxt = "USE: PCXVIEW [filename]\n\r";
 static char *FileOpenError = "File not found!\n\r";
@@ -18,7 +19,7 @@ static char *PcxSize = "Graphics Resolution: ";
 static char *TxtPnt;
 static char Header[128];
 char *PntHeader = Header;
-char *VideoMem = (char *)0x0800000;
+char *VideoMem = (char *)(0x0800000 + VMEMOFFSET);
 char *VideoMemTmp = (char *)0x0C00000;
 char convBuf[4];
 short MinX, MinY, MaxX, MaxY;
@@ -179,13 +180,9 @@ void main(void)
 	asm ("ld a, kr_os_display");
 	asm ("call.lil prose_kernal");
 	asm ("ld a, kr_clear_screen");
-	asm ("call.lil prose_kernal");	
-	
-	if ((VideoX == 320) && (VideoY == 240))		
-		asm ("xor a");
-	else
-		asm ("ld a, 0ffh");
-	
+	asm ("call.lil prose_kernal");
+		
+	asm ("xor a");
 	asm ("quitnow:");	
 	asm ("jp.lil prose_return");
 }
@@ -342,13 +339,15 @@ void Set_320_240_Mode(void)
 	asm ("ld a, 99");
 	asm ("ld (right_border_position), a");
 	asm ("ld ix, bitmap_parameters");
-	asm ("ld (ix), 0");
+	asm ("ld hl, 1024 * 20");
+	asm ("ld (ix), hl");
 	asm ("ld (ix+04h), 1");
 	asm ("ld (ix+08h), 0");
 	asm ("ld (ix+0ch), 0");
 	asm ("ld (ix+10h), 0 + (320 / 8) - 1");
 	
-	asm ("ld hl, vram_a_addr");
+	//asm ("ld hl, vram_a_addr");
+	asm ("ld hl, (_VideoMem)");
 	asm ("ld (hl), 0");
 	asm ("push hl");
 	asm ("pop de");
@@ -372,13 +371,15 @@ void Set_640_480_Mode(void)
 	asm ("ld a, 99");
 	asm ("ld (right_border_position), a");
 	asm ("ld ix, bitmap_parameters");	
-	asm ("ld (ix), 0");
+	asm ("ld hl, 1024 * 20");
+	asm ("ld (ix), hl");
 	asm ("ld (ix+04h), 1");
 	asm ("ld (ix+08h), 0");
 	asm ("ld (ix+0ch), 0");
 	asm ("ld (ix+10h), 0 + (640 / 8) - 1");
 	
-	asm ("ld hl, vram_a_addr");
+	//asm ("ld hl, vram_a_addr");
+	asm ("ld hl, (_VideoMem)");
 	asm ("ld (hl), 0");
 	asm ("push hl");
 	asm ("pop de");
