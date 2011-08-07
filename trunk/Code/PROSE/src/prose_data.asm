@@ -727,6 +727,8 @@ store_adl				db 0
 os_variables
 ;----------------------------------------------------------------------------------
 
+kernal_ix_cache			dw24 0
+
 store_registers			db 0
 com_start_addr			dw24 0
 
