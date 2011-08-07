@@ -4,8 +4,8 @@
 
 ;----------------------------------------------------------------------------------------------
 
-amoeba_version_req	equ	0				; 0 = dont care about HW version
-prose_version_req	equ 0				; 0 = dont care about OS version
+amoeba_version_req	equ	0h				; 0 = dont care about HW version
+prose_version_req	equ 32h				; 0 = dont care about OS version
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
 
@@ -215,7 +215,7 @@ get_hdr_loop	ld e,1										; tenths of a second before timeout
 				ld hl,aborted_txt
 				jp quit_string
 				
-got_header		ld (fn_addr),ix
+got_header		ld (fn_addr),de
 				ld hl,receiving								; receiving
 				call print_string
 
