@@ -1,5 +1,5 @@
-PROSE KERNAL ROUTINES (last updated 7-8-2011)
----------------------------------------------
+PROSE KERNAL ROUTINES (last updated 29-7-2011)
+----------------------------------------------
 
 General: 
 
@@ -22,7 +22,8 @@ to the MBASE register).
   If the zero flag is not set, CPU register "A" will contain an error code
   (see list at end of this document)
   
-* Assume kernal routines trash all registers unless otherwise stated.
+* IX and IY are preserved by all kernal routines, assume all other registers
+  are trashed unless otherwise stated.
 
 
 .-----------.
