@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Sun Aug 07 20:03:40 2011
+DATE:      Sun Aug 07 21:28:50 2011
 PROCESSOR: assembler
 FILES:     .\patch_font.obj
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:0100E2       e3h
+ROM                   C:010000    C:010104      105h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:0100E2       e3h
+CODE               absolute data          C:010000    C:010104      105h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm (File: patch_font.obj) Version: 1:0 08/07/2011 20:03:39
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm (File: patch_font.obj) Version: 1:0 08/07/2011 21:28:49
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:0100E2       e3h
+    Segment: CODE                              C:010000    C:010104      105h
 
 EXTERNAL DEFINITIONS:
 =====================

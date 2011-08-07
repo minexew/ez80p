@@ -8,6 +8,13 @@ load_location		equ 10000h			; anywhere in system ram
 
 			include	'PROSE_header.asm'
 
+			ld a,kr_get_video_mode
+			call.lil prose_kernal
+			
+			ld ix,display_size
+			ld (ix),b
+			ld (ix+1),c
+
 ;------------------------------------------------------------------------------------------
 
 			ld hl,new_chars				;patch PROSE font with 8 new characters
@@ -34,12 +41,13 @@ lp2			ld e,129
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			ld e,134
-			ld c,59
+			ld c,(ix+1)
+			dec c
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			inc b
 			ld a,b
-			cp 80
+			cp (ix)
 			jr nz,lp2
 					
 			ld c,0
@@ -48,12 +56,13 @@ lp3			ld e,131
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			ld e,132
-			ld b,79
+			ld b,(ix)
+			dec b
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			inc c
 			ld a,c
-			cp 60
+			cp (iy)
 			jr nz,lp3
 			
 			ld b,0
@@ -61,18 +70,22 @@ lp3			ld e,131
 			ld e,128
 			ld a,kr_plot_char
 			call.lil prose_kernal
-			ld b,79
+			ld b,(ix)
+			dec b
 			ld c,0
 			ld e,130
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			ld b,0
-			ld c,59
+			ld c,(ix+1)
+			dec c
 			ld e,133
 			ld a,kr_plot_char
 			call.lil prose_kernal
-			ld b,79
-			ld c,59
+			ld b,(ix)
+			ld c,(ix+1)
+			dec b
+			dec c
 			ld e,135
 			ld a,kr_plot_char
 			call.lil prose_kernal
@@ -94,3 +107,5 @@ new_chars	db 0ffh,080h,080h,080h,080h,080h,080h,080h
 			db 000h,000h,000h,000h,000h,000h,000h,0ffh
 			db 001h,001h,001h,001h,001h,001h,001h,0ffh
 ;---------------------------------------------------------------------------------------------
+
+display_size db 0,0

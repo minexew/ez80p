@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            B    43    TMR0_DR_L		equ 081h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -166,7 +166,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -222,7 +222,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B   197    
        00000043            B   198    kr_get_keymap_location			equ 43h
        00000044            B   199    kr_get_os_high_mem				equ 44h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -275,102 +275,117 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B   246    ;----------------------------------------------
                            B   247    	
                            A    10    
-                           A    11    ;----------------------------------------------
-                           A    12    
-010010 21 A3 00 01         A    13    			ld hl,new_chars				;patch 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   6
+010010 3E30                A    11    			ld a,kr_get_video_mode
+010012 5BCD200A 00         A    12    			call.lil prose_kernal
+                           A    13    			
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   6
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm
-010014 1E80                A    14    			ld e,128					;first 
-010016 0608                A    15    			ld b,8
-010018 C5                  A    16    lp1			push bc
-010019 D5                  A    17    			push de
-01001A E5                  A    18    			push hl
-01001B 3E4B                A    19    			ld a,kr_char_to_font
-01001D 5BCD200A 00         A    20    			call.lil prose_kernal			
-010022 E1                  A    21    			pop hl
-010023 01080000            A    22    			ld bc,8
-010027 09                  A    23    			add hl,bc
-010028 D1                  A    24    			pop de
-010029 C1                  A    25    			pop bc
-01002A 1C                  A    26    			inc e
-01002B 10 EB               A    27    			djnz lp1			
-                           A    28    			
-                           A    29    ;----------------------------------------------
-                           A    30    
-01002D 0600                A    31    			ld b,0						;displa
-01002F 1E81                A    32    lp2			ld e,129
-010031 0E00                A    33    			ld c,0
-010033 3E29                A    34    			ld a,kr_plot_char
-010035 5BCD200A 00         A    35    			call.lil prose_kernal
-01003A 1E86                A    36    			ld e,134
-01003C 0E3B                A    37    			ld c,59
-01003E 3E29                A    38    			ld a,kr_plot_char
-010040 5BCD200A 00         A    39    			call.lil prose_kernal
-010045 04                  A    40    			inc b
-010046 78                  A    41    			ld a,b
-010047 FE50                A    42    			cp 80
-010049 20 E4               A    43    			jr nz,lp2
-                           A    44    					
-01004B 0E00                A    45    			ld c,0
-01004D 1E83                A    46    lp3			ld e,131
-01004F 0600                A    47    			ld b,0
-010051 3E29                A    48    			ld a,kr_plot_char
-010053 5BCD200A 00         A    49    			call.lil prose_kernal
-010058 1E84                A    50    			ld e,132
-01005A 064F                A    51    			ld b,79
-01005C 3E29                A    52    			ld a,kr_plot_char
-01005E 5BCD200A 00         A    53    			call.lil prose_kernal
-010063 0C                  A    54    			inc c
-010064 79                  A    55    			ld a,c
-010065 FE3C                A    56    			cp 60
-010067 20 E4               A    57    			jr nz,lp3
-                           A    58    			
-010069 0600                A    59    			ld b,0
-01006B 0E00                A    60    			ld c,0
-01006D 1E80                A    61    			ld e,128
-01006F 3E29                A    62    			ld a,kr_plot_char
-010071 5BCD200A 00         A    63    			call.lil prose_kernal
-010076 064F                A    64    			ld b,79
-010078 0E00                A    65    			ld c,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   7
+010017 DD21 03 01 01       A    14    			ld ix,display_size
+01001C DD7000              A    15    			ld (ix),b
+01001F DD7101              A    16    			ld (ix+1),c
+                           A    17    
+                           A    18    ;----------------------------------------------
+                           A    19    
+010022 21 C3 00 01         A    20    			ld hl,new_chars				;patch 
+010026 1E80                A    21    			ld e,128					;first 
+010028 0608                A    22    			ld b,8
+01002A C5                  A    23    lp1			push bc
+01002B D5                  A    24    			push de
+01002C E5                  A    25    			push hl
+01002D 3E4B                A    26    			ld a,kr_char_to_font
+01002F 5BCD200A 00         A    27    			call.lil prose_kernal			
+010034 E1                  A    28    			pop hl
+010035 01080000            A    29    			ld bc,8
+010039 09                  A    30    			add hl,bc
+01003A D1                  A    31    			pop de
+01003B C1                  A    32    			pop bc
+01003C 1C                  A    33    			inc e
+01003D 10 EB               A    34    			djnz lp1			
+                           A    35    			
+                           A    36    ;----------------------------------------------
+                           A    37    
+01003F 0600                A    38    			ld b,0						;displa
+010041 1E81                A    39    lp2			ld e,129
+010043 0E00                A    40    			ld c,0
+010045 3E29                A    41    			ld a,kr_plot_char
+010047 5BCD200A 00         A    42    			call.lil prose_kernal
+01004C 1E86                A    43    			ld e,134
+01004E DD4E01              A    44    			ld c,(ix+1)
+010051 0D                  A    45    			dec c
+010052 3E29                A    46    			ld a,kr_plot_char
+010054 5BCD200A 00         A    47    			call.lil prose_kernal
+010059 04                  A    48    			inc b
+01005A 78                  A    49    			ld a,b
+01005B DDBE00              A    50    			cp (ix)
+01005E 20 E1               A    51    			jr nz,lp2
+                           A    52    					
+010060 0E00                A    53    			ld c,0
+010062 1E83                A    54    lp3			ld e,131
+010064 0600                A    55    			ld b,0
+010066 3E29                A    56    			ld a,kr_plot_char
+010068 5BCD200A 00         A    57    			call.lil prose_kernal
+01006D 1E84                A    58    			ld e,132
+01006F DD4600              A    59    			ld b,(ix)
+010072 05                  A    60    			dec b
+010073 3E29                A    61    			ld a,kr_plot_char
+010075 5BCD200A 00         A    62    			call.lil prose_kernal
+01007A 0C                  A    63    			inc c
+01007B 79                  A    64    			ld a,c
+01007C FDBE00              A    65    			cp (iy)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     21:28:49     page:   7
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm
-01007A 1E82                A    66    			ld e,130
-01007C 3E29                A    67    			ld a,kr_plot_char
-01007E 5BCD200A 00         A    68    			call.lil prose_kernal
-010083 0600                A    69    			ld b,0
-010085 0E3B                A    70    			ld c,59
-010087 1E85                A    71    			ld e,133
-010089 3E29                A    72    			ld a,kr_plot_char
-01008B 5BCD200A 00         A    73    			call.lil prose_kernal
-010090 064F                A    74    			ld b,79
-010092 0E3B                A    75    			ld c,59
-010094 1E87                A    76    			ld e,135
+01007F 20 E1               A    66    			jr nz,lp3
+                           A    67    			
+010081 0600                A    68    			ld b,0
+010083 0E00                A    69    			ld c,0
+010085 1E80                A    70    			ld e,128
+010087 3E29                A    71    			ld a,kr_plot_char
+010089 5BCD200A 00         A    72    			call.lil prose_kernal
+01008E DD4600              A    73    			ld b,(ix)
+010091 05                  A    74    			dec b
+010092 0E00                A    75    			ld c,0
+010094 1E82                A    76    			ld e,130
 010096 3E29                A    77    			ld a,kr_plot_char
 010098 5BCD200A 00         A    78    			call.lil prose_kernal
-                           A    79    				
-                           A    80    ;			ld a,kr_wait_key				; W
-                           A    81    ;			call.lil prose_kernal
-                           A    82    
-01009D AF                  A    83    quit		xor a
-01009E 5BC3140A 00         A    84    			jp.lil prose_return
-                           A    85    
-                           A    86    ;----------------------------------------------
-                           A    87    
-0100A3 FF808080 80808080   A    88    new_chars	db 0ffh,080h,080h,080h,080h,080h,08
-0100AB FF000000 00000000   A    89    			db 0ffh,000h,000h,000h,000h,000h,00
-0100B3 FF010101 01010101   A    90    			db 0ffh,001h,001h,001h,001h,001h,00
-0100BB 80808080 80808080   A    91    			db 080h,080h,080h,080h,080h,080h,08
-0100C3 01010101 01010101   A    92    			db 001h,001h,001h,001h,001h,001h,00
-0100CB 80808080 808080FF   A    93    			db 080h,080h,080h,080h,080h,080h,08
-0100D3 00000000 000000FF   A    94    			db 000h,000h,000h,000h,000h,000h,00
-0100DB 01010101 010101FF   A    95    			db 001h,001h,001h,001h,001h,001h,00
-                           A    96    ;----------------------------------------------
+01009D 0600                A    79    			ld b,0
+01009F DD4E01              A    80    			ld c,(ix+1)
+0100A2 0D                  A    81    			dec c
+0100A3 1E85                A    82    			ld e,133
+0100A5 3E29                A    83    			ld a,kr_plot_char
+0100A7 5BCD200A 00         A    84    			call.lil prose_kernal
+0100AC DD4600              A    85    			ld b,(ix)
+0100AF DD4E01              A    86    			ld c,(ix+1)
+0100B2 05                  A    87    			dec b
+0100B3 0D                  A    88    			dec c
+0100B4 1E87                A    89    			ld e,135
+0100B6 3E29                A    90    			ld a,kr_plot_char
+0100B8 5BCD200A 00         A    91    			call.lil prose_kernal
+                           A    92    				
+                           A    93    ;			ld a,kr_wait_key				; W
+                           A    94    ;			call.lil prose_kernal
+                           A    95    
+0100BD AF                  A    96    quit		xor a
+0100BE 5BC3140A 00         A    97    			jp.lil prose_return
+                           A    98    
+                           A    99    ;----------------------------------------------
+                           A   100    
+0100C3 FF808080 80808080   A   101    new_chars	db 0ffh,080h,080h,080h,080h,080h,08
+0100CB FF000000 00000000   A   102    			db 0ffh,000h,000h,000h,000h,000h,00
+0100D3 FF010101 01010101   A   103    			db 0ffh,001h,001h,001h,001h,001h,00
+0100DB 80808080 80808080   A   104    			db 080h,080h,080h,080h,080h,080h,08
+0100E3 01010101 01010101   A   105    			db 001h,001h,001h,001h,001h,001h,00
+0100EB 80808080 808080FF   A   106    			db 080h,080h,080h,080h,080h,080h,08
+0100F3 00000000 000000FF   A   107    			db 000h,000h,000h,000h,000h,000h,00
+0100FB 01010101 010101FF   A   108    			db 001h,001h,001h,001h,001h,001h,00
+                           A   109    ;----------------------------------------------
+                           A   110    
+010103 0000                A   111    display_size db 0,0
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 344
+Lines Assembled: 359
