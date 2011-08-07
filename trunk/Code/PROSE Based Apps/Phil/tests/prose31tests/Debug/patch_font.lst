@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
                            B    41    
        00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            B    43    TMR0_DR_L		equ 081h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
        00FF1000            B    94    hw_video_parameters		equ 0ff1000h
        00FF1400            B    95    hw_audio_registers		equ 0ff1400h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -166,7 +166,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
        00000018            B   145    kr_write_sector					equ 18h
        00000019            B   146    kr_file_sector_list				equ 19h
        0000001A            B   147    kr_get_dir_cluster				equ 1ah
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -222,7 +222,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B   197    
        00000043            B   198    kr_get_keymap_location			equ 43h
        00000044            B   199    kr_get_os_high_mem				equ 44h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -277,8 +277,8 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            A    10    
                            A    11    ;----------------------------------------------
                            A    12    
-010010 21 AA 00 01         A    13    			ld hl,new_chars				;patch 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   6
+010010 21 A3 00 01         A    13    			ld hl,new_chars				;patch 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   6
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm
@@ -295,7 +295,7 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 010028 D1                  A    24    			pop de
 010029 C1                  A    25    			pop bc
 01002A 1C                  A    26    			inc e
-01002B 10 EB               A    27    			djnz lp1
+01002B 10 EB               A    27    			djnz lp1			
                            A    28    			
                            A    29    ;----------------------------------------------
                            A    30    
@@ -312,10 +312,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 010046 78                  A    41    			ld a,b
 010047 FE50                A    42    			cp 80
 010049 20 E4               A    43    			jr nz,lp2
-                           A    44    			
+                           A    44    					
 01004B 0E00                A    45    			ld c,0
-01004D 1E83                A    46    			ld e,131
-01004F 0600                A    47    lp3			ld b,0
+01004D 1E83                A    46    lp3			ld e,131
+01004F 0600                A    47    			ld b,0
 010051 3E29                A    48    			ld a,kr_plot_char
 010053 5BCD200A 00         A    49    			call.lil prose_kernal
 010058 1E84                A    50    			ld e,132
@@ -323,9 +323,9 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 01005C 3E29                A    52    			ld a,kr_plot_char
 01005E 5BCD200A 00         A    53    			call.lil prose_kernal
 010063 0C                  A    54    			inc c
-010064 78                  A    55    			ld a,b
+010064 79                  A    55    			ld a,c
 010065 FE3C                A    56    			cp 60
-010067 20 E6               A    57    			jr nz,lp3
+010067 20 E4               A    57    			jr nz,lp3
                            A    58    			
 010069 0600                A    59    			ld b,0
 01006B 0E00                A    60    			ld c,0
@@ -334,7 +334,7 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 010071 5BCD200A 00         A    63    			call.lil prose_kernal
 010076 064F                A    64    			ld b,79
 010078 0E00                A    65    			ld c,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:33:49     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     20:03:39     page:   7
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~1\src\patch_font.asm
@@ -352,22 +352,22 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 010096 3E29                A    77    			ld a,kr_plot_char
 010098 5BCD200A 00         A    78    			call.lil prose_kernal
                            A    79    				
-01009D 3E1D                A    80    			ld a,kr_wait_key				; W
-01009F 5BCD200A 00         A    81    			call.lil prose_kernal
+                           A    80    ;			ld a,kr_wait_key				; W
+                           A    81    ;			call.lil prose_kernal
                            A    82    
-0100A4 AF                  A    83    			xor a
-0100A5 5BC3140A 00         A    84    			jp.lil prose_return
+01009D AF                  A    83    quit		xor a
+01009E 5BC3140A 00         A    84    			jp.lil prose_return
                            A    85    
                            A    86    ;----------------------------------------------
                            A    87    
-0100AA FF808080 80808080   A    88    new_chars	db 0ffh,080h,080h,080h,080h,080h,08
-0100B2 FF000000 00000000   A    89    			db 0ffh,000h,000h,000h,000h,000h,00
-0100BA FF010101 01010101   A    90    			db 0ffh,001h,001h,001h,001h,001h,00
-0100C2 80808080 80808080   A    91    			db 080h,080h,080h,080h,080h,080h,08
-0100CA 01010101 01010101   A    92    			db 001h,001h,001h,001h,001h,001h,00
-0100D2 80808080 808080FF   A    93    			db 080h,080h,080h,080h,080h,080h,08
-0100DA 00000000 000000FF   A    94    			db 000h,000h,000h,000h,000h,000h,00
-0100E2 01010101 010101FF   A    95    			db 001h,001h,001h,001h,001h,001h,00
+0100A3 FF808080 80808080   A    88    new_chars	db 0ffh,080h,080h,080h,080h,080h,08
+0100AB FF000000 00000000   A    89    			db 0ffh,000h,000h,000h,000h,000h,00
+0100B3 FF010101 01010101   A    90    			db 0ffh,001h,001h,001h,001h,001h,00
+0100BB 80808080 80808080   A    91    			db 080h,080h,080h,080h,080h,080h,08
+0100C3 01010101 01010101   A    92    			db 001h,001h,001h,001h,001h,001h,00
+0100CB 80808080 808080FF   A    93    			db 080h,080h,080h,080h,080h,080h,08
+0100D3 00000000 000000FF   A    94    			db 000h,000h,000h,000h,000h,000h,00
+0100DB 01010101 010101FF   A    95    			db 001h,001h,001h,001h,001h,001h,00
                            A    96    ;----------------------------------------------
 
 
