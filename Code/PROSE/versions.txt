@@ -1,6 +1,19 @@
 Current version
 ---------------
 
+(7-8-2011)
+
+032 - Changed: Pushes and Pops IX and IY around kernal calls. No kernal calls now use
+               IX or IY to pass data.
+
+		"kr_file_sector_list"		- now passes data out in BC instead of IX
+		"kr_serial_receive_header"	- now passes data out in DE instead of IX
+		"kr_serial_send_file"		- now set xDE = source address, xBC = length 
+
+
+Previous
+--------
+
 (29-7-2011)
 
 031 - Changed: Font rendering. Uses new character map mode (much faster) Requires AMOEBA v106
@@ -21,8 +34,6 @@ Current version
       Changed: PROSE fonts are now the full 256 character set (256x8 bytes)
                Cursor handling is handled via character swap (def modification)
 
-Previous
---------
 
 030 - Added:  Kernal routine: "kr_play_audio" - sets audio channel(s) playing.
               kernal routine: "kr_disable_audio" - silences all channels.
