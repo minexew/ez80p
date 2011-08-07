@@ -11,7 +11,7 @@
 
 ;----------------------------------------------------------------------
 
-prose_version			equ 31h
+prose_version			equ 32h
 amoeba_version_required	equ 105h
 
 os_location			 	equ 0a00h
@@ -46,7 +46,8 @@ prose_kernal
 ; Set A to kernal routine number required (see table)
 ; (this routine is always located at os_location+20h)
 
-				exx		
+				exx
+				ld (kernal_ix_cache),ix
 				ld ix,kernal_table						
 				ld de,3
 				ld d,a
@@ -59,8 +60,11 @@ prose_kernal
 				and 1									;if zero flag = set, calling program was in Z80 mode
 				ex (sp),hl
 				exx
+				push iy
 				call kr_jump							;kernal code in ADL mode has normal RETs which do not restore
-				ret.l									;the ADL mode. They return here and *this* RET.L restores the mode.
+				pop iy									;the ADL mode. They return here and *this* RET.L restores the mode.
+				ld ix,(kernal_ix_cache)
+				ret.l									
 				
 kr_jump			jp (ix)									;jump to kernal routine
 						
@@ -1897,16 +1901,9 @@ mbase_de		push af
 				pop af
 				ret
 
-mbase_ix		push af
-				ld (xrr_temp),ix				;replace [23:16] in ix with MBASE
-				ld a,MB
-				ld (xrr_temp+2),a
-				ld ix,(xrr_temp)
-				pop af
-				ret
-							
+
 ;---------------------------------------------------------------------------------------
-; Unpacks Z80P_RLE packed files - V1.02 
+; Unpacks Phil's Z80P_RLE packed files - V1.02 
 ;----------------------------------------------------------------------------------------
 
 unpack_rle
@@ -2353,6 +2350,8 @@ ext_serial_get_header
 				call z,mbase_hl
 				ld a,e
 				call serial_get_header
+				push ix
+				pop de
 				ret
 				
 				
@@ -2365,8 +2364,12 @@ ext_serial_receive_file
 	
 ext_serial_send_file
 
-				call z,mbase_hl
-				call z,mbase_ix				
+				call z,mbase_hl							;filename location
+				call z,mbase_de							;de/ix = start address
+				push de	
+				pop ix									
+				push bc									;bc/de = length
+				pop de									
 				call serial_send_file
 				ret
 
@@ -2845,7 +2848,7 @@ ext_file_sector_list
 				ld e,0
 fsl_sc			call cluster_and_offset_to_lba
 				inc e
-fsl_done		ld ix,sector_lba0
+fsl_done		ld bc,sector_lba0
 				cp a									; set zero flag, no error
 				ret
 				
