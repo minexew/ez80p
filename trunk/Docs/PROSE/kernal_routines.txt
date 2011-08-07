@@ -1,17 +1,17 @@
-PROSE KERNAL ROUTINES (last updated 29-7-2011)
-----------------------------------------------
+PROSE KERNAL ROUTINES (last updated 7-8-2011)
+---------------------------------------------
 
 General: 
 
 To call a PROSE kernal routine, load the accumulator with the routine label,
 set other registers as appropriate for the routine in question and do an ADL
-call to PROSE.KERNAL.
+call to PROSE_KERNAL.
 
 EG: To print a line of text:
 
-	ld hl,message_txt			; ADL mode program
+	ld hl,message_txt			; string location
 	ld a,kr_print_string			; desired kernal routine
-	call.lil prose_kernal			; call PROSE routine
+	call.lil prose_kernal			; call PROSE kernal routine
 
 This applies to both Z80 mode and ADL mode programs. (When a Z80 mode program
 calls the PROSE kernal, location pointer registers have their MSB [23:16] set
@@ -19,9 +19,10 @@ to the MBASE register).
 
 
 * All routines set the zero flag on return if the operation was successful.
-  If the zero flag is not set, "A" will contain an error code (see list at end of this document)
+  If the zero flag is not set, CPU register "A" will contain an error code
+  (see list at end of this document)
   
-* Assume all routines trash all registers unless otherwise stated.
+* Assume kernal routines trash all registers unless otherwise stated.
 
 
 .-----------.
@@ -32,7 +33,7 @@ to the MBASE register).
 -----------------------
 
 Action: Rescans hardware for storage devices.
-Input : E (1 = Do not show any text)
+Input : E (0= Show device list, 1 = Do not show any text)
 Output: None
 
 
@@ -76,8 +77,8 @@ Output: HL (location of volume mount list), B (volume count), A (currently selec
 05h - "kr_format_device"				
 -----------------------
 
-Action: Formats a device to FAT16 (no MBR is created and the entire device is treated a one volume, max 2GB)
-Input : E (device), HL = label required
+Action: Formats a device to FAT16 (no MBR is created and the entire device is treated as one volume, max 2GB)
+Input : E (device), HL = location of desired volume label
 Output: See error codes
 
 
@@ -103,7 +104,7 @@ Output: See error codes
 08h - "kr_parent_dir"				
 --------------------
 
-Action: Moves up the directory tree one place
+Action: Moves towards the root directory by one place
 Input : None
 Output: See error codes
 
@@ -202,7 +203,7 @@ Output: See error codes
 13h - "kr_get_total_sectors"		
 ---------------------------
 
-Action: Returns the total capacity of the currently selected volume
+Action: Returns the total capacity (in sectors) of the currently selected volume
 Input : None
 Output: xDE (sector count)
 
@@ -271,22 +272,22 @@ Output: See error codes
 
 
 
-19h - "kr_file_sector_list" 		
---------------------------
+19h - "kr_file_sector_list" (** Changed in PROSE v32 **)		
+--------------------------------------------------------
 
 Action: Used to obtain a list of the sectors that a file occupies
 Input : HL = cluster, E = sector
 Output: E  = Next sector offset
         HL = Updated cluster
-        IX = Location of variable holding 32 bit sector (LSB)
+        BC = Location of variable holding 32 bit sector (LSB)
         [Also see error codes]
         
 Notes: First call "kr_find_file" with the filename in HL as normal. On exit, HL will be
 equal the first cluster that the file occupies. Clear E (as we're starting at the
 first sector of a cluster), and call "kr_file_sector_list". On return E and HL are
-updated to the values required for the next time the routine is called and IX points
+updated to the values required for the next time the routine is called and BC points
 to the lowest significant byte of the sector address (LBA0). Copy the 4 bytes
-from IX to IX+3 to your sector list buffer and loop around, calling "kr_file_sector_list"
+from BC to BC+3 to your sector list buffer and loop around, calling "kr_file_sector_list"
 for as many sectors as are used by the file (simply subtract 512 from a variable
 holding the file size every call until variable is = < 0)
 
@@ -357,12 +358,12 @@ Output: A, bit 0 - left shift
 ========================================================================================================================
 
 
-20h - "kr_serial_receive_header"		
--------------------------------
+20h - "kr_serial_receive_header" (** Changed in PROSE v32 **)		
+-------------------------------------------------------------
 
 Action: Waits for a file header from serial port
 Input : HL (location of zero-terminated filename), E (timeout)
-Output: If zero flag set, all OK, IX returns location of serial file header
+Output: If zero flag set, all OK, xDE returns location of serial file header
         Otherwise A = $83: time out error, $84: memory address out of range, $85 = comms error
                       $86: checksum bad, $87: Incorrect file 
 
@@ -377,11 +378,11 @@ Output: If zero flag is set, all OK. Else: A: $84 = memory address out of range,
 
 
 
-22h - "kr_serial_send_file"		
---------------------------
+22h - "kr_serial_send_file" (Updated / Fixed in PROSE v32)		
+----------------------------------------------------------
 
 Action: Sends a file to the serial port
-Input : HL (filename location), IX = source address, xDE = length 
+Input : HL (filename location), xDE = source address, xBC = length 
 Output: If zero flag is set, all OK. 
         Else: A: $81 = Save length zero, $84 = memory address out of range, $85 = comms error
 
@@ -430,7 +431,7 @@ Output: None
 27h - "kr_wait_vrt"			
 ------------------
 
-Action: Waits for the Vertical Retrace flipflop to become set (last scanline of display)
+Action: Waits for the Vertical Retrace flip-flop to become set (last scanline of display)
 Input : None
 Output: None
 
@@ -503,17 +504,18 @@ Output: None
 2fh - "kr_os_display"			
 -------------------
 
-Action: Restores the display hardware settings to that used by the OS (does not clear screen etc)
+Action: Restores the display hardware settings to that used by the OS (useful only if the
+        area of VRAM used by PROSE were not overwritten.)
 Input : None
 Output: None
 
 
 
 
-30h - "kr_get_video_mode" (previously "kr_get_display_size"		
------------------------------------------------------------
+30h - "kr_get_video_mode" (previously: "kr_get_display_size")		
+-------------------------------------------------------------
 
-Action: Returns the size of the OS window
+Action: Returns the OS video mode and size of the OS window (in characters)
 Input : None
 Output: A = Video Mode, B = Columns, C = Lines
 
@@ -553,7 +555,7 @@ Output: ZF set if all OK. Error code 88h if A is out of range.
 ---------------------------
 
 Action: Selects which character is to be used for the cursor.
-Input : E: ASCII character to use (EG: 05fh = underscore, 07fh = block)
+Input : E: ASCII character to use (EG: 05fh = underscore, 07fh = solid block)
 Output: None.
 
 
@@ -561,7 +563,8 @@ Output: None.
 4ah - "kr_remove_cursor"
 ------------------------
 
-Action: Removes the cursor image from the character map (replaces with saved character)
+Action: Removes the cursor image from the character map (replaces with character
+        that was saved by kr_draw_cursor)
 Input : None
 Output: None
 
@@ -570,7 +573,7 @@ Output: None
 4bh - "kr_char_to_font"
 -----------------------
 
-Action: Patches the PROSE font (User defined graphics)
+Action: Patches the PROSE font (allows user defined characters)
 Input : E = ASCII character to change, HL = address of font data (8 bytes)
 Output: None
 
@@ -616,7 +619,8 @@ Output: None
 
 Action: Returns the absolute position of the mouse pointer within the window (and button status)
 Input:  None
-Output: HL (x coord) DE (y coord) A (buttons - bits 2:0) (Zero Flag set if mouse enabled)
+Output: If zero flag is set: HL = x coord, DE = y coord , A = buttons (bits 2:0)
+        If zero Flag is not set mouse is not enabled
 
 
 
@@ -625,15 +629,16 @@ Output: HL (x coord) DE (y coord) A (buttons - bits 2:0) (Zero Flag set if mouse
 
 Action: Returns the relative motion of the mouse since this routine was last called (and button status)
 Input : None
-Output: HL (x delta) DE (y delta) A (buttons - bits 2:0) (Zero Flag set if mouse enabled)
+Output: If zero flag is set: HL = delta x, DE = delta y , A = buttons (bits 2:0)
+        If zero Flag is not set mouse is not enabled
 
 
 
 39h - "kr_time_delay"		
 -------------------
 
-Action: Pauses for up to 2 seconds
-Input : DE (32768Hz ticks to pause) - max value 65535
+Action: Pauses (Granularity of 30 microseconds)
+Input : DE = 32768Hz ticks to pause. (Max value 65535, IE: 2 seconds)
 Output: None
 
 
@@ -652,15 +657,15 @@ Output: Zero flag set if strings are the same
 
 Action: Puts ascii version of hex byte at (xHL) and (xHL+1)
 Input : E (byte to convert)
-Output: HL=HL+2
+Output: xHL=xHL+2
 
 
 
 3ch - "kr_ascii_to_hex_word" 	
---------------------------
+----------------------------
 
-Action: Convers ASCII hex characters to 24 bit hexadecimal number
-Input:  xHL = location of ASCII string, routine scans for first non-space character
+Action: Converts ASCII hex characters to 24 bit hexadecimal number
+Input:  xHL = location of ASCII string (Note: routine scans for first non-space character)
 Output: xDE = result, Zero Flag set if all OK, else A = $81: No ASCII chars, $82: Bad ASCII chars
 
 
@@ -685,9 +690,9 @@ Output: HL = Version of PROSE OS, DE = version of AMOEBA config
 
 
 3fh - "kr_dont_store_registers"	
------------------------------
+-------------------------------
 
-Action: Prevents the OS caching the contents of the CPU registers on when app returns control to it.
+Action: Prevents the OS caching the contents of the CPU registers when an app returns control to it.
 Input : None
 Output: None
 
@@ -705,7 +710,7 @@ Obsolete in PROSE v31+  - Do not call
 
 Action: Reads the real time clock data
 Input : None
-Output: xHL = location of ez80 time data: sec,min,hr,dow,date,mon,year,century
+Output: xHL = location of ez80 time data: sec, min, hr, d.o,w, date, mon, year, century
 
 
 
@@ -713,7 +718,7 @@ Output: xHL = location of ez80 time data: sec,min,hr,dow,date,mon,year,century
 -------------------
 
 Action: Writes data to the real time clock
-Input : xHL = location of ez80 time data: sec,min,hr,dow,date,mon,year,century
+Input : xHL = location of ez80 time data: sec, min, hr, d.o.w, date, mon, year, century
 Output: None
 
 
@@ -730,7 +735,7 @@ Output: xHL = location of keymap data within OS
 44h - "kr_get_os_high_mem"
 -------------------------
 
-Action: Returns the lowest address unused by the OS in system RAM, VRAM A and VRAM B
+Action: Returns the first free address (IE: not used by the OS) in system RAM, VRAM A and VRAM B
 Input : none
 Output: xHL = system RAM high, xDE = VRAM A high, xBC = VRAM B high
 
@@ -785,7 +790,7 @@ Output: E = joystick 0, D = joystick 1
 	Bit 4 = Fire 0
 	Bit 5 = Fire 1
 
-Notes: Bit set = direction / button asserted.
+Note: Bit set = direction / button asserted.
 
 =========================================================================================
 
