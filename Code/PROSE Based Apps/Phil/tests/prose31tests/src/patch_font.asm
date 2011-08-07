@@ -10,7 +10,7 @@ load_location		equ 10000h			; anywhere in system ram
 
 ;------------------------------------------------------------------------------------------
 
-			ld hl,new_chars				;patch PROSE font with new characters
+			ld hl,new_chars				;patch PROSE font with 8 new characters
 			ld e,128					;first ascii char to patch
 			ld b,8
 lp1			push bc
@@ -24,7 +24,7 @@ lp1			push bc
 			pop de
 			pop bc
 			inc e
-			djnz lp1
+			djnz lp1			
 			
 ;----------------------------------------------------------------------------------------------
 
@@ -41,10 +41,10 @@ lp2			ld e,129
 			ld a,b
 			cp 80
 			jr nz,lp2
-			
+					
 			ld c,0
-			ld e,131
-lp3			ld b,0
+lp3			ld e,131
+			ld b,0
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			ld e,132
@@ -52,7 +52,7 @@ lp3			ld b,0
 			ld a,kr_plot_char
 			call.lil prose_kernal
 			inc c
-			ld a,b
+			ld a,c
 			cp 60
 			jr nz,lp3
 			
@@ -77,10 +77,10 @@ lp3			ld b,0
 			ld a,kr_plot_char
 			call.lil prose_kernal
 				
-			ld a,kr_wait_key				; Wait for keypress
-			call.lil prose_kernal
+;			ld a,kr_wait_key				; Wait for keypress
+;			call.lil prose_kernal
 
-			xor a
+quit		xor a
 			jp.lil prose_return
 
 ;---------------------------------------------------------------------------------------------
