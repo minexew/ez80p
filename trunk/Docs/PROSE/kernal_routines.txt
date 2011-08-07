@@ -416,7 +416,7 @@ Output: Zero Flag set if byte received OK, Else operation timed out (A = $83)
 
 Action: Writes a string of text to the display at the current cursor position and in the current pen colour
 Input : HL (Zero-terminated ASCII string location)
-Output: HL = address of the string terminating zero  (BC and DE are preserved)
+Output: HL = address of the string terminating zero + 1 (BC and DE are preserved)
 
 
 
