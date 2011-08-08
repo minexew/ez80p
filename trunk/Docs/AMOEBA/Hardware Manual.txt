@@ -1,5 +1,5 @@
 
-AMOEBA 1.06 Features
+AMOEBA 1.07 Features
 --------------------
 
 Video Display Modes
@@ -96,6 +96,13 @@ Character Map/Text Mode
  Sprites are 16 pixels wide each and can be any height (scanline granularity).
  They use 256 colour chunky colour index mode and always use 640x480 resolution.
  The same four colour palettes as used for background data are available to sprites.
+
+
+ Scanline NMI
+ ------------
+
+ You can synchronize non-maskable interrupts to scanlines by writing the line
+ number to a hardware register. 
 
 
  Misc
@@ -319,6 +326,16 @@ $03 - W - "sprite_palette_select"
 $04 - W - "right_border_position"
 
 	0:5 = Set position of right border (cosmetic mask, does not affect datafetch)
+
+
+$05 - W- "irq_line_lo"
+
+	7:0 - eight LSBs of the VGA line at which the NMI is to occur (The count
+              is always in 480 line-mode.)
+
+$06 - W - "irq_line_hi"
+
+        0:1 - two MSBs [bits 9:8] of the VGA line at which the NMI is to occur
 
 
 -----------------------------------------------------------------------------------------
