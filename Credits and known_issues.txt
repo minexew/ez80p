@@ -2,15 +2,7 @@
 Known problems:
 ---------------
 
-?
-
-
-Previously addressed:
----------------------
-
-* Unreliable NMI button cured in AMOEBA04.bin / PROSE v2f
-
-* Some mice initialize but return bad data packets. (Fixed in PROSE v29 / AMOEBA03.bin)
+None at present.
 
 
 
@@ -19,6 +11,8 @@ Credits:
 
 PCB design*, PROSE operating system and apps, AMOEBA FPGA config by Phil Ruston 2010-2011
 
-(*Some elements of the PCB design were 'inspired' by Dennis Van Weeren's Minimig project
+C support framework and apps by Enzo Calogiuri
+
+(*Some elements of the PCB design were inspired by Dennis Van Weeren's Minimig project
 so kudos to Dennis for releasing the schematics and Gerbers:)
 
