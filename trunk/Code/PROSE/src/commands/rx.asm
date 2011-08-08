@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------
-;"RX" - Receive binary file via serial port command. V0.05 - ADL mode
+;"RX" - Receive binary file via serial port command. V0.06 - ADL mode
 ;-----------------------------------------------------------------------
 
 buffer_blocks			 equ 128				;number of 256 byte blocks to buffer
@@ -158,7 +158,7 @@ mtones			ld hl,sector_buffer
 				call s_gbloop							; load the rest of the file
 				ret nz
 rxe_done		pop hl									; this pops the RX CMD's return address off the stack as it wont be used.
-				call enable_nmi							; as we're launching an external program, enable freezer by default
+				call enable_button_nmi					; as we're launching an external program, enable freezer by default
 				ld hl,(serial_ez80_address)
 				jp (hl)									; run loaded program
 				

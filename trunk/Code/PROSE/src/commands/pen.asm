@@ -1,10 +1,10 @@
 ;-----------------------------------------------------------------------------------------
-;"Pen" - Change attribute v0.02 - ADL mode
+;"Pen" - Change attribute v0.03 - ADL mode
 ;-----------------------------------------------------------------------------------------
 
 os_cmd_pen
 	
-				ld b,2								;pen, plus optional background
+				ld b,18								;pen, plus optional background and palette
 				ld ix,current_pen
 				
 chpenlp			call hexword_or_bust				;the call only returns here if the hex in DE is valid
@@ -16,7 +16,9 @@ chpenlp			call hexword_or_bust				;the call only returns here if the hex in DE i
 				inc ix
 				djnz chpenlp	
 				
-pendone			xor a
+pendone			ld hl,pen_palette					;refresh palette in case it was changed
+				call hswc_set_ui_colours
+				xor a
 				ret
 
 ;------------------------------------------------------------------------------------------

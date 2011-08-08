@@ -75,6 +75,8 @@ os_set_video_hw_regs
 				ld hl,pen_palette
 				call hswc_set_ui_colours
 				
+				call hwsc_disable_sprites
+				
 				xor a									; ZF set, no error
 				ret
 
