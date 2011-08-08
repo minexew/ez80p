@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
        000000B2            B    39    CS3_UBR			equ 0b2h
        000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B    91    
        00FF0000            B    92    hw_palette				equ 0ff0000h
        00FF0800            B    93    hw_sprite_registers		equ 0ff0800h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -166,7 +166,7 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            B   143    
        00000017            B   144    kr_read_sector					equ 17h
        00000018            B   145    kr_write_sector					equ 18h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
@@ -195,78 +195,93 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
        0000002D            B   168    kr_get_pen						equ 2dh
        0000002E            B   169    kr_scroll_up					equ 2eh
        0000002F            B   170    kr_os_display					equ 2fh
-       00000030            B   171    kr_get_display_size				equ 30h
-       00000031            B   172    kr_get_charmap_addr_xy			equ 31h
-       00000032            B   173    kr_get_cursor_position			equ 32h
+                           B   171    
+       00000030            B   172    kr_get_display_size				equ 30h	
+       00000030            B   173    kr_get_video_mode				equ 30h	;prefer
                            B   174    
-       00000033            B   175    kr_set_envar					equ 33h
-       00000034            B   176    kr_get_envar					equ 34h
-       00000035            B   177    kr_delete_envar					equ 35h
-                           B   178    
-       00000036            B   179    kr_set_mouse_window				equ 36h
-       00000037            B   180    kr_get_mouse_position			equ 37h
-       00000038            B   181    kr_get_mouse_motion				equ 38h
-                           B   182    
-       00000039            B   183    kr_time_delay					equ 39h
-       0000003A            B   184    kr_compare_strings				equ 3ah
-       0000003B            B   185    kr_hex_byte_to_ascii			equ 3bh
-       0000003C            B   186    kr_ascii_to_hex_word			equ 3ch
-       0000003D            B   187    kr_get_string					equ 3dh
-                           B   188    
-       0000003E            B   189    kr_get_version					equ 3eh
-       0000003F            B   190    kr_dont_store_registers			equ 3fh
-       00000040            B   191    kr_get_font_info				equ 40h
-       00000041            B   192    kr_read_rtc						equ 41h
-       00000042            B   193    kr_write_rtc					equ 42h
-                           B   194    
-       00000043            B   195    kr_get_keymap_location			equ 43h
-       00000044            B   196    kr_get_os_high_mem				equ 44h
+       00000031            B   175    kr_get_charmap_addr_xy			equ 31h
+       00000032            B   176    kr_get_cursor_position			equ 32h
+                           B   177    
+       00000033            B   178    kr_set_envar					equ 33h
+       00000034            B   179    kr_get_envar					equ 34h
+       00000035            B   180    kr_delete_envar					equ 35h
+                           B   181    
+       00000036            B   182    kr_set_mouse_window				equ 36h
+       00000037            B   183    kr_get_mouse_position			equ 37h
+       00000038            B   184    kr_get_mouse_motion				equ 38h
+                           B   185    
+       00000039            B   186    kr_time_delay					equ 39h
+       0000003A            B   187    kr_compare_strings				equ 3ah
+       0000003B            B   188    kr_hex_byte_to_ascii			equ 3bh
+       0000003C            B   189    kr_ascii_to_hex_word			equ 3ch
+       0000003D            B   190    kr_get_string					equ 3dh
+                           B   191    
+       0000003E            B   192    kr_get_version					equ 3eh
+       0000003F            B   193    kr_dont_store_registers			equ 3fh
+       00000040            B   194    kr_get_font_info				equ 40h
+       00000041            B   195    kr_read_rtc						equ 41h
+       00000042            B   196    kr_write_rtc					equ 42h
                            B   197    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.asm
-                           B   198    ;----------------------------------------------
-                           B   199    ; Standard PROSE executable header
-                           B   200    ;----------------------------------------------
-                           B   201    
-                           B   202    
-                           B   203    	IF ADL_mode = 0
-                           B   204    		org load_location&0ffffh	; if Z80 mo
-                           B   205    	ELSE
-010000                     B   206    		org load_location			; otherwise
-                           B   207    	ENDIF
-                           B   208    	
-                           B   209    		.assume ADL = 1				; All PROSE
-                           B   210    
-010000 18 0E               B   211    		jr skip_header				; $0 - Jump
-010002 50524F              B   212    		db 'PRO'					; $2 - ASCI
-010005 000001              B   213    mb_loc	dw24 load_location			; $5 - Desi
-010008 000000              B   214    		dw24 0						; $8 - If >
-01000B 0000                B   215    		dw prose_version_req		; $B - If >
-01000D 0000                B   216    		dw amoeba_version_req		; $D - If >
-01000F 01                  B   217    		db ADL_mode					; $F - Z80 
-                           B   218    
-010010                     B   219    skip_header
-                           B   220    	
-                           B   221    	IF ADL_mode = 0 
-                           B   222    		
-                           B   223    mbase_offset equ load_location & 0ff0000h
-                           B   224    
-                           B   225    		ld a,load_location/65536	; Additiona
-                           B   226    		ld MB,a						; Set MBASE
-                           B   227    		jp.sis go_z80_mode			; switches 
-                           B   228    
-                           B   229    go_z80_mode
-                           B   230    
-                           B   231    		.assume ADL = 0
-                           B   232    
-                           B   233    	ENDIF
-                           B   234    	
-                           B   235    ;----------------------------------------------
-                           B   236    	
+       00000043            B   198    kr_get_keymap_location			equ 43h
+       00000044            B   199    kr_get_os_high_mem				equ 44h
+                           B   200    
+       00000045            B   201    kr_play_audio					equ 45h
+       00000046            B   202    kr_disable_audio				equ 46h
+       00000047            B   203    kr_get_joysticks				equ 47h
+       00000048            B   204    kr_set_video_mode				equ 48h
+       00000049            B   205    kr_set_cursor_image				equ 49h
+       0000004A            B   206    kr_remove_cursor				equ 4ah
+       0000004B            B   207    kr_char_to_font				equ 4bh
+                           B   208    
+                           B   209    ;----------------------------------------------
+                           B   210    ; Standard PROSE executable header
+                           B   211    ;----------------------------------------------
+                           B   212    
+                           B   213    
+                           B   214    	IF ADL_mode = 0
+                           B   215    		org load_location&0ffffh	; if Z80 mo
+                           B   216    	ELSE
+010000                     B   217    		org load_location			; otherwise
+                           B   218    	ENDIF
+                           B   219    	
+                           B   220    		.assume ADL = 1				; All PROSE
+                           B   221    
+010000 18 0E               B   222    		jr skip_header				; $0 - Jump
+010002 50524F              B   223    		db 'PRO'					; $2 - ASCI
+010005 000001              B   224    mb_loc	dw24 load_location			; $5 - Desi
+010008 000000              B   225    		dw24 0						; $8 - If >
+01000B 0000                B   226    		dw prose_version_req		; $B - If >
+01000D 0000                B   227    		dw amoeba_version_req		; $D - If >
+01000F 01                  B   228    		db ADL_mode					; $F - Z80 
+                           B   229    
+010010                     B   230    skip_header
+                           B   231    	
+                           B   232    	IF ADL_mode = 0 
+                           B   233    		
+                           B   234    mbase_offset equ load_location & 0ff0000h
+                           B   235    
+                           B   236    		ld a,load_location/65536	; Additiona
+                           B   237    		ld MB,a						; Set MBASE
+                           B   238    		jp.sis go_z80_mode			; switches 
+                           B   239    
+                           B   240    go_z80_mode
+                           B   241    
+                           B   242    		.assume ADL = 0
+                           B   243    
+                           B   244    	ENDIF
+                           B   245    	
+                           B   246    ;----------------------------------------------
+                           B   247    	
                            A    12    
                            A    13    ;----------------------------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   6
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\echo\src\echo.asm
                            A    14    
 010010 CD 19 00 01         A    15    			call my_prog
                            A    16    			
@@ -278,10 +293,6 @@ PC     Object              I  Line    Source ..\..\..\..\Includes\PROSE_header.a
                            A    22    
 010019 7E                  A    23    my_prog		ld a,(hl)					;if no 
 01001A B7                  A    24    			or a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   6
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\echo\src\echo.asm
 01001B 20 0D               A    25    			jr nz,got_args
                            A    26    			
 01001D 3E25                A    27    			ld a,kr_print_string
@@ -323,6 +334,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 010077 20636861 72730B 
 01007E 55736167 6520203A   A    59    				db 'Usage  : ECHO ',22h,'string
 010086 20454348 4F202273 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)07-Aug-11     19:31:07     page:   7
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\echo\src\echo.asm
 01008E 7472696E 67220B00 
                            A    60    
 010096 00 00 00 00 00 00   A    61    echo_string		blkb 82,0
@@ -334,10 +349,6 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 0100BA 00 00 00 00 00 00 
 0100C0 00 00 00 00 00 00 
 0100C6 00 00 00 00 00 00 
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)14-Jul-11     18:55:16     page:   7
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\echo\src\echo.asm
 0100CC 00 00 00 00 00 00 
 0100D2 00 00 00 00 00 00 
 0100D8 00 00 00 00 00 00 
@@ -350,4 +361,4 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSE
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 301
+Lines Assembled: 312
