@@ -391,22 +391,23 @@ $04 - W - "port_memory_paging"
 
 -----------------------------------------------------------------------------
 
+$05 - R - "port_irq_flags"
+	
+	5 - Raster Line match flip-flop status
+	6 - Spare IO1 (NMI button) flip-flop status
 
 $05 - W - "port_irq_ctrl"  
 
 This is a set/reset type register, bit 7 controls whether bit positions in
 6-0 written with ones are set or cleared (other bits are unchanged).
 
-          0 - Allow Keyboard interrupt when set
-          1 - Allow mouse interrupt when set
+          0 - INT - Allow Keyboard interrupt when set
+          1 - INT - Allow mouse interrupt when set
+	  5 - NMI - Raster line interrupt enabled when set
+	  6 - NMI - Spare IO1 (NMI button) enabled when set
           7 - Set / Reset control
 
 -----------------------------------------------------------------------------
-
-$06 - W - "port_nmi_ack"
-
-	0:7 write anything to acknowledge NMI
-
 
 $06 - R - "port_mouse_data" 
 
@@ -442,10 +443,11 @@ $08 - W - "port_selector"
 -----------------------------------------------------------------------------
 
 
-$09 - W - "Clear flags"
+$09 - W - "port_clear_latches"
 	
 	0 - Clears the VRT latch (bit 5 of port 1)
-          
+        5 - Clears the raster line NMI flip-flo
+        6 - Clears the Spare IO1 NMI (push button) flip-flop
 
 ------------------------------------------------------------------------------
 Native EZ80 CPU ports
