@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Thu Jul 28 13:46:14 2011
+DATE:      Mon Aug 08 15:58:06 2011
 PROCESSOR: assembler
 FILES:     .\test640x480.obj
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:05D901    4d902h
+ROM                   C:010000    C:05D8EE    4d8efh
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:05D901    4d902h
+CODE               absolute data          C:010000    C:05D8EE    4d8efh
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\BITMAP~1\src\test640x480.asm (File: test640x480.obj) Version: 1:0 07/28/2011 13:46:09
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\BITMAP~1\src\test640x480.asm (File: test640x480.obj) Version: 1:0 08/08/2011 15:58:00
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:05D901    4d902h
+    Segment: CODE                              C:010000    C:05D8EE    4d8efh
 
 EXTERNAL DEFINITIONS:
 =====================

@@ -23,11 +23,15 @@ begin_app		ld a,0010b
 				ld (right_border_position),a
 				
 				ld ix,bitmap_parameters				; set up bitmap mode parameters 
-				ld (ix),bm_base
-				ld (ix+04h),bm_pixel_step
-				ld (ix+08h),0
-				ld (ix+0ch),bm_modulo
-				ld (ix+10h),0+(bm_datafetch/8)-1			
+				ld de,bm_base
+				ld (ix),de
+				ld de,bm_pixel_step
+				ld (ix+04h),de
+				ld de,0
+				ld (ix+08h),de
+				ld de,0
+				ld (ix+0ch),de
+				ld (ix+10h),0+(bm_datafetch/8)-1		
 				
 				ld hl,pic							;copy pic to vram
 				ld de,vram_a_addr
