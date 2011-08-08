@@ -67,6 +67,7 @@ port_keyboard_data		equ 002h
 port_sdc_data		 	equ 003h	
 port_memory_paging		equ 004h
 port_irq_ctrl			equ 005h
+port_irq_flags			equ 005h
 port_nmi_ack			equ 006h
 port_ps2_ctrl			equ 007h
 port_selector			equ 008h
