@@ -260,10 +260,19 @@ msubpkt			ld (mouse_packet_index),a
 				ret
 				
 ;----------------------------------------------------------------------------------------
-; ez80p NMI code v0.02
+; ez80p NMI code v0.03
 ;----------------------------------------------------------------------------------------
 
-nmi_routine
+nmi_routine		push af									
+				in0 a,(port_irq_flags)					; make sure NMI was sourced from freeze button
+				bit 6,a									; (IE: spareIO NMI flip/flop is set)
+				jr nz,freeze
+				ld a,00100000b							; if not, it could only be a video NMI
+				out0 (port_clear_flags),a				; so clear its flag and return
+				pop af
+				retn.l
+				
+freeze			pop af
 				call os_store_CPU_regs
 				
 				ld hl,0
@@ -283,8 +292,9 @@ adl_freeze		inc sp
 				pop de									; get PC for ADL mode freeze
 got_pc			ld (store_pc),de						
 				
-				call disable_nmi
-				out0 (port_nmi_ack),a					; acknowledge NMI	
+				call disable_button_nmi
+				ld a,01000000b
+				out0 (port_clear_flags),a				; clear button flip/flop
 				ld a,1
 				ld (frozen),a
 				jp os_cold_start							
@@ -302,8 +312,9 @@ got_pc			ld (store_pc),de
 ;				ld a,0
 ;				ld (hw_palette),a
 ;				pop bc
+;				ld a,01100000b
+;				out0 (port_clear_flags)
 ;				pop af
-;				out0 (port_nmi_ack),a					;acknowledge NMI	
 ;				retn.l									;restores original ADL mode before returning
 
 ;----------------------------------------------------------------------------------------
@@ -318,14 +329,27 @@ set_nmi_vector
 
 ;----------------------------------------------------------------------------------------
 
-enable_nmi		out0 (port_nmi_ack),a					;clear internal NMI flip/flop in case previously set	
-				ld a,11000000b							;enable NMI (leave other IRQs intact)
+enable_button_nmi
+
+				ld a,01000000b
+				out0 (port_clear_flags),a				;clear button NMI flip-flop in case previously set	
+				ld a,11000000b							
+				out0 (port_irq_ctrl),a					;enable button NMI (leave other IRQs intact)
+				ret
+
+
+disable_button_nmi
+
+				ld a,01000000b							;disable button NMI (leave other IRQs intact)
 				out0 (port_irq_ctrl),a
 				ret
 
-disable_nmi		ld a,01000000b							;disable NMI (leave other IRQs intact)
+
+disable_all_nmis
+
+				ld a,01100000b							;disable NMIs (leave other IRQs intact)
 				out0 (port_irq_ctrl),a
 				ret
-
+				
 ;----------------------------------------------------------------------------------------
 

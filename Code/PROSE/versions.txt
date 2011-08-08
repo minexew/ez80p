@@ -1,6 +1,20 @@
 Current version
 ---------------
 
+(8-8-2011)
+
+033 - Changed: Disables sprites upon restart or when "kr_OS_display" is called
+               Changed NMI handler for AMOEBA v107
+               "PEN" command will now accept palette data (3rd parameter onwards)
+               
+		REQUIRES AMOEBA v107
+
+
+------------------------------------------------------------------------------------------
+
+Previous
+--------
+
 (7-8-2011)
 
 032 - Changed: Pushes and Pops IX and IY around kernal calls. No kernal calls now use
@@ -9,10 +23,6 @@ Current version
 		"kr_file_sector_list"		- now passes data out in BC instead of IX
 		"kr_serial_receive_header"	- now passes data out in DE instead of IX
 		"kr_serial_send_file"		- now set xDE = source address, xBC = length 
-
-
-Previous
---------
 
 (29-7-2011)
 

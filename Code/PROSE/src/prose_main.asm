@@ -11,8 +11,8 @@
 
 ;----------------------------------------------------------------------
 
-prose_version			equ 32h
-amoeba_version_required	equ 105h
+prose_version			equ 33h
+amoeba_version_required	equ 107h
 
 os_location			 	equ 0a00h
 sys_mem_top				equ 07ffffh
@@ -91,7 +91,7 @@ os_cold_start
 				ld sp,sys_mem_top						; Set ADL stack pointer
 
 				call disable_irqs
-				call disable_nmi
+				call disable_all_nmis
 				
 				ld a,(first_run)						; reset keyboard first time PROSE loads
 				or a
@@ -461,7 +461,7 @@ novolcmd		ld a,(hl)							; special case for 'G' command, this is internal but t
 gotgargs		call ascii_to_hex_no_scan			; returns DE = goto address
 				or a
 				jr nz,show_erm
-				call enable_nmi						; allow program to be stopped via NMI button
+				call enable_button_nmi				; allow program to be stopped via NMI button
 				push de
 				pop ix			
 				jp os_run_command					; run external command
@@ -584,7 +584,7 @@ readcode		ld hl,(scratch_pad+5)
 				or a
 				jp nz,show_erm						; file system error?
 	
-				call enable_nmi						; allow NMI freezer button
+				call enable_button_nmi				; allow NMI freezer button
 				ld ix,(os_extcmd_jmp_addr)			; xIX = addr of command subroutine code	
 				ld hl,(os_args_loc)					; hl = first non-space character after command 
 				jp os_run_command					; run external command
@@ -606,7 +606,7 @@ cntuasr			push af
 				ld de,scratch_pad
 				ld hl,error_txt
 				call os_set_envar
-				call disable_nmi					; prevent NMI button taking any action				
+				call disable_button_nmi				; prevent NMI button taking any action				
 				pop af
 extcmderf		jr z,not_errc						; if ZERO FLAG is set, the program completed OK
 				or a

@@ -40,15 +40,20 @@ hwsc_default_hw_settings
 					or  00000001b
 					out0 (TMR_ISS),a				; timer 0 to use the RTC as source clock (32768 Hz)
 					
-					
-;AMOEBA default settings
-
 					xor a
-					ld (hw_audio_registers+3),a		; Disable audio playback
-
 					ret
 
+
 ;-----------------------------------------------------------------------------------------------
+
+hwsc_disable_sprites
+
+					xor a
+					ld (sprite_control),a			; Disable sprites
+					ret
+					
+;-----------------------------------------------------------------------------------------------
+
 
 hwsc_get_version	ld de,0
 					ld b,16
