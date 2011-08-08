@@ -23,11 +23,15 @@ begin_app		ld a,0000b
 				ld (right_border_position),a
 				
 				ld ix,bitmap_parameters				; set up bitmap mode parameters 
-				ld (ix),bm_base
-				ld (ix+04h),bm_pixel_step
-				ld (ix+08h),0
-				ld (ix+0ch),bm_modulo
-				ld (ix+10h),0+(bm_datafetch/8)-1			
+				ld de,bm_base
+				ld (ix),de
+				ld de,bm_pixel_step
+				ld (ix+04h),de
+				ld de,0
+				ld (ix+08h),de
+				ld de,0
+				ld (ix+0ch),de
+				ld (ix+10h),0+(bm_datafetch/8)-1		
 				
 				ld hl,pic							;copy pic to vram
 				ld de,vram_a_addr
@@ -78,17 +82,17 @@ boing1lp		ld (ix),l
 loopit			ld a,kr_wait_vrt
 				call.lil prose_kernal
 				
-				ld hl,55fh							;contention indicator
-				ld (hw_palette),hl
-				ld bc,4000h
-				ld hl,vram_a_addr
-loop1			ld (hl),255
-				dec bc
-				ld a,b
-				or c
-				jr nz,loop1
-				ld hl,0h
-				ld (hw_palette),hl
+;				ld hl,55fh							;contention indicator
+;				ld (hw_palette),hl
+;				ld bc,4000h
+;				ld hl,vram_a_addr
+;loop1			ld (hl),255
+;				dec bc
+;				ld a,b
+;				or c
+;				jr nz,loop1
+;				ld hl,0h
+;				ld (hw_palette),hl
 				
 				ld a,kr_get_key
 				call.lil prose_kernal
@@ -107,7 +111,7 @@ include 'boing_96x96_sprites.asm'
 include 'boing_96x96_12bit_palette.asm'
 
 xcoord1			dw 160
-ycoord1 		dw 20
+ycoord1 		dw 71
 def1			dw 0
 height_ctrl1	dw 060h
 
