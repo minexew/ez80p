@@ -64,7 +64,7 @@ Exiting back to PROSE:
 
 Programs should return to PROSE with the instruction:
 
-JP.LIL prose_return
+JP prose_return
 
 
 ---------------------------------------------------------------------------------------------
