@@ -1,0 +1,28 @@
+cls
+echo " "
+echo "EZ80P SYSTEM UPDATE DISK"
+echo "------------------------"
+echo " "
+pen 6
+fpgacfg l
+pen 7
+envers
+if AMOEBA = 0107 UPDATED
+echo " "
+echo "Enter 'FPGACFG W [x] AMOEBA07.BIN', where [x] is a free slot number."
+echo " "
+echo "Then enter 'FPGACFG C [x]' to reboot / test"
+echo " "
+END
+
+[UPDATED]
+echo " "
+pen 4
+echo "*** The latest version of AMOEBA is running! ***"
+pen 7
+echo " "
+echo "Enter 'FPGACFG B [x]' to make it the power on default"
+echo "(where [x] is it's slot number)"
+echo " "
+echo "You can then swap to the latest PROSE disk and reboot."
+echo " "
