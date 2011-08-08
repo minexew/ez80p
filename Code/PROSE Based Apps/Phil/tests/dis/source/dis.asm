@@ -28,7 +28,6 @@ my_prog
 ; on exit IX = next opcode address
 
 disassemble	
-
 			ld ix,(dis_addr)	
 			call show_ix					; show disassembly address..
 			ld a,' '
