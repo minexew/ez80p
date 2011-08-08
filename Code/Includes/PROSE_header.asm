@@ -104,6 +104,8 @@ sprite_control			equ hw_video_settings+01h
 bgnd_palette_select		equ hw_video_settings+02h
 sprite_palette_select	equ hw_video_settings+03h
 right_border_position	equ hw_video_settings+04h
+irq_line_lo		equ hw_video_settings+05h
+irq_line_hi		equ hw_video_settings+06h
 
 ;-------------------------------------------------------------------------------------------------
 
