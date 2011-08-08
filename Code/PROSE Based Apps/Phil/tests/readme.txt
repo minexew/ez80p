@@ -4,7 +4,7 @@ Ideally, ignore this folder!
 ----------------------------
 
 
-Code here is very preliminary/experimental - and projects may be in a non-working state. 
+Code here is very preliminary/experimental -  projects may be in a non-working state. 
 
 
 
