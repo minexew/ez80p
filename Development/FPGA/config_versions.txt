@@ -2,6 +2,9 @@
 AMOEBA for EZ80P Version info:
 -------------------------------
 
+V108 - Swapped VRAM_A and VRAM_B pin assignments in attempt to cure ongoing character
+       mode glitch problem.
+
 v107 - Fixed right side border (was one pixel too early)
      - Added raster-line NMI interrupt feature
      - Compiled with "Timing performance" option set, hopefully fixing glitch on some boards.
