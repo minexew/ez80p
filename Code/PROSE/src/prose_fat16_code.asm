@@ -4,6 +4,7 @@
 ;
 ; Changes:
 ;
+; 0.06 - Fixed "fs_get_volume_label"
 ; 0.05 - Fixed format command
 ; 0.04 - File system error codes are now in the C0-F0 range
 ; 0.03 - ADL mode
@@ -21,7 +22,7 @@
 ;
 ; Carry set = hardware error, A = error byte from hardware (0 = timed out) 
 ;
-; Carry clear, A = 	00 $00 - Command completed OK
+; Carry clear, A = 	$00 - Command completed OK
 ;
 ;					$c1  - Disk full
 ;					$c2  - file not found
@@ -274,23 +275,10 @@ fs_check_disk_format
 				pop bc
 				ret
 				
-go_checkf		call fs_calc_volume_offset	
-				ld hl,volume_mount_list
-				add hl,de
-				ld a,(hl)
-				or a									; is volume present according to mount list?
-				jr nz,fs_volpre
-				xor a
-				ld a,cfh								; error $cf = 'invalid volume'
-				ret
-			
-fs_volpre		ld de,8									; get first sector of partition
-				add hl,de
-				ld de,sector_lba0
-				ld bc,4
-				ldir
-				call fs_read_sector
-				ret c	
+go_checkf		call fs_read_partition_bootsector
+				ret c
+				or a
+				ret nz
 				
 				call fs_check_fat_sig					; must have a FAT signature at $1FE
 				jr nz,formbad		
@@ -374,6 +362,28 @@ cmaxok			pop hl
 				ld (fs_max_data_clusters),hl
 				xor a
 				ret				
+
+;-----------------------------------------------------------------------------------------------
+
+fs_read_partition_bootsector
+
+				call fs_calc_volume_offset				; read in partition bootsector of currently selected volume
+				ld hl,volume_mount_list
+				add hl,de
+				ld a,(hl)
+				or a									; is volume present according to mount list?
+				jr nz,fs_volpre
+				xor a
+				ld a,cfh								; error $cf = 'invalid volume'
+				ret
+			
+fs_volpre		ld de,8									; get first sector of partition
+				add hl,de
+				ld de,sector_lba0
+				ld bc,4
+				ldir
+				call fs_read_sector
+				ret	
 
 ;---------------------------------------------------------------------------------------------
 
@@ -1277,31 +1287,36 @@ fs_get_volume_label
 
 
 				ld hl,(fs_root_dir_position)
-				xor a
+				ld c,0
+gvl_nrsec		xor a
 				call set_abs_lba_and_read_sector
 				ret c
-				ld c,16										; sixteen 32 byte entries per sector
+				ld b,16										; sixteen 32 byte entries per sector
 				ld ix,sector_buffer
 find_vl			ld a,(ix+0bh)
 				cp 08h
-				jr nz,not_label
-				ld (ix+0bh),0								; null terminate volume label
+				jr z,got_label
+				lea ix,ix+32								
+				djnz find_vl								
+				inc hl
+				inc c
+				ld a,(fs_root_dir_sectors)					; reached last sector of root dir?
+				cp c										
+				jr nz,gvl_nrsec
+			
+				call fs_read_partition_bootsector			; if not in root, get label from partition record
+				ret c
+				or a
+				ret nz
+				ld ix,sector_buffer+02bh
+				
+got_label		ld (ix+0bh),0								; null terminate volume label
 				push ix
-				pop hl
-				push hl
-				ld b,11
-				call uppercasify_string
 				pop hl
 				xor a
 				ret
 				
-not_label		ld de,32									; assume volume label is in first sector
-				add ix,de									; of root dir
-				djnz find_vl
-				xor a
-				ld a,0d4h									; error $d4 - cant find volume label
-				ret		
-
+				
 ;---------------------------------------------------------------------------------------------
 ; Internal subroutines
 ;---------------------------------------------------------------------------------------------

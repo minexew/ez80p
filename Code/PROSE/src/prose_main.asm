@@ -11,7 +11,7 @@
 
 ;----------------------------------------------------------------------
 
-prose_version			equ 33h
+prose_version			equ 34h
 amoeba_version_required	equ 107h
 
 os_location			 	equ 0a00h
