@@ -191,7 +191,33 @@ os_main_loop	call hwsc_wait_vrt					; flash cursor whilst waiting for key press
 				ld (overwrite_mode),a
 				jr os_main_loop
 
-os_notins		ld hl,cursor_x						; arrow key moving cursor left?
+os_notins		cp 6ch
+				jr nz,not_homekey
+				xor a
+				ld (cursor_x),a
+				jr os_main_loop
+								
+not_homekey		cp 69h
+				jr nz,not_endkey
+				ld a,(cursor_y)						;b = x, c = y
+				ld c,a
+				ld a,(charmap_columns)
+				ld b,a
+fendloop		dec b
+				call hwsc_get_charmap_addr_xy
+				ld a,(hl)
+				cp 20h
+				jr z,fendloop
+				inc b
+				ld a,(charmap_columns)
+				cp b
+				jr nz,endxposok
+				dec b
+endxposok		ld a,b
+				ld (cursor_x),a
+				jr os_main_loop
+
+not_endkey		ld hl,cursor_x						; arrow key moving cursor left?
 				cp 06bh			
 				jr nz,os_ntlft
 				dec (hl)
