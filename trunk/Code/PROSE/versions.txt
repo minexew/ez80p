@@ -7,6 +7,7 @@ Current version
 034 - Bugfix : When a card was formatted without a label, garbage would be displayed
                when using MOUNT or DIR commands. This has now been fixed.
 
+	New  : "Home" and "End" keys reposition cursor on OS screen.
 
 ------------------------------------------------------------------------------------------
 Previous versions:
