@@ -1,7 +1,17 @@
+
 Current version
 ---------------
 
-(8-8-2011)
+(13-8-2011)
+
+034 - Bugfix : When a card was formatted without a label, garbage would be displayed
+               when using MOUNT or DIR commands. This has now been fixed.
+
+
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
 
 033 - Changed: Disables sprites upon restart or when "kr_OS_display" is called
                Changed NMI handler for AMOEBA v107
@@ -10,12 +20,6 @@ Current version
 		REQUIRES AMOEBA v107
 
 
-------------------------------------------------------------------------------------------
-
-Previous
---------
-
-(7-8-2011)
 
 032 - Changed: Pushes and Pops IX and IY around kernal calls. No kernal calls now use
                IX or IY to pass data.
@@ -24,7 +28,7 @@ Previous
 		"kr_serial_receive_header"	- now passes data out in DE instead of IX
 		"kr_serial_send_file"		- now set xDE = source address, xBC = length 
 
-(29-7-2011)
+
 
 031 - Changed: Font rendering. Uses new character map mode (much faster) Requires AMOEBA v106
 
