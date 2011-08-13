@@ -7,9 +7,9 @@ pen 6
 fpgacfg l
 pen 7
 envers
-if AMOEBA = 0107 UPDATED
+if AMOEBA = 0108 UPDATED
 echo " "
-echo "Enter 'FPGACFG W [x] AMOEBA07.BIN', where [x] is a free slot number."
+echo "Enter 'FPGACFG W [x] AMOEBA08.BIN', where [x] is a free slot number."
 echo " "
 echo "Then enter 'FPGACFG C [x]' to reboot / test"
 echo " "
