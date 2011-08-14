@@ -489,7 +489,7 @@ Output: None
 
 Action: Returns the current pen colour
 Input : None
-Output: E (pen colour)
+Output: A (pen colour) Bits [7:4] = background colour selection, [3:0] = character's pixel colour selection.
 
 
 
