@@ -1,0 +1,1 @@
+See "docs/coding guides/programming in c" for more details
