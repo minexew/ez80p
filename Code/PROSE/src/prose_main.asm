@@ -2877,6 +2877,15 @@ fsl_sc			call cluster_and_offset_to_lba
 fsl_done		ld bc,sector_lba0
 				cp a									; set zero flag, no error
 				ret
+
+;--------------------------------------------------------------------------------------------
+
+os_get_disk_sector_ptr
+ 
+				ld hl,sector_lba0
+				ld de,sector_buffer
+				cp a
+				ret
 				
 ;--------------------------------------------------------------------------------------------
 
@@ -3222,12 +3231,21 @@ got_wcolour		ld (hw_palette+2),de
 				jp 0
 				
 ;-----------------------------------------------------------------------------------------------
-; Drivers
+; Storage Device Drivers
 ;-----------------------------------------------------------------------------------------------
 
 	include		'prose_sdcard_driver_v110.asm'		; SD Card driver 
+	
+; Additional storage device driver source can be added here..
+; Also add the driver's PROSE header address label to the list below, end with 0.
 
-
+driver_table		dw24 sd_card_driver	; Storage Device Driver #0
+					dw24 0 				; place holder
+					dw24 0				; place holder
+					dw24 0				; place holder
+					
+					dw24 0				; Essential zero terminator 
+					
 ;----------------------------------------------------------------------------------------
 ; IO routines
 ;-----------------------------------------------------------------------------------------------

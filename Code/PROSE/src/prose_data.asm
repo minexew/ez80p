@@ -91,6 +91,7 @@ kernal_table
 	dw24 ext_set_cursor_image		;49
 	dw24 hwsc_remove_cursor			;4a
 	dw24 char_to_font				;4b
+	dw24 os_get_disk_sector_ptr		;4c
 	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
@@ -623,19 +624,7 @@ dev_txt				db "DEV0:",0
 
 sector_rd_wr_addr	dw24 0
 
-;===================================================================================
 
-; Add storage device drivers here, end with 0
-
-driver_table		dw24 sd_card_driver	;Device driver #0
-					dw24 0				;last driver
-
-; Each driver's code should have a header in the form:
-; ----------------------------------------------------
-; $0    = JP to get ID routin
-; $4    = JP to read sector routine
-; $8    = JP to write sector routinee
-; $c    = ASCII name of device type (null terminated)
 ;=====================================================================================
 
 volume_dir_clusters
