@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------
-;"format" - format disk command. V0.04 - ADL mode
+;"format" - format disk command. V0.05 - ADL mode
 ;
 ; The internal format routine is limited to formatting entire disks
 ; No partition data is allowed.
@@ -15,7 +15,11 @@ os_cmd_format
 				or a
 				ret
 			
-fgotargs	
+fgotargs		push hl
+				ld a,1										;quiet mode on
+				call os_mount_volumes						;refresh mount list in case card has been swapped
+				pop hl
+				
 				ld de,fs_sought_filename
 				call fs_clear_filename			
 				push hl										;use 2nd parameter as label if supplied

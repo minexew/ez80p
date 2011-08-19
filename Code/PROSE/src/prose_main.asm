@@ -2470,7 +2470,7 @@ mnt_loop		ld (current_driver),a					; host driver number
 				ret z									; if 0, end driver scan
 				ex de,hl								; hl = 'get_id' subroutine address for host device
 				push iy
-				call find_dev							; 'get_id' routines must return Carry=1 if present
+				call find_dev							; 'get_id' routines must return ZF=1 if present
 				pop iy									; size in bc:de and h/w device name location at HL
 				call z,got_dev		
 nxt_drv			ld a,(current_driver)					; try next driver type 	
@@ -3240,9 +3240,9 @@ got_wcolour		ld (hw_palette+2),de
 ; Also add the driver's PROSE header address label to the list below, end with 0.
 
 driver_table		dw24 sd_card_driver	; Storage Device Driver #0
-					dw24 0 				; place holder
-					dw24 0				; place holder
-					dw24 0				; place holder
+					dw24 0 				; Storage device driver #1 place holder
+					dw24 0				; Storage device driver #2 place holder
+					dw24 0				; Storage device driver #3 place holder
 					
 					dw24 0				; Essential zero terminator 
 					
