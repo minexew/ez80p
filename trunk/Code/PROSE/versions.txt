@@ -6,6 +6,9 @@ Current version
 
 035 - Update :  New SD card driver. Now supports SDHC, faster reads.
 		From this release, drivers should return with the Zero Flag set if all OK.
+		
+	New  :  "kr_get_disk_sector_ptr" - returns location of the prose sector pointer (in HL)
+                 and the location of the sector buffer in DE.
 
 ------------------------------------------------------------------------------------------
 Previous versions:
