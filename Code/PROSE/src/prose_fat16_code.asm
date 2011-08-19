@@ -4,6 +4,7 @@
 ;
 ; Changes:
 ;
+; 0.07 - Made compatible with v1.10 drivers (ZF/CF return) 
 ; 0.06 - Fixed "fs_get_volume_label"
 ; 0.05 - Fixed format command
 ; 0.04 - File system error codes are now in the C0-F0 range
@@ -18,11 +19,11 @@
 ;        
 ;----------------------------------------------------------------------------------------------
 ;
-; All routines return carry clear / zero flag set if OK
+; All routines return carry clear / zero flag set if OK.
 ;
-; Carry set = hardware error, A = error byte from hardware (0 = timed out) 
+; If carry set there was a driver error, A = Error code from driver.
 ;
-; Carry clear, A = 	$00 - Command completed OK
+; If carry clear, Zero flag not set: A= File system error code:
 ;
 ;					$c1  - Disk full
 ;					$c2  - file not found
@@ -81,16 +82,16 @@ form_ws			call set_lba_and_write_sector
 				ld bc,03fh
 				ldir
 	
-				ld a,(ix+4)									;if MSB of 32 bit total sectors <> 0, cap is > 2GB
+				ld a,(ix+4)									;if MSB of 32 bit total sectors <> 0, cap at 2GB
 				or a
 				jr nz,above_2gb
-				ld hl,3fff00h								;if total sectors [23:0] > 3fff00, cap is > 2GB
+				ld hl,3f0000h								;if total sectors [23:0] > 3f0000, cap at 2GB
 				ld de,(ix+1)								
 				xor a			
 				sbc hl,de									
 				jr nc,lessthan2gb							
 above_2gb		ld a,40h									;if cap is > 2GB, fix cluster size = 32KB
-				ld de,3fff00h								;and truncate total sectors to = 2GB
+				ld de,3f0000h								;and truncate total sectors to = 2GB
 				jr spcvalok
 
 lessthan2gb		ld c,(ix+3)									;calc appropriate cluster size for capacity
@@ -1933,8 +1934,9 @@ secaccend		pop iy
 				pop hl
 				pop de
 				pop bc
-				ccf										;flip carry flag so that 1 = IDE error
-				ret										;a = will be ide error reg bits in that case (00 = timeout)
+				ret z									;If ZF is set by low-level driver, all OK
+				scf										
+				ret										;Otherwise set CF. (A = driver error code)
 
 
 fs_write_sector	

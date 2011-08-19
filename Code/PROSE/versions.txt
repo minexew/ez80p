@@ -2,16 +2,20 @@
 Current version
 ---------------
 
-(13-8-2011)
+(19-08-2011)
+
+035 - Update :  New SD card driver. Now supports SDHC, faster reads.
+		From this release, drivers should return with the Zero Flag set if all OK.
+
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
 
 034 - Bugfix : When a card was formatted without a label, garbage would be displayed
                when using MOUNT or DIR commands. This has now been fixed.
 
 	New  : "Home" and "End" keys reposition cursor on OS screen.
-
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 033 - Changed: Disables sprites upon restart or when "kr_OS_display" is called

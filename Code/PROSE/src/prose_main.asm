@@ -11,7 +11,7 @@
 
 ;----------------------------------------------------------------------
 
-prose_version			equ 34h
+prose_version			equ 35h
 amoeba_version_required	equ 107h
 
 os_location			 	equ 0a00h
@@ -2472,7 +2472,7 @@ mnt_loop		ld (current_driver),a					; host driver number
 				push iy
 				call find_dev							; 'get_id' routines must return Carry=1 if present
 				pop iy									; size in bc:de and h/w device name location at HL
-				call c,got_dev		
+				call z,got_dev		
 nxt_drv			ld a,(current_driver)					; try next driver type 	
 				inc a
 				jr mnt_loop
@@ -3225,7 +3225,7 @@ got_wcolour		ld (hw_palette+2),de
 ; Drivers
 ;-----------------------------------------------------------------------------------------------
 
-	include		'prose_sdcard_driver.asm'			; SD Card driver 
+	include		'prose_sdcard_driver_v110.asm'		; SD Card driver 
 
 
 ;----------------------------------------------------------------------------------------
