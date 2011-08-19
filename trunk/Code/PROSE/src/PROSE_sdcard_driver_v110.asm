@@ -10,7 +10,7 @@
 ;
 ; Somewhat arbitrary timimg due to quirks of my SD interface ("D_out" is not pulled up
 ; which means the data from the card following commands is undefined for one byte. This
-; is byte is skipped by the send_command routine.)
+; byte is skipped by the send_command routine.)
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ sd_write_sector	call sd_write_sector_main
 	
 ;--------------------------------------------------------------------------------------------------
 	
-sd_init_main	xor a							; Clear card info start
+sd_init_main	xor a							; Clear card info at start
 				ld (sd_card_info),a			
 
 				call sd_power_off				; Switch off power to the card (SPI clock slow, /CS is low but should be irrelevent)
@@ -120,7 +120,7 @@ sd_init_main	xor a							; Clear card info start
 				ld de,16384						; wait 0.5 seconds
 				call hwsc_time_delay
 							
-				call sd_power_on				; Switch card power back on (SPI clock slow, /CS high - de-selected)
+				call sd_power_on				; Switch card power back on (/CS high - de-selected)
 					
 				ld b,10							; send 80 clocks to ensure card has stabilized
 sd_ecilp		call sd_send_eight_clocks
@@ -268,7 +268,7 @@ sd_csd_v2		ld l,(ix+9)							; for CSD v2.00
 				inc hl
 				ld a,10
 				ld bc,0
-sd_csd2lp		add hl,hl
+sd_csd2lp		add.sis hl,hl
 				rl c
 				rl b
 				dec a
@@ -550,9 +550,8 @@ sd_send_eight_clocks
 sd_send_command_null_args
 
 				ld hl,0
-				ld (cmd_generic_args),hl
-				xor a
-				ld (cmd_generic_args+3),a
+				ld (cmd_generic_args),hl	; clear the 4 bytes of the argument string
+				ld (cmd_generic_args+1),hl	
 				
 				
 	

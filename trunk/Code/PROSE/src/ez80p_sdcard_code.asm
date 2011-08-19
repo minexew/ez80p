@@ -7,10 +7,11 @@ sd_send_byte
 ;Put byte to send to card in A
 
 					out0 (port_sdc_data),a
-					nop
-					nop
+					push bc
+					ld c,port_hw_flags
 sd_wb_loop			tstio 1<<sdc_serializer_busy		; wait for serialization to end
 					jr nz,sd_wb_loop					; ie: test bit in port (c)
+					pop bc
 					ret
 
 ;---------------------------------------------------------------------------------------------
@@ -34,12 +35,10 @@ sd_read_513_bytes
 					push bc
 					push de
 					ld e,0ffh
-					ld b,0								; loop count
-					ld c,port_hw_flags
-					
 					out0 (port_sdc_data),e				; send out 8 clocks for first byte
-					nop									; just to ensure serial busy latch is set
-					nop									; ""
+					ld c,port_hw_flags					; port for tstio instructions		
+					ld b,0								; loop count
+
 sd_wser_loop1		tstio 1<<sdc_serializer_busy		; wait for serialization to end
 					jr nz,sd_wser_loop1					; ie: test bit in port (c)
 					in a,(port_sdc_data)				; get first byte
@@ -72,7 +71,8 @@ sd_write_512_bytes
 ;optimized sector write
 ;set hl = source location for bytes
 
-					ld b,0
+					ld c,port_hw_flags					; port for tstio instructions
+					ld b,0								; loop count
 					ld a,(hl)
 sd_wr512_loop		out0 (port_sdc_data),a
 					inc hl
@@ -110,13 +110,13 @@ sd_deselect_card	push af
 sd_power_on			push af
 					ld a,(1<<sdc_speed)						; bit 7 = set bits low / sdc speed bit selected
 					out0 (port_sdc_ctrl),a					; SPEED = LOW
-					ld a,80h+(1<<sdc_power)+(1<<sdc_cs)		; bit 7 = set bits high / sdc power / cs bits selected
+					ld a,80h+(1<<sdc_power)+(1<<sdc_cs)		; bit 7 = set bits high:  sdc power, cs
 					jr sd_wr_sdc_ctrl						; CS: inactive, Power: ON
 
 
 sd_power_off		push af
-					ld a,00h+(1<<sdc_power)+(1<<sdc_cs)		; bit 7 = reset bits: sdc power and cs
-					jr sd_wr_sdc_ctrl
+					ld a,00h+(1<<sdc_power)					; bit 7 = reset bits: sdc power (cs automatically
+					jr sd_wr_sdc_ctrl						; pulled low by AMOEBA when card power is off)
 
 
 sd_spi_port_fast	push af
