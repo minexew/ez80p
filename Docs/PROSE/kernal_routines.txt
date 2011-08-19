@@ -322,6 +322,13 @@ Output: xHL (location of directory name ASCII string)
 
 
 
+4ch - "kr_get_disk_sector_ptr"
+-----------------------------
+
+Action: Returns location of LSB of LBA sector variable and location of sector buffer for external drivers
+Input : none
+Output: HL = location of LSB of 32-bit sector address variable, DE = location of sector buffer 
+
 
 =========================================================================================
 
@@ -792,6 +799,9 @@ Output: E = joystick 0, D = joystick 1
 	Bit 5 = Fire 1
 
 Note: Bit set = direction / button asserted.
+
+
+
 
 =========================================================================================
 

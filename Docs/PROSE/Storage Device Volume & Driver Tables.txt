@@ -1,0 +1,92 @@
+
+PROSE can use additional storage device drivers either at source level or by
+loading to memory. The driver must allow data to be read and written in 512 byte
+sectors with a 32-bit address, they will then work with the PROSE file system
+and be assigned VOL numbers by the MOUNT command. A driver must have the
+following routines:
+
+a. Initialize device and return ID and total capacity
+b. Read sector
+b. Write sector
+
+All routines must clear the Zero flag on return if the operation was successful.
+If the zero flag is not zero, a driver-specific error code is returned in A.
+The initialization routine should return with BC:DE set to the total capacity
+of the device in sectors, and HL set to the location of a zero-terminated
+ASCII string to identify the device (this string is used for reference only).
+
+Device drivers code must start with the following structure:
+
+$00 - JP initialize / get ID routine
+$04 - JP read sector routine
+$08 - JP write sector routinee
+$0c - ASCII name of device type (null terminated)
+
+If a device driver is included in the PROSE source code, its location should
+be added to the "driver_table" list. Included drivers should use the standard
+PROSE variables:
+
+ "sector_buffer" - 512 bytes
+
+ "sector_lba0" - LBA of desired sector LSB
+ "sector_lba1" 
+ "sector_lba2"
+ "sector_lba3" - LBA of desired sector MSB
+
+If an externally loaded user RAM based driver is to be used, the above locations
+can be obtained with the kernal routine "kr_get_disk_sector_ptr" (HL = location
+of LSB of 32-bit sector address, DE = location of sector buffer). The location
+of the pointer can be put in the driver table by first calling "kr_get_device_info"
+to obtain the location of the device_driver table, scanning for the first non-zero
+24bit location (each device driver entry takes 3 bytes), and placing the address
+of the driver there. A maximum of 4 drivers can be added.
+
+------------
+Driver_table
+------------
+
+$00 - Driver 0 address (The EZ80P's SD card driver)
+$03 - Driver 1 address 
+$06 - Driver 2 address
+$09 - Driver 3 address
+
+
+-------------------------
+host_device_hardware_info
+-------------------------
+
+The address of this table is returned in HL by the kernal routine "kr_get_device_info"
+Each device entry is 32 bytes long and contains the following data:
+
+
+OFFSET  DATA
+------  ----
+ $00 - Device's assigned driver number
+ $01 - Device's TOTAL capacity in sectors (4 bytes)
+ $05 - Zero terminated hardware name (22 ASCII bytes max followed by $00)
+ $1c - Remaining bytes to $1F currently unused
+
+
+
+-----------------
+volume_mount_list
+-----------------
+
+The address of this table is returned in HL by the kernal routine "kr_volume_info"
+Each volume entry is 16 bytes long and contains the following data:
+
+OFFSET   DATA
+------   ----
+ $00  -  1 = Volume is present, else zero (note: this does not mean it is a valid FAT16 volume.)
+ $01  -  Volume's host driver number	
+ $02  -  [reserved]
+ $03  -  [reserved]
+ $04  -  Volume's total capacity in sectors (3 bytes)
+ $07  -  Partition number on host drive (0/1/2/3)
+ $08  -  Offset in sectors from MBR to partition boot sector (2 words, little endian)
+ $0c  -  [reserved]
+ $0d  -  [reserved]	
+ $0e  -  [reserved]
+ $0f  -  [reserved]
+
+
