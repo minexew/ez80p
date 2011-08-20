@@ -2,7 +2,15 @@
 Current version
 ---------------
 
-(19-08-2011)
+(20-08-2011)
+
+036          :  Bugfix: New SD card driver was relying on previous ROM-based driver code
+                to initialized the card (a 4ms time delay was missing from the new init code)
+
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
 
 035 - Update :  New SD card driver. Now supports SDHC, faster reads.
 		From this release, drivers should return with the Zero Flag set if all OK.
@@ -10,9 +18,6 @@ Current version
 	New  :  "kr_get_disk_sector_ptr" - returns location of the prose sector pointer (in HL)
                  and the location of the sector buffer in DE.
 
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 034 - Bugfix : When a card was formatted without a label, garbage would be displayed
