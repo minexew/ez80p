@@ -121,7 +121,10 @@ sd_init_main	xor a							; Clear card info at start
 				call hwsc_time_delay
 							
 				call sd_power_on				; Switch card power back on (/CS high - de-selected)
-					
+
+				ld de,131						; wait approx 4ms
+				call hwsc_time_delay
+				
 				ld b,10							; send 80 clocks to ensure card has stabilized
 sd_ecilp		call sd_send_eight_clocks
 				djnz sd_ecilp
