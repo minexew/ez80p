@@ -7,14 +7,14 @@
 ;----------------------------------------------------------------------
 
 	include	'ez80_cpu_equates.asm'
-	include	'ez80p_hardware_equates.asm'
-
+	include	'amoeba_hardware_equates.asm'
+	include 'misc_system_equates.asm'
+	
 ;----------------------------------------------------------------------
 
 prose_version			equ 36h
 amoeba_version_required	equ 107h
 
-os_location			 	equ 0a00h
 sys_mem_top				equ 07ffffh
 
 ;-----------------------------------------------------------------------------------
@@ -39,8 +39,6 @@ max_buffer_chars		equ 80		; applies to command line string, output line string, 
 				jp 0									;os location + 1ch - reserved
 				
 ;-------------------------------------------------------------------------------------
-
-prose_kernal
 
 ; External apps can call kernal routines by doing a "CALL.IL prose_kernal"
 ; Set A to kernal routine number required (see table)
