@@ -1,13 +1,13 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   1
 
 
 PC     Object              I  Line    Source 
                            A     1    ;----------------------------------------------
-                           A     2    ; Boot ROM for ez80p v0.05 - runs mainly in Z80
+                           A     2    ; Boot ROM for ez80p - runs mainly in Z80 mode,
                            A     3    ; Looks for "BOOT.EZO" OS file on SD card, this
                            A     4    ; the OS, if either is not found ROM waits for 
                            A     5    ;
-                           A     6    ; V0.06 - Sets up video, and says "No OS" if no
+                           A     6    ; V0.07 - SDHC support code added.
                            A     7    ;----------------------------------------------
                            A     8    
        00000A00            A     9    os_location 	equ 0a00h
@@ -43,41 +43,48 @@ PC     Object              I  Line    Source
        000000C3            B    24    UART0_LCTL		equ 0c3h
        000000C4            B    25    UART0_MCTL		equ 0c4h
        000000C5            B    26    UART0_LSR		equ 0c5h
-                           B    27    
-       000000A8            B    28    CS0_LBR			equ 0a8h			;eZ80 wait 
-       000000A9            B    29    CS0_UBR			equ 0a9h
-       000000AA            B    30    CS0_CTL			equ 0aah			
-       000000AB            B    31    CS1_LBR			equ 0abh			;eZ80 wait 
-       000000AC            B    32    CS1_UBR			equ 0ach
-       000000AD            B    33    CS1_CTL			equ 0adh
-                           B    34    
-       00000080            B    35    TMR0_CTL		equ 080h			;timer 0 eq
-       00000081            B    36    TMR0_DR_L		equ 081h
-       00000081            B    37    TMR0_RR_L		equ 081h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   2
+       000000C6            B    27    UART0_MSR		equ 0c6h
+                           B    28    
+       000000A8            B    29    CS0_LBR			equ 0a8h			;eZ80 wait 
+       000000A9            B    30    CS0_UBR			equ 0a9h
+       000000AA            B    31    CS0_CTL			equ 0aah			
+       000000AB            B    32    CS1_LBR			equ 0abh			;eZ80 wait 
+       000000AC            B    33    CS1_UBR			equ 0ach
+       000000AD            B    34    CS1_CTL			equ 0adh
+       000000AE            B    35    CS2_LBR			equ 0aeh			;eZ80 wait 
+       000000AF            B    36    CS2_UBR			equ 0afh
+       000000B0            B    37    CS2_CTL			equ 0b0h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   2
 
 
-PC     Object              I  Line    Source ..\..\ADL_PR~1\src\ez80_cpu_equates.asm
-       00000082            B    38    TMR0_DR_H		equ 082h
-       00000082            B    39    TMR0_RR_H		equ 082h
-       00000092            B    40    TMR_ISS			equ 092h
+PC     Object              I  Line    Source ..\..\Includes\ez80_cpu_equates.asm
+       000000B1            B    38    CS3_LBR			equ 0b1h			;eZ80 wait 
+       000000B2            B    39    CS3_UBR			equ 0b2h
+       000000B3            B    40    CS3_CTL			equ 0b3h
                            B    41    
-       000000ED            B    42    RTC_CTRL		equ 0edh			;RTC equate
-       000000EC            B    43    RTC_ACTRL		equ 0ech
-       000000E0            B    44    RTC_SEC			equ 0e0h
-       000000E1            B    45    RTC_MIN			equ 0e1h
-       000000E2            B    46    RTC_HRS			equ 0e2h
-       000000E3            B    47    RTC_DOW			equ 0e3h
-       000000E4            B    48    RTC_DOM			equ 0e4h
-       000000E5            B    49    RTC_MON			equ 0e5h
-       000000E6            B    50    RTC_YR			equ 0e6h
-       000000E7            B    51    RTC_CEN			equ 0e7h
-                           B    52    
-                           B    53    ;----------------------------------------------
+       00000080            B    42    TMR0_CTL		equ 080h			;timer 0 eq
+       00000081            B    43    TMR0_DR_L		equ 081h
+       00000081            B    44    TMR0_RR_L		equ 081h
+       00000082            B    45    TMR0_DR_H		equ 082h
+       00000082            B    46    TMR0_RR_H		equ 082h
+       00000092            B    47    TMR_ISS			equ 092h
+                           B    48    
+       000000ED            B    49    RTC_CTRL		equ 0edh			;RTC equate
+       000000EC            B    50    RTC_ACTRL		equ 0ech
+       000000E0            B    51    RTC_SEC			equ 0e0h
+       000000E1            B    52    RTC_MIN			equ 0e1h
+       000000E2            B    53    RTC_HRS			equ 0e2h
+       000000E3            B    54    RTC_DOW			equ 0e3h
+       000000E4            B    55    RTC_DOM			equ 0e4h
+       000000E5            B    56    RTC_MON			equ 0e5h
+       000000E6            B    57    RTC_YR			equ 0e6h
+       000000E7            B    58    RTC_CEN			equ 0e7h
+                           B    59    
+                           B    60    ;----------------------------------------------
                            A    16    
-                           B     0    include "ez80p_hardware_equates.asm"
+                           B     0    include "amoeba_hardware_equates.asm"
                            B     1    
-                           B     2    ;-- EZ80P Hardware equates --------------------
+                           B     2    ;-- AMOEBA Hardware equates -------------------
                            B     3    
        00000000            B     4    port_pic_data  			equ 000h
        00000001            B     5    port_pic_ctrl			equ 001h
@@ -87,47 +94,55 @@ PC     Object              I  Line    Source ..\..\ADL_PR~1\src\ez80_cpu_equates
        00000003            B     9    port_sdc_data		 	equ 003h	
        00000004            B    10    port_memory_paging		equ 004h
        00000005            B    11    port_irq_ctrl			equ 005h
-       00000006            B    12    port_nmi_ack			equ 006h
-       00000007            B    13    port_ps2_ctrl			equ 007h
-       00000008            B    14    port_selector			equ 008h
-       00000006            B    15    port_mouse_data			equ 006h
-       00000009            B    16    port_clear_flags		equ 009h
-                           B    17    
-       00000000            B    18    sdc_power				equ 0		;(port_sd_c
-       00000001            B    19    sdc_cs					equ 1		;(port_sd_c
-       00000002            B    20    sdc_speed				equ 2 		;(port_sd_c
-                           B    21    
-       00000004            B    22    sdc_serializer_busy		equ 4 		;(port_hw_f
-       00000005            B    23    vrt						equ 5		;(port_hw_f
-                           B    24    
+       00000005            B    12    port_irq_flags			equ 005h
+       00000006            B    13    port_nmi_ack			equ 006h
+       00000007            B    14    port_ps2_ctrl			equ 007h
+       00000008            B    15    port_selector			equ 008h
+       00000006            B    16    port_mouse_data			equ 006h
+       00000009            B    17    port_clear_flags		equ 009h
+                           B    18    
+       00000000            B    19    sdc_power				equ 0		;(port_sd_c
+       00000001            B    20    sdc_cs					equ 1		;(port_sd_c
+       00000002            B    21    sdc_speed				equ 2 		;(port_sd_c
+                           B    22    
+       00000004            B    23    sdc_serializer_busy		equ 4 		;(port_hw_f
+       00000005            B    24    vrt						equ 5		;(port_hw_f
                            B    25    
-                           B    26    ;-- Memory locations --------------------------
-                           B    27    
-       00800000            B    28    vram_a_addr				equ 0800000h
-       00C00000            B    29    vram_b_addr				equ 0c00000h
-                           B    30    
-                           B    31    ;-- Hardware registers ------------------------
+                           B    26    
+                           B    27    ;-- Memory locations --------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   3
+
+
+PC     Object              I  Line    Source ..\..\Includes\amoeba_hardware_equates.asm
+                           B    28    
+       00000000            B    29    sysram_addr				equ 0000000h
+       00800000            B    30    vram_a_addr				equ 0800000h
+       00C00000            B    31    vram_b_addr				equ 0c00000h
                            B    32    
-       00FF0000            B    33    hw_palette				equ 0ff0000h
-       00FF0800            B    34    hw_sprite_registers		equ 0ff0800h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   3
-
-
-PC     Object              I  Line    Source ..\..\ADL_PR~1\src\ez80p_hardware_equates.asm
-       00FF1000            B    35    hw_video_parameters		equ 0ff1000h
-       00FF1400            B    36    hw_audio_registers		equ 0ff1400h
-       00FF1800            B    37    hw_video_settings		equ 0ff1800h
-                           B    38    
-       00FF1000            B    39    tilemap_parameters		equ hw_video_parameters
-       00FF1020            B    40    bitmap_parameters		equ hw_video_parameters
-                           B    41    
-       00FF1800            B    42    video_control			equ hw_video_settings+0
-       00FF1801            B    43    sprite_control			equ hw_video_settings+0
-       00FF1802            B    44    bgnd_palette_select		equ hw_video_settings+0
-       00FF1803            B    45    sprite_palette_select	equ hw_video_settings+0
-       00FF1804            B    46    right_border_position	equ hw_video_settings+0
-                           B    47    
-                           B    48    ;----------------------------------------------
+                           B    33    ;-- Hardware registers ------------------------
+                           B    34    
+       00FF0000            B    35    hw_palette		equ 0ff0000h
+       00FF0800            B    36    hw_sprite_registers		equ 0ff0800h
+       00FF1000            B    37    hw_video_parameters		equ 0ff1000h
+       00FF1400            B    38    hw_audio_registers		equ 0ff1400h
+       00FF1800            B    39    hw_video_settings		equ 0ff1800h
+                           B    40    
+       00FF1000            B    41    tilemap_parameters		equ hw_video_parameters
+       00FF1020            B    42    bitmap_parameters		equ hw_video_parameters
+                           B    43    
+       00FF1800            B    44    video_control		equ hw_video_settings+00h
+       00FF1801            B    45    sprite_control		equ hw_video_settings+01h
+       00FF1802            B    46    bgnd_palette_select		equ hw_video_settings+0
+       00FF1803            B    47    sprite_palette_select	equ hw_video_settings+0
+       00FF1804            B    48    right_border_position	equ hw_video_settings+0
+       00FF1805            B    49    irq_line_lo		equ hw_video_settings+05h
+       00FF1806            B    50    irq_line_hi		equ hw_video_settings+06h
+                           B    51    
+                           B    52    ;----------------------------------------------
+                           B    53    
+       00000A00            B    54    os_start 	equ 0a00h
+                           B    55    
+                           B    56    ;----------------------------------------------
                            A    18    
                            A    19    ;----------------------------------------------
                            A    20    
@@ -150,6 +165,10 @@ PC     Object              I  Line    Source ..\..\ADL_PR~1\src\ez80p_hardware_e
                            A    37    
 000030                     A    38    				org 030h						                           A    39    
 000030 3200                A    40    				dw my_irq
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   4
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
                            A    41    				
 000032 FB                  A    42    my_irq			ei								000033 49ED4D              A    43    				reti.l
                            A    44    
@@ -163,10 +182,6 @@ PC     Object              I  Line    Source ..\..\ADL_PR~1\src\ez80p_hardware_e
 00006E F3                  A    53    				di
 00006F 31FF07              A    54    				ld sp,stack_s
 000072 5B31FFFF 07         A    55    				ld.lil sp,stack_l
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   4
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
                            A    56    				
                            A    57    ;----------------------------------------------
                            A    58    ; Set up eZ80 I/O Ports
@@ -194,7 +209,11 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0000A8 ED39A8              A    88    				out0 (CS0_LBR),a				0000AB 3EFF                A    89    				ld a,0ffh	
 0000AD ED39A9              A    90    				out0 (CS0_UBR),a
 0000B0 3EF8                A    91    				ld a,0f8h
-0000B2 ED39AD              A    92    				out0 (CS1_CTL),a				0000B5 3E00                A    93    				ld a,0
+0000B2 ED39AD              A    92    				out0 (CS1_CTL),a				Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   5
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
+0000B5 3E00                A    93    				ld a,0
 0000B7 ED39AB              A    94    				out0 (CS1_LBR),a				                           A    95    
                            A    96    ;----------------------------------------------
                            A    97    ; set up eZ80 com port
@@ -206,10 +225,6 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0000C1 ED39C0              A   104    				out0 (UART0_BRG_L),a			0000C4 3E00                A   105    				ld a,000h
 0000C6 ED39C1              A   106    				out0 (UART0_BRG_H),a
 0000C9 3E00                A   107    				ld a,00h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   5
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
 0000CB ED39C3              A   108    				out0 (UART0_LCTL),a				0000CE 3E00                A   109    				ld a,000h
 0000D0 ED39C2              A   110    				out0 (UART0_FCTL),a				0000D3 3E03                A   111    				ld a,003h
 0000D5 ED39C3              A   112    				out0 (UART0_LCTL),a				0000D8 3E00                A   113    				ld a,000h
@@ -238,7 +253,11 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0000F3 20 FB               A   141    				jr nz,pclrlp
                            A   142    
 0000F5 3E7F                A   143    				ld a,07fh
-0000F7 ED3905              A   144    				out0 (port_irq_ctrl),a			                           A   145    
+0000F7 ED3905              A   144    				out0 (port_irq_ctrl),a			Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   6
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
+                           A   145    
 0000FA 210000              A   146    				ld hl,0							0000FD 110000              A   147    				ld de,0
 000100 01F007              A   148    				ld bc,7f0h						000103 EDB0                A   149    				ldir
                            A   150    
@@ -249,10 +268,6 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 00010D 00                  A   157    				nop
                            A   158    
                            A   159    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   6
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
                            A   160    ;**********************************************
                            A   161    ; Main code begins
                            A   162    ;**********************************************
@@ -282,7 +297,11 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 00013C 23                  A   193    				inc hl
 00013D 10 FC               A   194    				djnz clregs
 00013F DD360401            A   195    				ld (ix+04h),1
-000143 DD361027            A   196    				ld (ix+10h),0+(320/8)-1			                           A   197    				
+000143 DD361027            A   196    				ld (ix+10h),0+(320/8)-1			Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   7
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
+                           A   197    				
 000147 21000080            A   198    				ld hl,vram_a_addr				00014B 3600                A   199    				ld (hl),0
 00014D E5                  A   200    				push hl
 00014E D1                  A   201    				pop de
@@ -290,15 +309,11 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000150 01002C01            A   203    				ld bc,320*240
 000154 EDB0                A   204    				ldir
                            A   205    				
-000156 11 D7 06 00         A   206    				ld de,gfx						00015A 218C9180            A   207    				ld hl,vram_a_addr+(320*116)+140
+000156 11 0E 07 00         A   206    				ld de,gfx						00015A 218C9180            A   207    				ld hl,vram_a_addr+(320*116)+140
 00015E 0607                A   208    				ld b,7
 000160 C5                  A   209    lp3				push bc
 000161 0606                A   210    				ld b,6
 000163 C5                  A   211    lp2				push bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   7
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
 000164 0680                A   212    				ld b,80h
 000166 0E00                A   213    lp1				ld c,0
 000168 1A                  A   214    				ld a,(de)
@@ -326,34 +341,34 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            A   236    ; Check for OS on SD Card (*.EZ0 file)
                            A   237    ;----------------------------------------------
                            A   238    
-000183 CD 90 04            A   239    				call sdc_init_card				000186 30 7D               A   240    				jr nc,no_sd_card_os				000188 21 D5 06            A   241    				ld hl,drives_present
+000183 CD 91 04            A   239    				call sd_initialize				000186 20 7D               A   240    				jr nz,no_sd_card_os				000188 21 0C 07            A   241    				ld hl,drives_present
 00018B CBC6                A   242    				set 0,(hl)						                           A   243    	
-00018D 21 BB 06            A   244    				ld hl,bl_filename
-000190 CD B1 02            A   245    				call find_file_fat16			000193 38 67               A   246    				jr c,no_bootezo					000195 20 65               A   247    				jr nz,no_bootezo				000197 2A 1E 06            A   248    				ld hl,(fs_file_length_working)
+00018D 21 F2 06            A   244    				ld hl,bl_filename
+000190 CD B1 02            A   245    				call find_file_fat16			000193 38 67               A   246    				jr c,no_bootezo					000195 20 65               A   247    				jr nz,no_bootezo				000197 2A 5A 06            A   248    				ld hl,(fs_file_length_working)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   8
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
 00019A 110C00              A   249    				ld de,12
 00019D AF                  A   250    				xor a
 00019E ED52                A   251    				sbc hl,de
 0001A0 38 06               A   252    				jr c,bl_lenok
 0001A2 210C00              A   253    				ld hl,12
-0001A5 22 1E 06            A   254    				ld (fs_file_length_working),hl
+0001A5 22 5A 06            A   254    				ld (fs_file_length_working),hl
 0001A8 210000              A   255    bl_lenok		ld hl,0
-0001AB 22 20 06            A   256    				ld (fs_file_length_working+2),h
-0001AE 21 C4 06            A   257    				ld hl,os_filename
-0001B1 22 24 06            A   258    				ld (fs_z80_working_address),hl	0001B4 CD B0 03            A   259    				call load_file_fat16
+0001AB 22 5C 06            A   256    				ld (fs_file_length_working+2),h
+0001AE 21 FB 06            A   257    				ld hl,os_filename
+0001B1 22 60 06            A   258    				ld (fs_z80_working_address),hl	0001B4 CD B0 03            A   259    				call load_file_fat16
 0001B7 DA 67 02            A   260    				jp c,os_load_error
 0001BA C2 67 02            A   261    				jp nz,os_load_error				                           A   262    				
-0001BD 21 C4 06            A   263    				ld hl,os_filename
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   8
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
+0001BD 21 FB 06            A   263    				ld hl,os_filename
 0001C0 CD B1 02            A   264    				call find_file_fat16			0001C3 38 40               A   265    				jr c,no_sd_card_os
 0001C5 20 3E               A   266    				jr nz,no_sd_card_os
-0001C7 21000A              A   267    				ld hl,os_location				0001CA 22 24 06            A   268    				ld (fs_z80_working_address),hl	0001CD CD B0 03            A   269    				call load_file_fat16
+0001C7 21000A              A   267    				ld hl,os_location				0001CA 22 60 06            A   268    				ld (fs_z80_working_address),hl	0001CD CD B0 03            A   269    				call load_file_fat16
 0001D0 DA 67 02            A   270    				jp c,os_load_error
 0001D3 C2 67 02            A   271    				jp nz,os_load_error				                           A   272    
 0001D6 3E01                A   273    				ld a,1
-0001D8 32 D4 06            A   274    				ld (boot_drive),a				                           A   275    
+0001D8 32 0B 07            A   274    				ld (boot_drive),a				                           A   275    
                            A   276    
                            A   277    ;-------- TEST THE CRC CHECKSUM OF THE OS LOADE
                            A   278    
@@ -361,7 +376,7 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0001DB ED5B080A            A   280    do_chksum		ld de,(os_location+8)			0001DF 21100A              A   281    				ld hl,os_location+16			0001E2 D9                  A   282    				exx
 0001E3 21FFFF              A   283    				ld hl,0ffffh					0001E6 D9                  A   284    				exx
 0001E7 7E                  A   285    mchkslp			ld a,(hl)
-0001E8 CD 53 06            A   286    				call crc_calc
+0001E8 CD 8A 06            A   286    				call crc_calc
 0001EB 23                  A   287    				inc hl
 0001EC 1B                  A   288    				dec de
 0001ED 7A                  A   289    				ld a,d
@@ -372,6 +387,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0001F7 ED52                A   296    				sbc hl,de						                           A   297    ;				jp nz,crc_fail					                           A   298    	
 0001F9 C3 54 02            A   299    				jp start_os
                            A   300    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:   9
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
                            A   301    ;----------------------------------------------
                            A   302    ; Receive file from serial link program
                            A   303    ;----------------------------------------------
@@ -380,38 +399,38 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000202 CD A9 02            A   307    				call pause_a_sec
                            A   308    				
 000205                     A   309    no_sd_card_os
-000205 11CC0C              A   310    				ld de,0ccch						000208 21 D6 06            A   311    				ld hl,swait_count
+000205 11CC0C              A   310    				ld de,0ccch						000208 21 0D 07            A   311    				ld hl,swait_count
 00020B 34                  A   312    				inc (hl)
 00020C CB46                A   313    				bit 0,(hl)
 00020E 20 03               A   314    				jr nz,colour_a
 000210 110000              A   315    				ld de,0
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:   9
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
 000213 CD 71 02            A   316    colour_a		call change_colour				                           A   317    				
 000216 21000A              A   318    				ld hl,os_location
-000219 CD 2D 06            A   319    				call s_getblock					00021C 38 E7               A   320    				jr c,no_sd_card_os				00021E 28 09               A   321    				jr z,shdr_ok					000220 115858              A   322    s_bad			ld de,05858h					000223 CD 98 06            A   323    				call send_serial_bytes			000226 C3 67 02            A   324    				jp os_load_error
+000219 CD 64 06            A   319    				call s_getblock					00021C 38 E7               A   320    				jr c,no_sd_card_os				00021E 28 09               A   321    				jr z,shdr_ok					000220 115858              A   322    s_bad			ld de,05858h					000223 CD CF 06            A   323    				call send_serial_bytes			000226 C3 67 02            A   324    				jp os_load_error
                            A   325    
 000229 110000              A   326    shdr_ok			ld de,0
 00022C CD 71 02            A   327    				call change_colour
-00022F CD 67 06            A   328    				call s_goodack					000232 21000A              A   329    				ld hl,os_location				000235 ED5B110A            A   330    				ld de,(os_location+17)			000239 3A100A              A   331    				ld a,(os_location+16)
+00022F CD 9E 06            A   328    				call s_goodack					000232 21000A              A   329    				ld hl,os_location				000235 ED5B110A            A   330    				ld de,(os_location+17)			000239 3A100A              A   331    				ld a,(os_location+16)
 00023C B7                  A   332    				or a
 00023D 28 01               A   333    				jr z,s_gbloop
 00023F 13                  A   334    				inc de
-000240 CD 2D 06            A   335    s_gbloop		call s_getblock
-000243 38 DB               A   336    				jr c,s_bad						000245 20 D9               A   337    				jr nz,s_bad						000247 CD 67 06            A   338    				call s_goodack					00024A 1B                  A   339    				dec de
+000240 CD 64 06            A   335    s_gbloop		call s_getblock
+000243 38 DB               A   336    				jr c,s_bad						000245 20 D9               A   337    				jr nz,s_bad						000247 CD 9E 06            A   338    				call s_goodack					00024A 1B                  A   339    				dec de
 00024B 7A                  A   340    				ld a,d
 00024C B3                  A   341    				or e
 00024D 20 F1               A   342    				jr nz,s_gbloop
 00024F 3E00                A   343    				ld a,0
-000251 32 D4 06            A   344    				ld (boot_drive),a				                           A   345    			
+000251 32 0B 07            A   344    				ld (boot_drive),a				                           A   345    			
                            A   346    
                            A   347    ;-------- START UP THE OS ---------------------
                            A   348    	
-000254 3A D4 06            A   349    start_os		ld a,(boot_drive)				000257 47                  A   350    				ld b,a
-000258 3A D5 06            A   351    				ld a,(drives_present)		
+000254 3A 0B 07            A   349    start_os		ld a,(boot_drive)				000257 47                  A   350    				ld b,a
+000258 3A 0C 07            A   351    				ld a,(drives_present)		
 00025B 4F                  A   352    				ld c,a
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  10
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
 00025C AF                  A   353    				xor a
 00025D 5BC3100A 00         A   354    				jp.lil os_location+10h			                           A   355    
                            A   356    ;----------------------------------------------
@@ -424,10 +443,6 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            A   365    			
                            A   366    ;----------------------------------------------
                            A   367    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  10
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
 000271 5BDD2102 00FF       A   368    change_colour	ld.lil ix,hw_palette+2
 000277 5BDD7300            A   369    				ld.lil (ix),e
 00027B 5BDD7201            A   370    				ld.lil (ix+1),d
@@ -458,35 +473,35 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            A   402    ;----------------------------------------------
                            A   403    
 0002A9 0600                A   404    pause_a_sec		ld b,0
-0002AB CD 80 02            A   405    seclp			call pause_4ms
-0002AE 10 FB               A   406    				djnz seclp
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  11
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
+0002AB CD 80 02            A   405    pause_loop		call pause_4ms
+0002AE 10 FB               A   406    				djnz pause_loop
 0002B0 C9                  A   407    				ret
                            A   408    				
                            A   409    ;----------------------------------------------
                            A   410    
-                           B     0    include 'card_load_essentials.asm'
+                           B     0    include 'card_load_essentials_V110.asm'
                            B     1    ;----------------------------------------------
-                           B     2    ; Simplified Z80 FAT16 File System code by Phil
+                           B     2    ; Simplified Z80-mode FAT16 File System code by
                            B     3    ; Reduced to the essentials required to load fi
                            B     4    ;----------------------------------------------
                            B     5    
 0002B1                     B     6    find_file_fat16
                            B     7    
                            B     8    ; Set hl = filename location and "fs_z80_workin
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  11
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
                            B     9    
                            B    10    ; Output Carry set = Hardware error
                            B    11    ;        Zero flag set = OK, else A = error cod
                            B    12    				
-0002B1 22 15 06            B    13    				ld (filename_addr),hl
+0002B1 22 51 06            B    13    				ld (filename_addr),hl
                            B    14    				
 0002B4 AF                  B    15    				xor a							0002B5 67                  B    16    				ld h,a
 0002B6 6F                  B    17    				ld l,a
-0002B7 32 2B 06            B    18    				ld (sector_lba2),a
-0002BA 22 29 06            B    19    retry_fbs		ld (sector_lba0),hl
+0002B7 32 4F 06            B    18    				ld (sector_lba2),a
+0002BA 22 4D 06            B    19    retry_fbs		ld (sector_lba0),hl
 0002BD CD 5F 04            B    20    				call fs_read_sector				0002C0 D8                  B    21    				ret c							                           B    22    
 0002C1 2AFE09              B    23    				ld hl,(sector_buffer+1feh)		0002C4 1155AA              B    24    				ld de,0aa55h
 0002C7 AF                  B    25    				xor a
@@ -502,43 +517,47 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0002DE ED52                B    39    				sbc hl,de
 0002E0 20 2D               B    40    				jr nz,test_mbr
                            B    41    		
-0002E2 3A0D08              B    42    form_ok			ld a,(sector_buffer+0dh)		0002E5 32 17 06            B    43    				ld (fs_cluster_size),a
-0002E8 2A 29 06            B    44    				ld hl,(sector_lba0)				0002EB ED5B0E08            B    45    				ld de,(sector_buffer+0eh)		0002EF 19                  B    46    				add hl,de
-0002F0 22 18 06            B    47    				ld (fs_fat1_loc_lba),hl			0002F3 ED5B1608            B    48    				ld de,(sector_buffer+16h)		0002F7 19                  B    49    				add hl,de						0002F8 19                  B    50    				add hl,de						0002F9 22 1A 06            B    51    				ld (fs_root_dir_loc_lba),hl 	0002FC 2A1108              B    52    				ld hl,(sector_buffer+11h)		0002FF 7C                  B    53    				ld a,h
+0002E2 3A0D08              B    42    form_ok			ld a,(sector_buffer+0dh)		0002E5 32 53 06            B    43    				ld (fs_cluster_size),a
+0002E8 2A 4D 06            B    44    				ld hl,(sector_lba0)				0002EB ED5B0E08            B    45    				ld de,(sector_buffer+0eh)		Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  12
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+0002EF 19                  B    46    				add hl,de
+0002F0 22 54 06            B    47    				ld (fs_fat1_loc_lba),hl			0002F3 ED5B1608            B    48    				ld de,(sector_buffer+16h)		0002F7 19                  B    49    				add hl,de						0002F8 19                  B    50    				add hl,de						0002F9 22 56 06            B    51    				ld (fs_root_dir_loc_lba),hl 	0002FC 2A1108              B    52    				ld hl,(sector_buffer+11h)		0002FF 7C                  B    53    				ld a,h
 000300 B5                  B    54    				or l
 000301 28 0C               B    55    				jr z,test_mbr					000303 29                  B    56    				add hl,hl						000304 29                  B    57    				add hl,hl
 000305 29                  B    58    				add hl,hl
 000306 29                  B    59    				add hl,hl
 000307 AF                  B    60    				xor a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  12
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
 000308 6C                  B    61    				ld l,h
 000309 67                  B    62    				ld h,a
-00030A 22 1C 06            B    63    				ld (fs_root_dir_sectors),hl		00030D 18 16               B    64    				jr read_file			
+00030A 22 58 06            B    63    				ld (fs_root_dir_sectors),hl		00030D 18 16               B    64    				jr read_file			
                            B    65    		
 00030F 3AC209              B    66    test_mbr		ld a,(sector_buffer+1c2h)		000312 E604                B    67    				and 4
-000314 CA CC 02            B    68    				jp z,formbad					000317 2A 29 06            B    69    				ld hl,(sector_lba0)				00031A 7C                  B    70    				ld a,h
+000314 CA CC 02            B    68    				jp z,formbad					000317 2A 4D 06            B    69    				ld hl,(sector_lba0)				00031A 7C                  B    70    				ld a,h
 00031B B5                  B    71    				or l
 00031C C2 CC 02            B    72    				jp nz,formbad			
 00031F 2AC609              B    73    				ld hl,(sector_buffer+1c6h)		000322 C3 BA 02            B    74    				jp retry_fbs
                            B    75    	
-000325 AF                  B    76    read_file		xor a							000326 32 26 06            B    77    				ld (fs_working_sector),a		000329 2A 1A 06            B    78    ffnnxtsec		ld hl,(fs_root_dir_loc_lba)		00032C 0600                B    79    				ld b,0
-00032E 3A 26 06            B    80    				ld a,(fs_working_sector)
+000325 AF                  B    76    read_file		xor a							000326 32 62 06            B    77    				ld (fs_working_sector),a		000329 2A 56 06            B    78    ffnnxtsec		ld hl,(fs_root_dir_loc_lba)		00032C 0600                B    79    				ld b,0
+00032E 3A 62 06            B    80    				ld a,(fs_working_sector)
 000331 4F                  B    81    				ld c,a
 000332 09                  B    82    				add hl,bc
-000333 22 29 06            B    83    				ld (sector_lba0),hl				000336 AF                  B    84    				xor a
-000337 32 2B 06            B    85    				ld (sector_lba2),a				00033A CD 5F 04            B    86    				call fs_read_sector
+000333 22 4D 06            B    83    				ld (sector_lba0),hl				000336 AF                  B    84    				xor a
+000337 32 4F 06            B    85    				ld (sector_lba2),a				00033A CD 5F 04            B    86    				call fs_read_sector
 00033D D8                  B    87    				ret c
                            B    88    
 00033E 0610                B    89    				ld b,16							000340 DD210008            B    90    				ld ix,sector_buffer
-000344 ED5B 15 06          B    91    ndirentr		ld de,(filename_addr)			000348 ED2200              B    92    				lea hl,ix+0
+000344 ED5B 51 06          B    91    ndirentr		ld de,(filename_addr)			000348 ED2200              B    92    				lea hl,ix+0
 00034B 0E0B                B    93    				ld c,11
 00034D 7E                  B    94    comp_fn			ld a,(hl)
-00034E CD 87 04            B    95    				call upper_casify
+00034E CD 88 04            B    95    				call upper_casify
 000351 77                  B    96    				ld (hl),a
 000352 1A                  B    97    				ld a,(de)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  13
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
 000353 B7                  B    98    				or a
 000354 28 30               B    99    				jr z,fnsame						000356 FE2E                B   100    				cp '.'
 000358 20 0C               B   101    				jr nz,notdot					00035A 79                  B   102    				ld a,c							00035B FE03                B   103    				cp 3							00035D 38 07               B   104    				jr c,notdot
@@ -546,20 +565,16 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000360 ED2208              B   106    				lea hl,ix+8
 000363 0E03                B   107    				ld c,3
 000365 1A                  B   108    				ld a,(de)
-000366 CD 87 04            B   109    notdot			call upper_casify				000369 BE                  B   110    				cp (hl)
+000366 CD 88 04            B   109    notdot			call upper_casify				000369 BE                  B   110    				cp (hl)
 00036A 20 07               B   111    				jr nz,fnnotsame
 00036C 23                  B   112    				inc hl
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  13
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
 00036D 13                  B   113    				inc de
 00036E 0D                  B   114    				dec c
 00036F 20 DC               B   115    				jr nz,comp_fn
 000371 18 13               B   116    				jr fnsame
 000373 ED3220              B   117    fnnotsame		lea ix,ix+32					000376 10 CC               B   118    				djnz ndirentr					                           B   119    				
-000378 21 26 06            B   120    				ld hl,fs_working_sector			00037B 34                  B   121    				inc (hl)
-00037C 3A 1C 06            B   122    				ld a,(fs_root_dir_sectors)		00037F BE                  B   123    				cp (hl)							000380 20 A7               B   124    				jr nz,ffnnxtsec
+000378 21 62 06            B   120    				ld hl,fs_working_sector			00037B 34                  B   121    				inc (hl)
+00037C 3A 58 06            B   122    				ld a,(fs_root_dir_sectors)		00037F BE                  B   123    				cp (hl)							000380 20 A7               B   124    				jr nz,ffnnxtsec
 000382 3E02                B   125    fnnotfnd		ld a,02h						000384 B7                  B   126    				or a
 000385 C9                  B   127    				ret
                            B   128    
@@ -567,13 +582,13 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            B   131    				
 00038C DD6E1A              B   132    				ld l,(ix+1ah)		
 00038F DD661B              B   133    				ld h,(ix+1bh)
-000392 22 22 06            B   134    				ld (fs_file_working_cluster),hl
+000392 22 5E 06            B   134    				ld (fs_file_working_cluster),hl
 000395 DD5E1C              B   135    				ld e,(ix+1ch)
 000398 DD561D              B   136    				ld d,(ix+1dh)
 00039B DD6E1E              B   137    				ld l,(ix+1eh)			
 00039E DD661F              B   138    				ld h,(ix+1fh)
-0003A1 ED53 1E 06          B   139    set_flen		ld (fs_file_length_working),de
-0003A5 22 20 06            B   140    				ld (fs_file_length_working+2),h
+0003A1 ED53 5A 06          B   139    set_flen		ld (fs_file_length_working),de
+0003A5 22 5C 06            B   140    				ld (fs_file_length_working+2),h
 0003A8 7C                  B   141    				ld a,h					
 0003A9 B5                  B   142    				or l
 0003AA B2                  B   143    				or d
@@ -582,35 +597,35 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 0003AF C9                  B   147    				ret
                            B   148    	
                            B   149    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  14
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
 0003B0                     B   150    load_file_fat16
                            B   151    
                            B   152    
-0003B0 3A 17 06            B   153    fs_flnc			ld a,(fs_cluster_size)			0003B3 47                  B   154    				ld b,a
+0003B0 3A 53 06            B   153    fs_flnc			ld a,(fs_cluster_size)			0003B3 47                  B   154    				ld b,a
 0003B4 0E00                B   155    				ld c,0
 0003B6 79                  B   156    fs_flns			ld a,c				
-0003B7 2A 22 06            B   157    				ld hl,(fs_file_working_cluster)
+0003B7 2A 5E 06            B   157    				ld hl,(fs_file_working_cluster)
 0003BA CD 20 04            B   158    				call cluster_and_offset_to_lba
 0003BD CD 5F 04            B   159    				call fs_read_sector				0003C0 D8                  B   160    				ret c							                           B   161    
-0003C1 C5                  B   162    				push bc							0003C2 010002              B   163    				ld bc,512						0003C5 210008              B   164    				ld hl,sector_buffer				Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  14
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-0003C8 ED5B 24 06          B   165    				ld de,(fs_z80_working_address)	0003CC EDA0                B   166    fs_cblp			ldi								                           B   167    	
-0003CE CD 6A 04            B   168    				call file_length_countdown
+0003C1 C5                  B   162    				push bc							0003C2 010002              B   163    				ld bc,512						0003C5 210008              B   164    				ld hl,sector_buffer				0003C8 ED5B 60 06          B   165    				ld de,(fs_z80_working_address)	0003CC EDA0                B   166    fs_cblp			ldi								                           B   167    	
+0003CE CD 6B 04            B   168    				call file_length_countdown
 0003D1 28 45               B   169    				jr z,fs_bdld					                           B   170    
 0003D3 78                  B   171    				ld a,b							0003D4 B1                  B   172    				or c
 0003D5 20 F5               B   173    				jr nz,fs_cblp
-0003D7 ED53 24 06          B   174    				ld (fs_z80_working_address),de	0003DB C1                  B   175    				pop bc							0003DC 0C                  B   176    				inc c							0003DD 10 D7               B   177    				djnz fs_flns					                           B   178    
-0003DF 2A 22 06            B   179    				ld hl,(fs_file_working_cluster)
+0003D7 ED53 60 06          B   174    				ld (fs_z80_working_address),de	0003DB C1                  B   175    				pop bc							0003DC 0C                  B   176    				inc c							0003DD 10 D7               B   177    				djnz fs_flns					                           B   178    
+0003DF 2A 5E 06            B   179    				ld hl,(fs_file_working_cluster)
 0003E2 0600                B   180    				ld b,0				
 0003E4 4D                  B   181    				ld c,l
-0003E5 ED5B 18 06          B   182    				ld de,(fs_fat1_loc_lba)
+0003E5 ED5B 54 06          B   182    				ld de,(fs_fat1_loc_lba)
 0003E9 6C                  B   183    				ld l,h
 0003EA 2600                B   184    				ld h,0
 0003EC 19                  B   185    				add hl,de
-0003ED 22 29 06            B   186    				ld (sector_lba0),hl
+0003ED 22 4D 06            B   186    				ld (sector_lba0),hl
 0003F0 AF                  B   187    				xor a
-0003F1 32 2B 06            B   188    				ld (sector_lba2),a
+0003F1 32 4F 06            B   188    				ld (sector_lba2),a
 0003F4 CD 5F 04            B   189    				call fs_read_sector
 0003F7 D8                  B   190    				ret c
 0003F8 DDE5                B   191    				push ix
@@ -620,10 +635,14 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000402 DD6E00              B   195    				ld l,(ix)
 000405 DD6601              B   196    				ld h,(ix+1)
 000408 DDE1                B   197    				pop ix
-00040A 22 22 06            B   198    				ld (fs_file_working_cluster),hl
+00040A 22 5E 06            B   198    				ld (fs_file_working_cluster),hl
 00040D 11F8FF              B   199    				ld de,0fff8h			
 000410 AF                  B   200    				xor a				
 000411 ED52                B   201    				sbc hl,de
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  15
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
 000413 30 07               B   202    				jr nc,fs_fpbad			
 000415 C3 B0 03            B   203    fs_nfbok		jp fs_flnc		
                            B   204    
@@ -638,10 +657,6 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            B   214    						
                            B   215    
                            B   216    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  15
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
                            B   217    
                            B   218    
 000420                     B   219    cluster_and_offset_to_lba
@@ -653,14 +668,14 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000422 E5                  B   225    				push hl
 000423 DDE5                B   226    				push ix
 000425 2B                  B   227    				dec hl							000426 2B                  B   228    				dec hl							000427 EB                  B   229    				ex de,hl
-000428 2A 1A 06            B   230    				ld hl,(fs_root_dir_loc_lba)
-00042B ED4B 1C 06          B   231    				ld bc,(fs_root_dir_sectors)
+000428 2A 56 06            B   230    				ld hl,(fs_root_dir_loc_lba)
+00042B ED4B 58 06          B   231    				ld bc,(fs_root_dir_sectors)
 00042F 09                  B   232    				add hl,bc						000430 4F                  B   233    				ld c,a
 000431 0600                B   234    				ld b,0
 000433 09                  B   235    				add hl,bc						000434 4D                  B   236    				ld c,l
 000435 44                  B   237    				ld b,h							000436 EB                  B   238    				ex de,hl
-000437 1E00                B   239    				ld e,0							000439 DD21 29 06          B   240    				ld ix,sector_lba0
-00043D 3A 17 06            B   241    				ld a,(fs_cluster_size)
+000437 1E00                B   239    				ld e,0							000439 DD21 4D 06          B   240    				ld ix,sector_lba0
+00043D 3A 53 06            B   241    				ld a,(fs_cluster_size)
 000440 CB3F                B   242    caotllp			srl a
 000442 20 13               B   243    				jr nz,doubclus
 000444 09                  B   244    				add hl,bc						000445 30 01               B   245    				jr nc,caotlnc
@@ -671,6 +686,10 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 000453 E1                  B   251    				pop hl
 000454 D1                  B   252    				pop de
 000455 C1                  B   253    				pop bc
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  16
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
 000456 C9                  B   254    				ret
                            B   255    	
 000457 CB25                B   256    doubclus		sla l							000459 CB14                B   257    				rl h
@@ -685,538 +704,693 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
                            B   266    
 00045F C5                  B   267    				push bc
 000460 D5                  B   268    				push de
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  16
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
 000461 E5                  B   269    				push hl
-000462 CD 37 05            B   270    				call sdc_read_sector
-000465 3F                  B   271    				ccf								000466 E1                  B   272    				pop hl
-000467 D1                  B   273    				pop de
-000468 C1                  B   274    				pop bc
-000469 C9                  B   275    				ret
-                           B   276    
+000462 CD A3 04            B   270    				call sd_read_sector			
+000465 E1                  B   271    				pop hl
+000466 D1                  B   272    				pop de
+000467 C1                  B   273    				pop bc
+000468 C8                  B   274    				ret z
+000469 37                  B   275    				scf
+00046A C9                  B   276    				ret
                            B   277    
-                           B   278    ;----------------------------------------------
-                           B   279    	
-00046A                     B   280    file_length_countdown
-                           B   281    
-00046A E5                  B   282    				push hl							00046B C5                  B   283    				push bc
-00046C 0604                B   284    				ld b,4
-00046E 21 1E 06            B   285    				ld hl,fs_file_length_working
-000471 3EFF                B   286    				ld a,0ffh
-000473 35                  B   287    flcdlp			dec (hl)
-000474 BE                  B   288    				cp (hl)
-000475 20 03               B   289    				jr nz,fs_cdnu
-000477 23                  B   290    				inc hl
-000478 10 F9               B   291    				djnz flcdlp
-00047A 2A 1E 06            B   292    fs_cdnu			ld hl,(fs_file_length_working)	00047D 7C                  B   293    				ld a,h
-00047E B5                  B   294    				or l
-00047F 2A 20 06            B   295    				ld hl,(fs_file_length_working+2
-000482 B4                  B   296    				or h
-000483 B5                  B   297    				or l
-000484 C1                  B   298    				pop bc
-000485 E1                  B   299    				pop hl
-000486 C9                  B   300    				ret
-                           B   301    
-                           B   302    ;----------------------------------------------
-                           B   303    
-000487                     B   304    upper_casify
-                           B   305    
-                           B   306    ; INPUT/OUTPUT A = ascii char to make uppercase
-                           B   307    
-000487 FE61                B   308    				cp 061h			
-000489 D8                  B   309    				ret c
-00048A FE7B                B   310    				cp 07bh
-00048C D0                  B   311    				ret nc
-00048D D620                B   312    				sub 020h				
-00048F C9                  B   313    				ret
-                           B   314    
-                           B   315    ;----------------------------------------------
-                           B   316    ; SIMPLIFIED SD CARD ROUTINES for ROM
+                           B   278    
+                           B   279    ;----------------------------------------------
+                           B   280    	
+00046B                     B   281    file_length_countdown
+                           B   282    
+00046B E5                  B   283    				push hl							00046C C5                  B   284    				push bc
+00046D 0604                B   285    				ld b,4
+00046F 21 5A 06            B   286    				ld hl,fs_file_length_working
+000472 3EFF                B   287    				ld a,0ffh
+000474 35                  B   288    flcdlp			dec (hl)
+000475 BE                  B   289    				cp (hl)
+000476 20 03               B   290    				jr nz,fs_cdnu
+000478 23                  B   291    				inc hl
+000479 10 F9               B   292    				djnz flcdlp
+00047B 2A 5A 06            B   293    fs_cdnu			ld hl,(fs_file_length_working)	00047E 7C                  B   294    				ld a,h
+00047F B5                  B   295    				or l
+000480 2A 5C 06            B   296    				ld hl,(fs_file_length_working+2
+000483 B4                  B   297    				or h
+000484 B5                  B   298    				or l
+000485 C1                  B   299    				pop bc
+000486 E1                  B   300    				pop hl
+000487 C9                  B   301    				ret
+                           B   302    
+                           B   303    ;----------------------------------------------
+                           B   304    
+000488                     B   305    upper_casify
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  17
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+                           B   306    
+                           B   307    ; INPUT/OUTPUT A = ascii char to make uppercase
+                           B   308    
+000488 FE61                B   309    				cp 061h			
+00048A D8                  B   310    				ret c
+00048B FE7B                B   311    				cp 07bh
+00048D D0                  B   312    				ret nc
+00048E D620                B   313    				sub 020h				
+000490 C9                  B   314    				ret
+                           B   315    
+                           B   316    
                            B   317    ;----------------------------------------------
                            B   318    
-000490                     B   319    sdc_init_card
+                           B   319    
                            B   320    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  17
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-                           B   321    ; Initializes card. Returns: Carry = 1 if initi
-                           B   322    
-                           B   323    
-000490 3E01                B   324    				ld a,1						; A
-000492 32 28 06            B   325    				ld (card_type),a			
-                           B   326    
-000495 CD F7 05            B   327    				call sdc_power_off			; S
-                           B   328    	
-000498 0680                B   329    				ld b,128					; w
-00049A CD 80 02            B   330    sdc_powod		call pause_4ms
-00049D 10 FB               B   331    				djnz sdc_powod			
-                           B   332    		
-00049F CD ED 05            B   333    				call sdc_power_on			; S
-                           B   334    
-0004A2 CD 01 06            B   335    				call sdc_slow_clock
+                           B   321    
+                           B   322    ;----------------------------------------------
+                           B   323    ; Low level Z80-mode MMC/SDC/SDHC card access r
+                           B   324    ; Simplified for ROM use
+                           B   325    ;----------------------------------------------
+                           B   326    ;
+                           B   327    ; V1.10 - SDHC support added
+                           B   328    ;
+                           B   329    ; Limitations:
+                           B   330    ; ------------
+                           B   331    ; Does not check for block size
+                           B   332    ;
+                           B   333    ; Somewhat arbitrary timimg due to quirks of my
+                           B   334    ; which means the data from the card following 
+                           B   335    ; byte is skipped by the send_command routine.)
                            B   336    
-0004A5 CD 80 02            B   337    				call pause_4ms				; S
-                           B   338    
-0004A8 CD DE 05            B   339    				call sdc_deselect_card		
-                           B   340    	
-0004AB 060A                B   341    				ld b,10						; s
-0004AD 3EFF                B   342    sdc_ecilp		ld a,0ffh
-0004AF CD B8 05            B   343    				call sdc_send_byte
-0004B2 10 F9               B   344    				djnz sdc_ecilp
-                           B   345    	
-0004B4 CD D4 05            B   346    				call sdc_select_card		; S
-                           B   347    	
-0004B7 3E40                B   348    				ld a,040h					; S
-0004B9 010095              B   349    				ld bc,9500h					; W
-0004BC 110000              B   350    				ld de,0000h
-0004BF CD 7A 05            B   351    				call sdc_send_command		 
-0004C2 CD C7 05            B   352    				call sdc_get_byte			; s
-0004C5 CD 9A 05            B   353    				call sdc_wait_ncr			; w
-0004C8 FE01                B   354    				cp 01h						; c
-0004CA C2 2C 05            B   355    				jp nz,card_init_fail		
-                           B   356    
-                           B   357    
-0004CD 01401F              B   358    				ld bc,8000					; S
-0004D0 C5                  B   359    sdc_iwl			push bc						;
-0004D1 3E77                B   360    				ld a,77h					; C
-0004D3 010001              B   361    				ld bc,0100h
-0004D6 110000              B   362    				ld de,0000h
-0004D9 CD 7A 05            B   363    				call sdc_send_command
-0004DC CD C7 05            B   364    				call sdc_get_byte			; N
-0004DF CD C7 05            B   365    				call sdc_get_byte			; C
+                           B   337    
+                           B   338    ;----------------------------------------------
+                           B   339    ;
+                           B   340    ; Key Routines:      Input Parameters          
+                           B   341    ; -------------      ----------------          
+                           B   342    ; sd_initialize		no arguments required      
+                           B   343    ; sd_read_sector	[sector_lba0-3]				                           B   344    ;
+                           B   345    ; (Assume all other registers are trashed.)
+                           B   346    ;
+                           B   347    ;----------------------------------------------
+                           B   348    
+                           B   349    ; Routines respond with Zero Flag set if operat
+                           B   350    
+                           B   351    ; $01 - SPI mode failed	 
+                           B   352    ; $10 - MMC init failed	
+                           B   353    ; $11 - SD init failed	
+                           B   354    ; $12 - SDHC init failed	
+                           B   355    ; $13 - voltage range bad	
+                           B   356    ; $14 - check pattern bad
+                           B   357    ; $20 - illegal command
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  18
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+                           B   358    ; $21 - bad command response
+                           B   359    ; $22 - data token timeout
+                           B   360    ; $23 - write timeout
+                           B   361    ; $24 - write failed
+                           B   362    ;
+                           B   363    ;----------------------------------------------
+                           B   364    
+                           B   365    ; Define "sector_buffer" in main code (512 byte
                            B   366    
-0004E2 3E69                B   367    				ld a,69h					; A
-0004E4 010001              B   368    				ld bc,0100h				
-0004E7 110000              B   369    				ld de,0000h
-0004EA CD 7A 05            B   370    				call sdc_send_command		
-0004ED CD C7 05            B   371    				call sdc_get_byte
-0004F0 C1                  B   372    				pop bc
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  18
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-0004F1 CD 9A 05            B   373    				call sdc_wait_ncr			; w
-0004F4 CB57                B   374    				bit 2,a						; c
-0004F6 20 0B               B   375    				jr nz,mmc_init			
-0004F8 B7                  B   376    				or a
-0004F9 28 29               B   377    				jr z,sdc_init_done			; w
-0004FB 0B                  B   378    				dec bc
-0004FC 78                  B   379    				ld a,b
-0004FD B1                  B   380    				or c
-0004FE 20 D0               B   381    				jr nz,sdc_iwl
-000500 C3 2C 05            B   382    				jp card_init_fail
-                           B   383    
-000503 AF                  B   384    mmc_init		xor a
-000504 32 28 06            B   385    				ld (card_type),a
+                           B   367    ;----------------------------------------------
+                           B   368    
+       00000041            B   369    CMD1	equ 40h + 1
+       00000049            B   370    CMD9	equ 40h + 9
+       0000004A            B   371    CMD10	equ 40h + 10
+       0000004D            B   372    CMD13	equ 40h + 13
+       00000051            B   373    CMD17	equ 40h + 17
+       00000058            B   374    CMD24	equ 40h + 24
+       00000069            B   375    ACMD41	equ 40h + 41
+       00000077            B   376    CMD55	equ 40h + 55
+       0000007A            B   377    CMD58	equ 40h + 58
+                           B   378    
+       00000001            B   379    sd_error_spi_mode_failed		equ 01h
+                           B   380    
+       00000010            B   381    sd_error_mmc_init_failed		equ 10h
+       00000011            B   382    sd_error_sd_init_failed			equ 11h
+       00000012            B   383    sd_error_sdhc_init_failed		equ 12h
+       00000013            B   384    sd_error_vrange_bad				equ 13h
+       00000014            B   385    sd_error_check_pattern_bad		equ 14h
                            B   386    
-000507 01401F              B   387    				ld bc,8000					; S
-00050A C5                  B   388    mmc_iw1			push bc
-                           B   389    
-00050B 3E41                B   390    				ld a,41h					; s
-00050D 010001              B   391    				ld bc,0100h				
-000510 110000              B   392    				ld de,0000h
-000513 CD 7A 05            B   393    				call sdc_send_command		; s
-000516 C1                  B   394    				pop bc
-000517 CD 9A 05            B   395    				call sdc_wait_ncr			; w
-00051A B7                  B   396    				or a						; c
-00051B 28 07               B   397    				jr z,sdc_init_done
-00051D 0B                  B   398    				dec bc
-00051E 78                  B   399    				ld a,b
-00051F B1                  B   400    				or c
-000520 20 E8               B   401    				jr nz,mmc_iw1
-000522 18 08               B   402    				jr card_init_fail
-                           B   403    
+       00000020            B   387    sd_error_illegal_command		equ 20h
+       00000021            B   388    sd_error_bad_command_response	equ 21h
+       00000022            B   389    sd_error_data_token_timeout		equ 22h
+       00000023            B   390    sd_error_write_timeout			equ 23h
+       00000024            B   391    sd_error_write_failed			equ 24h
+                           B   392    
+                           B   393    ;----------------------------------------------
+                           B   394    ; SD Card INITIALIZE code begins...
+                           B   395    ;----------------------------------------------
+                           B   396    
+000491 CD A8 04            B   397    sd_initialize	call sd_init_main
+000494 B7                  B   398    				or a						; i
+000495 28 04               B   399    				jr z,sd_inok
+000497 CD 2A 06            B   400    				call sd_power_off			; i
+00049A C9                  B   401    				ret
+                           B   402    
+00049B CD 2F 06            B   403    sd_inok			call sd_spi_port_fast		; o
                            B   404    
-000524                     B   405    sdc_init_done
-                           B   406    
-000524 CD DE 05            B   407    				call sdc_deselect_card
+00049E CD 14 06            B   405    sd_done			call sd_deselect_card		; R
+0004A1 B7                  B   406    				or a						; I
+0004A2 C9                  B   407    				ret				 
                            B   408    
-000527 CD 0B 06            B   409    				call sdc_fast_clock			; U
-                           B   410    	
-00052A 37                  B   411    				scf							; c
-00052B C9                  B   412    				ret
+                           B   409    ;----------------------------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  19
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+                           B   410    		
+0004A3 CD 55 05            B   411    sd_read_sector	call sd_read_sector_main
+0004A6 18 F6               B   412    				jr sd_done
                            B   413    
                            B   414    ;----------------------------------------------
-                           B   415    
-00052C                     B   416    card_init_fail
-                           B   417    
-00052C CD DE 05            B   418    				call sdc_deselect_card
-00052F AF                  B   419    				xor a						; a
-000530 C9                  B   420    				ret
-                           B   421    
-000531                     B   422    card_read_fail
-                           B   423    
-000531 CD DE 05            B   424    				call sdc_deselect_card
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  19
+                           B   415    	
+0004A8 AF                  B   416    sd_init_main	xor a							0004A9 32 4C 06            B   417    				ld (sd_card_info),a			
+                           B   418    
+0004AC CD 2A 06            B   419    				call sd_power_off				                           B   420    				
+0004AF 0680                B   421    				ld b,128						0004B1 CD AB 02            B   422    				call pause_loop
+                           B   423    							
+0004B4 CD 1F 06            B   424    				call sd_power_on				                           B   425    
+0004B7 CD 80 02            B   426    				call pause_4ms
+                           B   427    				
+0004BA 060A                B   428    				ld b,10							0004BC CD B5 05            B   429    sd_ecilp		call sd_send_eight_clocks
+0004BF 10 FB               B   430    				djnz sd_ecilp
+                           B   431    				
+0004C1 21 34 06            B   432    				ld hl,CMD0_string				0004C4 CD C8 05            B   433    				call sd_send_command_string		0004C7 FE01                B   434    				cp 01h							0004C9 28 03               B   435    				jr z,sd_spi_mode_ok
+                           B   436    				
+0004CB 3E01                B   437    				ld a,sd_error_spi_mode_failed
+0004CD C9                  B   438    				ret		
+                           B   439    
+                           B   440    ; ---- CARD IS IN IDLE MODE -------------------
+                           B   441    
+0004CE 21 3A 06            B   442    sd_spi_mode_ok	ld hl,CMD8_string				0004D1 CD C8 05            B   443    				call sd_send_command_string
+0004D4 FE01                B   444    				cp 01h
+0004D6 20 4A               B   445    				jr nz,sd_sdc_init				                           B   446    
+0004D8 0604                B   447    				ld b,4
+0004DA CD EB 05            B   448    				call sd_read_bytes_to_sector_bu
+0004DD 3E01                B   449    				ld a,1
+0004DF 23                  B   450    				inc hl
+0004E0 23                  B   451    				inc hl
+0004E1 BE                  B   452    				cp (hl)							0004E2 28 03               B   453    				jr z,sd_vrok
+0004E4 3E13                B   454    				ld a,sd_error_vrange_bad
+0004E6 C9                  B   455    				ret				
+                           B   456    
+0004E7 3EAA                B   457    sd_vrok			ld a,0aah
+0004E9 23                  B   458    				inc hl
+0004EA BE                  B   459    				cp (hl)
+0004EB 28 03               B   460    				jr z,sd_check_pattern_ok
+0004ED 3E14                B   461    				ld a,sd_error_check_pattern_bad
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  20
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-000534 AF                  B   425    				xor a
-000535 3C                  B   426    				inc a						; a
-000536 C9                  B   427    				ret
-                           B   428    		
-                           B   429    ;----------------------------------------------
-                           B   430    
-000537                     B   431    sdc_read_sector
-                           B   432    
-000537 CD D4 05            B   433    				call sdc_select_card
-                           B   434    
-00053A 21 29 06            B   435    				ld hl,sector_lba0
-00053D 5E                  B   436    				ld e,(hl)						00053E 23                  B   437    				inc hl
-00053F 56                  B   438    				ld d,(hl)
-000540 23                  B   439    				inc hl
-000541 4E                  B   440    				ld c,(hl)
-000542 CB23                B   441    				sla e							000544 CB12                B   442    				rl d
-000546 CB11                B   443    				rl c
-000548 3E51                B   444    				ld a,51h						00054A 0601                B   445    				ld b,01h						00054C CD 7A 05            B   446    				call sdc_send_command		
-00054F CD 9A 05            B   447    				call sdc_wait_ncr				000552 B7                  B   448    				or a							000553 C2 31 05            B   449    				jp nz,card_read_fail		
-000556 CD A8 05            B   450    				call sdc_wait_data_token		000559 B7                  B   451    				or a
-00055A C2 31 05            B   452    				jp nz,card_read_fail
-                           B   453    				
-00055D 210008              B   454    				ld hl,sector_buffer				000560 0600                B   455    				ld b,0
-000562 CD C7 05            B   456    sdc_rslp		call sdc_get_byte
-000565 77                  B   457    				ld (hl),a
-000566 23                  B   458    				inc hl
-000567 CD C7 05            B   459    				call sdc_get_byte
-00056A 77                  B   460    				ld (hl),a
-00056B 23                  B   461    				inc hl
-00056C 10 F4               B   462    				djnz sdc_rslp
-00056E CD C7 05            B   463    				call sdc_get_byte				000571 CD C7 05            B   464    				call sdc_get_byte				                           B   465    				
-000574 CD DE 05            B   466    				call sdc_deselect_card
-000577 AF                  B   467    				xor a
-000578 37                  B   468    				scf								000579 C9                  B   469    				ret
-                           B   470    	
-                           B   471    ;----------------------------------------------
-                           B   472    
-00057A                     B   473    sdc_send_command
-                           B   474    
-                           B   475    ; set A = command, C:DE for sector number, B fo
-                           B   476    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  20
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+0004EF C9                  B   462    				ret
+                           B   463    				
+0004F0                     B   464    sd_check_pattern_ok
+                           B   465    
+                           B   466    ;------ SDHC CARD CAN WORK AT 2.7v - 3.6v -----
+                           B   467    	
+0004F0 01401F              B   468    				ld bc,8000						                           B   469    
+0004F3 3E77                B   470    sdhc_iwl		ld a,CMD55						0004F5 CD BB 05            B   471    				call sd_send_command_null_args
+                           B   472    				
+0004F8 21 40 06            B   473    				ld hl,ACMD41HCS_string			0004FB CD C8 05            B   474    				call sd_send_command_string
+0004FE 28 0C               B   475    				jr z,sdhc_init_ok				000500 CB57                B   476    				bit 2,a
+000502 20 05               B   477    				jr nz,sdhc_if					                           B   478    				
+000504 0B                  B   479    				dec bc
+000505 78                  B   480    				ld a,b
+000506 B1                  B   481    				or c
+000507 20 EA               B   482    				jr nz,sdhc_iwl
+                           B   483    				
+000509 3E12                B   484    sdhc_if			ld a,sd_error_sdhc_init_failed	00050B C9                  B   485    				ret
+                           B   486    				
+00050C                     B   487    sdhc_init_ok
+                           B   488    
+                           B   489    ;------ SDHC CARD IS INITIALIZED --------------
+                           B   490    
+00050C 3E7A                B   491    				ld a,CMD58						00050E CD BB 05            B   492    				call sd_send_command_null_args
+                           B   493    					
+000511 0604                B   494    				ld b,4							000513 CD EB 05            B   495    				call sd_read_bytes_to_sector_bu
+000516 7E                  B   496    				ld a,(hl)
+000517 E640                B   497    				and 040h						000519 0F                  B   498    				rrca
+00051A 0F                  B   499    				rrca 
+00051B F602                B   500    				or 00000010b				
+00051D 32 4C 06            B   501    				ld (sd_card_info),a				000520 AF                  B   502    				xor a							000521 C9                  B   503    				ret
+                           B   504    
+                           B   505    	
+                           B   506    ;-------- NOT AN SDHC CARD, TRY SD INIT -------
+                           B   507    
+000522 01401F              B   508    sd_sdc_init		ld bc,8000						                           B   509    
+000525 3E77                B   510    sd_iwl			ld a,CMD55						000527 CD BB 05            B   511    				call sd_send_command_null_args
+                           B   512    
+00052A 3E69                B   513    				ld a,ACMD41						Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  21
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-00057A F5                  B   477    				push af							00057B 3EFF                B   478    				ld a,0ffh
-00057D CD B8 05            B   479    				call sdc_send_byte
-000580 F1                  B   480    				pop af
-                           B   481    
-000581 CD B8 05            B   482    				call sdc_send_byte				000584 79                  B   483    				ld a,c							000585 CD B8 05            B   484    				call sdc_send_byte
-000588 7A                  B   485    				ld a,d
-000589 CD B8 05            B   486    				call sdc_send_byte
-00058C 7B                  B   487    				ld a,e
-00058D CD B8 05            B   488    				call sdc_send_byte
-000590 3E00                B   489    				ld a,0
-000592 CD B8 05            B   490    				call sdc_send_byte
-000595 78                  B   491    				ld a,b							000596 CD B8 05            B   492    				call sdc_send_byte
-000599 C9                  B   493    				ret
-                           B   494    
-                           B   495    ;----------------------------------------------
-                           B   496    
-00059A                     B   497    sdc_wait_ncr
-                           B   498    	
-00059A C5                  B   499    				push bc
-00059B 0600                B   500    				ld b,0
-00059D CD C7 05            B   501    sdc_wncrl		call sdc_get_byte			; r
-0005A0 CB7F                B   502    				bit 7,a						; I
-0005A2 28 02               B   503    				jr z,sdc_gcr
-0005A4 10 F7               B   504    				djnz sdc_wncrl
-0005A6 C1                  B   505    sdc_gcr			pop bc
-0005A7 C9                  B   506    				ret
-                           B   507    	
-                           B   508    ;----------------------------------------------
-                           B   509    
-0005A8                     B   510    sdc_wait_data_token
-                           B   511    
-0005A8 0600                B   512    				ld b,0
-0005AA CD C7 05            B   513    sdc_wdt			call sdc_get_byte			; r
-0005AD FEFE                B   514    				cp 0feh
-0005AF 28 05               B   515    				jr z,sdc_gdt
-0005B1 10 F7               B   516    				djnz sdc_wdt
-0005B3 3E01                B   517    				ld a,1						; d
-0005B5 C9                  B   518    				ret
-                           B   519    
-0005B6 AF                  B   520    sdc_gdt			xor a						; a
-0005B7 C9                  B   521    				ret
-                           B   522    
-                           B   523    
-                           B   524    ;----------------------------------------------
-                           B   525    ; eZ80P Specific SD card low-level routines (Z8
-                           B   526    ;----------------------------------------------
-                           B   527    
-0005B8                     B   528    sdc_send_byte
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  21
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+00052C CD BB 05            B   514    				call sd_send_command_null_args
+00052F 28 0C               B   515    				jr z,sd_rdy						                           B   516    				
+000531 CB57                B   517    				bit 2,a				
+000533 20 0F               B   518    				jr nz,sd_mmc_init				                           B   519    							
+000535 0B                  B   520    				dec bc
+000536 78                  B   521    				ld a,b
+000537 B1                  B   522    				or c
+000538 20 EB               B   523    				jr nz,sd_iwl
+                           B   524    				
+00053A 3E11                B   525    				ld a,sd_error_sd_init_failed	00053C C9                  B   526    				ret
+                           B   527    				
+00053D 3E01                B   528    sd_rdy			ld a,1
+00053F 32 4C 06            B   529    				ld (sd_card_info),a				000542 AF                  B   530    				xor a							000543 C9                  B   531    				ret	
+                           B   532    
+                           B   533    ;-------- NOT AN SDHC OR SD CARD, TRY MMC INIT 
+                           B   534    
+000544 01401F              B   535    sd_mmc_init		ld bc,8000						                           B   536    
+000547 3E41                B   537    sdmmc_iwl		ld a,CMD1
+000549 CD BB 05            B   538    				call sd_send_command_null_args	00054C C8                  B   539    				ret z							                           B   540    				
+00054D 0B                  B   541    sd_mnrdy		dec bc
+00054E 78                  B   542    				ld a,b
+00054F B1                  B   543    				or c
+000550 20 F5               B   544    				jr nz,sdmmc_iwl
+                           B   545    				
+000552 3E10                B   546    				ld a,sd_error_mmc_init_failed	000554 C9                  B   547    				ret
+                           B   548    	
+                           B   549    
+                           B   550    ;----------------------------------------------
+                           B   551    ; SD Card READ SECTOR code begins...
+                           B   552    ;----------------------------------------------
+                           B   553    	
+000555                     B   554    sd_read_sector_main
+                           B   555    
+                           B   556    ; 512 bytes are returned in sector buffer
+                           B   557    
+000555 CD 7D 05            B   558    				call sd_set_sector_addr
+                           B   559    
+000558 3E51                B   560    				ld a,CMD17						00055A CD C4 05            B   561    				call sd_send_command_current_ar
+00055D 28 03               B   562    				jr z,sd_rscr_ok					00055F 3E21                B   563    sd_bcr_error	ld a,sd_error_bad_command_respo
+000561 C9                  B   564    				ret
+                           B   565    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  22
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-                           B   529    
-                           B   530    ;Put byte to send to card in A
-                           B   531    
-0005B8 C5                  B   532    					push bc
-0005B9 010300              B   533    					ld bc,port_sdc_data
-0005BC ED79                B   534    					out (bc),a					                           B   535    	
-0005BE 0E01                B   536    					ld c,port_hw_flags			0005C0 ED7410              B   537    sdc_wb_loop			tstio 1<<sdc_serializer_bus
-0005C3 20 FB               B   538    					jr nz,sdc_wb_loop
-                           B   539    
-0005C5 C1                  B   540    					pop bc
-0005C6 C9                  B   541    					ret
-                           B   542    
-                           B   543    ;----------------------------------------------
-                           B   544    
-0005C7                     B   545    sdc_get_byte
-                           B   546    
-                           B   547    ; Returns byte read from card in A
-                           B   548    
-0005C7 3EFF                B   549    					ld a,0ffh
-0005C9 CD B8 05            B   550    					call sdc_send_byte
-0005CC C5                  B   551    					push bc
-0005CD 010300              B   552    					ld bc,port_sdc_data
-0005D0 ED78                B   553    					in a,(bc)					0005D2 C1                  B   554    					pop bc
-0005D3 C9                  B   555    					ret
-                           B   556    	
-                           B   557    ;----------------------------------------------
-                           B   558    
-0005D4                     B   559    sdc_select_card
-                           B   560    	
-0005D4 C5                  B   561    					push bc
-0005D5 010200              B   562    					ld bc,port_sdc_ctrl
-0005D8 3E02                B   563    					ld a,1<<sdc_cs				0005DA ED79                B   564    					out (bc),a
-0005DC C1                  B   565    					pop bc
-0005DD C9                  B   566    					ret
-                           B   567    
-                           B   568    
-0005DE                     B   569    sdc_deselect_card
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+000562 CD A2 05            B   566    sd_rscr_ok		call sd_wait_data_token			000565 28 03               B   567    				jr z,sd_dt_ok					000567 3E22                B   568    sd_dt_timeout	ld a,sd_error_data_token_timeou
+000569 C9                  B   569    				ret
                            B   570    
-0005DE C5                  B   571    					push bc
-0005DF 010200              B   572    					ld bc,port_sdc_ctrl
-0005E2 3E82                B   573    					ld a,080h+(1<<sdc_cs)		0005E4 ED79                B   574    					out (bc),a
-0005E6 C1                  B   575    					pop bc
-                           B   576    				
-0005E7 3EFF                B   577    					ld a,0ffh					0005E9 CD B8 05            B   578    					call sdc_send_byte
-0005EC C9                  B   579    					ret
-                           B   580    	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  22
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-                           B   581    ;----------------------------------------------
-                           B   582    
-0005ED                     B   583    sdc_power_on
-                           B   584    
-0005ED C5                  B   585    					push bc
-0005EE 010200              B   586    					ld bc,port_sdc_ctrl
-0005F1 3E81                B   587    					ld a,80h+(1<<sdc_power)		0005F3 ED79                B   588    					out (bc),a
-0005F5 C1                  B   589    					pop bc
-0005F6 C9                  B   590    					ret
-                           B   591    	
-                           B   592    
-0005F7                     B   593    sdc_power_off
-                           B   594    	
-0005F7 C5                  B   595    					push bc						0005F8 010200              B   596    					ld bc,port_sdc_ctrl
-0005FB 3E01                B   597    					ld a,1<<sdc_power			0005FD ED79                B   598    					out (bc),a					0005FF C1                  B   599    					pop bc						000600 C9                  B   600    					ret							                           B   601    	
-                           B   602    
-                           B   603    ;----------------------------------------------
-                           B   604    
-000601                     B   605    sdc_slow_clock
-                           B   606    
-000601 C5                  B   607    					push bc
-000602 010200              B   608    					ld bc,port_sdc_ctrl
-000605 3E04                B   609    					ld a,1<<sdc_speed			000607 ED79                B   610    					out (bc),a
-000609 C1                  B   611    					pop bc
-00060A C9                  B   612    					ret
-                           B   613    
-                           B   614    
-00060B                     B   615    sdc_fast_clock
+00056A 0600                B   571    sd_dt_ok		ld b,0							00056C CD EB 05            B   572    				call sd_read_bytes_to_sector_bu
+00056F 24                  B   573    				inc h
+000570 0600                B   574    				ld b,0
+000572 CD EE 05            B   575    				call sd_read_bytes
+000575 CD 05 06            B   576    				call sd_get_byte				000578 CD 05 06            B   577    				call sd_get_byte
+                           B   578    				
+00057B AF                  B   579    				xor a							00057C C9                  B   580    				ret
+                           B   581    
+                           B   582    ;----------------------------------------------
+                           B   583    
+00057D                     B   584    sd_set_sector_addr
+                           B   585    				
+00057D 21 4D 06            B   586    				ld hl,sector_lba0
+000580 4E                  B   587    				ld c,(hl)
+000581 23                  B   588    				inc hl
+000582 5E                  B   589    				ld e,(hl)
+000583 23                  B   590    				inc hl
+000584 56                  B   591    				ld d,(hl)
+000585 23                  B   592    				inc hl
+000586 46                  B   593    				ld b,(hl)					; s
+                           B   594    
+000587 3A 4C 06            B   595    				ld a,(sd_card_info)
+00058A E610                B   596    				and 10h
+00058C 20 09               B   597    				jr nz,lbatoargs				; i
+00058E 69                  B   598    				ld l,c
+00058F 63                  B   599    				ld h,e
+000590 7A                  B   600    				ld a,d						; o
+000591 29                  B   601    				add hl,hl
+000592 8F                  B   602    				adc a,a	
+000593 EB                  B   603    				ex de,hl
+000594 47                  B   604    				ld b,a
+000595 0E00                B   605    				ld c,0
+000597 21 47 06            B   606    lbatoargs		ld hl,cmd_generic_args
+00059A 70                  B   607    				ld (hl),b
+00059B 23                  B   608    				inc hl
+00059C 72                  B   609    				ld (hl),d
+00059D 23                  B   610    				inc hl
+00059E 73                  B   611    				ld (hl),e
+00059F 23                  B   612    				inc hl
+0005A0 71                  B   613    				ld (hl),c
+0005A1 C9                  B   614    				ret
+                           B   615    	
                            B   616    	
-00060B C5                  B   617    					push bc
-00060C 010200              B   618    					ld bc,port_sdc_ctrl
-00060F 3E84                B   619    					ld a,080h+(1<<sdc_speed)	000611 ED79                B   620    					out (bc),a
-000613 C1                  B   621    					pop bc
-000614 C9                  B   622    					ret
-                           B   623    
-                           B   624    ;----------------------------------------------
-                           B   625    
-000615 0000                B   626    filename_addr			dw 0
-                           B   627    
-000617 00                  B   628    fs_cluster_size			db 0			; FAT16
-000618 0000                B   629    fs_fat1_loc_lba			dw 0
-00061A 0000                B   630    fs_root_dir_loc_lba		dw 0
-00061C 0000                B   631    fs_root_dir_sectors		dw 0
-                           B   632    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  23
+                           B   617    ;----------------------------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  23
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\card_load_essentials.asm
-00061E 00000000            B   633    fs_file_length_working	dw 0,0
-000622 0000                B   634    fs_file_working_cluster	dw 0
-000624 0000                B   635    fs_z80_working_address	dw 0
-000626 0000                B   636    fs_working_sector		dw 0
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+                           B   618    
+0005A2                     B   619    sd_wait_data_token
+                           B   620    
+0005A2 C5                  B   621    				push bc
+0005A3 01401F              B   622    				ld bc,8000				
+0005A6 CD 05 06            B   623    sd_wdt			call sd_get_byte			; r
+0005A9 FEFE                B   624    				cp 0feh
+0005AB 28 06               B   625    				jr z,sd_gdt
+0005AD 0B                  B   626    				dec bc
+0005AE 78                  B   627    				ld a,b
+0005AF B1                  B   628    				or c
+0005B0 20 F4               B   629    				jr nz,sd_wdt
+0005B2 0C                  B   630    				inc c						; d
+0005B3 C1                  B   631    sd_gdt			pop bc
+0005B4 C9                  B   632    				ret
+                           B   633    
+                           B   634    ;----------------------------------------------
+                           B   635    
+0005B5                     B   636    sd_send_eight_clocks
                            B   637    
-000628 00                  B   638    card_type				db 0
-                           B   639    
-000629 00                  B   640    sector_lba0 			db 0
-00062A 00                  B   641    sector_lba1				db 0
-00062B 00                  B   642    sector_lba2				db 0
-00062C 00                  B   643    sector_lba3				db 0
+0005B5 3EFF                B   638    				ld a,0ffh
+0005B7 CD F8 05            B   639    				call sd_send_byte
+0005BA C9                  B   640    				ret
+                           B   641    
+                           B   642    ;----------------------------------------------
+                           B   643    
                            B   644    
-                           B   645    ;----------------------------------------------
+0005BB                     B   645    sd_send_command_null_args
+                           B   646    
+0005BB 210000              B   647    				ld hl,0
+0005BE 22 47 06            B   648    				ld (cmd_generic_args),hl	; c
+0005C1 22 49 06            B   649    				ld (cmd_generic_args+2),hl	
+                           B   650    				
+                           B   651    				
+                           B   652    	
+0005C4                     B   653    sd_send_command_current_args
+                           B   654    	
+0005C4 21 46 06            B   655    				ld hl,cmd_generic
+0005C7 77                  B   656    				ld (hl),a
+                           B   657    
+                           B   658    
+                           B   659    
+0005C8                     B   660    sd_send_command_string
+                           B   661    
+                           B   662    ; set HL = location of 6 byte command string
+                           B   663    ; returns command response in A (ZF set if $00)
+                           B   664    
+                           B   665    
+0005C8 CD 0C 06            B   666    				call sd_select_card				                           B   667    						
+0005CB CD B5 05            B   668    				call sd_send_eight_clocks		                           B   669    				
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  24
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+0005CE C5                  B   670    				push bc
+0005CF 0606                B   671    				ld b,6
+0005D1 7E                  B   672    sd_sclp			ld a,(hl)
+0005D2 CD F8 05            B   673    				call sd_send_byte				0005D5 23                  B   674    				inc hl
+0005D6 10 F9               B   675    				djnz sd_sclp
+0005D8 C1                  B   676    				pop bc
+                           B   677    				
+0005D9 CD 05 06            B   678    				call sd_get_byte				                           B   679    					
+                           B   680    
+0005DC                     B   681    sd_wait_valid_response
+                           B   682    				
+0005DC C5                  B   683    				push bc
+0005DD 0600                B   684    				ld b,0
+0005DF CD 05 06            B   685    sd_wncrl		call sd_get_byte				0005E2 CB7F                B   686    				bit 7,a							0005E4 28 02               B   687    				jr z,sd_gcr
+0005E6 10 F7               B   688    				djnz sd_wncrl
+                           B   689    								
+0005E8 B7                  B   690    sd_gcr			or a							0005E9 C1                  B   691    				pop bc
+0005EA C9                  B   692    				ret
+                           B   693    				
+                           B   694    	
+                           B   695    ;----------------------------------------------
+                           B   696    
+0005EB                     B   697    sd_read_bytes_to_sector_buffer
+                           B   698    
+0005EB 210008              B   699    				ld hl,sector_buffer
+                           B   700    	
+0005EE                     B   701    sd_read_bytes
+                           B   702    
+                           B   703    ; set HL to dest address for data
+                           B   704    ; set B to number of bytes required  
+                           B   705    
+0005EE E5                  B   706    				push hl
+0005EF CD 05 06            B   707    sd_rblp			call sd_get_byte
+0005F2 77                  B   708    				ld (hl),a
+0005F3 23                  B   709    				inc hl
+0005F4 10 F9               B   710    				djnz sd_rblp
+0005F6 E1                  B   711    				pop hl
+0005F7 C9                  B   712    				ret
+                           B   713    	
+                           B   714    
+                           B   715    ;==============================================
+                           B   716    
+                           B   717    ;----------------------------------------------
+                           B   718    ; eZ80P Specific SD card low-level routines v1.
+                           B   719    ;----------------------------------------------
+                           B   720    
+0005F8                     B   721    sd_send_byte
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  25
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+                           B   722    
+                           B   723    ;Put byte to send to card in A
+                           B   724    
+0005F8 ED3903              B   725    					out0 (port_sdc_data),a
+0005FB C5                  B   726    					push bc
+0005FC 0E01                B   727    					ld c,port_hw_flags
+0005FE ED7410              B   728    sd_wb_loop			tstio 1<<sdc_serializer_bus
+000601 20 FB               B   729    					jr nz,sd_wb_loop			000603 C1                  B   730    					pop bc
+000604 C9                  B   731    					ret
+                           B   732    
+                           B   733    ;----------------------------------------------
+                           B   734    
+000605                     B   735    sd_get_byte
+                           B   736    
+                           B   737    ; Returns byte read from card in A
+                           B   738    
+000605 CD B5 05            B   739    					call sd_send_eight_clocks
+000608 ED3803              B   740    					in0 a,(port_sdc_data)
+00060B C9                  B   741    					ret
+                           B   742    
+                           B   743    ;----------------------------------------------
+                           B   744    ; SD Card control
+                           B   745    ;----------------------------------------------
+                           B   746    
+00060C F5                  B   747    sd_select_card		push af
+00060D 3E02                B   748    					ld a,00h+(1<<sdc_cs)		00060F ED3902              B   749    sd_wr_sdc_ctrl		out0 (port_sdc_ctrl),a
+000612 F1                  B   750    					pop af
+000613 C9                  B   751    					ret
+                           B   752    
+                           B   753    
+000614 F5                  B   754    sd_deselect_card	push af
+000615 3E82                B   755    					ld a,080h+(1<<sdc_cs)		000617 ED3902              B   756    					out0 (port_sdc_ctrl),a
+00061A CD B5 05            B   757    					call sd_send_eight_clocks	00061D F1                  B   758    					pop af
+00061E C9                  B   759    					ret
+                           B   760    
+                           B   761    
+00061F F5                  B   762    sd_power_on			push af
+000620 3A0400              B   763    					ld a,(1<<sdc_speed)			000623 ED3902              B   764    					out0 (port_sdc_ctrl),a		000626 3E83                B   765    					ld a,80h+(1<<sdc_power)+(1<
+000628 18 E5               B   766    					jr sd_wr_sdc_ctrl			                           B   767    
+                           B   768    
+00062A F5                  B   769    sd_power_off		push af
+00062B 3E01                B   770    					ld a,00h+(1<<sdc_power)		00062D 18 E0               B   771    					jr sd_wr_sdc_ctrl			                           B   772    
+                           B   773    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  26
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\card_load_essentials_V110.asm
+00062F F5                  B   774    sd_spi_port_fast	push af
+000630 3E84                B   775    					ld a,80h+(1<<sdc_speed)		000632 18 DB               B   776    					jr sd_wr_sdc_ctrl
+                           B   777    
+                           B   778    
+                           B   779    ;----Low level sector access data/vars --------
+                           B   780    
+000634 40000000 0095       B   781    CMD0_string			db 40h,00h,00h,00h,00h,95h
+00063A 48000001 AA87       B   782    CMD8_string			db 48h,00h,00h,01h,aah,87h
+000640 69400000 0001       B   783    ACMD41HCS_string	db 69h,40h,00h,00h,00h,01h
+                           B   784    
+000646 00                  B   785    cmd_generic			db 00h
+000647 00000000            B   786    cmd_generic_args	db 00h,00h,00h,00h
+00064B 01                  B   787    cmd_generic_crc		db 01h
+                           B   788    
+00064C 00                  B   789    sd_card_info		db 0	; Bit [4] = CCS (bl
+                           B   790    
+00064D 00                  B   791    sector_lba0 		db 0
+00064E 00                  B   792    sector_lba1			db 0
+00064F 00                  B   793    sector_lba2			db 0
+000650 00                  B   794    sector_lba3			db 0
+                           B   795    
+                           B   796    ;----FAT16 Data/vars --------------------------
+                           B   797    
+000651 0000                B   798    filename_addr			dw 0
+                           B   799    
+000653 00                  B   800    fs_cluster_size			db 0			; FAT16
+000654 0000                B   801    fs_fat1_loc_lba			dw 0
+000656 0000                B   802    fs_root_dir_loc_lba		dw 0
+000658 0000                B   803    fs_root_dir_sectors		dw 0
+                           B   804    
+00065A 00000000            B   805    fs_file_length_working	dw 0,0
+00065E 0000                B   806    fs_file_working_cluster	dw 0
+000660 0000                B   807    fs_z80_working_address	dw 0
+000662 0000                B   808    fs_working_sector		dw 0
+                           B   809    
+                           B   810    
+                           B   811    ;----------------------------------------------
+                           B   812    
+                           B   813    
+                           B   814    
+                           B   815    
+                           B   816    
+                           B   817    
                            B     0    include 'serial_load_essentials.asm'
                            B     1    ;----------------------------------------------
                            B     2    ; SERIAL CODE
                            B     3    ;----------------------------------------------
                            B     4    
-00062D                     B     5    s_getblock
+000664                     B     5    s_getblock
                            B     6    
                            B     7    ; Loads a block of 256 bytes to HL (L must be 0
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  27
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\serial_load_essentials.asm
                            B     8    ; Zero flag set = All OK. Zero flag not set = C
                            B     9    ; Carry flag is set = timed out
                            B    10    
-00062D 0E00                B    11    				ld c,0
-00062F D9                  B    12    				exx
-000630 21FFFF              B    13    				ld hl,0ffffh					000633 D9                  B    14    				exx
-000634 CD 70 06            B    15    s_lgb			call receive_serial_byte
-000637 D8                  B    16    				ret c							                           B    17    
-000638 77                  B    18    				ld (hl),a
-000639 CD 53 06            B    19    dwrbyte			call crc_calc
-00063C 23                  B    20    				inc hl							00063D 0D                  B    21    				dec c
-00063E 20 F4               B    22    				jr nz,s_lgb
-000640 D9                  B    23    				exx								                           B    24    
-000641 CD 70 06            B    25    				call receive_serial_byte		000644 D8                  B    26    				ret c	
-000645 4F                  B    27    				ld c,a
-000646 CD 70 06            B    28    				call receive_serial_byte
-000649 D8                  B    29    				ret c		
-00064A 47                  B    30    				ld b,a
+000664 0E00                B    11    				ld c,0
+000666 D9                  B    12    				exx
+000667 21FFFF              B    13    				ld hl,0ffffh					00066A D9                  B    14    				exx
+00066B CD A7 06            B    15    s_lgb			call receive_serial_byte
+00066E D8                  B    16    				ret c							                           B    17    
+00066F 77                  B    18    				ld (hl),a
+000670 CD 8A 06            B    19    dwrbyte			call crc_calc
+000673 23                  B    20    				inc hl							000674 0D                  B    21    				dec c
+000675 20 F4               B    22    				jr nz,s_lgb
+000677 D9                  B    23    				exx								                           B    24    
+000678 CD A7 06            B    25    				call receive_serial_byte		00067B D8                  B    26    				ret c	
+00067C 4F                  B    27    				ld c,a
+00067D CD A7 06            B    28    				call receive_serial_byte
+000680 D8                  B    29    				ret c		
+000681 47                  B    30    				ld b,a
                            B    31    	
-00064B AF                  B    32    				xor a							00064C ED42                B    33    				sbc hl,bc
-00064E D9                  B    34    				exx								00064F C8                  B    35    				ret z
+000682 AF                  B    32    				xor a							000683 ED42                B    33    				sbc hl,bc
+000685 D9                  B    34    				exx								000686 C8                  B    35    				ret z
                            B    36    
-000650 AF                  B    37    				xor a
-000651 3C                  B    38    				inc a							Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  24
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\serial_load_essentials.asm
-000652 C9                  B    39    				ret
+000687 AF                  B    37    				xor a
+000688 3C                  B    38    				inc a							000689 C9                  B    39    				ret
                            B    40    
                            B    41    	
                            B    42    ;----------------------------------------------
                            B    43    
                            B    44    
-000653                     B    45    crc_calc
-000653 D9                  B    46    				exx
-000654 AC                  B    47    				xor h							000655 67                  B    48    				ld h,a				
-000656 0608                B    49    				ld b,8
-000658 29                  B    50    rxcrcbyte		add hl,hl
-000659 30 08               B    51    				jr nc,rxcrcnext
-00065B 7C                  B    52    				ld a,h
-00065C EE10                B    53    				xor 10h
-00065E 67                  B    54    				ld h,a
-00065F 7D                  B    55    				ld a,l
-000660 EE21                B    56    				xor 021h
-000662 6F                  B    57    				ld l,a
-000663 10 F3               B    58    rxcrcnext		djnz rxcrcbyte
-000665 D9                  B    59    				exx
-000666 C9                  B    60    				ret
+00068A                     B    45    crc_calc
+00068A D9                  B    46    				exx
+00068B AC                  B    47    				xor h							00068C 67                  B    48    				ld h,a				
+00068D 0608                B    49    				ld b,8
+00068F 29                  B    50    rxcrcbyte		add hl,hl
+000690 30 08               B    51    				jr nc,rxcrcnext
+000692 7C                  B    52    				ld a,h
+000693 EE10                B    53    				xor 10h
+000695 67                  B    54    				ld h,a
+000696 7D                  B    55    				ld a,l
+000697 EE21                B    56    				xor 021h
+000699 6F                  B    57    				ld l,a
+00069A 10 F3               B    58    rxcrcnext		djnz rxcrcbyte
+00069C D9                  B    59    				exx
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  28
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\serial_load_essentials.asm
+00069D C9                  B    60    				ret
                            B    61    
                            B    62    		
                            B    63    ;----------------------------------------------
                            B    64    
                            B    65    
-000667 D5                  B    66    s_goodack		push de
-000668 114B4F              B    67    				ld de,04f4bh					00066B CD 98 06            B    68    				call send_serial_bytes
-00066E D1                  B    69    				pop de
-00066F C9                  B    70    				ret
+00069E D5                  B    66    s_goodack		push de
+00069F 114B4F              B    67    				ld de,04f4bh					0006A2 CD CF 06            B    68    				call send_serial_bytes
+0006A5 D1                  B    69    				pop de
+0006A6 C9                  B    70    				ret
                            B    71    
                            B    72    
                            B    73    ;----------------------------------------------
                            B    74    		
                            B    75    
-000670                     B    76    receive_serial_byte
+0006A7                     B    76    receive_serial_byte
                            B    77    
-000670 C5                  B    78    				push bc
-000671 D5                  B    79    				push de
-000672 E5                  B    80    				push hl
+0006A7 C5                  B    78    				push bc
+0006A8 D5                  B    79    				push de
+0006A9 E5                  B    80    				push hl
                            B    81    
-000673 1E10                B    82    				ld e,16
-000675 210000              B    83    				ld hl,0
+0006AA 1E10                B    82    				ld e,16
+0006AC 210000              B    83    				ld hl,0
                            B    84    
-000678 01C500              B    85    com_lp			ld bc,UART0_LSR					00067B ED78                B    86    				in a,(c)
-00067D E601                B    87    				and 1							00067F 20 0D               B    88    				jr nz,in_buffer
-000681 23                  B    89    				inc hl
-000682 7C                  B    90    				ld a,h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  25
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\serial_load_essentials.asm
-000683 B5                  B    91    				or l
-000684 20 F2               B    92    				jr nz,com_lp
-000686 1D                  B    93    				dec e
-000687 20 EF               B    94    				jr nz,com_lp
-000689 E1                  B    95    				pop hl							00068A D1                  B    96    				pop de
-00068B C1                  B    97    				pop bc
-00068C 37                  B    98    				scf								00068D C9                  B    99    				ret
+0006AF 01C500              B    85    com_lp			ld bc,UART0_LSR					0006B2 ED78                B    86    				in a,(c)
+0006B4 E601                B    87    				and 1							0006B6 20 0D               B    88    				jr nz,in_buffer
+0006B8 23                  B    89    				inc hl
+0006B9 7C                  B    90    				ld a,h
+0006BA B5                  B    91    				or l
+0006BB 20 F2               B    92    				jr nz,com_lp
+0006BD 1D                  B    93    				dec e
+0006BE 20 EF               B    94    				jr nz,com_lp
+0006C0 E1                  B    95    				pop hl							0006C1 D1                  B    96    				pop de
+0006C2 C1                  B    97    				pop bc
+0006C3 37                  B    98    				scf								0006C4 C9                  B    99    				ret
                            B   100    
-00068E 01C000              B   101    in_buffer		ld bc,UART0_RBR
-000691 ED78                B   102    				in a,(c)						000693 E1                  B   103    				pop hl
-000694 D1                  B   104    				pop de
-000695 C1                  B   105    				pop bc
-000696 B7                  B   106    				or a							000697 C9                  B   107    				ret
+0006C5 01C000              B   101    in_buffer		ld bc,UART0_RBR
+0006C8 ED78                B   102    				in a,(c)						0006CA E1                  B   103    				pop hl
+0006CB D1                  B   104    				pop de
+0006CC C1                  B   105    				pop bc
+0006CD B7                  B   106    				or a							0006CE C9                  B   107    				ret
                            B   108    				
                            B   109    				
                            B   110    ;----------------------------------------------
                            B   111    
-000698                     B   112    send_serial_bytes
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  29
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\serial_load_essentials.asm
+0006CF                     B   112    send_serial_bytes
                            B   113    
                            B   114    ; set D to the first byte to send
                            B   115    ; and E to the second byte to send
                            B   116    
-000698 C5                  B   117    				push bc
-000699 D5                  B   118    				push de
-00069A E5                  B   119    				push hl
+0006CF C5                  B   117    				push bc
+0006D0 D5                  B   118    				push de
+0006D1 E5                  B   119    				push hl
                            B   120    
-00069B 01C500              B   121    s_wait1			ld bc,UART0_LSR					00069E ED78                B   122    				in a,(c)
-0006A0 E620                B   123    				and 020h
-0006A2 28 F7               B   124    				jr z,s_wait1
-0006A4 01C000              B   125    				ld bc,UART0_THR
-0006A7 ED51                B   126    				out (c),d						                           B   127    				
-0006A9 01C500              B   128    s_wait2			ld bc,UART0_LSR					0006AC ED78                B   129    				in a,(c)
-0006AE E620                B   130    				and 020h
-0006B0 28 F7               B   131    				jr z,s_wait2
-0006B2 01C000              B   132    				ld bc,UART0_THR
-0006B5 ED59                B   133    				out (c),e						                           B   134    		
-0006B7 E1                  B   135    				pop hl							0006B8 D1                  B   136    				pop de
-0006B9 C1                  B   137    				pop bc
-0006BA C9                  B   138    				ret
+0006D2 01C500              B   121    s_wait1			ld bc,UART0_LSR					0006D5 ED78                B   122    				in a,(c)
+0006D7 E620                B   123    				and 020h
+0006D9 28 F7               B   124    				jr z,s_wait1
+0006DB 01C000              B   125    				ld bc,UART0_THR
+0006DE ED51                B   126    				out (c),d						                           B   127    				
+0006E0 01C500              B   128    s_wait2			ld bc,UART0_LSR					0006E3 ED78                B   129    				in a,(c)
+0006E5 E620                B   130    				and 020h
+0006E7 28 F7               B   131    				jr z,s_wait2
+0006E9 01C000              B   132    				ld bc,UART0_THR
+0006EC ED59                B   133    				out (c),e						                           B   134    		
+0006EE E1                  B   135    				pop hl							0006EF D1                  B   136    				pop de
+0006F0 C1                  B   137    				pop bc
+0006F1 C9                  B   138    				ret
                            B   139    				
                            B   140    ;----------------------------------------------
                            A   413    
                            A   414    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)06-May-11     22:38:03     page:  26
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
                            A   415    
-0006BB 424F4F54 2E455A4F   A   416    bl_filename		db 'BOOT.EZO',0
-0006C3 00 
-0006C4 00 00 00 00 00 00   A   417    os_filename		blkb 16,0
-0006CA 00 00 00 00 00 00 
-0006D0 00 00 00 00 
+0006F2 424F4F54 2E455A4F   A   416    bl_filename		db 'BOOT.EZO',0
+0006FA 00 
+0006FB 00 00 00 00 00 00   A   417    os_filename		blkb 16,0
+000701 00 00 00 00 00 00 
+000707 00 00 00 00 
                            A   418    
-0006D4 00                  A   419    boot_drive		db 0
-0006D5 00                  A   420    drives_present	db 0
-0006D6 00                  A   421    swait_count		db 0
+00070B 00                  A   419    boot_drive		db 0
+00070C 00                  A   420    drives_present	db 0
+00070D 00                  A   421    swait_count		db 0
                            A   422    
                            A   423    ;----------------------------------------------
                            A   424    
                            B     0    include	"no_os_gfx.asm"
-0006D7                     B     1    gfx:
-0006D7 C63C0780 7800E666   B     2                    db 0C6h,03Ch,007h,080h,078h,000
-0006DF 0CC0CC00 F6660CC0 
-0006E7 E000DE66 0CC07800   B     3                    db 0E0h,000h,0DEh,066h,00Ch,0C0
-0006EF CE660CC0 1C00C666 
-0006F7 0CCCCCC0 C63C078C   B     4                    db 00Ch,0CCh,0CCh,0C0h,0C6h,03C
-0006FF 78C0 
+00070E                     B     1    gfx:
+00070E C63C0780 7800E666   B     2                    db 0C6h,03Ch,007h,080h,078h,000
+000716 0CC0CC00 F6660CC0 
+00071E E000DE66 0CC07800   B     3                    db 0E0h,000h,0DEh,066h,00Ch,0C0
+000726 CE660CC0 1C00C666 
+00072E 0CCCCCC0 C63C078C   B     4                    db 00Ch,0CCh,0CCh,0C0h,0C6h,03C
+000736 78C0 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Aug-11     12:59:12     page:  30
+
+
+PC     Object              I  Line    Source E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm
                            A   426    
                            A   427    ;----------------------------------------------
                            A   428    
@@ -1224,4 +1398,4 @@ PC     Object              I  Line    Source E:\MY_OWN~1\Coding\EZ80PR~1\Code\RO
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 1319
+Lines Assembled: 1506

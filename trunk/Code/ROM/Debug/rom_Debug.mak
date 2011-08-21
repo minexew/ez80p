@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\Debug
+WORKDIR = E:\My_Own_Files\Coding\ez80p\Code\ROM\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM;E:\My_Own_Files\Coding\Ez80 Project\Code\PROSE Apps\includes;..\..\ADL_PR~1\src;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"E:\MY_OWN~1\Coding\ez80p\Code\ROM;..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\rom_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\Debug
+OUTDIR = E:\My_Own_Files\Coding\ez80p\Code\ROM\Debug
 
 build: rom
 
@@ -68,9 +68,9 @@ rom: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\rom.obj :  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\no_os_gfx.asm  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\ADL_PR~1\src\ez80_cpu_equates.asm  \
-            E:\MY_OWN~1\Coding\EZ80PR~1\Code\ADL_PR~1\src\ez80p_hardware_equates.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\EZ80PR~1\Code\ROM\src\rom.asm
+            E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\amoeba_hardware_equates.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\ez80_cpu_equates.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\ROM\src\no_os_gfx.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\ROM\src\rom.asm
 
