@@ -5,7 +5,7 @@ Current version
 (20-08-2011)
 
 036          :  Bugfix: New SD card driver was relying on previous ROM-based driver code
-                to initialized the card (a 4ms time delay was missing from the new init code)
+                to initialize the card (a 4ms time delay was missing from the new init code)
 
 ------------------------------------------------------------------------------------------
 Previous versions:
