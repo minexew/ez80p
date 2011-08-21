@@ -1,9 +1,9 @@
 ;---------------------------------------------------------------------------------------------------
-; Boot ROM for ez80p v0.05 - runs mainly in Z80 mode, runs OS in ADL mode
+; Boot ROM for ez80p - runs mainly in Z80 mode, runs OS in ADL mode
 ; Looks for "BOOT.EZO" OS file on SD card, this contains the filename of
 ; the OS, if either is not found ROM waits for serial download.
 ;
-; V0.06 - Sets up video, and says "No OS" if no card / os file present
+; V0.07 - SDHC support code added.
 ;---------------------------------------------------------------------------------------------------
 
 os_location 	equ 0a00h
@@ -14,7 +14,7 @@ stack_s			equ 07ffh
 
 include "ez80_cpu_equates.asm"
 
-include "ez80p_hardware_equates.asm"
+include "amoeba_hardware_equates.asm"
 
 ;--------------------------------------------------------------------------------------------------
 
@@ -236,8 +236,8 @@ z80_mode
 ; Check for OS on SD Card (*.EZ0 file)
 ;-------------------------------------------------------------------------------------------
 
-				call sdc_init_card						; Is there an SD/MMC card attached?
-				jr nc,no_sd_card_os						; carry is set if initialized OK	
+				call sd_initialize						; Is there an SDHC/SD/MMC card attached?
+				jr nz,no_sd_card_os						; ZF is set if initialized OK	
 				ld hl,drives_present
 				set 0,(hl)								; Set bit 0 - SD card present
 	
@@ -402,13 +402,13 @@ twaitlp			in a,(bc)
 ;----------------------------------------------------------------------------------------------
 
 pause_a_sec		ld b,0
-seclp			call pause_4ms
-				djnz seclp
+pause_loop		call pause_4ms
+				djnz pause_loop
 				ret
 				
 ;-----------------------------------------------------------------------------------------------
 
-include 'card_load_essentials.asm'
+include 'card_load_essentials_V110.asm'
 include 'serial_load_essentials.asm'
 
 ;-----------------------------------------------------------------------------------------------
