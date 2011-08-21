@@ -1,0 +1,742 @@
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   1
+
+
+PC     Object              I  Line    Source 
+                           A     1    ;----------------------------------------------
+                           A     2    ; Low level Z80 MMC/SDC/SDHC card access routin
+                           A     3    ;----------------------------------------------
+                           A     4    ;
+                           A     5    ; V1.10 - SDHC support added
+                           A     6    ;
+                           A     7    ; Limitations:
+                           A     8    ; ------------
+                           A     9    ; Does not check for block size
+                           A    10    ;
+                           A    11    ; Somewhat arbitrary timimg due to quirks of my
+                           A    12    ; which means the data from the card following 
+                           A    13    ; byte is skipped by the send_command routine.)
+                           A    14    
+                           A    15    
+                           A    16    ;----------------------------------------------
+                           A    17    ;
+                           A    18    ; Key Routines:      Input Parameters          
+                           A    19    ; -------------      ----------------          
+                           A    20    ; sd_initialize		no arguments required      
+                           A    21    ; sd_read_sector	[sector_lba0-3]				                           A    22    ; sd_write_sector	[sector_lba0-3]    			                           A    23    ;
+                           A    24    ; (Assume all other registers are trashed.)
+                           A    25    ;
+                           A    26    ;----------------------------------------------
+                           A    27    
+                           A    28    ; Routines respond with Zero Flag set if operat
+                           A    29    
+                           A    30    ; $01 - SPI mode failed	 
+                           A    31    ; $10 - MMC init failed	
+                           A    32    ; $11 - SD init failed	
+                           A    33    ; $12 - SDHC init failed	
+                           A    34    ; $13 - voltage range bad	
+                           A    35    ; $14 - check pattern bad
+                           A    36    ; $20 - illegal command
+                           A    37    ; $21 - bad command response
+                           A    38    ; $22 - data token timeout
+                           A    39    ; $23 - write timeout
+                           A    40    ; $24 - write failed
+                           A    41    ;
+                           A    42    ;----------------------------------------------
+                           A    43    
+                           A    44    ; Define "sector_buffer" in main code (512 byte
+                           A    45    
+                           A    46    ;----------------------------------------------
+                           A    47    
+       00000041            A    48    CMD1	equ 40h + 1
+       00000049            A    49    CMD9	equ 40h + 9
+       0000004A            A    50    CMD10	equ 40h + 10
+       0000004D            A    51    CMD13	equ 40h + 13
+       00000051            A    52    CMD17	equ 40h + 17
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   2
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+       00000058            A    53    CMD24	equ 40h + 24
+       00000069            A    54    ACMD41	equ 40h + 41
+       00000077            A    55    CMD55	equ 40h + 55
+       0000007A            A    56    CMD58	equ 40h + 58
+                           A    57    
+       00000001            A    58    sd_error_spi_mode_failed		equ 01h
+                           A    59    
+       00000010            A    60    sd_error_mmc_init_failed		equ 10h
+       00000011            A    61    sd_error_sd_init_failed			equ 11h
+       00000012            A    62    sd_error_sdhc_init_failed		equ 12h
+       00000013            A    63    sd_error_vrange_bad				equ 13h
+       00000014            A    64    sd_error_check_pattern_bad		equ 14h
+                           A    65    
+       00000020            A    66    sd_error_illegal_command		equ 20h
+       00000021            A    67    sd_error_bad_command_response	equ 21h
+       00000022            A    68    sd_error_data_token_timeout		equ 22h
+       00000023            A    69    sd_error_write_timeout			equ 23h
+       00000024            A    70    sd_error_write_failed			equ 24h
+                           A    71    
+                           A    72    ;----------------------------------------------
+                           A    73    ; PROSE STANDARD DRIVER HEADER
+                           A    74    ;----------------------------------------------
+                           A    75    
+000000 C3 11 00            A    76    sd_card_driver	jp sd_initialize			; $
+000003 C3 2D 00            A    77    				jp sd_read_sector			; $
+000006 C3 32 00            A    78    				jp sd_write_sector			; $
+000009 53445F43 41524400   A    79    				db "SD_CARD",0				; $
+                           A    80    
+                           A    81    ;----------------------------------------------
+                           A    82    ; SD Card INITIALIZE code begins...
+                           A    83    ;----------------------------------------------
+                           A    84    
+000011 CD 37 00            A    85    sd_initialize	call sd_init_main
+000014 B7                  A    86    				or a						; i
+000015 28 04               A    87    				jr z,sd_inok
+000017 CD 73 03            A    88    				call sd_power_off			; i
+00001A C9                  A    89    				ret
+                           A    90    
+00001B CD 78 03            A    91    sd_inok			call sd_spi_port_fast		; o
+                           A    92    
+00001E CD 75 01            A    93    				call sd_read_cid			; a
+000021 20 05               A    94    				jr nz,sd_done
+000023 E5                  A    95    				push hl						; c
+000024 CD E6 00            A    96    				call sd_read_csd
+000027 E1                  A    97    				pop hl
+                           A    98    
+000028 CD 5D 03            A    99    sd_done			call sd_deselect_card		; R
+00002B B7                  A   100    				or a						; I
+00002C C9                  A   101    				ret				 
+                           A   102    
+                           A   103    ;----------------------------------------------
+                           A   104    		
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   3
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+00002D CD ED 01            A   105    sd_read_sector	call sd_read_sector_main
+000030 18 F6               A   106    				jr sd_done
+                           A   107    
+                           A   108    ;----------------------------------------------
+                           A   109    	
+000032 CD 0D 02            A   110    sd_write_sector	call sd_write_sector_main
+000035 18 F1               A   111    				jr sd_done
+                           A   112    	
+                           A   113    ;----------------------------------------------
+                           A   114    	
+000037 AF                  A   115    sd_init_main	xor a							000038 32 F5 02            A   116    				ld (sd_card_info),a			
+                           A   117    
+00003B CD 73 03            A   118    				call sd_power_off				                           A   119    				
+00003E 110040              A   120    				ld de,16384						000041 3E 00               A   121    				ld a,kr_time_delay
+-----ERROR (405) Label "kr_time_delay" not defined
+000043 5BCD 00 00 00       A   122    				call.lil prose_kernal
+-----ERROR (405) Label "prose_kernal" not defined
+                           A   123    				
+000048 CD 68 03            A   124    				call sd_power_on				                           A   125    					
+00004B 060A                A   126    				ld b,10							00004D CD 86 02            A   127    sd_ecilp		call sd_send_eight_clocks
+000050 10 FB               A   128    				djnz sd_ecilp
+                           A   129    				
+000052 21 C9 02            A   130    				ld hl,CMD0_string				000055 CD 99 02            A   131    				call sd_send_command_string		000058 FE01                A   132    				cp 01h							00005A 28 03               A   133    				jr z,sd_spi_mode_ok
+                           A   134    				
+00005C 3E01                A   135    				ld a,sd_error_spi_mode_failed
+00005E C9                  A   136    				ret		
+                           A   137    
+                           A   138    ; ---- CARD IS IN IDLE MODE -------------------
+                           A   139    
+00005F 21 CF 02            A   140    sd_spi_mode_ok	ld hl,CMD8_string				000062 CD 99 02            A   141    				call sd_send_command_string
+000065 FE01                A   142    				cp 01h
+000067 20 4A               A   143    				jr nz,sd_sdc_init				                           A   144    
+000069 0604                A   145    				ld b,4
+00006B CD BC 02            A   146    				call sd_read_bytes_to_sector_bu
+00006E 3E01                A   147    				ld a,1
+000070 23                  A   148    				inc hl
+000071 23                  A   149    				inc hl
+000072 BE                  A   150    				cp (hl)							000073 28 03               A   151    				jr z,sd_vrok
+000075 3E13                A   152    				ld a,sd_error_vrange_bad
+000077 C9                  A   153    				ret				
+                           A   154    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   4
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+000078 3EAA                A   155    sd_vrok			ld a,0aah
+00007A 23                  A   156    				inc hl
+00007B BE                  A   157    				cp (hl)
+00007C 28 03               A   158    				jr z,sd_check_pattern_ok
+00007E 3E14                A   159    				ld a,sd_error_check_pattern_bad
+000080 C9                  A   160    				ret
+                           A   161    				
+000081                     A   162    sd_check_pattern_ok
+                           A   163    
+                           A   164    ;------ SDHC CARD CAN WORK AT 2.7v - 3.6v -----
+                           A   165    	
+000081 01401F              A   166    				ld bc,8000						                           A   167    
+000084 3E77                A   168    sdhc_iwl		ld a,CMD55						000086 CD 8C 02            A   169    				call sd_send_command_null_args
+                           A   170    				
+000089 21 D5 02            A   171    				ld hl,ACMD41HCS_string			00008C CD 99 02            A   172    				call sd_send_command_string
+00008F 28 0C               A   173    				jr z,sdhc_init_ok				000091 CB57                A   174    				bit 2,a
+000093 20 05               A   175    				jr nz,sdhc_if					                           A   176    				
+000095 0B                  A   177    				dec bc
+000096 78                  A   178    				ld a,b
+000097 B1                  A   179    				or c
+000098 20 EA               A   180    				jr nz,sdhc_iwl
+                           A   181    				
+00009A 3E12                A   182    sdhc_if			ld a,sd_error_sdhc_init_failed	00009C C9                  A   183    				ret
+                           A   184    				
+00009D                     A   185    sdhc_init_ok
+                           A   186    
+                           A   187    ;------ SDHC CARD IS INITIALIZED --------------
+                           A   188    
+00009D 3E7A                A   189    				ld a,CMD58						00009F CD 8C 02            A   190    				call sd_send_command_null_args
+                           A   191    					
+0000A2 0604                A   192    				ld b,4							0000A4 CD BC 02            A   193    				call sd_read_bytes_to_sector_bu
+0000A7 7E                  A   194    				ld a,(hl)
+0000A8 E640                A   195    				and 040h						0000AA 0F                  A   196    				rrca
+0000AB 0F                  A   197    				rrca 
+0000AC F602                A   198    				or 00000010b				
+0000AE 32 F5 02            A   199    				ld (sd_card_info),a				0000B1 AF                  A   200    				xor a							0000B2 C9                  A   201    				ret
+                           A   202    
+                           A   203    	
+                           A   204    ;-------- NOT AN SDHC CARD, TRY SD INIT -------
+                           A   205    
+0000B3 01401F              A   206    sd_sdc_init		ld bc,8000						Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   5
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   207    
+0000B6 3E77                A   208    sd_iwl			ld a,CMD55						0000B8 CD 8C 02            A   209    				call sd_send_command_null_args
+                           A   210    
+0000BB 3E69                A   211    				ld a,ACMD41						0000BD CD 8C 02            A   212    				call sd_send_command_null_args
+0000C0 28 0C               A   213    				jr z,sd_rdy						                           A   214    				
+0000C2 CB57                A   215    				bit 2,a				
+0000C4 20 0F               A   216    				jr nz,sd_mmc_init				                           A   217    							
+0000C6 0B                  A   218    				dec bc
+0000C7 78                  A   219    				ld a,b
+0000C8 B1                  A   220    				or c
+0000C9 20 EB               A   221    				jr nz,sd_iwl
+                           A   222    				
+0000CB 3E11                A   223    				ld a,sd_error_sd_init_failed	0000CD C9                  A   224    				ret
+                           A   225    				
+0000CE 3E01                A   226    sd_rdy			ld a,1
+0000D0 32 F5 02            A   227    				ld (sd_card_info),a				0000D3 AF                  A   228    				xor a							0000D4 C9                  A   229    				ret	
+                           A   230    
+                           A   231    ;-------- NOT AN SDHC OR SD CARD, TRY MMC INIT 
+                           A   232    
+0000D5 01401F              A   233    sd_mmc_init		ld bc,8000						                           A   234    
+0000D8 3E41                A   235    sdmmc_iwl		ld a,CMD1
+0000DA CD 8C 02            A   236    				call sd_send_command_null_args	0000DD C8                  A   237    				ret z							                           A   238    				
+0000DE 0B                  A   239    sd_mnrdy		dec bc
+0000DF 78                  A   240    				ld a,b
+0000E0 B1                  A   241    				or c
+0000E1 20 F5               A   242    				jr nz,sdmmc_iwl
+                           A   243    				
+0000E3 3E10                A   244    				ld a,sd_error_mmc_init_failed	0000E5 C9                  A   245    				ret
+                           A   246    	
+                           A   247    ;----------------------------------------------
+                           A   248    
+                           A   249    ; Returns BC:DE = Total capacity of card (in se
+                           A   250    
+0000E6                     A   251    sd_read_csd
+                           A   252    				
+0000E6 3E49                A   253    				ld a,CMD9						0000E8 CD 8C 02            A   254    				call sd_send_command_null_args	0000EB C2 F7 01            A   255    				jp nz,sd_bcr_error				                           A   256    
+0000EE CD 73 02            A   257    				call sd_wait_data_token			0000F1 C2 FF 01            A   258    				jp nz,sd_dt_timeout	
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   6
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   259    
+0000F4 0612                A   260    sd_id_ok		ld b,18							0000F6 CD BC 02            A   261    				call sd_read_bytes_to_sector_bu
+                           A   262    
+0000F9 DD21 00 00          A   263    				ld ix,sector_buffer				-----ERROR (405) Label "sector_buffer" not defined
+0000FD DDCB0076            A   264    				bit 6,(ix)
+000101 28 18               A   265    				jr z,sd_csd_v1
+                           A   266    
+000103 DD6E09              A   267    sd_csd_v2		ld l,(ix+9)						000106 DD6608              A   268    				ld h,(ix+8)
+000109 23                  A   269    				inc hl
+00010A 3E0A                A   270    				ld a,10
+00010C 010000              A   271    				ld bc,0
+00010F 4029                A   272    sd_csd2lp		add.sis hl,hl
+000111 CB11                A   273    				rl c
+000113 CB10                A   274    				rl b
+000115 3D                  A   275    				dec a
+000116 20 F7               A   276    				jr nz,sd_csd2lp
+000118 EB                  A   277    				ex de,hl						000119 AF                  A   278    				xor a
+00011A C9                  A   279    				ret
+                           A   280    				
+00011B DD7E06              A   281    sd_csd_v1		ld a,(ix+6)						00011E E603                A   282    				and 00000011b
+000120 57                  A   283    				ld d,a
+000121 DD5E07              A   284    				ld e,(ix+7)
+000124 DD7E08              A   285    				ld a,(ix+8)
+000127 E6C0                A   286    				and 11000000b
+000129 CB27                A   287    				sla a
+00012B CB13                A   288    				rl e
+00012D CB12                A   289    				rl d
+00012F CB27                A   290    				sla a
+000131 CB13                A   291    				rl e
+000133 CB12                A   292    				rl d							                           A   293    				
+000135 DD7E09              A   294    				ld a,(ix+9)
+000138 E603                A   295    				and 00000011b
+00013A 47                  A   296    				ld b,a
+00013B DD7E0A              A   297    				ld a,(ix+10)
+00013E E680                A   298    				and 10000000b
+000140 CB27                A   299    				sla a
+000142 CB10                A   300    				rl b							                           A   301    				
+000144 04                  A   302    				inc b
+000145 04                  A   303    				inc b
+000146 210000              A   304    				ld hl,0
+000149 CB23                A   305    sd_cmsh			sla e
+00014B CB12                A   306    				rl d
+00014D CB15                A   307    				rl l
+00014F CB14                A   308    				rl h
+000151 10 F6               A   309    				djnz sd_cmsh					Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   7
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   310    				
+000153 DD7E05              A   311    				ld a,(ix+5)
+000156 E60F                A   312    				and 00001111b					000158 28 17               A   313    				jr z,sd_nbls
+00015A 47                  A   314    				ld b,a
+00015B CB23                A   315    sd_blsh			sla e
+00015D CB12                A   316    				rl d
+00015F CB15                A   317    				rl l
+000161 CB14                A   318    				rl h
+000163 10 F6               A   319    				djnz sd_blsh					                           A   320    				
+000165 0609                A   321    				ld b,9							000167 CB3C                A   322    sd_cbsec		srl h
+000169 CB1D                A   323    				rr l
+00016B CB1A                A   324    				rr d
+00016D CB1B                A   325    				rr e
+00016F 10 F6               A   326    				djnz sd_cbsec
+                           A   327    
+000171 E5                  A   328    sd_nbls			push hl
+000172 C1                  A   329    				pop bc							000173 AF                  A   330    				xor a
+000174 C9                  A   331    				ret
+                           A   332    
+                           A   333    ;----------------------------------------------
+                           A   334    
+000175                     A   335    sd_read_cid
+                           A   336    	
+                           A   337    ; Returns HL = Pointer to device ID string
+                           A   338    
+000175 3E4A                A   339    				ld a,CMD10						000177 CD 8C 02            A   340    				call sd_send_command_null_args
+00017A C2 F7 01            A   341    				jp nz,sd_bcr_error				                           A   342    
+00017D CD 73 02            A   343    				call sd_wait_data_token			000180 C2 FF 01            A   344    				jp nz,sd_dt_timeout
+                           A   345    					
+000183 0612                A   346    				ld b,18
+000185 CD BC 02            A   347    				call sd_read_bytes_to_sector_bu
+                           A   348    				
+000188 21 03 00            A   349    				ld hl,sector_buffer+03h			00018B 11 20 00            A   350    				ld de,sector_buffer+20h
+00018E 010500              A   351    				ld bc,5
+000191 3A F5 02            A   352    				ld a,(sd_card_info)
+000194 E60F                A   353    				and 0fh
+000196 20 01               A   354    				jr nz,sd_cn5
+000198 03                  A   355    				inc bc
+000199 EDB0                A   356    sd_cn5			ldir
+00019B E5                  A   357    				push hl
+00019C D5                  A   358    				push de
+00019D 21 DB 02            A   359    				ld hl,sd_vnchars
+0001A0 011400              A   360    				ld bc,20
+0001A3 EDB0                A   361    				ldir
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   8
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+0001A5 D1                  A   362    				pop de
+0001A6 E1                  A   363    				pop hl
+0001A7 13                  A   364    				inc de
+0001A8 13                  A   365    				inc de
+0001A9 7E                  A   366    				ld a,(hl)
+0001AA CB3F                A   367    				srl a
+0001AC CB3F                A   368    				srl a
+0001AE CB3F                A   369    				srl a
+0001B0 CB3F                A   370    				srl a
+0001B2 C630                A   371    				add a,30h						0001B4 12                  A   372    				ld (de),a
+0001B5 13                  A   373    				inc de
+0001B6 13                  A   374    				inc de
+0001B7 7E                  A   375    				ld a,(hl)
+0001B8 E60F                A   376    				and 0fh
+0001BA C630                A   377    				add a,30h
+0001BC 12                  A   378    				ld (de),a						0001BD 13                  A   379    				inc de
+0001BE 13                  A   380    				inc de
+0001BF 13                  A   381    				inc de
+0001C0 13                  A   382    				inc de
+0001C1 13                  A   383    				inc de
+0001C2 23                  A   384    				inc hl
+0001C3 0604                A   385    				ld b,4
+0001C5 7E                  A   386    sd_snulp		ld a,(hl)						0001C6 CB3F                A   387    				srl a
+0001C8 CB3F                A   388    				srl a
+0001CA CB3F                A   389    				srl a
+0001CC CB3F                A   390    				srl a
+0001CE C630                A   391    				add a,30h
+0001D0 FE3A                A   392    				cp 3ah
+0001D2 38 02               A   393    				jr c,sd_hvl1
+0001D4 C607                A   394    				add a,07h
+0001D6 12                  A   395    sd_hvl1			ld (de),a
+0001D7 13                  A   396    				inc de
+0001D8 7E                  A   397    				ld a,(hl)
+0001D9 E60F                A   398    				and 0fh
+0001DB C630                A   399    				add a,30h
+0001DD FE3A                A   400    				cp 3ah
+0001DF 38 02               A   401    				jr c,sd_hvl2
+0001E1 C607                A   402    				add a,07h
+0001E3 12                  A   403    sd_hvl2			ld (de),a
+0001E4 13                  A   404    				inc de
+0001E5 23                  A   405    				inc hl
+0001E6 10 DD               A   406    				djnz sd_snulp
+                           A   407    				
+0001E8 21 20 00            A   408    				ld hl,sector_buffer+20h			0001EB AF                  A   409    				xor a
+0001EC C9                  A   410    				ret
+                           A   411    
+                           A   412    ;----------------------------------------------
+                           A   413    ; SD Card READ SECTOR code begins...
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:   9
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   414    ;----------------------------------------------
+                           A   415    	
+0001ED                     A   416    sd_read_sector_main
+                           A   417    
+                           A   418    ; 512 bytes are returned in sector buffer
+                           A   419    
+0001ED CD 4D 02            A   420    				call sd_set_sector_addr
+                           A   421    
+0001F0 3E51                A   422    				ld a,CMD17						0001F2 CD 95 02            A   423    				call sd_send_command_current_ar
+0001F5 28 03               A   424    				jr z,sd_rscr_ok					0001F7 3E21                A   425    sd_bcr_error	ld a,sd_error_bad_command_respo
+0001F9 C9                  A   426    				ret
+                           A   427    
+0001FA CD 73 02            A   428    sd_rscr_ok		call sd_wait_data_token			0001FD 28 03               A   429    				jr z,sd_dt_ok					0001FF 3E22                A   430    sd_dt_timeout	ld a,sd_error_data_token_timeou
+000201 C9                  A   431    				ret
+                           A   432    
+000202 21 00 00            A   433    sd_dt_ok		ld hl,sector_buffer
+000205 CD 0A 03            A   434    				call sd_read_513_bytes			000208 CD 03 03            A   435    				call sd_get_byte
+                           A   436    				
+00020B AF                  A   437    				xor a							00020C C9                  A   438    				ret
+                           A   439    
+                           A   440    ;----------------------------------------------
+                           A   441    ; SD Card WRITE SECTOR code begins...
+                           A   442    ;----------------------------------------------
+                           A   443    
+00020D                     A   444    sd_write_sector_main
+                           A   445    	
+00020D CD 4D 02            A   446    				call sd_set_sector_addr
+                           A   447    
+000210 3E58                A   448    				ld a,CMD24						000212 CD 95 02            A   449    				call sd_send_command_current_ar
+000215 20 E0               A   450    				jr nz,sd_bcr_error				                           A   451    				
+000217 CD 86 02            A   452    				call sd_send_eight_clocks		                           A   453    
+00021A 3EFE                A   454    				ld a,0feh
+00021C CD F6 02            A   455    				call sd_send_byte				                           A   456    
+00021F 21 00 00            A   457    				ld hl,sector_buffer
+000222 CD 39 03            A   458    				call sd_write_512_bytes			000225 CD 86 02            A   459    				call sd_send_eight_clocks		000228 CD 86 02            A   460    				call sd_send_eight_clocks		                           A   461    		
+00022B CD 03 03            A   462    				call sd_get_byte				00022E E61F                A   463    				and 1fh
+000230 CB3F                A   464    				srl a
+000232 FE02                A   465    				cp 02h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  10
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+000234 28 03               A   466    				jr z,sd_wr_ok
+                           A   467    
+000236 3E24                A   468    sd_write_fail	ld a,sd_error_write_failed
+000238 C9                  A   469    				ret
+                           A   470    
+000239 01FFFF              A   471    sd_wr_ok		ld bc,65535						00023C CD 03 03            A   472    sd_wcbsy		call sd_get_byte				00023F FEFF                A   473    				cp 0ffh
+000241 20 02               A   474    				jr nz,sd_busy
+000243 AF                  A   475    				xor a							000244 C9                  A   476    				ret
+                           A   477    				
+000245 0B                  A   478    sd_busy			dec bc
+000246 78                  A   479    				ld a,b
+000247 B1                  A   480    				or c
+000248 20 F2               A   481    				jr nz,sd_wcbsy
+                           A   482    
+00024A                     A   483    sd_card_busy_timeout
+                           A   484    
+00024A 3E23                A   485    				ld a,sd_error_write_timeout
+00024C C9                  A   486    				ret	
+                           A   487    
+                           A   488    ;----------------------------------------------
+                           A   489    
+00024D                     A   490    sd_set_sector_addr
+                           A   491    				
+00024D 21 00 00            A   492    				ld hl,sector_lba0
+-----ERROR (405) Label "sector_lba0" not defined
+000250 4E                  A   493    				ld c,(hl)
+000251 23                  A   494    				inc hl
+000252 5E                  A   495    				ld e,(hl)
+000253 23                  A   496    				inc hl
+000254 56                  A   497    				ld d,(hl)
+000255 23                  A   498    				inc hl
+000256 46                  A   499    				ld b,(hl)					; s
+                           A   500    
+000257 3A F5 02            A   501    				ld a,(sd_card_info)
+00025A E610                A   502    				and 10h
+00025C 20 0A               A   503    				jr nz,lbatoargs				; i
+00025E 69                  A   504    				ld l,c
+00025F 63                  A   505    				ld h,e
+000260 7A                  A   506    				ld a,d						; o
+000261 4029                A   507    				add.sis hl,hl
+000263 8F                  A   508    				adc a,a	
+000264 EB                  A   509    				ex de,hl
+000265 47                  A   510    				ld b,a
+000266 0E00                A   511    				ld c,0
+000268 21 F0 02            A   512    lbatoargs		ld hl,cmd_generic_args
+00026B 70                  A   513    				ld (hl),b
+00026C 23                  A   514    				inc hl
+00026D 72                  A   515    				ld (hl),d
+00026E 23                  A   516    				inc hl
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  11
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+00026F 73                  A   517    				ld (hl),e
+000270 23                  A   518    				inc hl
+000271 71                  A   519    				ld (hl),c
+000272 C9                  A   520    				ret
+                           A   521    	
+                           A   522    	
+                           A   523    ;----------------------------------------------
+                           A   524    
+000273                     A   525    sd_wait_data_token
+                           A   526    
+000273 C5                  A   527    				push bc
+000274 01401F              A   528    				ld bc,8000				
+000277 CD 03 03            A   529    sd_wdt			call sd_get_byte			; r
+00027A FEFE                A   530    				cp 0feh
+00027C 28 06               A   531    				jr z,sd_gdt
+00027E 0B                  A   532    				dec bc
+00027F 78                  A   533    				ld a,b
+000280 B1                  A   534    				or c
+000281 20 F4               A   535    				jr nz,sd_wdt
+000283 0C                  A   536    				inc c						; d
+000284 C1                  A   537    sd_gdt			pop bc
+000285 C9                  A   538    				ret
+                           A   539    
+                           A   540    ;----------------------------------------------
+                           A   541    
+000286                     A   542    sd_send_eight_clocks
+                           A   543    
+000286 3EFF                A   544    				ld a,0ffh
+000288 CD F6 02            A   545    				call sd_send_byte
+00028B C9                  A   546    				ret
+                           A   547    
+                           A   548    ;----------------------------------------------
+                           A   549    
+                           A   550    
+00028C                     A   551    sd_send_command_null_args
+                           A   552    
+00028C 210000              A   553    				ld hl,0
+00028F 22 F0 02            A   554    				ld (cmd_generic_args),hl	; c
+000292 22 F1 02            A   555    				ld (cmd_generic_args+1),hl	
+                           A   556    				
+                           A   557    				
+                           A   558    	
+000295                     A   559    sd_send_command_current_args
+                           A   560    	
+000295 21 EF 02            A   561    				ld hl,cmd_generic
+000298 77                  A   562    				ld (hl),a
+                           A   563    
+                           A   564    
+                           A   565    
+000299                     A   566    sd_send_command_string
+                           A   567    
+                           A   568    ; set HL = location of 6 byte command string
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  12
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   569    ; returns command response in A (ZF set if $00)
+                           A   570    
+                           A   571    
+000299 CD 55 03            A   572    				call sd_select_card				                           A   573    						
+00029C CD 86 02            A   574    				call sd_send_eight_clocks		                           A   575    				
+00029F C5                  A   576    				push bc
+0002A0 0606                A   577    				ld b,6
+0002A2 7E                  A   578    sd_sclp			ld a,(hl)
+0002A3 CD F6 02            A   579    				call sd_send_byte				0002A6 23                  A   580    				inc hl
+0002A7 10 F9               A   581    				djnz sd_sclp
+0002A9 C1                  A   582    				pop bc
+                           A   583    				
+0002AA CD 03 03            A   584    				call sd_get_byte				                           A   585    					
+                           A   586    
+0002AD                     A   587    sd_wait_valid_response
+                           A   588    				
+0002AD C5                  A   589    				push bc
+0002AE 0600                A   590    				ld b,0
+0002B0 CD 03 03            A   591    sd_wncrl		call sd_get_byte				0002B3 CB7F                A   592    				bit 7,a							0002B5 28 02               A   593    				jr z,sd_gcr
+0002B7 10 F7               A   594    				djnz sd_wncrl
+                           A   595    								
+0002B9 B7                  A   596    sd_gcr			or a							0002BA C1                  A   597    				pop bc
+0002BB C9                  A   598    				ret
+                           A   599    				
+                           A   600    	
+                           A   601    ;----------------------------------------------
+                           A   602    
+0002BC                     A   603    sd_read_bytes_to_sector_buffer
+                           A   604    
+0002BC 21 00 00            A   605    				ld hl,sector_buffer
+                           A   606    	
+0002BF                     A   607    sd_read_bytes
+                           A   608    
+                           A   609    ; set HL to dest address for data
+                           A   610    ; set B to number of bytes required  
+                           A   611    
+0002BF E5                  A   612    				push hl
+0002C0 CD 03 03            A   613    sd_rblp			call sd_get_byte
+0002C3 77                  A   614    				ld (hl),a
+0002C4 23                  A   615    				inc hl
+0002C5 10 F9               A   616    				djnz sd_rblp
+0002C7 E1                  A   617    				pop hl
+0002C8 C9                  A   618    				ret
+                           A   619    	
+                           A   620    ;----------------------------------------------
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  13
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\PROSE_sdcard_driver_v110.asm
+                           A   621    
+                           A   622    ; This data can be placed in ROM:
+                           A   623    
+0002C9 40000000 0095       A   624    CMD0_string			db 40h,00h,00h,00h,00h,95h
+0002CF 48000001 AA87       A   625    CMD8_string			db 48h,00h,00h,01h,aah,87h
+0002D5 69400000 0001       A   626    ACMD41HCS_string	db 69h,40h,00h,00h,00h,01h
+0002DB 2076782E 7820534E   A   627    sd_vnchars			db " vx.x SN:00000000 ",0,0
+0002E3 3A303030 30303030 
+0002EB 30200000 
+                           A   628    
+                           A   629    
+                           A   630    ; The following variables need to be placed in 
+                           A   631    
+0002EF 00                  A   632    cmd_generic			db 00h
+0002F0 00000000            A   633    cmd_generic_args	db 00h,00h,00h,00h
+0002F4 01                  A   634    cmd_generic_crc		db 01h
+                           A   635    
+0002F5 00                  A   636    sd_card_info		db 0	; Bit [4] = CCS (bl
+                           A   637    
+                           A   638    
+                           A   639    ;==============================================
+                           A   640    
+                           A   641    ;----------------------------------------------
+                           A   642    
+                           B     0    include "ez80p_sdcard_code.asm"				;EZ
+                           B     1    ;----------------------------------------------
+                           B     2    ; eZ80P Specific SD card low-level routines v1.
+                           B     3    ;----------------------------------------------
+                           B     4    
+0002F6                     B     5    sd_send_byte
+                           B     6    
+                           B     7    ;Put byte to send to card in A
+                           B     8    
+0002F6 ED39 00             B     9    					out0 (port_sdc_data),a
+-----ERROR (405) Label "port_sdc_data" not defined
+0002F9 C5                  B    10    					push bc
+0002FA 0E 00               B    11    					ld c,port_hw_flags
+-----ERROR (405) Label "port_hw_flags" not defined
+0002FC ED74 01             B    12    sd_wb_loop			tstio 1<<sdc_serializer_bus
+-----ERROR (405) Label "sdc_serializer_busy" not defined
+0002FF 20 FB               B    13    					jr nz,sd_wb_loop			000301 C1                  B    14    					pop bc
+000302 C9                  B    15    					ret
+                           B    16    
+                           B    17    ;----------------------------------------------
+                           B    18    
+000303                     B    19    sd_get_byte
+                           B    20    
+                           B    21    ; Returns byte read from card in A
+                           B    22    
+000303 CD 86 02            B    23    					call sd_send_eight_clocks
+000306 ED38 00             B    24    					in0 a,(port_sdc_data)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  14
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\ez80p_sdcard_code.asm
+000309 C9                  B    25    					ret
+                           B    26    
+                           B    27    ;----------------------------------------------
+                           B    28    
+00030A                     B    29    sd_read_513_bytes
+                           B    30    
+                           B    31    ; optimized sector read
+                           B    32    ; set hl = dest location for bytes
+                           B    33    ; note: The last byte read (CRC) is not put int
+                           B    34    
+00030A C5                  B    35    					push bc
+00030B D5                  B    36    					push de
+00030C 1EFF                B    37    					ld e,0ffh
+00030E ED19 00             B    38    					out0 (port_sdc_data),e		000311 0E 00               B    39    					ld c,port_hw_flags			000313 0600                B    40    					ld b,0						                           B    41    
+000315 ED74 01             B    42    sd_wser_loop1		tstio 1<<sdc_serializer_bus
+000318 20 FB               B    43    					jr nz,sd_wser_loop1			00031A DB 00               B    44    					in a,(port_sdc_data)		                           B    45    					
+00031C ED19 00             B    46    sd_512_loop			out0 (port_sdc_data),e		00031F 77                  B    47    					ld (hl),a					000320 23                  B    48    					inc hl						                           B    49    					
+000321 ED74 01             B    50    sd_wser_loop2		tstio 1<<sdc_serializer_bus
+000324 20 FB               B    51    					jr nz,sd_wser_loop2			000326 DB 00               B    52    					in a,(port_sdc_data)		                           B    53    												000328 ED19 00             B    54    					out0 (port_sdc_data),e		00032B 77                  B    55    					ld (hl),a					00032C 23                  B    56    					inc hl						                           B    57    					
+00032D ED74 01             B    58    sd_wser_loop3		tstio 1<<sdc_serializer_bus
+000330 20 FB               B    59    					jr nz,sd_wser_loop3			000332 DB 00               B    60    					in a,(port_sdc_data)		                           B    61    					
+000334 10 E6               B    62    					djnz sd_512_loop
+000336 D1                  B    63    					pop de
+000337 C1                  B    64    					pop bc
+000338 C9                  B    65    					ret
+                           B    66    					
+                           B    67    ;----------------------------------------------
+                           B    68    					
+000339                     B    69    sd_write_512_bytes
+                           B    70    
+                           B    71    ;optimized sector write
+                           B    72    ;set hl = source location for bytes
+                           B    73    
+000339 0E 00               B    74    					ld c,port_hw_flags			00033B 0600                B    75    					ld b,0						00033D 7E                  B    76    					ld a,(hl)
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  15
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\ez80p_sdcard_code.asm
+00033E ED39 00             B    77    sd_wr512_loop		out0 (port_sdc_data),a
+000341 23                  B    78    					inc hl
+000342 7E                  B    79    					ld a,(hl)
+000343 ED74 01             B    80    sd_wser_loop4		tstio 1<<sdc_serializer_bus
+000346 20 FB               B    81    					jr nz,sd_wser_loop4			000348 ED39 00             B    82    					out0 (port_sdc_data),a
+00034B 23                  B    83    					inc hl
+00034C 7E                  B    84    					ld a,(hl)
+00034D ED74 01             B    85    sd_wser_loop5		tstio 1<<sdc_serializer_bus
+000350 20 FB               B    86    					jr nz,sd_wser_loop5
+000352 10 EA               B    87    					djnz sd_wr512_loop
+000354 C9                  B    88    					ret
+                           B    89    
+                           B    90    			
+                           B    91    ;----------------------------------------------
+                           B    92    ; SD Card control
+                           B    93    ;----------------------------------------------
+                           B    94    
+000355 F5                  B    95    sd_select_card		push af
+000356 3E 01               B    96    					ld a,00h+(1<<sdc_cs)		-----ERROR (405) Label "sdc_cs" not defined
+000358 ED39 00             B    97    sd_wr_sdc_ctrl		out0 (port_sdc_ctrl),a
+-----ERROR (405) Label "port_sdc_ctrl" not defined
+00035B F1                  B    98    					pop af
+00035C C9                  B    99    					ret
+                           B   100    
+                           B   101    
+00035D F5                  B   102    sd_deselect_card	push af
+00035E 3E 81               B   103    					ld a,080h+(1<<sdc_cs)		000360 ED39 00             B   104    					out0 (port_sdc_ctrl),a
+000363 CD 86 02            B   105    					call sd_send_eight_clocks	000366 F1                  B   106    					pop af
+000367 C9                  B   107    					ret
+                           B   108    
+                           B   109    
+000368 F5                  B   110    sd_power_on			push af
+000369 3A 01 00            B   111    					ld a,(1<<sdc_speed)			-----ERROR (405) Label "sdc_speed" not defined
+00036C ED39 00             B   112    					out0 (port_sdc_ctrl),a		00036F 3E 82               B   113    					ld a,80h+(1<<sdc_power)+(1<
+-----ERROR (405) Label "sdc_power" not defined
+000371 18 E5               B   114    					jr sd_wr_sdc_ctrl			                           B   115    
+                           B   116    
+000373 F5                  B   117    sd_power_off		push af
+000374 3E 02               B   118    					ld a,00h+(1<<sdc_power)+(1<
+000376 18 E0               B   119    					jr sd_wr_sdc_ctrl			                           B   120    
+                           B   121    
+000378 F5                  B   122    sd_spi_port_fast	push af
+000379 3E 81               B   123    					ld a,80h+(1<<sdc_speed)		00037B 18 DB               B   124    					jr sd_wr_sdc_ctrl
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)20-Aug-11     22:30:13     page:  16
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\sdhc\src\ez80p_sdcard_code.asm
+                           B   125    
+                           B   126    
+                           B   127    ;----------------------------------------------
+                           A   644    
+                           A   645    ;----------------------------------------------
+
+
+Errors: 11
+Warnings: 0
+Lines Assembled: 773
