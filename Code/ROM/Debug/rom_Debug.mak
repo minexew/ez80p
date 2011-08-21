@@ -25,7 +25,7 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"E:\MY_OWN~1\Coding\ez80p\Code\ROM;..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
@@ -71,6 +71,7 @@ $(WORKDIR)\rom.obj :  \
             E:\My_Own_Files\Coding\ez80p\Code\ROM\src\rom.asm  \
             E:\My_Own_Files\Coding\ez80p\Code\Includes\amoeba_hardware_equates.asm  \
             E:\My_Own_Files\Coding\ez80p\Code\Includes\ez80_cpu_equates.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\misc_system_equates.asm  \
             E:\My_Own_Files\Coding\ez80p\Code\ROM\src\no_os_gfx.asm
 	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\ROM\src\rom.asm
 
