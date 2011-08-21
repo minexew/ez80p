@@ -89,7 +89,7 @@ kr_get_joysticks				equ 47h
 kr_set_video_mode				equ 48h
 kr_set_cursor_image				equ 49h
 kr_remove_cursor				equ 4ah
-kr_char_to_font				equ 4bh
+kr_char_to_font					equ 4bh
 
 kr_get_disk_sector_ptr			equ 4ch
 
