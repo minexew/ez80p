@@ -6,7 +6,6 @@
 ; V0.07 - SDHC support code added.
 ;---------------------------------------------------------------------------------------------------
 
-os_location 	equ 0a00h
 sector_buffer	equ 0800h
 
 stack_l			equ 07ffffh
@@ -15,6 +14,8 @@ stack_s			equ 07ffh
 include "ez80_cpu_equates.asm"
 
 include "amoeba_hardware_equates.asm"
+
+include "misc_system_equates.asm"
 
 ;--------------------------------------------------------------------------------------------------
 
