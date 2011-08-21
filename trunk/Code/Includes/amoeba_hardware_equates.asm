@@ -1,4 +1,3 @@
-
 ;-- AMOEBA Hardware equates ------------------------------------------------------------------------
 
 port_pic_data  			equ 000h
@@ -32,7 +31,7 @@ vram_b_addr				equ 0c00000h
 
 ;-- Hardware registers ----------------------------------------------------------------------------
 
-hw_palette		equ 0ff0000h
+hw_palette				equ 0ff0000h
 hw_sprite_registers		equ 0ff0800h
 hw_video_parameters		equ 0ff1000h
 hw_audio_registers		equ 0ff1400h
@@ -41,16 +40,12 @@ hw_video_settings		equ 0ff1800h
 tilemap_parameters		equ hw_video_parameters+00h
 bitmap_parameters		equ hw_video_parameters+20h
 
-video_control		equ hw_video_settings+00h
-sprite_control		equ hw_video_settings+01h
+video_control			equ hw_video_settings+00h
+sprite_control			equ hw_video_settings+01h
 bgnd_palette_select		equ hw_video_settings+02h
 sprite_palette_select	equ hw_video_settings+03h
 right_border_position	equ hw_video_settings+04h
 irq_line_lo		equ hw_video_settings+05h
 irq_line_hi		equ hw_video_settings+06h
-
-;-------------------------------------------------------------------------------------------------
-
-os_start 	equ 0a00h
 
 ;-------------------------------------------------------------------------------------------------
