@@ -2,14 +2,20 @@
 Current version
 ---------------
 
-(20-08-2011)
+(22-08-2011.. Still undergoing testing)
 
-036          :  Bugfix: New SD card driver was relying on previous ROM-based driver code
-                to initialize the card (a 4ms time delay was missing from the new init code)
+037		: File loads faster (when more than 4 bytes at a time are loaded)
+                : Program return codes slightly changed, if A = 0: All OK, If A = 1
+                  driver error (driver error code in B), FF/FE are the same. Zero flag
+                  no longer important.
 
 ------------------------------------------------------------------------------------------
 Previous versions:
 ------------------------------------------------------------------------------------------
+
+
+036          :  Bugfix: New SD card driver was relying on previous ROM-based driver code
+                to initialize the card (a 4ms time delay was missing from the new init code)
 
 
 035 - Update :  New SD card driver. Now supports SDHC, faster reads.
