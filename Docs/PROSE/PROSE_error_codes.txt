@@ -1,7 +1,11 @@
+Misc
+----
+
+$01 - A driver error is returned in register B.
 
 
-Error codes (From general Kernal routines)
-------------------------------------------
+Error codes from general Kernal routines
+----------------------------------------
 
 $80 - Aborted
 $81 - No data
