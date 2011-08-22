@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Thu Jul 14 10:38:34 2011
+DATE:      Mon Aug 22 19:33:06 2011
 PROCESSOR: assembler
 FILES:     .\testfile.obj         
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:0100B9       bah
+ROM                   C:010000    C:0100B8       b9h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:0100B9       bah
+CODE               absolute data          C:010000    C:0100B8       b9h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\filetest\source\testfile.asm (File: testfile.obj) Version: 1:0 07/14/2011 10:38:33
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\filetest\source\testfile.asm (File: testfile.obj) Version: 1:0 08/22/2011 19:33:03
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:0100B9       bah
+    Segment: CODE                              C:010000    C:0100B8       b9h
 
 EXTERNAL DEFINITIONS:
 =====================
