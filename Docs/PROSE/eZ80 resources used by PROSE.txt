@@ -1,0 +1,11 @@
+
+PROSE uses the following EZ80 resources:
+
+* UART0
+
+* RTC / TIMER0
+
+* PortB 0 IRQ (keyboard and mouse from AMOEBA)
+
+* NMI (freezer / scanline IRQ from AMOEBA)
+
