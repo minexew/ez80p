@@ -1,17 +1,46 @@
 ;----------------------------------------------------------------------------------------
-; ez80p interrupt code v0.05 (MADL mode)
+; ez80p interrupt code v0.06 (MADL mode)
 ;----------------------------------------------------------------------------------------
 
-set_irq_vector
-
+set_irq_vectors
+		
 				xor a
 				ld i,a
-				ld a,c3h								;set up INT PB0 vector $C3 = JP instruction	
-				ld (032h),a	
-				ld hl,int_routine						;insert ** 24bit ** address as interrupt sets ADL mode
-				ld (033h),hl
+						
+				ld ix,06fh								;build irq vector table 
+				ld b,35
+init_ivect_lp1	ld (ix),0c3h							;insert jp instruction
+				lea ix,ix+4
+				djnz init_ivect_lp1
+				
+				ld hl,6fh								;put 16bit vectors to jp locations in actual eZ80 vectors
+				ld ix,0ah
+				ld de,4
+				ld b,11									;11 vectors from $0a
+init_ivect_lp2	ld (ix),l
+				ld (ix+1),h
+				add hl,de
+				lea ix,ix+2
+				djnz init_ivect_lp2
+				ld ix,30h								;25 vectors from $30
+				ld b,25
+init_ivect_lp3	ld (ix),l
+				ld (ix+1),h
+				add hl,de
+				lea ix,ix+2
+				djnz init_ivect_lp3
+				
+				ld hl,int_routine						;set up INT PB0 vector $C3 = JP instruction	
+				ld (09ch),hl							;insert ** 24bit ** address as interrupt sets ADL mode
+
+				ld a,0c3h								;set up NMI vector C3 = JP instruction
+				ld (066h),a
+				ld hl,nmi_routine						;insert ** 24bit ** address as interrupt sets ADL mode
+				ld (067h),hl
 				ret
 
+
+;----------------------------------------------------------------------------------------------
 
 
 enable_os_irqs	ld hl,devices_connected					;enable the IRQ sources of the devices connected
@@ -317,15 +346,6 @@ got_pc			ld (store_pc),de
 ;				pop af
 ;				retn.l									;restores original ADL mode before returning
 
-;----------------------------------------------------------------------------------------
-
-set_nmi_vector
-
-				ld a,0c3h								;set up NMI vector C3 = JP instruction
-				ld (066h),a
-				ld hl,nmi_routine						;insert ** 24bit ** address as interrupt sets ADL mode
-				ld (067h),hl
-				ret
 
 ;----------------------------------------------------------------------------------------
 

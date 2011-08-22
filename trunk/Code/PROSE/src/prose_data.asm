@@ -92,6 +92,8 @@ kernal_table
 	dw24 hwsc_remove_cursor			;4a
 	dw24 char_to_font				;4b
 	dw24 os_get_disk_sector_ptr		;4c
+	dw24 hwsc_set_timeout			;4d
+	dw24 hwsc_test_timeout			;4e
 	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings

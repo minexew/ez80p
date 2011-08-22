@@ -80,15 +80,17 @@ hwsc_time_delay
 
 ; set DE to 32768Hz ticks to wait
 
-					call set_timeout
-twaitlp				call test_timeout
+					call hwsc_set_timeout
+twaitlp				call hwsc_test_timeout
 					jr z,twaitlp
 					xor a							; zero flag set, no error
 					ret			
 
 ;---------------------------------------------------------------------------------------------
 
-set_timeout			ld a,e							
+; Set DE to 32768 Hz ticks to allow before timeout flag becomes set
+
+hwsc_set_timeout	ld a,e							
 					out0 (TMR0_RR_L),a				; set count value lo
 					ld a,d
 					out0 (TMR0_RR_H),a				; set count value hi
@@ -97,7 +99,7 @@ set_timeout			ld a,e
 					in0 a,(TMR0_CTL)				; ensure count complete flag is clear
 					ret
 			
-test_timeout		in0 a,(TMR0_CTL)				; bit 7 set if timed out				
+hwsc_test_timeout	in0 a,(TMR0_CTL)				; bit 7 set if timed out				
 					bit 7,a
 					ret
 			
@@ -263,13 +265,13 @@ kparone		out0 (port_ps2_ctrl),a				; set data line according to parity of byte
 wait_kb_byte
 
 			ld de,8000h
-			call set_timeout					; Allow 1 second for kb response
+			call hwsc_set_timeout					; Allow 1 second for kb response
 
 wait_kloop	in0 a,(port_ps2_ctrl)
 			bit 4,a
 			jr nz,rec_kbyte
 			
-			call test_timeout
+			call hwsc_test_timeout
 			jr z,wait_kloop
 			scf									; carry flag set = timed out
 			ret
@@ -464,13 +466,13 @@ parone		out0 (port_ps2_ctrl),a				; set data line according to parity of byte
 wait_mouse_byte
 
 			ld de,8000h
-			call set_timeout					; Allow 1 second for mouse response
+			call hwsc_set_timeout				; Allow 1 second for mouse response
 
 wait_mloop	in0 a,(port_ps2_ctrl)
 			bit 5,a
 			jr nz,rec_mbyte
 			
-			call test_timeout
+			call hwsc_test_timeout
 			jr z,wait_mloop
 			scf									; carry flag set = timed out
 			ret
@@ -516,9 +518,9 @@ test_lo_ps2	push bc
 			push de
 			ld c,a
 			ld de,04000h					; allow 0.5 seconds before time out
-			call set_timeout
+			call hwsc_set_timeout
 
-nkb_lw		call test_timeout				; timer reached zero?
+nkb_lw		call hwsc_test_timeout			; timer reached zero?
 			jr z,nkb_lnto
 			pop de
 			pop bc
@@ -560,9 +562,9 @@ test_hi_ps2	push bc
 			push de
 			ld c,a
 			ld de,04000h					; allow 0.5 seconds before time out
-			call set_timeout
+			call hwsc_set_timeout
 
-nkb_hw		call test_timeout				; timer reached zero?
+nkb_hw		call hwsc_test_timeout			; timer reached zero?
 			jr z,nkb_hnto
 			pop de
 			pop bc
