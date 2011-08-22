@@ -66,6 +66,9 @@ Programs should return to PROSE with the instruction:
 
 JP.LIL prose_return
 
+On return if register A is zero, no error is returned. If A = 1, then a driver error
+is passed to the in B.  If A is $FF, PROSE will reboot on return. Other values are
+interpreted as standard PROSE error codes - see list in seperate document.
 
 ---------------------------------------------------------------------------------------------
 
