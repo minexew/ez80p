@@ -3242,7 +3242,7 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 
 	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
-	include		'prose_fat16_code3.asm'
+	include		'prose_fat16_code_v08.asm'
 
 ;-----------------------------------------------------------------------------------------------
 ; OS Data 
