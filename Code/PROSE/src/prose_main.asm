@@ -137,10 +137,9 @@ dont_resetkb
 
 				call purge_keyboard
 				
-				call set_irq_vector
+				call set_irq_vectors
 				call enable_os_irqs
 				ei
-				call set_nmi_vector
 				
 				ld hl,devices_connected					; warn if no keyboard
 				bit 0,(hl)
@@ -412,6 +411,7 @@ posmatch		ld a,(iy-1)							; if command string char is a space, the command mat
 os_hwe1			ld a,b								; If A = 1, show hardware error code from B
 os_hwerr		ld hl,hex_byte_txt		
 				call hexbyte_to_ascii	
+				call os_new_line
 				ld hl,hw_err_msg
 				call os_show_packed_text
 				xor a
@@ -441,6 +441,7 @@ findmsg			ld a,(hl)
 				ld a,c								; compare index count - is this the right message?
 				cp b
 				jr nz,findmsg
+				call os_new_line
 				call os_show_packed_text
 				call os_new_line
 				xor a
@@ -3195,7 +3196,7 @@ wpixd			inc ix
 
 
 wmsg_done		call purge_keyboard
-				call set_irq_vector
+				call set_irq_vectors
 				call enable_os_irqs
 				ei
 
