@@ -92,5 +92,7 @@ kr_remove_cursor				equ 4ah
 kr_char_to_font					equ 4bh
 
 kr_get_disk_sector_ptr			equ 4ch
+kr_set_timeout					equ 4dh
+kr_test_timeout					equ 4eh
 
 ;---------------------------------------------------------------------------------------------------
