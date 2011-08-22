@@ -1,4 +1,4 @@
-PROSE KERNAL ROUTINES (last updated 29-7-2011)
+PROSE KERNAL ROUTINES (last updated 22-8-2011)
 ----------------------------------------------
 
 General: 
@@ -18,10 +18,12 @@ calls the PROSE kernal, location pointer registers have their MSB [23:16] set
 to the MBASE register).
 
 
-* All routines set the zero flag on return if the operation was successful.
+* All *DISK* routines set the zero flag on return if the operation was successful.
   If the zero flag is not set, CPU register "A" will contain an error code
   (see list at end of this document)
   
+* Other routines set the flags as applicable.
+
 * IX and IY are preserved by all kernal routines, assume all other registers
   are trashed unless otherwise stated.
 
@@ -800,6 +802,27 @@ Output: E = joystick 0, D = joystick 1
 
 Note: Bit set = direction / button asserted.
 
+
+
+
+4dh - "kr_set_timeout"
+----------------------
+
+Action: Sets the timeout period (in 32768 Hz ticks), max 65536 (two seconds)
+        and starts the count down
+Input : DE time-out value
+Output: none
+
+
+
+
+
+4eh - "kr_test_timeout"
+----------------------
+
+Action: Reports on status of time out flag
+Input : none
+Output: ZF not set if timed out (no time-out if zero flag set)
 
 
 
