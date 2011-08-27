@@ -1,0 +1,104 @@
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)                                               16-Aug-11     09:42:13     page:   1
+
+
+PC     Object              I  Line    Source 
+                           A     1    ; Zilog eZ80 ANSI C Compiler Release 3.3
+                           A     2    ; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+                           A     3    ; -localcse -const=ROM 
+                           A     4    	FILE	"..\SCREEN.C"
+                           A     5    	.assume ADL=1
+                           A     6    	SEGMENT DATA
+000000                     A     7    _VideoMem:
+000000 005080              A     8    	DW24	8409088
+                           A     9    	SEGMENT BSS
+000000                     A    10    _File:
+000000                     A    11    	DS	3
+                           A    12    ;    1	#ifndef SCREEN_C
+                           A    13    ;    2	#define SCREEN_C
+                           A    14    ;    3	
+                           A    15    ;    4	#include "Screen.h"
+                           A    16    ;    5	
+                           A    17    ;    6	char *File;
+                           A    18    	SEGMENT CODE
+                           A    19    ;    7	
+                           A    20    ;    8	void Set_320_240_Mode(void)
+                           A    21    ;    9	{
+000000                     A    22    _Set_320_240_Mode:
+                           A    23    ;   10		asm ("push ix");
+000000 DDE5                A    24    push ix
+                           A    25    ;   11		
+                           A    26    ;   12		asm ("ld a, 0110b");
+000002 3E06                A    27    ld a, 0110b
+                           A    28    ;   13		asm ("ld (video_control), a");
+000004 32 00 00 00         A    29    ld (video_control), a
+-----ERROR (405) Label "video_control" not defined
+                           A    30    ;   14		asm ("ld a, 0");
+000008 3E00                A    31    ld a, 0
+                           A    32    ;   15		asm ("ld (bgnd_palette_select), a");
+00000A 32 00 00 00         A    33    ld (bgnd_palette_select), a
+-----ERROR (405) Label "bgnd_palette_select" not defined
+                           A    34    ;   16		asm ("ld a, 99");
+00000E 3E63                A    35    ld a, 99
+                           A    36    ;   17		asm ("ld (right_border_position), a");
+000010 32 00 00 00         A    37    ld (right_border_position), a
+-----ERROR (405) Label "right_border_position" not defined
+                           A    38    ;   18		asm ("ld ix, bitmap_parameters");
+000014 DD21 00 00 00       A    39    ld ix, bitmap_parameters
+-----ERROR (405) Label "bitmap_parameters" not defined
+                           A    40    ;   19		asm ("ld hl, 1024 * 20");
+000019 21005000            A    41    ld hl, 1024 * 20
+                           A    42    ;   20		asm ("ld (ix), hl");
+00001D DD2F00              A    43    ld (ix), hl
+                           A    44    ;   21		asm ("ld (ix+04h), 1");
+000020 DD360401            A    45    ld (ix+04h), 1
+                           A    46    ;   22		asm ("ld (ix+08h), 0");
+000024 DD360800            A    47    ld (ix+08h), 0
+                           A    48    ;   23		asm ("ld (ix+0ch), 0");
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)                                               16-Aug-11     09:42:13     page:   2
+
+
+PC     Object              I  Line    Source screen.src
+000028 DD360C00            A    49    ld (ix+0ch), 0
+                           A    50    ;   24		asm ("ld (ix+10h), 0 + (320 / 8) - 1");
+00002C DD361027            A    51    ld (ix+10h), 0 + (320 / 8) - 1
+                           A    52    ;   25		
+                           A    53    ;   26		asm ("ld hl, (_VideoMem)");
+000030 2A 00 00 00         A    54    ld hl, (_VideoMem)
+                           A    55    ;   27		asm ("ld (hl), 0");
+000034 3600                A    56    ld (hl), 0
+                           A    57    ;   28		asm ("push hl");
+000036 E5                  A    58    push hl
+                           A    59    ;   29		asm ("pop de");
+000037 D1                  A    60    pop de
+                           A    61    ;   30		asm ("inc de");
+000038 13                  A    62    inc de
+                           A    63    ;   31		asm ("ld bc, 320*240");
+000039 01002C01            A    64    ld bc, 320*240
+                           A    65    ;   32		asm ("dec bc");
+00003D 0B                  A    66    dec bc
+                           A    67    ;   33		asm ("ldir");
+00003E EDB0                A    68    ldir
+                           A    69    ;   34		
+                           A    70    ;   35		asm ("pop ix");
+000040 DDE1                A    71    pop ix
+                           A    72    ;   36	}
+000042 C9                  A    73    	RET	
+                           A    74    
+                           A    75    
+                           A    76    ;**************************** _Set_320_240_Mode ***************************
+                           A    77    ;Name                         Addr/Register   Size   Type
+                           A    78    
+                           A    79    
+                           A    80    ; Stack Frame Size: 6 (bytes)
+                           A    81    ;       Spill Code: 0 (instruction)
+                           A    82    
+                           A    83    
+                           A    84    	XDEF _Set_320_240_Mode
+                           A    85    	XDEF _File
+                           A    86    	XDEF _VideoMem
+                           A    87    	END
+
+
+Errors: 4
+Warnings: 0
+Lines Assembled: 88

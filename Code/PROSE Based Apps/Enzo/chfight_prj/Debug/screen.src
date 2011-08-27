@@ -1,0 +1,87 @@
+; Zilog eZ80 ANSI C Compiler Release 3.3
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\SCREEN.C"
+	.assume ADL=1
+	SEGMENT DATA
+_VideoMem:
+	DW24	8409088
+	SEGMENT BSS
+_File:
+	DS	3
+;    1	#ifndef SCREEN_C
+;    2	#define SCREEN_C
+;    3	
+;    4	#include "Screen.h"
+;    5	
+;    6	char *File;
+	SEGMENT CODE
+;    7	
+;    8	void Set_320_240_Mode(void)
+;    9	{
+_Set_320_240_Mode:
+;   10		asm ("push ix");
+push ix
+;   11		
+;   12		asm ("ld a, 0110b");
+ld a, 0110b
+;   13		asm ("ld (video_control), a");
+ld (video_control), a
+;   14		asm ("ld a, 0");
+ld a, 0
+;   15		asm ("ld (bgnd_palette_select), a");
+ld (bgnd_palette_select), a
+;   16		asm ("ld a, 99");
+ld a, 99
+;   17		asm ("ld (right_border_position), a");
+ld (right_border_position), a
+;   18		asm ("ld ix, bitmap_parameters");
+ld ix, bitmap_parameters
+;   19		asm ("ld hl, 1024 * 20");
+ld hl, 1024 * 20
+;   20		asm ("ld (ix), hl");
+ld (ix), hl
+;   21		asm ("ld (ix+04h), 1");
+ld (ix+04h), 1
+;   22		asm ("ld (ix+08h), 0");
+ld (ix+08h), 0
+;   23		asm ("ld (ix+0ch), 0");
+ld (ix+0ch), 0
+;   24		asm ("ld (ix+10h), 0 + (320 / 8) - 1");
+ld (ix+10h), 0 + (320 / 8) - 1
+;   25		
+;   26		asm ("ld hl, (_VideoMem)");
+ld hl, (_VideoMem)
+;   27		asm ("ld (hl), 0");
+ld (hl), 0
+;   28		asm ("push hl");
+push hl
+;   29		asm ("pop de");
+pop de
+;   30		asm ("inc de");
+inc de
+;   31		asm ("ld bc, 320*240");
+ld bc, 320*240
+;   32		asm ("dec bc");
+dec bc
+;   33		asm ("ldir");
+ldir
+;   34		
+;   35		asm ("pop ix");
+pop ix
+;   36	}
+	RET	
+
+
+;**************************** _Set_320_240_Mode ***************************
+;Name                         Addr/Register   Size   Type
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	XDEF _Set_320_240_Mode
+	XDEF _File
+	XDEF _VideoMem
+	END
