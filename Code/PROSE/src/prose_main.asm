@@ -10,12 +10,19 @@
 	include	'amoeba_hardware_equates.asm'
 	include 'misc_system_equates.asm'
 	
+	sector_buffer	equ 800h
+	scratch_pad		equ 100h
+
 ;----------------------------------------------------------------------
 
-prose_version			equ 37h
+prose_version			equ 38h
 amoeba_version_required	equ 107h
 
-sys_mem_top				equ 07ffffh
+sysram_size				equ 080000h			;assume unexpanded 512KB for now
+stack_size				equ 512
+
+vram_a_size				equ 080000h
+vram_b_size				equ 080000h
 
 ;-----------------------------------------------------------------------------------
 ; Assembly options
@@ -35,8 +42,8 @@ max_buffer_chars		equ 80		; applies to command line string, output line string, 
 			
 				jp os_first_run							;os location + 10h		
 				jp extcmd_return						;os location + 14h
-				jp 0									;os location + 18h - reserved
-				jp 0									;os location + 1ch - reserved
+				jp relativize_hl						;os location + 18h
+				jp relative_call						;os location + 1ch
 				
 ;-------------------------------------------------------------------------------------
 
@@ -86,8 +93,27 @@ os_cold_start
 				xor a
 				ld MB,a									; MBASE = 0
 				ld.sis sp,0ffffh						; Set Z80 Stack pointer to top of MBASE page
-				ld sp,sys_mem_top						; Set ADL stack pointer
-
+				ld sp,sysram_addr+sysram_size-1			; Set ADL stack pointer
+				ld hl,sysram_addr+sysram_size-1
+				ld de,stack_size
+				xor a
+				sbc hl,de
+				ld (free_sysram_top),hl					; first allocatable RAM address (works downwards)
+				ld hl,os_max_addr
+				ld (free_sysram_base),hl
+				
+				ld hl,vram_a_addr
+				ld (free_vram_a_base),hl
+				ld bc,vram_a_size-1
+				add hl,bc
+				ld (free_vram_a_top),hl
+				
+				ld hl,vram_b_addr
+				ld (free_vram_b_base),hl
+				ld bc,vram_b_size-1-512					;reserve 512 bytes for pointer sprite
+				add hl,bc
+				ld (free_vram_b_top),hl
+								
 				call disable_irqs
 				call disable_all_nmis
 				
@@ -124,13 +150,8 @@ dont_resetkb
 				ld hl,welcome_message					; set up initial os display	
 				call os_print_string
 				
-				call os_get_mem_high					; hl = sys mem high, de = vram a mem high, bc = vram b mem high 
-				ex de,hl
-				call os_show_hex_address
-
-				call os_new_line
-				call os_new_line
 				call os_cmd_vers						; show OS / HW versions
+				
 				call os_cmd_remount						; set up drives
 
 				call os_new_line						; skip 1 line
@@ -488,7 +509,11 @@ gotgargs		call ascii_to_hex_no_scan			; returns DE = goto address
 				or a
 				jr nz,show_erm
 				call enable_button_nmi				; allow program to be stopped via NMI button
-				push de
+				call test_de
+				jr nz,not_reset
+				xor a
+				out (port_memory_paging),a			; enable ROM if "G 0"
+not_reset		push de
 				pop ix			
 				jp os_run_command					; run external command
 				
@@ -552,17 +577,8 @@ loc_header		ld a,(scratch_pad+15)				; store default ADL mode of command (for R 
 				jr nz,os_ndfxc
 				ld hl,(scratch_pad+5)				; set load address from previously loaded header
 				ld (fs_ez80_address),hl
-				ld de,(sysram_os_highest)
-				xor a
-				push hl
-				sbc hl,de
-				pop hl
-				jr nc,osmemok
-				call restore_dir_block				; if prog tries to load into OS area, exit with warning
-				ld a,026h
-				jp show_erm
-
-osmemok			ld de,(scratch_pad+11)				; is there a minimum version of PROSE specified?
+				
+				ld de,(scratch_pad+11)				; is there a minimum version of PROSE specified?
 				ld a,e
 				or d
 				jr z,noprov_spec					
@@ -594,7 +610,21 @@ nohwv_spec		ld de,(scratch_pad+8)				; is there a load length specified?
 				jr z,readcode						
 				call os_set_load_length				; set the load length
 		
-readcode		ld hl,(scratch_pad+5)
+readcode		ld bc,(fs_ez80_address)				; is it going to overwrite protected memory?
+				push bc
+				pop hl
+				ld de,(fs_file_transfer_length)
+				add hl,de
+				ex de,hl
+				call os_protected_ram_test
+				call nz,os_protected_ram_query
+				jr z,ezp_loadpm_ok
+				push af
+				call restore_dir_block
+				pop af
+				jp show_erm
+
+ezp_loadpm_ok	ld hl,(scratch_pad+5)
 				ld (os_extcmd_jmp_addr),hl			; store code execution address
 				call fs_read_data_command
 				push af
@@ -1696,6 +1726,7 @@ os_get_mouse_motion
 				and 2
 				xor 2
 				ret nz
+				
 ms_reread		xor a
 				ld (mouse_updated),a
 				ld hl,(mouse_disp_x)					 
@@ -1714,70 +1745,22 @@ os_get_mouse_position
 
 ; Returns: ZF = Set: Abolute X coord in HL, Absolute Y coord in DE, buttons in A, Wheel in B
 ;          ZF = Not set: Mouse driver not initialized.
-				
-				call os_get_mouse_motion
+
+				ld a,(devices_connected)
+				and 2
+				xor 2
 				ret nz
-				ld (mouse_disp_x_buffer),hl
-				ld (mouse_disp_y_buffer),de
-				ld a,(mouse_new_window)
-				or a
-				jr nz,ms_nmw
-
-				ld de,(mouse_disp_x_old)
-				xor a
-				sbc hl,de
-				ex de,hl
-				ld hl,(mouse_abs_x)
-				add hl,de
-				push hl
-				pop bc
-				ld ix,800000h							; gone negetive?
-				add ix,bc
-				jr nc,ms_x_ok1
-				ld bc,0
-				jr ms_x_ok2
-ms_x_ok1		ld de,(mouse_window_size_x)
-				xor a
-				sbc hl,de
-				jr c,ms_x_ok2
-				ld bc,(mouse_window_size_x)				; max window x pos
-				dec bc
-ms_x_ok2		ld (mouse_abs_x),bc
-					
-				ld hl,(mouse_disp_y_buffer)
-				ld de,(mouse_disp_y_old)
-				xor a
-				sbc hl,de
-				ex de,hl
-				ld hl,(mouse_abs_y)
-				add hl,de
-				push hl
-				pop bc
-				ld ix,800000h							; gone negetive?
-				add ix,bc
-				jr nc,ms_y_ok1
-				ld bc,0
-				jr ms_y_ok2
-ms_y_ok1		ld de,(mouse_window_size_y)
-				xor a
-				sbc hl,de
-				jr c,ms_y_ok2
-				ld bc,(mouse_window_size_y)				; max window x pos
-				dec bc
-ms_y_ok2		ld (mouse_abs_y),bc
-
 				
-ms_nmw			ld hl,(mouse_disp_x_buffer)
-				ld (mouse_disp_x_old),hl
-				ld hl,(mouse_disp_y_buffer)
-				ld (mouse_disp_y_old),hl
-				
+ms_reread_abs	xor a
+				ld (mouse_updated),a
+
 				ld hl,(mouse_abs_x)
 				ld de,(mouse_abs_y)
+				ld a,(mouse_updated)					; has mouse interrupted whilst we were reading?
+				or a
+				jr nz,ms_reread_abs
 				
-				xor a
-				ld (mouse_new_window),a
-				jp mouse_end
+				jr mouse_end
 				
 	
 ;====================================================================================================
@@ -3007,7 +2990,7 @@ ext_delete_envar
 
 os_delete_envar
 
-;HL = name of required variable (null terminated string, 4 bytes max)
+;HL = name of required variable (null terminated string)
 ;ZF = Set: OK
 ;ZF = Not Set: Didnt find named variable
 
@@ -3087,7 +3070,14 @@ ext_play_audio	call z,mbase_hl
 os_play_audio	call hwsc_play_audio
 				ret
 				
-				
+;--------------------------------------------------------------------------------------------
+
+test_de			push hl
+				ld hl,0
+				adc hl,de
+				pop hl
+				ret
+
 ;==============================================================================================
 ; Internal OS command routines
 ;==============================================================================================
@@ -3126,19 +3116,138 @@ os_play_audio	call hwsc_play_audio
 	include 'commands\set.asm'
 	include 'commands\dz.asm'
 	include 'commands\sound.asm'
-
+	include 'commands\avail.asm'
+	include 'commands\fi.asm'
+	
 os_cmd_unused	ret		; <- dummy command, should never be called
 
 ;-----------------------------------------------------------------------------------------------
 
-os_get_mem_high
+os_get_mem_base
 
-		ld hl,(sysram_os_highest)
-		ld de,(vram_a_os_highest)
-		ld bc,(vram_b_os_highest)
-		xor a
+		ld hl,(free_sysram_base)
+		ld de,(free_vram_a_base)
+		ld bc,(free_vram_b_base)
+		cp a
 		ret
 
+
+os_get_mem_top
+
+		ld hl,(free_sysram_top)
+		ld de,(free_vram_a_top)
+		ld bc,(free_vram_b_top)
+		cp a
+		ret
+
+;-----------------------------------------------------------------------------------------------
+
+ext_set_pointer
+
+; Set D = 1: use default pointer, otherwise:
+
+;  Set HL to location of sprite data in memory (copied to sprite RAM by this routine)
+;  followed by:
+;   $00 - palette offset
+;   $00 - colour count
+;  then.. palette data (starting from colour 1)
+
+;   Set C to pointer height (max 32)
+;   Set B to palette 0-3
+;   Set E to enable/disable pointer sprite
+
+;   Returns with Zero Flag set if mouse driver is active.
+				
+				call z,mbase_hl
+
+os_set_pointer
+
+				ld a,e
+				or a
+				jr z,disable_pointer
+				
+				ld a,(devices_connected)			; If the mouse is not enabled, disable the pointer
+				and 2
+				jr nz,ok_md_enabled
+				call disable_pointer
+				xor a
+				inc a
+				ret
+				
+				
+ok_md_enabled	ld a,d
+				and 1
+				jr z,user_def_pointer
+					
+				ld hl,default_pointer
+				ld de,vram_b_addr+vram_b_size-512
+				ld bc,default_pointer_colours-default_pointer
+				call unpack_rle
+					
+				ld bc,0
+				ld c,default_pointer_height
+				ld (os_pointer_height),bc
+				ld hl,default_pointer_colours
+				ld a,3
+				ld (os_pointer_palette),a		;default pointer uses palette 3
+				jr copy_spr_pal
+				
+user_def_pointer
+				ld a,b
+				and 3
+				ld (os_pointer_palette),a	
+				ld a,c
+				cp 020h
+				jr c,pointhok
+				ld a,020h
+pointhok		ld (os_pointer_height),a
+				ld bc,16
+				ld b,a
+				mlt bc								;height * 16 = number of bytes in def
+				ld de,vram_b_addr+vram_b_size-512
+				ldir								;copy image to sprite RAM
+							
+copy_spr_pal	push hl								;stash address of palette offset
+				ld bc,0
+				ld c,(hl)
+				sla c
+				rl b								;bc = palette offset * 2
+				ld hl,hw_palette			
+				add hl,bc
+				ld a,(os_pointer_palette)			;add palette selection
+				sla a
+				ld b,a
+				ld c,0
+				add hl,bc				
+				ex de,hl							;de = dest in palette
+				pop hl								;retrieve palette offset
+				inc hl								;move to number of colours
+				ld b,0
+				ld c,(hl)
+				sla c
+				rl b								;bc = palette colour count * 2
+				inc hl
+				ldir								;copy colours to palette 3
+				
+				ld hl,07fe0h
+				ld (os_pointer_definition),hl		
+				ld a,1
+				ld (os_pointer_enable),a
+				ld (sprite_control),a				;globally enable all sprites
+				ld a,(os_pointer_palette)
+				ld (sprite_palette_select),a						
+				call hwsc_update_pointer_sprite				
+				xor a
+				ret
+
+
+disable_pointer
+
+				xor a
+				ld (os_pointer_enable),a
+				ld (sprite_control),a				;globally enable all sprites
+				ret
+				
 ;-----------------------------------------------------------------------------------------------
 
 test_amoeba_vers
@@ -3215,7 +3324,246 @@ got_wcolour		ld (hw_palette+2),de
 				cp 76h
 				jr nz,wmsg_loop
 				jp 0
+
+;-----------------------------------------------------------------------------------------------
+
+
+relativize_hl	push de						
+
+				pop de
+				pop de						; PC of return address					
+				add hl,de
+				ld de,8
+				or a
+				sbc hl,de
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				pop de						; original DE
+				ret
+
+
+relative_call	push de						
+
+				pop de
+				pop de						; PC of return address					
+				add hl,de
+				ld de,8
+				or a
+				sbc hl,de
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				dec sp
+				pop de						; original DE
+				jp (hl)
+
+
+;-----------------------------------------------------------------------------------------------
+
+os_allocate_ram
+
+; set BC = number of bytes to allocate
+; set E = 0 sysram, E = 1 vram_a, E = 2 vram_b
+; returns HL = address of allocated RAM
+; ZF set if all OK
+
+				ld a,e
+				ld de,6
+				ld d,a
+				mlt de
+				ld ix,free_sysram_base
+				add ix,de
 				
+				ld hl,(ix+3)
+				xor a
+				sbc hl,bc
+				jr c,alloc_err
+				ld (ix+3),hl
+				
+				ld de,(ix)
+				xor a
+				push hl
+				sbc hl,de
+				pop hl
+				inc hl
+				jr nc,alloc_ok
+alloc_err		ld a,8eh						; cannot allocate memory
+				or a
+				ret
+				
+alloc_ok		xor a
+				ret
+			
+
+
+os_deallocate_ram
+
+; set BC = number of bytes to de-allocate
+; set E = 0 sysram, E = 1 vram_a, E = 2 vram_b
+; returns HL = address of allocated RAM
+; ZF set if all OK		
+
+				push de
+				
+				ld a,e
+				ld de,6
+				ld d,a
+				mlt de
+				ld ix,free_sysram_base
+				add ix,de
+				
+				ld hl,(ix+3)
+				add hl,bc
+				ld (ix+3),hl
+				
+				pop de								;if deallocating sysram, check against STACK
+				ld a,e
+				or a
+				jr nz,dealloc_ok					
+				
+				ld de,sysram_addr+sysram_size-stack_size
+				xor a
+				sbc hl,de
+				jr c,dealloc_ok
+				dec de
+				ld (ix+3),de
+dealloc_ok		xor a
+				ret
+				
+				
+;-----------------------------------------------------------------------------------------------
+
+os_protected_ram_test
+
+; set bc = start of range
+; set de = end of range
+
+; Returns ZF set if no collision
+
+
+				ld ix,free_sysram_base			;is range within PROSE?
+				ld hl,(ix)
+				xor a
+				sbc hl,bc
+				jr c,no_prose_hit
+				ld a,26h						;error - OS area protected
+				or a
+				ret
+				
+no_prose_hit	ld hl,(ix+6)					;is range within the charmap/font data
+				xor a
+				sbc hl,bc
+				jr c,no_vram_a_low_hit
+				ld hl,800000h
+				xor a
+				sbc hl,de
+				jr nc,no_vram_a_low_hit
+				ld a,36h						;error - video ram protected
+				or a
+				ret
+
+no_vram_a_low_hit
+				
+				call test_alloc
+				ret nz
+				lea ix,ix+6
+				call test_alloc
+				ret nz
+				lea ix,ix+6
+				call test_alloc
+				ret 
+				
+test_alloc		ld hl,(ix+3)					;hl = syram freee top
+				xor a
+				sbc hl,de
+				jr nc,no_colis
+				ld hl,sysram_addr+sysram_size	;hl = sysram max
+				xor a
+				sbc hl,bc
+				jr c,no_colis
+				ld a,35h						;error - range within allocated memory 
+				or a
+				ret
+				
+no_colis		xor a
+				ret
+				
+;-----------------------------------------------------------------------------------------------
+
+os_protected_ram_query
+
+				push af
+				ld hl,pmq_txt
+				call os_print_string
+				call os_wait_key_press
+				ld a,b
+				cp 'y'
+				jr z,ok_pmwrite
+				cp 'Y'
+				jr z,ok_pmwrite
+				pop af
+				ret
+				
+ok_pmwrite		pop af
+				xor a
+				ret
+
+;-----------------------------------------------------------------------------------------------
+					
+os_output_to_envars
+
+; Set IX to location of first 24bit value to output 
+; B = number of envars to make 
+; C = Start envar number
+				
+out_to_envlp	push bc
+				ld a,c
+				ld hl,envar_out_n_txt+3
+				call hexbyte_to_ascii
+						
+				ld hl,scratch_pad
+				lea de,ix+2
+				ld b,3
+				call n_hexbytes_to_ascii
+				ld (hl),0
+				
+				ld hl,envar_out_n_txt
+				ld de,scratch_pad
+				push ix
+				call os_set_envar
+				pop ix
+				pop bc
+				ret nz
+				
+				lea ix,ix+3
+				inc c
+				djnz out_to_envlp
+				xor a
+				ret			
+
+
+clear_output_envars
+
+				ld c,0
+del_out_envlp	push bc
+				ld a,c
+				ld hl,envar_out_n_txt+3
+				call hexbyte_to_ascii
+				ld hl,envar_out_n_txt
+				call os_delete_envar
+				pop bc
+				ret nz
+				inc c
+				djnz del_out_envlp
+				xor a
+				ret			
+
 ;-----------------------------------------------------------------------------------------------
 ; Storage Device Drivers
 ;-----------------------------------------------------------------------------------------------
@@ -3249,12 +3597,17 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 ; OS Data 
 ;-----------------------------------------------------------------------------------------------
 
+
 	include		'prose_data.asm'					; OS data
 	include		'phil_font_packed.asm'				; Default font
 
-sector_buffer	blkb 512,0
 
-scratch_pad		blkb 256,0
+default_pointer_height equ 20
+
+	include		'default_pointer_packed.asm'		; Default mouse pointer image
+
+default_pointer_colours	db 1,2						;offset from colour 0, number of colours 
+						dw 000h,0fffh
 
 ;================================================================================================
 	

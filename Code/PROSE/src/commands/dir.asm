@@ -69,17 +69,60 @@ os_dpl			call os_print_string
 os_dlr			call div_line									;now show remaining disk space
 				call fs_calc_free_space
 				ret c	
-				call show_hlde_decimal
-				ld hl,kb_spare_txt
+				
+				call show_capacity								;KB free is in xDE
+				ld hl,free_txt
 				call os_print_string
 				xor a
 				ret
+				
+;-------------------------------------------------------------------------------------------------------
 
+show_capacity	
+
+; set xDE = capacity in KB
+; (trashed all other registers!)
+
+				ld ix,dir_kb_txt
+				xor a
+				push de
+				pop hl
+				ld bc,1024h
+				sbc hl,bc
+				jr c,showresinkb
+				ld b,10
+				call shr_de
+				ld ix,dir_mb_txt
+showresinkb		call show_xde_decimal
+				push ix
+				pop hl
+				call os_print_string
+				ret
+				
+;--------------------------------------------------------------------------------------------------------
+
+; Set xDE = value to shift
+; Set B = number of places to shift right (0-23)
+	
+shr_de			push hl
+				ld a,24
+				sub b
+				ld b,a
+				ld hl,0
+				ex de,hl
+divde_lp		add hl,hl
+				ex de,hl
+				adc hl,hl
+				ex de,hl
+				djnz divde_lp
+				pop hl
+				ret
+				
 ;-------------------------------------------------------------------------------------------------
 
-show_hlde_decimal
+show_xde_decimal
 
-				call os_hex_to_decimal							;pass hl:de longword to decimal convert routine
+				call os_hex_to_decimal							;pass xde longword to decimal convert routine
 				ld de,7
 				add hl,de										;move to MSB of decimal digits
 				ld b,e
@@ -115,7 +158,9 @@ div_line		ld c,'-'
 
 dir_txt			db '[DIR]',0
 
-kb_spare_txt	db ' KB Free',11,0
+dir_kb_txt		db ' KB ',0
+dir_mb_txt		db ' MB ',0
+free_txt		db 'Free',11,0
 
 ;-----------------------------------------------------------------------------------------------------
 	

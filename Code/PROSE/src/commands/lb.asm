@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------
-;"lb" - Load binary file command. V0.03 - ADL mode
+;"lb" - Load binary file command. V0.04 - ADL mode
 ;-----------------------------------------------------------------------
 
 os_cmd_lb
@@ -11,7 +11,7 @@ os_cmd_lb
 				call os_find_file						;get header info
 				ret nz
 				ld (filesize_cache),de					;note the filesize (23:0)
-				ld hl,(default_load_addr)
+				ld hl,(free_sysram_base)
 				ld (data_load_addr),hl					;default load location
 				
 				ld hl,(os_args_loc)
@@ -21,17 +21,17 @@ os_cmd_lb
 				jr z,os_lbnao							;load location override?
 				ld (data_load_addr),de
 
-os_lbnao		ld de,(data_load_addr)				
-				ld hl,(sysram_os_highest)				;ensure load doesn't overwrite OS
-				dec hl
-				xor a
-				sbc hl,de
-				jr c,os_lbprok
-				ld a,026h								;ERROR $26 - OS AREA PROTECTED
-				or a
-				ret
-				
-os_lbprok		ld hl,(data_load_addr)					;load the file
+os_lbnao		ld bc,(data_load_addr)					;ensure load doesn't overwrite OS/Low VRAM/Allocated RAM
+				push bc
+				pop hl
+				ld de,(filesize_cache)
+				add hl,de
+				ex de,hl
+				call os_protected_ram_test
+				call nz,os_protected_ram_query
+				ret nz
+
+				ld hl,(data_load_addr)					;load the file
 				call os_read_bytes_from_file
 				ret nz
 			

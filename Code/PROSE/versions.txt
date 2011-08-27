@@ -2,7 +2,39 @@
 Current version
 ---------------
 
-(22-08-2011.. Still undergoing testing)
+27-8-2011
+
+038		: Kernal call "kr_set_pointer" initialize / display the mouse pointer
+	        : (512 bytes at top of VRAM B reserved for OS pointer sprite)
+	
+		: Entering "G 0" enables the ROM for reset (was hanging due to vector table
+                ; overwriting the RAM copy of ROM)
+
+		: Added support routines for relocatable code
+		
+		: Added memory allocation feature: "kr_allocate_memory", "kr_deallocate_memory"
+
+		: Added AVAIL command for memory info
+		
+		: Added "kr_get_mem_top" (and renamed "kr_get_os_high" to "kr_get_mem_base")
+
+                : Command line loading of EZP programs, RX and LB commands check for protected
+                  areas of RAM and prompt the user to confirm the operation if these would be overwritten.
+
+		: Added: Return values to envars: New PROSE standard - commands can pass 24bit values to envars on exit
+		  starting at "OUT00", then "OUT01" etc.  AVAIL and VERS do this when they have the argument "#"
+
+                ; Added FI [filename] (file info) command, additional # argument is accepted.
+
+                ; Fixed PROSE error reports for filesystem errors $cc and $cd
+
+                ; DIR and format show capacity in MB (or KB if less than 1MB)
+ 
+
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
 
 037		: File loads faster (when more than 4 bytes at a time are loaded)
 
@@ -16,9 +48,6 @@ Current version
 
 		: Interrupt vector table set up in page 0 for all eZ80 IRQs.
 
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 036          :  Bugfix: New SD card driver was relying on previous ROM-based driver code

@@ -78,16 +78,19 @@ format_dev		push bc
 				call show_dev_driver_name				;show device driver name ("SD card" etc)
 				pop ix
 				ld de,(ix+1)
-				ld iy,xrr_temp
-				ld (iy),de								; de number of sectors, divide by 2 to get k.bytes
-				srl (iy+2)
-				rr (iy+1)
-				rr (iy+0)								
-				ld de,(iy)								;divide sectors by 2 for KB
-				call show_hlde_decimal					;show capacity
-				ld hl,kb_txt
-				call os_print_string
-				lea hl,ix+5		
+				ld a,(ix+4)
+				or a
+				jr z,less16gb
+				ld hl,dev16gbplus_txt
+				jr form_capdone
+less16gb		ld b,1
+				call shr_de								;divide sectors by 2 for KB
+				ld a,'('
+				call os_print_char
+				push ix
+				call show_capacity						;show capacity
+				pop ix
+form_capdone	lea hl,ix+5		
 				call os_print_string					;show hardware's name originally from get_id 
 				ld a,')'
 				call os_print_char
@@ -168,7 +171,7 @@ default_label
 
 				db 'PROSE_DISK',0
 
-kb_txt			db 'KB (',0
+dev16gbplus_txt	db '(16GB+ ',0
 
 ;------------------------------------------------------------------------------------------------
 
