@@ -1,11 +1,12 @@
 ;-----------------------------------------------------------------------
-;"RX" - Receive binary file via serial port command. V0.06 - ADL mode
+;"RX" - Receive binary file via serial port command. V0.07 - ADL mode
 ;-----------------------------------------------------------------------
 
-buffer_blocks			 equ 128				;number of 256 byte blocks to buffer
-buffer_addr				 equ os_max_addr		;location of data buffer
-rx_buffer_ptr			 equ scratch_pad
-serial_file_length_cache equ scratch_pad+3
+buffer_blocks			 equ 64							;number of 256 byte blocks to buffer
+
+rx_buffer_loc			 equ scratch_pad
+rx_buffer_ptr			 equ scratch_pad+3
+serial_file_length_cache equ scratch_pad+6
 
 
 os_cmd_rx		ld a,(hl)								; check args exist
@@ -24,10 +25,16 @@ os_cmd_rx		ld a,(hl)								; check args exist
 				call os_check_volume_format				;disk ok?
 				ret nz		
 				
+				ld bc,buffer_blocks*256					; allocate space for buffer at top of sysram
+				ld e,0
+				call os_allocate_ram
+				ret nz
+				ld (rx_buffer_loc),hl
+				
 				ld de,02ah								; set filename to wildcard. 
 				ld (serial_filename),de					
 				call rx_get_header
-				ret nz
+				jr nz,rxwtd_fail
 				call s_holdack							; tell sender to wait
 				
 				ld hl,serial_fileheader					; try to make file
@@ -39,54 +46,60 @@ os_cmd_rx		ld a,(hl)								; check args exist
 				
 rx_rnblk		ld hl,(serial_fileheader+16)			; (remaining) length of file
 				ld (serial_file_length_cache),hl
-				ld hl,buffer_addr
+				ld hl,(rx_buffer_loc)
 				ld (rx_buffer_ptr),hl
+				
 				ld b,buffer_blocks						;max number of 256-byte blocks to buffer
 				
 rx_lnb			call s_goodack
 				call s_getblock
 				jr z,rxtd_blok
-
 				push af									
 				call s_badack							
 				ld hl,serial_fileheader					;bad/no block received - erase the truncated file
 				call os_erase_file
-				pop af
-				ret
+				jr rx_dealloc
 
-rxtd_blok		call s_holdack
+rxtd_blok		call s_holdack							; tell sender to wait, before sending next 256-byte block
 				
-				ld hl,sector_buffer
+				ld hl,sector_buffer						; copy 256 bytes to load buffer
 				ld de,(rx_buffer_ptr)
+				push bc
 				ld bc,256
 				ldir
+				pop bc
 				ld (rx_buffer_ptr),de
 				
-				ld hl,(serial_fileheader+16)
+				ld hl,(serial_fileheader+16)			; reduce number of bytes left to load
 				ld de,256
 				xor a
 				sbc hl,de
 				ld (serial_fileheader+16),hl
-				jr z,rx_lbr
-				jr c,rx_lbr
-				djnz rx_lnb
+				jr z,rx_lbr								; if all bytes have been received, write the contents of the buffer
+				jr c,rx_lbr								; to the file
+				djnz rx_lnb								; otherwise loop around until buffer is full
 
-				ld bc,buffer_blocks*256
-				ld de,buffer_addr
+				ld bc,buffer_blocks*256					; write a full buffer to file
+				ld de,(rx_buffer_loc)
 				ld hl,serial_fileheader
 				call os_write_bytes_to_file
-				jr z,rx_rnblk
+				jr z,rx_rnblk						
 rxwtd_fail		push af
 				call s_badack
+rx_dealloc		ld bc,buffer_blocks*256
+				ld e,0
+				call os_deallocate_ram
 				pop af
 				ret
 				
-rx_lbr			call s_goodack
+rx_lbr			call s_goodack							;write last (partially full) buffer to file
 				ld bc,(serial_file_length_cache)
-				ld de,buffer_addr
+				ld de,(rx_buffer_loc)
 				ld hl,serial_fileheader
 				call os_write_bytes_to_file
-				ret nz	
+				jr z,rxtd_done
+				push af
+				jr rx_dealloc
 				
 rxtd_done		ld a,020h								;ok msg
 				or a
@@ -119,7 +132,23 @@ rxe_badblock	push af									; if ZF not set there was an error (code in A)
 				pop af
 				ret
 	
-rxe_fblok		ld hl,(sector_buffer+2)
+rxe_fblok		ld bc,(sector_buffer+5)					; start address
+				push bc
+				pop hl
+				ld de,(serial_fileheader+16)
+				add hl,de
+				ex de,hl
+				call os_protected_ram_test				; would this overwrite protected RAM?
+				jr z,rxe_norampro
+				call s_holdack							; tell sender to wait
+				call os_protected_ram_query
+				jr z,rxe_norampro
+				push af
+				call s_badack
+				pop af
+				ret
+	
+rxe_norampro	ld hl,(sector_buffer+2)
 				ld de,04f5250h							; check "PRO" ID tag
 				xor a
 				jr z,rxe_ok
@@ -176,18 +205,19 @@ notrxe			call clear_serial_filename
 				call hexword_or_bust					;the call only returns here if the hex in DE is valid
 				jp z,os_no_start_addr					;gets load location in DE
 				ld (data_load_addr),de					;stash the load address									
-				ld hl,(sysram_os_highest)				;make sure it isnt going to overwrite the OS
-				dec hl
-				xor a
-				sbc hl,de
-				jr c,os_prok
-				ld a,026h								;ERROR $26 - A load here would overwrite OS code/data
-				or a
-				ret
-
-os_prok			call rx_get_header
+				call rx_get_header
 				ret nz
 
+				ld bc,(data_load_addr)					;would this overwrite protected RAM?
+				push bc
+				pop hl
+				ld de,(serial_fileheader+16)
+				add hl,de
+				ex de,hl
+				call os_protected_ram_test
+				call nz,os_protected_ram_query
+				ret nz
+				
 				ld hl,ser_rec2_msg
 				call os_show_packed_text
 	
@@ -248,3 +278,4 @@ clear_serial_filename
 				ret
 
 ;----------------------------------------------------------------------------------------------
+

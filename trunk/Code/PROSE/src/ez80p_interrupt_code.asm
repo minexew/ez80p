@@ -257,7 +257,25 @@ mxsignpos		ld a,(mouse_packet+1)
 				add hl,de
 				ld (mouse_disp_x),hl
 				
-				ld de,0							; update y accumulator
+				ld hl,(mouse_abs_x)				; update absolute x position
+				add hl,de
+				ld (mouse_abs_x),hl
+				bit 4,c
+				jr nz,m_abs_neg_x
+				ld de,(mouse_window_size_x)
+				xor a
+				sbc hl,de
+				jr c,m_abs_x_ok
+				dec de
+				ld (mouse_abs_x),de
+				jr m_abs_x_ok
+m_abs_neg_x		add hl,hl
+				jr nc,m_abs_x_ok
+				ld hl,0
+				ld (mouse_abs_x),hl
+				
+				
+m_abs_x_ok		ld de,0							; update y accumulator
 				bit 5,c
 				jr z,mysignpos
 				dec de
@@ -268,6 +286,25 @@ mysignpos		ld a,(mouse_packet+2)
 				sbc hl,de
 				ld (mouse_disp_y),hl
 				
+				ld hl,(mouse_abs_y)				; update absolute y position
+				xor a
+				sbc hl,de
+				ld (mouse_abs_y),hl
+				bit 5,c
+				jr z,m_abs_neg_y
+				ld de,(mouse_window_size_y)
+				xor a
+				sbc hl,de
+				jr c,m_abs_y_ok
+				dec de
+				ld (mouse_abs_y),de
+				jr m_abs_y_ok
+m_abs_neg_y		add hl,hl
+				jr nc,m_abs_y_ok
+				ld hl,0
+				ld (mouse_abs_y),hl
+m_abs_y_ok			
+
 				ld hl,mouse_packet+3			; scroll wheel data for 4-byte packet mice (where available)
 				ld a,(mouse_wheel)
 				add a,(hl)
@@ -283,10 +320,13 @@ msubpkt			ld (mouse_packet_index),a
 				bit 5,a
 				jr nz,ms_loop				
 				
+				call hwsc_update_pointer_sprite
+
 				pop hl
 				pop de
 				pop bc
 				ret
+				
 				
 ;----------------------------------------------------------------------------------------
 ; ez80p NMI code v0.03

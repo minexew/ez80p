@@ -46,14 +46,48 @@ hwsc_default_hw_settings
 
 ;-----------------------------------------------------------------------------------------------
 
-hwsc_disable_sprites
-
+hwsc_reset_sprites	xor a
+					ld (sprite_control),a			; Disable sprites globally
+					
+					ld hl,hw_sprite_registers		; also zero all registers
+					ld bc,8*32
 					xor a
-					ld (sprite_control),a			; Disable sprites
+					call os_bchl_memfill
 					ret
 					
 ;-----------------------------------------------------------------------------------------------
 
+
+hwsc_update_pointer_sprite
+					
+					ld a,(os_pointer_enable)			; dont write to sprite registers if pointer not enabled
+					and 1
+					ret z
+
+					push ix
+					ld ix,hw_sprite_registers+(31*8)	; use last sprite resource
+					ld hl,(mouse_abs_x)
+					ld bc,x_display_offset
+					add hl,bc
+					ld (ix),l
+					ld (ix+1),h
+					ld hl,(mouse_abs_y)
+					ld bc,y_display_offset
+					add hl,bc
+					ld (ix+2),l
+					ld (ix+3),h
+					ld bc,(os_pointer_height)
+					ld (ix+4),c
+					ld (ix+5),b
+					ld bc,(os_pointer_definition)
+					ld (ix+6),c
+					ld (ix+7),b
+					pop ix
+					ret
+
+
+;-----------------------------------------------------------------------------------------------
+				
 
 hwsc_get_version	ld de,0
 					ld b,16

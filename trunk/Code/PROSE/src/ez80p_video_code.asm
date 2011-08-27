@@ -26,7 +26,7 @@ set_charmap_parameters
 				ld (charmap_size),hl
 				ld de,charmap_addr
 				add hl,de
-				ld (vram_a_os_highest),hl			;first free location in VRAM_A (for OS-friendly apps)
+				ld (free_vram_a_base),hl				;first free location in VRAM_A (for OS-friendly apps)
 				
 				call os_set_video_hw_regs
 				xor a
@@ -75,7 +75,10 @@ os_set_video_hw_regs
 				ld hl,pen_palette
 				call hswc_set_ui_colours
 				
-				call hwsc_disable_sprites
+				call hwsc_reset_sprites
+				
+				xor a
+				ld (os_pointer_enable),a				; pointer not used in os
 				
 				xor a									; ZF set, no error
 				ret

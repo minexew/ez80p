@@ -83,7 +83,7 @@ kernal_table
 	dw24 hwsc_read_rtc				;41     
 	dw24 hwsc_write_rtc				;42		 
 	dw24 os_get_keymap_location		;43		 
-	dw24 os_get_mem_high			;44
+	dw24 os_get_mem_base			;44
 	dw24 ext_play_audio				;45
 	dw24 hwsc_disable_audio			;46
 	dw24 hwsc_get_joysticks			;47
@@ -95,18 +95,22 @@ kernal_table
 	dw24 hwsc_set_timeout			;4d
 	dw24 hwsc_test_timeout			;4e
 	
+	dw24 ext_set_pointer			;4f
+	dw24 os_allocate_ram			;50
+	dw24 os_deallocate_ram			;51
+	dw24 os_get_mem_top				;52
+
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
 ;-------------------------------------------------------------------------------------------
 
-welcome_message			db "PROSE for EZ80P by Phil Ruston 2011",11,11
-						db "SYSTEM RAM free above: $",0
+welcome_message			db "PROSE for EZ80P by Phil Ruston 2011",11,11,0
 storage_txt				db "Drives:",11,0
 os_dos_cmds_txt			db "COMMANDS",0
 startup_script_fn		db "STARTUP.SCR",0
 os_hex_prefix_txt		db "$",0
-os_version_txt			db "OS Version: $",0		
-hw_version_txt			db "AMOEBA HW Version: $",0
+os_version_txt			db "PROSE Ver: $",0		
+hw_version_txt			db "AMOEBA Ver: $",0
 fwd_slash_txt			db " / ",0
 loading_txt				db "Loading..",11,0
 saving_txt				db "Saving..",11,0
@@ -121,6 +125,8 @@ if_command_txt			db "IF "
 end_command_txt			db "END "
 hw_warn_txt1			db "OS REQUIRES AMOEBA V:"
 hw_warn_txt2			db "----",0
+pmq_txt					db "This will overwrite protected RAM. Continue (y/n)? ",11,0
+envar_out_n_txt			db "OUTxx",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -210,7 +216,7 @@ dictionary				db 0,"DEBUG"			;01
 						db 97h,"VERS"			;4e	
 						db 0,"Write"			;4f
 						
-						db 0,"Mem"				;50
+						db 0,"Memory"			;50
 						db 0,22h,"txt",22h		;51
 						db 0,"Will"				;52
 						db 0,"Rate"				;53
@@ -339,6 +345,12 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"Z80"				;c3
 						db 0,"Play"				;c4
 						db 0,"Audio"			;c5
+						db 0a2h,"AVAIL"			;c6
+						db 0,"Free"				;c7
+						db 0,"Cannot"			;c8
+						db 0,"Allocate"			;c9
+						db 0,"Allocated"		;ca
+						db 0a3h,"FI"			;cb
 						
 						db 0,1					;END MARKER
 
@@ -379,6 +391,7 @@ packed_help1				db 097h,0
 							db 038h,023h,01eh,01dh,05fh,01bh,060h,01eh,01dh,0	; "CD VOLx/dir - change volume / dir"
 							db 03ch,01fh,05fh,020h,021h,0						; "DEL fn - delete file"
 							db 03dh,05fh,010h,01dh,0							; "DIR - show dir"
+							db 0cbh,01fh,05fh,021h,022h,0						; "FI fn - file info"
 							db 041h,01ah,099h,05fh,055h,01ch,0					; "FORMAT Device Name - prep drive"
 							db 043h,01fh,007h,05fh,02fh,021h,0					; "LB fn ad - load file"
 							db 056h,01dh,05fh,024h,01dh,0						; "MD fn make dir"
@@ -393,6 +406,7 @@ packed_help1				db 097h,0
 							db 097h,0
 							db 005h,0											; MISC
 							db 006h,0											; ----
+							db 0c6h,05fh,010h,0c7h,050h,0						; "AVAIL - show free mem
 							db 039h,05fh,015h,016h,0							; "CLS - clear screen"
 							db 09fh,01fh,05fh,0a0h,0a1h,0						; "EXEC fn - run script"
 							db 0bah,01fh,05fh,01bh,082h,0						; "FONT fn - change font"
@@ -448,6 +462,8 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							
 							dw24 os_cmd_set								;20
 							dw24 os_cmd_dz								;21
+							dw24 os_cmd_avail							;22
+							dw24 os_cmd_fi								;23
 							
 								
 packed_msg_list				db 0										;First message marker
@@ -512,7 +528,10 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 							db 0bdh,01ah,0								;$30 Unsupported device
 							db 01ah,062h,0b3h,0							;$31 Device not detected
 							db 01ah,07ch,0								;$32 Device error
-							db 0a1h,07ch,0								;$33 Script error
+							db 081h,07ch,0								;$33 Script error
+							db 0c8h,0c9h,050h,0							;$34 Cannot allocate memory
+							db 0cah,050h,08bh,0							;$35 Allocated RAM protected
+							db 0b8h,050h,08bh,0							;$36 Video RAM protected
 							
 							db 0ffh										;END MARKER
 
@@ -520,12 +539,12 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 
 kernal_error_code_translation
 
-					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h, 033h,01fh	    ; begins at $80
+					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h, 033h,01fh,034h	    ; begins at $80
 					
 fs_error_code_translation
 
-					db 00h,01h,02h,03h,04h,05h,06h,07h, 08h,09h,0ah,0bh,0ch,0dh,13h,21h		; begins at $c0
-					db 22h,23h,24h,25h,26h,0eh,00h,00h
+					db 00h,01h,02h,03h, 04h,05h,06h,07h, 08h,09h,0ah,23h, 27h,0dh,13h,21h			; begins at $c0
+					db 22h,23h,24h,25h, 26h,0eh,00h,00h
 
 
 ;--------------------------------------------------------------------------------------------
@@ -677,8 +696,6 @@ vols_on_device_temp		db 0
 sys_driver_backup		db 0
 os_quiet_mode			db 0
 
-default_load_addr		dw24 os_max_addr
-
 ;--------------------------------------------------------------------------------------
 
 time_data				blkb	7,0
@@ -689,9 +706,14 @@ devices_connected		db 1					; bit 0 = keyboard, bit 1 = mouse
 
 ;--------------------------------------------------------------------------------------
 
-sysram_os_highest		dw24 os_max_addr
-vram_a_os_highest		dw24 vram_a_addr
-vram_b_os_highest		dw24 vram_b_addr
+free_sysram_base		dw24 os_max_addr
+free_sysram_top			dw24 sysram_addr+sysram_size-1
+
+free_vram_a_base		dw24 vram_a_addr
+free_vram_a_top			dw24 vram_a_addr+7ffffh
+
+free_vram_b_base		dw24 vram_b_addr
+free_vram_b_top			dw24 vram_b_addr+7ffffh
 
 charmap_size			dw24 0
 
@@ -815,6 +837,11 @@ mouse_disp_y_old		dw24 0
 mouse_disp_x_buffer		dw24 0
 mouse_disp_y_buffer		dw24 0
 mouse_new_window		db 0
+
+os_pointer_enable		db 0
+os_pointer_definition	dw24 0				
+os_pointer_height		dw24 0
+os_pointer_palette		db 0
 
 ;---------------------------------------------------------------------------------------
 first_os_var			equ cursor_y
