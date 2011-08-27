@@ -151,8 +151,28 @@ Misc:
 -----
 
 MOUSE				- Enable mouse driver
+
 EXEC filename			- Run a script *
+
 SET varname=string		- Set an environment variable 
+
+VERS [#]			- Show version of PROSE and AMOEBA
+
+If arg = # on exit environment variables are set:
+OUT00: PROSE version
+OUT01: AMOEBA version
+
+AVAIL [#]			- Show memory not used by OS
+
+If arg = # on exit environment variables are set:
+OUT00: free system RAM start
+OUT01: free system RAM end
+OUT02: free vram_a start
+OUT03: free vram_a end
+OUT04: free vram_b start
+OUT05: free vram_b end
+
+FI filename [#]			- Show file info
 
 
 Notes:

@@ -637,9 +637,9 @@ Output: If zero flag is set: HL = x coord, DE = y coord , A = buttons (bits 2:0)
 38h - "kr_get_mouse_motion"		
 -------------------------
 
-Action: Returns the relative motion of the mouse since this routine was last called (and button status)
+Action: Returns the current value of the (wrap around) mouse counters (and button status)
 Input : None
-Output: If zero flag is set: HL = delta x, DE = delta y , A = buttons (bits 2:0)
+Output: If zero flag is set: HL = x counter, DE = y counter, A = buttons (bits 2:0)
         If zero Flag is not set mouse is not enabled
 
 
@@ -742,12 +742,12 @@ Output: xHL = location of keymap data within OS
 
 
 
-44h - "kr_get_os_high_mem"
--------------------------
+44h - "kr_get_mem_base" (previously, and slightly confusingly "kr_get_os_high_mem")
+-----------------------------------------------------------------------------------
 
-Action: Returns the first free address (IE: not used by the OS) in system RAM, VRAM A and VRAM B
+Action: Returns the first available address (IE: not used by the OS) in system RAM, VRAM A and VRAM B
 Input : none
-Output: xHL = system RAM high, xDE = VRAM A high, xBC = VRAM B high
+Output: xHL = first free system RAM addr, xDE = same for VRAM A, xBC =same for VRAM B
 
 
 
@@ -824,6 +824,65 @@ Action: Reports on status of time out flag
 Input : none
 Output: ZF not set if timed out (no time-out if zero flag set)
 
+
+
+
+4fh - "kr_set_pointer"
+----------------------
+
+Action:  Initializes + enables / disables the mouse pointer sprite.
+Input:   Set E to 1 = Enable pointer, 0 = disable pointer
+         Set D to 1 = Use default PROSE pointer (no other registers required)
+               If D = 0, Use custom pointer, the following parameters are required:
+
+         HL = location of sprite data in memory (copied to sprite RAM by this routine)
+         followed by:
+          $xx (byte) - first palette index used by sprite
+          $xx (byte) - number of colours (words) in palette data
+         then.. palette data (starting from colour 1)
+
+         C = pointer sprite height in lines (max 32)
+         B = palette 0-3 to use for pointer (and all) sprites
+         
+Output:   Returns with Zero Flag not set if mouse driver was not activated.
+
+
+
+
+50h - "kr_allocate_ram"
+-----------------------
+
+Action: Sets aside an area at the top of memory for a specific use
+Input : BC = number of bytes to allocate
+      : E = allocate system RAM, 1 = allocate Video RAM, 2 = allocate Sprite/Audio RAM
+Output: HL = address of allocated RAM
+        ZF set if allocated OK
+
+Notes : Apps only need to allocate memory if it is to be protected from
+        program loads etc after the app has exited to PROSE. EG: driver code.
+        Otherwise apps can assume they have the entire (non-protected) RAM range
+        to themselves, checking the free location range with "kr_get_mem_base"        
+        and "kr_get_mem_top"
+
+
+        
+51h - "kr_deallocate_ram"
+-------------------------
+
+Action: Releases an area of RAM. IE: Moves the current allocation pointer upwards. 
+Input : BC = number of bytes to deallocate
+      : E = Deallocate system RAM, 1 = deallocate Video RAM, 2 = deallocate Sprite/Audio RAM
+Output: None
+
+
+
+
+52h - "kr_get_mem_top"
+----------------------    
+
+Action: Returns the maximum free address locations in system RAM, VRAM A and VRAM B
+Input : none
+Output: xHL = system RAM high, xDE = VRAM A high, xBC = VRAM B high
 
 
 =========================================================================================
