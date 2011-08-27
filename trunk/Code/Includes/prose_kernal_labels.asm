@@ -81,7 +81,9 @@ kr_read_rtc						equ 41h
 kr_write_rtc					equ 42h
 
 kr_get_keymap_location			equ 43h
+
 kr_get_os_high_mem				equ 44h
+kr_get_mem_base					equ 44h	;preferred name for above
 
 kr_play_audio					equ 45h
 kr_disable_audio				equ 46h
@@ -94,5 +96,9 @@ kr_char_to_font					equ 4bh
 kr_get_disk_sector_ptr			equ 4ch
 kr_set_timeout					equ 4dh
 kr_test_timeout					equ 4eh
+kr_set_pointer					equ 4fh
+kr_allocate_ram					equ 50h
+kr_deallocate_ram				equ 51h
+kr_get_mem_top					equ 52h
 
 ;---------------------------------------------------------------------------------------------------
