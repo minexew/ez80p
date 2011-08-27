@@ -8,31 +8,35 @@ load_location		equ 10000h			; anywhere in system ram
 			include	'PROSE_header.asm'
 
 ;---------------------------------------------------------------------------------------------
+;test 1
 
-			ld hl,msg_txt
+			ld hl,msg1_txt
 			ld a,kr_print_string
 			call.lil prose_kernal			
-			
-			jr my_prog
-			
-;			call my_prog
-					
-;			jp.lil prose_return
-			
 
-;---------------------------------------------------------------------------------------------
+			ld hl,filename
+			ld a,kr_find_file
+			call.lil prose_kernal
+			jp nz,quit
+			
+			ld de,11231h
+			ld a,kr_set_file_pointer
+			call.lil prose_kernal
+			
+			ld hl,20000h
+			ld a,kr_read_file
+			call.lil prose_kernal
+			jp quit			
 
+
+;test 2----------------------------------------------------------------------------------------
 
 chunk_size	equ 127							;load n bytes at a time
-
-
-my_prog		;ld a,01
-			;ld b,57h
-			;ret
-			
-			
-			
-			
+	
+			ld hl,msg2_txt
+			ld a,kr_print_string
+			call.lil prose_kernal	
+	
 			ld hl,filename
 			ld a,kr_find_file
 			call.lil prose_kernal
@@ -71,8 +75,6 @@ load_loop	ld de,chunk_size				;number of bytes to load on each read call
 			ld a,kr_print_string
 			call.lil prose_kernal
 
-;			xor a							
-;			ret
 
 quit		jp.lil prose_return
 
@@ -82,7 +84,9 @@ filename	db "testdata.bin",0
 
 load_addr	dw24 0
 
-msg_txt		db "Loading file sequentially...",11,0
+msg1_txt		db "File pointer test...",11,0
+
+msg2_txt		db "Loading file sequentially...",11,0
 
 loaded_txt	db "OK, all bytes loaded.",11,0
 
