@@ -21,6 +21,7 @@ $8a - Device not detected
 $8b - Device error
 $8c - Script error
 $8d - Missing args
+$8e - Cannot allocate memory
 
 
 Errors from Filesystem related routines
