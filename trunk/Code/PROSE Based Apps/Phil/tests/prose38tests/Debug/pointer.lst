@@ -1,14 +1,17 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   1
 
 
 PC     Object              I  Line    Source 
-                           A     1    ;----------------------------------------------
-                           A     2    
-       00000000            A     3    amoeba_version_req	equ	0				; 0 = d
-       00000000            A     4    prose_version_req	equ 0				; 0 = d
-       00000001            A     5    ADL_mode			equ 1				; 0 if 
-       00010000            A     6    load_location		equ 10000h			; anywh
-                           A     7    
+                           A     1    
+                           A     2    ; test pointer (default pointer)
+                           A     3    
+                           A     4    ;----------------------------------------------
+                           A     5    
+       00000000            A     6    amoeba_version_req	equ	0				; 0 = d
+       00000038            A     7    prose_version_req	equ 38h				; 0 = d
+       00000001            A     8    ADL_mode			equ 1				; 0 if 
+       00010000            A     9    load_location		equ 10000h			; anywh
+                           A    10    
                            B     0    			include	'PROSE_header.asm'
                            B     1    
                            B     2    ;----------------------------------------------
@@ -51,13 +54,13 @@ PC     Object              I  Line    Source
        000000AE            C    35    CS2_LBR			equ 0aeh			;eZ80 wait 
        000000AF            C    36    CS2_UBR			equ 0afh
        000000B0            C    37    CS2_CTL			equ 0b0h
-       000000B1            C    38    CS3_LBR			equ 0b1h			;eZ80 wait 
-       000000B2            C    39    CS3_UBR			equ 0b2h
-       000000B3            C    40    CS3_CTL			equ 0b3h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_equates.asm
+       000000B1            C    38    CS3_LBR			equ 0b1h			;eZ80 wait 
+       000000B2            C    39    CS3_UBR			equ 0b2h
+       000000B3            C    40    CS3_CTL			equ 0b3h
                            C    41    
        00000080            C    42    TMR0_CTL		equ 080h			;timer 0 eq
        00000081            C    43    TMR0_DR_L		equ 081h
@@ -107,13 +110,13 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_eq
                            C    24    
                            C    25    
                            C    26    ;-- Memory locations --------------------------
-                           C    27    
-       00000000            C    28    sysram_addr				equ 0000000h
-       00800000            C    29    vram_a_addr				equ 0800000h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hardware_equates.asm
+                           C    27    
+       00000000            C    28    sysram_addr				equ 0000000h
+       00800000            C    29    vram_a_addr				equ 0800000h
        00C00000            C    30    vram_b_addr				equ 0c00000h
                            C    31    
                            C    32    ;-- Hardware registers ------------------------
@@ -163,13 +166,13 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hard
        00000011            C    22    kr_create_file					equ 11h
        00000012            C    23    kr_write_file					equ 12h
        00000013            C    24    kr_get_total_sectors			equ 13h
-       00000014            C    25    kr_dir_list_first_entry			equ 14h
-       00000015            C    26    kr_dir_list_get_entry			equ 15h
-       00000016            C    27    kr_dir_list_next_entry			equ 16h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
+       00000014            C    25    kr_dir_list_first_entry			equ 14h
+       00000015            C    26    kr_dir_list_get_entry			equ 15h
+       00000016            C    27    kr_dir_list_next_entry			equ 16h
                            C    28    
        00000017            C    29    kr_read_sector					equ 17h
        00000018            C    30    kr_write_sector					equ 18h
@@ -219,38 +222,33 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
        0000003C            C    74    kr_ascii_to_hex_word			equ 3ch
        0000003D            C    75    kr_get_string					equ 3dh
                            C    76    
-       0000003E            C    77    kr_get_version					equ 3eh
-       0000003F            C    78    kr_dont_store_registers			equ 3fh
-       00000040            C    79    kr_get_font_info				equ 40h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
+       0000003E            C    77    kr_get_version					equ 3eh
+       0000003F            C    78    kr_dont_store_registers			equ 3fh
+       00000040            C    79    kr_get_font_info				equ 40h
        00000041            C    80    kr_read_rtc						equ 41h
        00000042            C    81    kr_write_rtc					equ 42h
                            C    82    
        00000043            C    83    kr_get_keymap_location			equ 43h
-                           C    84    
-       00000044            C    85    kr_get_os_high_mem				equ 44h
-       00000044            C    86    kr_get_mem_base					equ 44h	;prefer
-                           C    87    
-       00000045            C    88    kr_play_audio					equ 45h
-       00000046            C    89    kr_disable_audio				equ 46h
-       00000047            C    90    kr_get_joysticks				equ 47h
-       00000048            C    91    kr_set_video_mode				equ 48h
-       00000049            C    92    kr_set_cursor_image				equ 49h
-       0000004A            C    93    kr_remove_cursor				equ 4ah
-       0000004B            C    94    kr_char_to_font					equ 4bh
-                           C    95    
-       0000004C            C    96    kr_get_disk_sector_ptr			equ 4ch
-       0000004D            C    97    kr_set_timeout					equ 4dh
-       0000004E            C    98    kr_test_timeout					equ 4eh
-       0000004F            C    99    kr_set_pointer					equ 4fh
-       00000050            C   100    kr_allocate_ram					equ 50h
-       00000051            C   101    kr_deallocate_ram				equ 51h
-       00000052            C   102    kr_get_mem_top					equ 52h
-                           C   103    
-                           C   104    ;----------------------------------------------
+       00000044            C    84    kr_get_os_high_mem				equ 44h
+                           C    85    
+       00000045            C    86    kr_play_audio					equ 45h
+       00000046            C    87    kr_disable_audio				equ 46h
+       00000047            C    88    kr_get_joysticks				equ 47h
+       00000048            C    89    kr_set_video_mode				equ 48h
+       00000049            C    90    kr_set_cursor_image				equ 49h
+       0000004A            C    91    kr_remove_cursor				equ 4ah
+       0000004B            C    92    kr_char_to_font					equ 4bh
+                           C    93    
+       0000004C            C    94    kr_get_disk_sector_ptr			equ 4ch
+       0000004D            C    95    kr_set_timeout					equ 4dh
+       0000004E            C    96    kr_test_timeout					equ 4eh
+       0000004F            C    97    kr_set_pointer					equ 4fh
+                           C    98    	
+                           C    99    ;----------------------------------------------
                            B    11    
                            B    12    
                            C     0    include "misc_system_equates.asm"
@@ -260,33 +258,30 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
        00000A00            C     4    os_location		equ 0a00h
                            C     5    
        00000A14            C     6    prose_return 	equ os_location + 14h
-       00000A18            C     7    prose_relativize_hl	equ os_location + 18h
-       00000A1C            C     8    prose_relative_call	equ os_location + 1ch
-                           C     9    
-       00000A20            C    10    prose_kernal 	equ os_location + 20h
-                           C    11    
-                           C    12    ;----------------------------------------------
-                           C    13    
-                           C    14    ; Add to sprite locations to position a 0,0 spr
+       00000A20            C     7    prose_kernal 	equ os_location + 20h
+                           C     8    
+                           C     9    ;----------------------------------------------
+                           C    10    
+                           C    11    ; Add to sprite locations to position a 0,0 spr
+                           C    12    
+       0000009A            C    13    x_display_offset	equ 09ah
+       00000025            C    14    y_display_offset	equ 025h
                            C    15    
-       0000009A            C    16    x_display_offset	equ 09ah
-       00000025            C    17    y_display_offset	equ 025h
-                           C    18    
-                           C    19    ;----------------------------------------------
+                           C    16    ;----------------------------------------------
                            B    14    
                            B    15    
                            B    16    ;----------------------------------------------
                            B    17    ; Standard PROSE executable header
                            B    18    ;----------------------------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   6
-
-
-PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
                            B    19    
                            B    20    
                            B    21    	IF ADL_mode = 0
                            B    22    		org load_location&0ffffh	; if Z80 mo
                            B    23    	ELSE
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   6
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
 010000                     B    24    		org load_location			; otherwise
                            B    25    	ENDIF
                            B    26    	
@@ -296,7 +291,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
 010002 50524F              B    30    		db 'PRO'					; $2 - ASCI
 010005 000001              B    31    mb_loc	dw24 load_location			; $5 - Desi
 010008 000000              B    32    		dw24 0						; $8 - If >
-01000B 0000                B    33    		dw prose_version_req		; $B - If >
+01000B 3800                B    33    		dw prose_version_req		; $B - If >
 01000D 0000                B    34    		dw amoeba_version_req		; $D - If >
 01000F 01                  B    35    		db ADL_mode					; $F - Z80 
                            B    36    
@@ -318,109 +313,56 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B    52    	
                            B    53    ;----------------------------------------------
                            B    54    	
-                           A     9    
-                           A    10    ;----------------------------------------------
-                           A    11    ;test 1
                            A    12    
-010010 21 B6 00 01         A    13    			ld hl,msg1_txt
-010014 3E25                A    14    			ld a,kr_print_string
-010016 5BCD200A 00         A    15    			call.lil prose_kernal			
-                           A    16    
-01001B 21 A6 00 01         A    17    			ld hl,filename
-01001F 3E0B                A    18    			ld a,kr_find_file
-010021 5BCD200A 00         A    19    			call.lil prose_kernal
-010026 C2 A1 00 01         A    20    			jp nz,quit
-                           A    21    			
-01002A 11311201            A    22    			ld de,11231h
-01002E 3E0C                A    23    			ld a,kr_set_file_pointer
-010030 5BCD200A 00         A    24    			call.lil prose_kernal
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   7
+                           A    13    ;----------------------------------------------
+                           A    14    
+010010 21 4B 00 01         A    15    			ld hl,msg_text
+010014 3E25                A    16    			ld a,kr_print_string
+010016 5BCD200A 00         A    17    			call.lil prose_kernal			
+                           A    18    
+01001B 3E4F                A    19    			ld a,kr_set_pointer
+01001D 1601                A    20    			ld d,1						; D = 1
+01001F 1E01                A    21    			ld e,1						; E = 1
+010021 5BCD200A 00         A    22    			call.lil prose_kernal	
+010026 28 0D               A    23    			jr z,pointer_ok
+                           A    24    			
+010028 3E25                A    25    			ld a,kr_print_string
+01002A 21 7D 00 01         A    26    			ld hl,error_msg
+01002E 5BCD200A 00         A    27    			call.lil prose_kernal
+010033 18 07               A    28    			jr quit
+                           A    29    			
+010035 3E1D                A    30    pointer_ok	ld a,kr_wait_key			
+010037 5BCD200A 00         A    31    			call.lil prose_kernal
+                           A    32    			
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)24-Aug-11     23:00:04     page:   7
 
 
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\filetest\source\testfile.asm
-                           A    25    			
-010035 21000002            A    26    			ld hl,20000h
-010039 3E0E                A    27    			ld a,kr_read_file
-01003B 5BCD200A 00         A    28    			call.lil prose_kernal
-010040 C3 A1 00 01         A    29    			jp quit			
-                           A    30    
-                           A    31    
-                           A    32    ;test 2----------------------------------------
-                           A    33    
-       0000007F            A    34    chunk_size	equ 127							;lo
-                           A    35    	
-010044 21 CC 00 01         A    36    			ld hl,msg2_txt
-010048 3E25                A    37    			ld a,kr_print_string
-01004A 5BCD200A 00         A    38    			call.lil prose_kernal	
-                           A    39    	
-01004F 21 A6 00 01         A    40    			ld hl,filename
-010053 3E0B                A    41    			ld a,kr_find_file
-010055 5BCD200A 00         A    42    			call.lil prose_kernal
-01005A 20 45               A    43    			jr nz,quit
-                           A    44    			
-01005C 21000002            A    45    			ld hl,20000h
-010060 22 B3 00 01         A    46    			ld (load_addr),hl
-                           A    47    
-010064 117F0000            A    48    load_loop	ld de,chunk_size				;nu
-010068 3E0D                A    49    			ld a,kr_set_load_length
-01006A 5BCD200A 00         A    50    			call.lil prose_kernal
-                           A    51    			
-01006F 2A B3 00 01         A    52    			ld hl,(load_addr)
-010073 E5                  A    53    			push hl
-010074 117F0000            A    54    			ld de,chunk_size
-010078 19                  A    55    			add hl,de
-010079 22 B3 00 01         A    56    			ld (load_addr),hl				;up
-01007D E1                  A    57    			pop hl
-                           A    58    			
-01007E 3E0E                A    59    			ld a,kr_read_file
-010080 5BCD200A 00         A    60    			call.lil prose_kernal
-010085 28 DD               A    61    			jr z,load_loop					;if
-                           A    62    
-                           A    63    
-010087 F5                  A    64    			push af
-010088 32000006            A    65    			ld (60000h),a
-01008C 78                  A    66    			ld a,b
-01008D 32010006            A    67    			ld (60001h),a
-010091 F1                  A    68    			pop af
-                           A    69    
-                           A    70    
-010092 FECC                A    71    			cp 0cch							;if
-010094 20 0B               A    72    			jr nz,quit						;(o
-                           A    73    			
-010096 21 EA 00 01         A    74    			ld hl,loaded_txt				;sa
-01009A 3E25                A    75    			ld a,kr_print_string
-01009C 5BCD200A 00         A    76    			call.lil prose_kernal
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Aug-11     21:36:53     page:   8
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\filetest\source\testfile.asm
-                           A    77    
-                           A    78    
-0100A1 5BC3140A 00         A    79    quit		jp.lil prose_return
-                           A    80    
-                           A    81    ;----------------------------------------------
-                           A    82    
-0100A6 74657374 64617461   A    83    filename	db "testdata.bin",0
-0100AE 2E62696E 00 
-                           A    84    
-0100B3 000000              A    85    load_addr	dw24 0
-                           A    86    
-0100B6 46696C65 20706F69   A    87    msg1_txt		db "File pointer test...",11,0
-0100BE 6E746572 20746573 
-0100C6 742E2E2E 0B00 
-                           A    88    
-0100CC 4C6F6164 696E6720   A    89    msg2_txt		db "Loading file sequentially..
-0100D4 66696C65 20736571 
-0100DC 75656E74 69616C6C 
-0100E4 792E2E2E 0B00 
-                           A    90    
-0100EA 4F4B2C20 616C6C20   A    91    loaded_txt	db "OK, all bytes loaded.",11,0
-0100F2 62797465 73206C6F 
-0100FA 61646564 2E0B00 
-                           A    92    
-                           A    93    ;----------------------------------------------
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\PROSE3~3\src\pointer.asm
+01003C 3E4F                A    33    quit		ld a,kr_set_pointer
+01003E 1E00                A    34    			ld e,0
+010040 5BCD200A 00         A    35    			call.lil prose_kernal
+                           A    36    			
+010045 AF                  A    37    			xor a						;return
+010046 5BC3140A 00         A    38    			jp.lil prose_return
+                           A    39    
+                           A    40    ;----------------------------------------------
+                           A    41    
+01004B 0B706F69 6E746572   A    42    msg_text	db 11,'pointer test - default point
+010053 20746573 74202D20 
+01005B 64656661 756C7420 
+010063 706F696E 7465722E 
+01006B 20616E79 206B6579 
+010073 20746F20 71756974 
+01007B 0B00 
+                           A    43    			
+01007D 0B4D6F75 73652064   A    44    error_msg	db 11,'Mouse driver not enabled',11
+010085 72697665 72206E6F 
+01008D 7420656E 61626C65 
+010095 640B00 
+                           A    45    
+                           A    46    ;----------------------------------------------
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 382
+Lines Assembled: 327

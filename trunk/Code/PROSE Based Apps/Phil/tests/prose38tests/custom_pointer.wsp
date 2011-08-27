@@ -11,7 +11,7 @@ ptn_Child1=Document-0
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-0.ViewFrame-0]
-DocPathName=source\testfile.asm
+DocPathName=src\custom_pointer.asm
 DocTemplateIndex=0
 DocumentString=IDE.Document
 IsActiveChildFrame=True
