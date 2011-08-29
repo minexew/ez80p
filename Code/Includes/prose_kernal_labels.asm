@@ -66,7 +66,9 @@ kr_delete_envar					equ 35h
 
 kr_set_mouse_window				equ 36h
 kr_get_mouse_position			equ 37h
+
 kr_get_mouse_motion				equ 38h
+kr_get_mouse_counters			equ 38h	;preferred name for above
 
 kr_time_delay					equ 39h
 kr_compare_strings				equ 3ah
