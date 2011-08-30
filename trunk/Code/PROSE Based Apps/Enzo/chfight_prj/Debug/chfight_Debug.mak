@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~3\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = C:\Users\fog76\Desktop\CHFIGH~2\Debug
+WORKDIR = C:\Users\fog76\Desktop\CHFIGH~1\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -38,7 +38,7 @@ ASFLAGS =  \
 -warn -NOdebug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\chfight_Debug.linkcmd
-OUTDIR = C:\Users\fog76\Desktop\CHFIGH~2\Debug
+OUTDIR = C:\Users\fog76\Desktop\CHFIGH~1\Debug
 
 build: chfight relist
 
@@ -61,8 +61,8 @@ clean:
             $(RM) $(WORKDIR)\main.obj
 
 relist: 
-	$(AS) $(ASFLAGS) -relist:C:\Users\fog76\Desktop\CHFIGH~2\Debug\chfight.map \
-            C:\Users\fog76\Desktop\CHFIGH~2\Debug\main.src
+	$(AS) $(ASFLAGS) -relist:C:\Users\fog76\Desktop\CHFIGH~1\Debug\chfight.map \
+            C:\Users\fog76\Desktop\CHFIGH~1\Debug\main.src
 
 # pre-4.11.0 compatibility
 rebuildall: buildall 
@@ -76,13 +76,13 @@ chfight: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\main.obj :  \
-            C:\Users\fog76\Desktop\CHFIGH~2\main.c  \
+            C:\Users\fog76\Desktop\CHFIGH~1\main.c  \
             $(INCLUDE)\std\Stdlib.h  \
             $(INCLUDE)\std\String.h  \
-            C:\Users\fog76\Desktop\CHFIGH~2\PROSE_Header.h  \
-            C:\Users\fog76\Desktop\CHFIGH~2\game.c  \
-            C:\Users\fog76\Desktop\CHFIGH~2\game.h  \
-            C:\Users\fog76\Desktop\CHFIGH~2\screen.c  \
-            C:\Users\fog76\Desktop\CHFIGH~2\screen.h
-	 $(CC) $(CFLAGS) C:\Users\fog76\Desktop\CHFIGH~2\main.c
+            C:\Users\fog76\Desktop\CHFIGH~1\PROSE_Header.h  \
+            C:\Users\fog76\Desktop\CHFIGH~1\game.c  \
+            C:\Users\fog76\Desktop\CHFIGH~1\game.h  \
+            C:\Users\fog76\Desktop\CHFIGH~1\screen.c  \
+            C:\Users\fog76\Desktop\CHFIGH~1\screen.h
+	 $(CC) $(CFLAGS) C:\Users\fog76\Desktop\CHFIGH~1\main.c
 

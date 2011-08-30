@@ -57,7 +57,7 @@ define __heaptop = highaddr of MEMORY
 define __heapbot = top of RAM + 1
 /* end additional user-defined directives */
 
-"C:\Users\fog76\Desktop\CHFIGH~2\Debug\chfight"= \
+"C:\Users\fog76\Desktop\CHFIGH~1\Debug\chfight"= \
  .\main.obj, \
  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib, \
  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crt.lib, \
