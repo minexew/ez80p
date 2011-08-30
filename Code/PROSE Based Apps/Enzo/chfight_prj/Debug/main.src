@@ -96,6 +96,8 @@ _DeleteBack:
 	SEGMENT BSS
 _gScanCode:
 	DS	1
+_BufKey:
+	DS	1
 _Mossa1:
 	DS	2
 _Mossa2:
@@ -104,70 +106,77 @@ _User:
 	DS	5
 _PlayerColor:
 	DS	1
-;    1	#include <Stdlib.h>
-;    2	#include <String.h>
-;    3	
-;    4	#include "PROSE_Header.h"
-;    5	
-;    6	#include "screen.h"
-;    7	#include "game.h"
-;    8	
-;    9	typedef struct {
-;   10		char *loc;
-;   11		int len;
-;   12		char *looploc;
-;   13		int looplen;
-;   14		unsigned short period;
-;   15		unsigned char volume;
-;   16	} SndRec;
-;   17	
-;   18	static char *TxtPnt;
-;   19	static SndRec *Snd;
-;   20	
-;   21	static SndRec Click, Chs1, Chs2;
-;   22	
-;   23	void WaitKeyPress(void);
-;   24	unsigned char GetKeyScanCode(void);
-;   25	void print(const char *txt);
-;   26	void Disable_Audio(void);
-;   27	void Play_Raw_Audio(const SndRec *S);
+;    1	/*
+;    2	
+;    3	Chess Figth. A chess game cpu vs human developed by Enzo Antonio Calogiuri for eZ80P fans :-)
+;    4	
+;    5	*/
+;    6	
+;    7	#include <Stdlib.h>
+;    8	#include <String.h>
+;    9	
+;   10	#include "PROSE_Header.h"
+;   11	
+;   12	#include "screen.h"
+;   13	#include "game.h"
+;   14	
+;   15	typedef struct {
+;   16		char *loc;
+;   17		int len;
+;   18		char *looploc;
+;   19		int looplen;
+;   20		unsigned short period;
+;   21		unsigned char volume;
+;   22	} SndRec;
+;   23	
+;   24	static char *TxtPnt;
+;   25	static SndRec *Snd;
+;   26	
+;   27	static SndRec Click, Chs1, Chs2;
 ;   28	
-;   29	void MyMain(void);
-;   30	/*------------------------------------------------------------------------------------------------------------------------*/
-;   31	
-;   32	typedef struct{
-;   33		char ri, co;
-;   34		char *Img;
-;   35	} PlSel;
-;   36	
-;   37	char *mSelect, *mWhite, *mBlack, *mNormal, *mHard, *Think, *wPlay, *bPlay;
-;   38	char *wSel, *rSel, *bsel, *wPiece, *bPiece;
-;   39	char *Bianchi[6], *Neri[6];
-;   40	char mColore = 0, mLivello = 0, chAbort, DeleteBack = 0;
-;   41	unsigned char gScanCode;
-;   42	char Mossa1[2], Mossa2[2];
-;   43	PlSel User;
-;   44	char PlayerColor;
+;   29	void WaitKeyPress(void);
+;   30	unsigned char GetKeyScanCode(void);
+;   31	unsigned char ReadScancode(void);
+;   32	void print(const char *txt);
+;   33	void Disable_Audio(void);
+;   34	void Play_Raw_Audio(const SndRec *S);
+;   35	
+;   36	void MyMain(void);
+;   37	/*------------------------------------------------------------------------------------------------------------------------*/
+;   38	
+;   39	typedef struct{
+;   40		char ri, co;
+;   41		char *Img;
+;   42	} PlSel;
+;   43	
+;   44	char *mSelect, *mWhite, *mBlack, *mNormal, *mHard, *Think, *wPlay, *bPlay;
+;   45	char *wSel, *rSel, *bsel, *wPiece, *bPiece;
+;   46	char *Bianchi[6], *Neri[6];
+;   47	char mColore = 0, mLivello = 0, chAbort, DeleteBack = 0;
+;   48	unsigned char gScanCode, BufKey;
+;   49	char Mossa1[2], Mossa2[2];
+;   50	PlSel User;
+;   51	char PlayerColor;
 	SEGMENT CODE
-;   45	
-;   46	
-;   47	void Load_Components(void);
-;   48	void Draw_Image(int PosX, int PosY, int W, int H, char *ImgBuf);
-;   49	void Draw_Trans_Image(int PosX, int PosY, int W, int H, char *ImgBuf, unsigned char Trans);
-;   50	void Fill_Rectangle(int PosX, int PosY, int W, int H, unsigned char col);
-;   51	char MainMenu(void);
 ;   52	
-;   53	void Crea_Mossa(void);
-;   54	
-;   55	void Show_End_Screen(char win);
-;   56	
-;   57	void Free_All_Mem(void);
-;   58	/*------------------------------------------------------------------------------------------------------------------------*/
+;   53	
+;   54	void Load_Components(void);
+;   55	void Draw_Image(int PosX, int PosY, int W, int H, char *ImgBuf);
+;   56	void Draw_Trans_Image(int PosX, int PosY, int W, int H, char *ImgBuf, unsigned char Trans);
+;   57	void Fill_Rectangle(int PosX, int PosY, int W, int H, unsigned char col);
+;   58	char MainMenu(void);
 ;   59	
-;   60	void main(void)
-;   61	{
+;   60	void Crea_Mossa(void);
+;   61	
+;   62	void Show_End_Screen(char win);
+;   63	
+;   64	void Free_All_Mem(void);
+;   65	/*------------------------------------------------------------------------------------------------------------------------*/
+;   66	
+;   67	void main(void)
+;   68	{
 _main:
-;   62		INIT_HARDWARE;
+;   69		INIT_HARDWARE;
 PB_DR		equ 09Ah
 PB_DDR		equ 09Bh
 PB_ALT1		equ 09Ch
@@ -254,7 +263,7 @@ right_border_position	equ hw_video_settings + 04h
 os_start			equ 0A00h
 prose_return		equ os_start + 14h
 prose_kernal		equ os_start + 20h
-;   63		INIT_KJT;
+;   70		INIT_KJT;
 kr_mount_volumes			equ 00h
 kr_get_device_info		equ 01h
 kr_check_volume_format	equ 02h
@@ -325,8 +334,8 @@ kr_write_rtc				equ 42h
 kr_get_keymap_location	equ 43h
 kr_play_audio			equ 45h
 kr_disable_audio			equ 46h
-;   64		
-;   65		CREATE_HEADER;
+;   71		
+;   72		CREATE_HEADER;
 jr skip_header
 db 'PRO'
 mb_loc dw24 10000h
@@ -335,11 +344,11 @@ dw 0
 dw 0
 db 1
 skip_header
-;   66		
-;   67		MyMain();	
+;   73		
+;   74		MyMain();	
 	CALL	_MyMain
-;   68		
-;   69		QUIT_TO_PROSE;
+;   75		
+;   76		QUIT_TO_PROSE;
 xor a
 jp.lil prose_return
 	RET	
@@ -10125,612 +10134,631 @@ L_563:
 	JR	NZ,L_564
 L_565:
 	LD	A,(IX+-4)
-;   70	}
-;   71	
-;   72	#include "Screen.c"
-;   73	#include "game.c"
-;   74	
-;   75	void MyMain(void)
-;   76	{
-;   77		char MyMenuValue;
-;   78		char app[5], winner;	
-;   79		
-;   80		Load_Components();
-;   81		
-;   82		Set_320_240_Mode();
-;   83		
-;   84		BlackOut();
-;   85		
-;   86		Load_Raw_Data("logo.raw", VideoMem, 320*240);
-;   87		
-;   88		Load_Raw_Data("logo.pal", PaletteMem, 512);	
-;   89		
-;   90		WaitKeyPress();
-;   91		
-;   92		Play_Raw_Audio(&Click);
-;   93		
-;   94	LabelMainMenu:
-;   95		
-;   96		MyMenuValue = MainMenu();
-;   97		
-;   98		if (MyMenuValue == 1)
-;   99		{
-;  100			DeleteBack = 0;
-;  101			livello = mLivello + 1;
-;  102			col_prof = bianco;
-;  103			PlayerColor = mColore;
-;  104			
-;  105			User.ri = 6;
-;  106			User.co = 0;
-;  107			
-;  108			BlackOut();
-;  109			
-;  110			Load_Raw_Data("board.raw", VideoMem, 320*240);
-;  111			Load_Raw_Data("board.pal", PaletteMem, 512);
-;  112			
-;  113			posiniz();		
-;  114			apertura();
-;  115			apri(col_prof);
+;   77	}
+;   78	
+;   79	#include "Screen.c"
+;   80	#include "game.c"
+;   81	
+;   82	void MyMain(void)
+;   83	{
+;   84		char MyMenuValue;
+;   85		char app[5], winner;	
+;   86		
+;   87		Load_Components();
+;   88		
+;   89		Set_320_240_Mode();
+;   90		
+;   91		BlackOut();
+;   92		
+;   93		Load_Raw_Data("logo.raw", VideoMem, 320*240);
+;   94		
+;   95		Load_Raw_Data("logo.pal", PaletteMem, 512);	
+;   96		
+;   97		WaitKeyPress();
+;   98		
+;   99		Play_Raw_Audio(&Click);
+;  100		
+;  101	LabelMainMenu:
+;  102		
+;  103		MyMenuValue = MainMenu();
+;  104		
+;  105		if (MyMenuValue == 1)
+;  106		{
+;  107			DeleteBack = 0;
+;  108			livello = mLivello + 1;
+;  109			col_prof = bianco;
+;  110			PlayerColor = mColore;
+;  111			
+;  112			User.ri = 6;
+;  113			User.co = 0;
+;  114			
+;  115			BlackOut();
 ;  116			
-;  117			if (chAbort)
-;  118				goto LabelMainMenu;
+;  117			Load_Raw_Data("board.raw", VideoMem, 320*240);
+;  118			Load_Raw_Data("board.pal", PaletteMem, 512);
 ;  119			
-;  120			nmossa = 4;		
-;  121			
-;  122			while (1)
-;  123			{
-;  124				Fill_Rectangle(63, 221, 102, 10, 0);
-;  125				
-;  126				mossa_giocata = acquisisci();
-;  127				
-;  128				modifica(mossa_giocata);
-;  129				
-;  130				if (chAbort)
-;  131					goto LabelMainMenu;			
+;  120			posiniz();		
+;  121			apertura();
+;  122			apri(col_prof);
+;  123			
+;  124			if (chAbort)
+;  125				goto LabelMainMenu;
+;  126			
+;  127			nmossa = 4;		
+;  128			
+;  129			while (1)
+;  130			{
+;  131				Fill_Rectangle(63, 221, 102, 10, 0);
 ;  132				
-;  133				stampap(DeleteBack);
+;  133				mossa_giocata = acquisisci();
 ;  134				
-;  135				Play_Raw_Audio(&Chs1);
+;  135				modifica(mossa_giocata);
 ;  136				
-;  137				winner = vincitore();
-;  138				
-;  139				if (winner != 0)
-;  140				{
-;  141					Show_End_Screen(winner);
-;  142					
-;  143					goto LabelMainMenu;
-;  144				}
+;  137				if (chAbort)
+;  138					goto LabelMainMenu;			
+;  139				
+;  140				stampap(DeleteBack);
+;  141				
+;  142				Play_Raw_Audio(&Chs1);
+;  143				
+;  144				winner = vincitore();
 ;  145				
-;  146				nmossa++;
-;  147				cambiacolore
-;  148				
-;  149				if (PlayerColor == 0)
-;  150					PlayerColor = 1;
-;  151				else
-;  152					PlayerColor = 0;
-;  153				
-;  154				Draw_Image(63, 221, 102, 10, Think);
-;  155		
-;  156				Fill_Rectangle(218, 75, 96, 10, 0);
-;  157		
-;  158				if (PlayerColor == 0)
-;  159					Draw_Image(245, 75, 42, 10, wPlay);
-;  160				else
-;  161					Draw_Image(243, 75, 48, 10, bPlay);
-;  162				
-;  163				inizializza();
-;  164				calcolamosse(0);
-;  165				modifica(mossa_giocata);
-;  166				nmossa++;
-;  167				
-;  168				cambiacolore
-;  169				stampap(DeleteBack);
-;  170				
-;  171				Play_Raw_Audio(&Chs2);
-;  172				
-;  173				winner = vincitore();
+;  146				if (winner != 0)
+;  147				{
+;  148					Show_End_Screen(winner);
+;  149					
+;  150					goto LabelMainMenu;
+;  151				}
+;  152				
+;  153				nmossa++;
+;  154				cambiacolore
+;  155				
+;  156				if (PlayerColor == 0)
+;  157					PlayerColor = 1;
+;  158				else
+;  159					PlayerColor = 0;
+;  160				
+;  161				Draw_Image(63, 221, 102, 10, Think);
+;  162		
+;  163				Fill_Rectangle(218, 75, 96, 10, 0);
+;  164		
+;  165				if (PlayerColor == 0)
+;  166					Draw_Image(245, 75, 42, 10, wPlay);
+;  167				else
+;  168					Draw_Image(243, 75, 48, 10, bPlay);
+;  169				
+;  170				inizializza();
+;  171				calcolamosse(0);
+;  172				modifica(mossa_giocata);
+;  173				nmossa++;
 ;  174				
-;  175				if (winner != 0)
-;  176				{
-;  177					Show_End_Screen(winner);
-;  178					
-;  179					goto LabelMainMenu;
-;  180				}
+;  175				cambiacolore
+;  176				stampap(DeleteBack);
+;  177				
+;  178				Play_Raw_Audio(&Chs2);
+;  179				
+;  180				winner = vincitore();
 ;  181				
-;  182				if (PlayerColor == 0)
-;  183					PlayerColor = 1;
-;  184				else
-;  185					PlayerColor = 0;
-;  186			}
-;  187			
-;  188		}
-;  189		
-;  190		Disable_Audio();
-;  191		
-;  192		Free_All_Mem();
-;  193		
-;  194		asm ("push ix");
-;  195		asm ("ld a, kr_os_display");
-;  196		asm ("call.lil prose_kernal");
-;  197		asm ("ld a, kr_clear_screen");
-;  198		asm ("call.lil prose_kernal");
-;  199		asm ("pop ix");
+;  182				if (winner != 0)
+;  183				{
+;  184					Show_End_Screen(winner);
+;  185					
+;  186					goto LabelMainMenu;
+;  187				}
+;  188				
+;  189				if (PlayerColor == 0)
+;  190					PlayerColor = 1;
+;  191				else
+;  192					PlayerColor = 0;
+;  193			}
+;  194			
+;  195		}
+;  196		
+;  197		Disable_Audio();
+;  198		
+;  199		Free_All_Mem();
 ;  200		
-;  201		print("Chess Fight ver 1.0 for eZ80P.\n\r");
-;  202		print("Progremmed by Enzo Antonio Calogiuri.\n\r");
-;  203		print("\n\r");
-;  204	}
-;  205	
-;  206	void WaitKeyPress(void)
-;  207	{
-;  208		asm ("push ix");
-;  209		asm ("ld a, kr_wait_key");
-;  210		asm ("call.lil prose_kernal");
-;  211		asm ("pop ix");
-;  212	}
-;  213	
-;  214	unsigned char GetKeyScanCode(void)
-;  215	{
-;  216		gScanCode = 0;
-;  217		
-;  218		asm ("push ix");
-;  219		asm ("ld a, kr_wait_key");
-;  220		asm ("call.lil prose_kernal");	
-;  221		asm ("ld (_gScanCode), a");	
-;  222		asm ("pop ix");
-;  223		
-;  224		return gScanCode;
-;  225	}
-;  226	
-;  227	void print(const char *txt)
-;  228	{
-;  229		TxtPnt = txt;
+;  201		asm ("push ix");
+;  202		asm ("ld a, kr_os_display");
+;  203		asm ("call.lil prose_kernal");
+;  204		asm ("ld a, kr_clear_screen");
+;  205		asm ("call.lil prose_kernal");
+;  206		asm ("pop ix");
+;  207		
+;  208		print("Chess Fight ver 1.0b for eZ80P.\n\r");
+;  209		print("Programmed by Enzo Antonio Calogiuri.\n\r");
+;  210		print("\n\r");
+;  211	}
+;  212	
+;  213	void WaitKeyPress(void)
+;  214	{
+;  215		asm ("push ix");
+;  216		asm ("ld a, kr_wait_key");
+;  217		asm ("call.lil prose_kernal");
+;  218		asm ("pop ix");
+;  219	}
+;  220	
+;  221	unsigned char GetKeyScanCode(void)
+;  222	{
+;  223		gScanCode = 0;
+;  224		
+;  225		asm ("push ix");
+;  226		asm ("ld a, kr_wait_key");
+;  227		asm ("call.lil prose_kernal");	
+;  228		asm ("ld (_gScanCode), a");	
+;  229		asm ("pop ix");
 ;  230		
-;  231		asm ("push ix");
-;  232		asm ("ld hl, (_TxtPnt)");
-;  233		asm ("ld a, kr_print_string");
-;  234		asm ("call.lil prose_kernal");
-;  235		asm ("pop ix");	
-;  236	}
-;  237	
-;  238	void Disable_Audio(void)
-;  239	{
-;  240		asm ("push ix");
-;  241		asm ("ld a, kr_disable_audio");
-;  242		asm ("call.lil prose_kernal");
-;  243		asm ("pop ix");	
-;  244	}
-;  245	
-;  246	void Play_Raw_Audio(const SndRec *S)
-;  247	{
-;  248		Snd = S;
-;  249		
-;  250		asm ("push ix");
-;  251		asm ("ld hl, (_Snd)");
-;  252		asm ("ld c, 11h");
-;  253		asm ("ld a, kr_play_audio");
-;  254		asm ("call.lil prose_kernal");
-;  255		asm ("pop ix");	
-;  256	}
-;  257	/*------------------------------------------------------------------------------------------------------------------------*/
-;  258	
-;  259	void Free_All_Mem(void)
-;  260	{
-;  261		int i;
-;  262		
-;  263		free(mSelect);
-;  264		free(mWhite);
-;  265		free(mBlack);
-;  266		free(mNormal);
-;  267		free(mHard);
-;  268		free(wSel);
-;  269		free(rSel);
-;  270		free(bsel);	
+;  231		return gScanCode;
+;  232	}
+;  233	
+;  234	unsigned char ReadScancode(void)
+;  235	{
+;  236		BufKey = 0;
+;  237		
+;  238		asm ("push ix");
+;  239		asm ("ld a, kr_get_key");
+;  240		asm ("call.lil prose_kernal");
+;  241		asm ("jr nz, NoKeyInB");
+;  242		asm ("ld (_BufKey), a");
+;  243		asm ("NoKeyInB:");
+;  244		asm ("pop ix");
+;  245		
+;  246		return BufKey;
+;  247	}
+;  248	
+;  249	void print(const char *txt)
+;  250	{
+;  251		TxtPnt = txt;
+;  252		
+;  253		asm ("push ix");
+;  254		asm ("ld hl, (_TxtPnt)");
+;  255		asm ("ld a, kr_print_string");
+;  256		asm ("call.lil prose_kernal");
+;  257		asm ("pop ix");	
+;  258	}
+;  259	
+;  260	void Disable_Audio(void)
+;  261	{
+;  262		asm ("push ix");
+;  263		asm ("ld a, kr_disable_audio");
+;  264		asm ("call.lil prose_kernal");
+;  265		asm ("pop ix");	
+;  266	}
+;  267	
+;  268	void Play_Raw_Audio(const SndRec *S)
+;  269	{
+;  270		Snd = S;
 ;  271		
-;  272		for (i = 0; i < 6; i++)
-;  273		{
-;  274			free(Bianchi[i]);
-;  275			free(Neri[i]);
-;  276		}
-;  277		
-;  278		free(wPiece);
-;  279		free(bPiece);
-;  280		free(Think);
-;  281		free(wPlay);
-;  282		free(bPlay);	
-;  283	}
-;  284	
-;  285	void Load_Components(void)
-;  286	{
-;  287		int i;
-;  288		
-;  289		print("\n\r Loading data...\n\r");
-;  290		
-;  291		mSelect = (char *)malloc(16 * 15);	//240
-;  292		Load_Raw_Data("msel.raw", mSelect, 16 * 15);
+;  272		asm ("push ix");
+;  273		asm ("ld hl, (_Snd)");
+;  274		asm ("ld c, 11h");
+;  275		asm ("ld a, kr_play_audio");
+;  276		asm ("call.lil prose_kernal");
+;  277		asm ("pop ix");	
+;  278	}
+;  279	/*------------------------------------------------------------------------------------------------------------------------*/
+;  280	
+;  281	void Free_All_Mem(void)
+;  282	{
+;  283		int i;
+;  284		
+;  285		free(mSelect);
+;  286		free(mWhite);
+;  287		free(mBlack);
+;  288		free(mNormal);
+;  289		free(mHard);
+;  290		free(wSel);
+;  291		free(rSel);
+;  292		free(bsel);	
 ;  293		
-;  294		mWhite = (char *)malloc(42 * 10);	//420
-;  295		Load_Raw_Data("white.raw", mWhite, 42 * 10);
-;  296		
-;  297		mBlack = (char *)malloc(48 * 10);	//480
-;  298		Load_Raw_Data("black.raw", mBlack, 48 * 10);
+;  294		for (i = 0; i < 6; i++)
+;  295		{
+;  296			free(Bianchi[i]);
+;  297			free(Neri[i]);
+;  298		}
 ;  299		
-;  300		mNormal = (char *)malloc(58 * 10);	//580
-;  301		Load_Raw_Data("normal.raw", mNormal, 58 * 10);
-;  302		
-;  303		mHard = (char *)malloc(38 * 10);	//380
-;  304		Load_Raw_Data("hard.raw", mHard, 38 * 10);
-;  305		
-;  306		wSel = (char *)malloc(25 * 25);	//625
-;  307		Load_Raw_Data("bsel.raw", wSel, 25 * 25);
-;  308		
-;  309		rSel = (char *)malloc(25 * 25);	//625
-;  310		Load_Raw_Data("rsel.raw", rSel, 25 * 25);
-;  311		
-;  312		bsel = (char *)malloc(25 * 25);	//625
-;  313		
-;  314		for (i = 0; i < 6; i++)
-;  315		{
-;  316			Bianchi[i] = (char *)malloc(22 * 23);
-;  317			Neri[i] = (char *)malloc(22 * 23);
-;  318		}
-;  319		
-;  320		Load_Raw_Data("bped.raw", Bianchi[0], 22 * 23);
-;  321		Load_Raw_Data("bcav.raw", Bianchi[1], 22 * 23);
-;  322		Load_Raw_Data("balf.raw", Bianchi[2], 22 * 23);
-;  323		Load_Raw_Data("btor.raw", Bianchi[3], 22 * 23);
-;  324		Load_Raw_Data("breg.raw", Bianchi[4], 22 * 23);
-;  325		Load_Raw_Data("bre.raw", Bianchi[5], 22 * 23);
-;  326		
-;  327		Load_Raw_Data("nped.raw", Neri[0], 22 * 23);
-;  328		Load_Raw_Data("ncav.raw", Neri[1], 22 * 23);
-;  329		Load_Raw_Data("nalf.raw", Neri[2], 22 * 23);
-;  330		Load_Raw_Data("ntor.raw", Neri[3], 22 * 23);
-;  331		Load_Raw_Data("nreg.raw", Neri[4], 22 * 23);
-;  332		Load_Raw_Data("nre.raw", Neri[5], 22 * 23);
+;  300		free(wPiece);
+;  301		free(bPiece);
+;  302		free(Think);
+;  303		free(wPlay);
+;  304		free(bPlay);	
+;  305	}
+;  306	
+;  307	void Load_Components(void)
+;  308	{
+;  309		int i;
+;  310		
+;  311		print("\n\r Loading data...\n\r");
+;  312		
+;  313		mSelect = (char *)malloc(16 * 15);	//240
+;  314		Load_Raw_Data("msel.raw", mSelect, 16 * 15);
+;  315		
+;  316		mWhite = (char *)malloc(42 * 10);	//420
+;  317		Load_Raw_Data("white.raw", mWhite, 42 * 10);
+;  318		
+;  319		mBlack = (char *)malloc(48 * 10);	//480
+;  320		Load_Raw_Data("black.raw", mBlack, 48 * 10);
+;  321		
+;  322		mNormal = (char *)malloc(58 * 10);	//580
+;  323		Load_Raw_Data("normal.raw", mNormal, 58 * 10);
+;  324		
+;  325		mHard = (char *)malloc(38 * 10);	//380
+;  326		Load_Raw_Data("hard.raw", mHard, 38 * 10);
+;  327		
+;  328		wSel = (char *)malloc(25 * 25);	//625
+;  329		Load_Raw_Data("bsel.raw", wSel, 25 * 25);
+;  330		
+;  331		rSel = (char *)malloc(25 * 25);	//625
+;  332		Load_Raw_Data("rsel.raw", rSel, 25 * 25);
 ;  333		
-;  334		wPiece = (char *)malloc(25 * 25);	//625
-;  335		Load_Raw_Data("wpiece.raw", wPiece, 25 * 25);
-;  336		
-;  337		bPiece = (char *)malloc(25 * 25);	//625
-;  338		Load_Raw_Data("bpiece.raw", bPiece, 25 * 25);
-;  339		
-;  340		Think = (char *)malloc(102 * 10);
-;  341		Load_Raw_Data("pthink.raw", Think, 102 * 10);
-;  342		
-;  343		wPlay = (char *)malloc(42 * 10);
-;  344		Load_Raw_Data("pwhite.raw", wPlay, 42 * 10);
-;  345		
-;  346		bPlay = (char *)malloc(48 * 10);
-;  347		Load_Raw_Data("pblack.raw", bPlay, 48 * 10);
+;  334		bsel = (char *)malloc(25 * 25);	//625
+;  335		
+;  336		for (i = 0; i < 6; i++)
+;  337		{
+;  338			Bianchi[i] = (char *)malloc(22 * 23);
+;  339			Neri[i] = (char *)malloc(22 * 23);
+;  340		}
+;  341		
+;  342		Load_Raw_Data("bped.raw", Bianchi[0], 22 * 23);
+;  343		Load_Raw_Data("bcav.raw", Bianchi[1], 22 * 23);
+;  344		Load_Raw_Data("balf.raw", Bianchi[2], 22 * 23);
+;  345		Load_Raw_Data("btor.raw", Bianchi[3], 22 * 23);
+;  346		Load_Raw_Data("breg.raw", Bianchi[4], 22 * 23);
+;  347		Load_Raw_Data("bre.raw", Bianchi[5], 22 * 23);
 ;  348		
-;  349		Load_Raw_Data("click.snd", (char *)0x0C00000, 9220);
-;  350		
-;  351		Load_Raw_Data("chs1.snd", (char *)(0x0C00000 + (1024 * 15)), 2445);
-;  352		
-;  353		Load_Raw_Data("chs2.snd", (char *)(0x0C00000 + (1024 * 25)), 3311);
-;  354		
-;  355		Click.loc = (char *)0x0C00000;
-;  356		Click.len = 9220;
-;  357		Click.looploc = (char *)0x0C00000;
-;  358		Click.looplen = 1;
-;  359		Click.period = 0x73A3;
-;  360		Click.volume = 84;
+;  349		Load_Raw_Data("nped.raw", Neri[0], 22 * 23);
+;  350		Load_Raw_Data("ncav.raw", Neri[1], 22 * 23);
+;  351		Load_Raw_Data("nalf.raw", Neri[2], 22 * 23);
+;  352		Load_Raw_Data("ntor.raw", Neri[3], 22 * 23);
+;  353		Load_Raw_Data("nreg.raw", Neri[4], 22 * 23);
+;  354		Load_Raw_Data("nre.raw", Neri[5], 22 * 23);
+;  355		
+;  356		wPiece = (char *)malloc(25 * 25);	//625
+;  357		Load_Raw_Data("wpiece.raw", wPiece, 25 * 25);
+;  358		
+;  359		bPiece = (char *)malloc(25 * 25);	//625
+;  360		Load_Raw_Data("bpiece.raw", bPiece, 25 * 25);
 ;  361		
-;  362		Chs1.loc = (char *)(0x0C00000 + (1024 * 15));
-;  363		Chs1.len = 2445;
-;  364		Chs1.looploc = (char *)(0x0C00000 + (1024 * 15));
-;  365		Chs1.looplen = 1;
-;  366		Chs1.period = 0x73A3;
-;  367		Chs1.volume = 84;
-;  368		
-;  369		Chs2.loc = (char *)(0x0C00000 + (1024 * 25));
-;  370		Chs2.len = 3311;
-;  371		Chs2.looploc = (char *)(0x0C00000 + (1024 * 25));
-;  372		Chs2.looplen = 1;
-;  373		Chs2.period = 0x73A3;
-;  374		Chs2.volume = 84;
-;  375	}
-;  376	
-;  377	void Draw_Image(int PosX, int PosY, int W, int H, char *ImgBuf)
-;  378	{
-;  379		int x, y;
-;  380		
-;  381		for (y = PosY; y < PosY + H; y++)
-;  382			for (x = PosX; x < PosX + W; x++)
-;  383				PutPixel(x, y, *ImgBuf++);
-;  384	}
-;  385	
-;  386	void Draw_Trans_Image(int PosX, int PosY, int W, int H, char *ImgBuf, unsigned char Trans)
-;  387	{
-;  388		int x, y;
-;  389		
-;  390		for (y = PosY; y < PosY + H; y++)
-;  391			for (x = PosX; x < PosX + W; x++)
-;  392			{
-;  393				if (*ImgBuf != Trans)
-;  394					PutPixel(x, y, *ImgBuf);
-;  395				
-;  396				*ImgBuf++;
-;  397			}
-;  398				
-;  399	}
-;  400	
-;  401	void Fill_Rectangle(int PosX, int PosY, int W, int H, unsigned char col)
-;  402	{
-;  403		int x, y;
-;  404		
-;  405		for (y = PosY; y < PosY + H; y++)
-;  406			for (x = PosX; x < PosX + W; x++)
-;  407				PutPixel(x, y, col);
-;  408	}
-;  409	
-;  410	char MainMenu(void)
-;  411	{
-;  412		char PosSel = 0, OldPosSel = 0;
-;  413		unsigned char SKey;	
-;  414		
-;  415		BlackOut();
-;  416		
-;  417		Load_Raw_Data("menu.raw", VideoMem, 320 * 240);
-;  418		Load_Raw_Data("menu.pal", PaletteMem, 512);
-;  419		
-;  420		if (mColore == 0)
-;  421			Draw_Image(190, 94, 42, 10, mWhite);
-;  422		else
-;  423			Draw_Image(190, 94, 48, 10, mBlack);
-;  424		
-;  425		Draw_Image(105, 91, 16, 15, mSelect);
+;  362		Think = (char *)malloc(102 * 10);
+;  363		Load_Raw_Data("pthink.raw", Think, 102 * 10);
+;  364		
+;  365		wPlay = (char *)malloc(42 * 10);
+;  366		Load_Raw_Data("pwhite.raw", wPlay, 42 * 10);
+;  367		
+;  368		bPlay = (char *)malloc(48 * 10);
+;  369		Load_Raw_Data("pblack.raw", bPlay, 48 * 10);
+;  370		
+;  371		Load_Raw_Data("click.snd", (char *)0x0C00000, 9220);
+;  372		
+;  373		Load_Raw_Data("chs1.snd", (char *)(0x0C00000 + (1024 * 15)), 2445);
+;  374		
+;  375		Load_Raw_Data("chs2.snd", (char *)(0x0C00000 + (1024 * 25)), 3311);
+;  376		
+;  377		Click.loc = (char *)0x0C00000;
+;  378		Click.len = 9220;
+;  379		Click.looploc = (char *)0x0C00000;
+;  380		Click.looplen = 1;
+;  381		Click.period = 0x73A3;
+;  382		Click.volume = 84;
+;  383		
+;  384		Chs1.loc = (char *)(0x0C00000 + (1024 * 15));
+;  385		Chs1.len = 2445;
+;  386		Chs1.looploc = (char *)(0x0C00000 + (1024 * 15));
+;  387		Chs1.looplen = 1;
+;  388		Chs1.period = 0x73A3;
+;  389		Chs1.volume = 84;
+;  390		
+;  391		Chs2.loc = (char *)(0x0C00000 + (1024 * 25));
+;  392		Chs2.len = 3311;
+;  393		Chs2.looploc = (char *)(0x0C00000 + (1024 * 25));
+;  394		Chs2.looplen = 1;
+;  395		Chs2.period = 0x73A3;
+;  396		Chs2.volume = 84;
+;  397	}
+;  398	
+;  399	void Draw_Image(int PosX, int PosY, int W, int H, char *ImgBuf)
+;  400	{
+;  401		int x, y;
+;  402		
+;  403		for (y = PosY; y < PosY + H; y++)
+;  404			for (x = PosX; x < PosX + W; x++)
+;  405				PutPixel(x, y, *ImgBuf++);
+;  406	}
+;  407	
+;  408	void Draw_Trans_Image(int PosX, int PosY, int W, int H, char *ImgBuf, unsigned char Trans)
+;  409	{
+;  410		int x, y;
+;  411		
+;  412		for (y = PosY; y < PosY + H; y++)
+;  413			for (x = PosX; x < PosX + W; x++)
+;  414			{
+;  415				if (*ImgBuf != Trans)
+;  416					PutPixel(x, y, *ImgBuf);
+;  417				
+;  418				*ImgBuf++;
+;  419			}
+;  420				
+;  421	}
+;  422	
+;  423	void Fill_Rectangle(int PosX, int PosY, int W, int H, unsigned char col)
+;  424	{
+;  425		int x, y;
 ;  426		
-;  427		if (mLivello == 0)
-;  428			Draw_Image(190, 116, 58, 10, mNormal);
-;  429		else
-;  430			Draw_Image(190, 116, 38, 10, mHard);
-;  431		
-;  432		while (1)
-;  433		{
-;  434			SKey = GetKeyScanCode();
-;  435			
-;  436			if (SKey == 0x75)
-;  437			{
-;  438				PosSel -= 1;
-;  439				
-;  440				if (PosSel < 0)
-;  441					PosSel = 3;
-;  442			}
-;  443			
-;  444			if (SKey == 0x72)
-;  445			{
-;  446				PosSel += 1;
-;  447				
-;  448				if (PosSel > 3)
-;  449					PosSel = 0;
-;  450			}
-;  451			
-;  452			if (PosSel != OldPosSel)
-;  453			{
-;  454				Play_Raw_Audio(&Click);
-;  455				
-;  456				Fill_Rectangle(105, 91 + (OldPosSel * 22), 16, 15, 0);
-;  457				
-;  458				Draw_Image(105, 91 + (PosSel * 22), 16, 15, mSelect);
-;  459				
-;  460				OldPosSel = PosSel;
-;  461			}
-;  462			
-;  463			if (SKey == 0x29)
-;  464			{
-;  465				Play_Raw_Audio(&Click);
-;  466				
-;  467				switch (PosSel)
-;  468				{
-;  469					case 		0:
-;  470						
-;  471						if (mColore == 0)
-;  472						{
-;  473							Fill_Rectangle(190, 94, 42, 10, 0);
-;  474				
-;  475							Draw_Image(190, 94, 48, 10, mBlack);
-;  476							
-;  477							mColore = 1;
-;  478						}
-;  479						else
-;  480						{
-;  481							Fill_Rectangle(190, 94, 48, 10, 0);
-;  482				
-;  483							Draw_Image(190, 94, 42, 10, mWhite);
-;  484							
-;  485							mColore = 0;
-;  486						}
-;  487						break;
-;  488						
-;  489					case		1:
-;  490						if (mLivello == 0)
-;  491						{
-;  492							Fill_Rectangle(190, 116, 58, 10, 0);
-;  493							
-;  494							Draw_Image(190, 116, 38, 10, mHard);
-;  495							
-;  496							mLivello = 1;
-;  497						}
-;  498						else
-;  499						{
-;  500							Fill_Rectangle(190, 116, 38, 10, 0);
-;  501							
-;  502							Draw_Image(190, 116, 58, 10, mNormal);
-;  503							
-;  504							mLivello = 0;
-;  505						}
-;  506						break;
-;  507						
-;  508					case 		2:
-;  509						return 1;
-;  510					
-;  511					case 		3:
-;  512						return 2;
-;  513				}
-;  514			}
-;  515			
-;  516		}
-;  517		
-;  518		return 0;
-;  519	}
-;  520	
-;  521	void Save_Back_Selection(int PosX, int PosY, unsigned char Trans)
-;  522	{
-;  523		unsigned char Val = VideoMem[(PosY << 8) + (PosY << 6) + PosX];
-;  524		char i, j;
-;  525		
-;  526		memset(bsel, Val, 25 * 25);
-;  527		
-;  528		for (j = 1; j < 24; j++)
-;  529			for (i = 1; i < 24; i++)
-;  530				bsel[(j * 25) + i] = Trans;
-;  531	}
-;  532	
-;  533	void Draw_User_Selection(PlSel *uS, char SaveBK)
-;  534	{
-;  535		int PosX, PosY;
-;  536		
-;  537		PosX = (uS->co * 25) + 11;
-;  538		PosY = (uS->ri * 25) + 12;
+;  427		for (y = PosY; y < PosY + H; y++)
+;  428			for (x = PosX; x < PosX + W; x++)
+;  429				PutPixel(x, y, col);
+;  430	}
+;  431	
+;  432	char MainMenu(void)
+;  433	{
+;  434		char PosSel = 0, OldPosSel = 0;
+;  435		unsigned char SKey;	
+;  436		
+;  437		BlackOut();
+;  438		
+;  439		Load_Raw_Data("menu.raw", VideoMem, 320 * 240);
+;  440		Load_Raw_Data("menu.pal", PaletteMem, 512);
+;  441		
+;  442		if (mColore == 0)
+;  443			Draw_Image(190, 94, 42, 10, mWhite);
+;  444		else
+;  445			Draw_Image(190, 94, 48, 10, mBlack);
+;  446		
+;  447		Draw_Image(105, 91, 16, 15, mSelect);
+;  448		
+;  449		if (mLivello == 0)
+;  450			Draw_Image(190, 116, 58, 10, mNormal);
+;  451		else
+;  452			Draw_Image(190, 116, 38, 10, mHard);
+;  453		
+;  454		while (1)
+;  455		{
+;  456			SKey = GetKeyScanCode();
+;  457			
+;  458			if (SKey == 0x75)
+;  459			{
+;  460				PosSel -= 1;
+;  461				
+;  462				if (PosSel < 0)
+;  463					PosSel = 3;
+;  464			}
+;  465			
+;  466			if (SKey == 0x72)
+;  467			{
+;  468				PosSel += 1;
+;  469				
+;  470				if (PosSel > 3)
+;  471					PosSel = 0;
+;  472			}
+;  473			
+;  474			if (PosSel != OldPosSel)
+;  475			{
+;  476				Play_Raw_Audio(&Click);
+;  477				
+;  478				Fill_Rectangle(105, 91 + (OldPosSel * 22), 16, 15, 0);
+;  479				
+;  480				Draw_Image(105, 91 + (PosSel * 22), 16, 15, mSelect);
+;  481				
+;  482				OldPosSel = PosSel;
+;  483			}
+;  484			
+;  485			if (SKey == 0x29)
+;  486			{
+;  487				Play_Raw_Audio(&Click);
+;  488				
+;  489				switch (PosSel)
+;  490				{
+;  491					case 		0:
+;  492						
+;  493						if (mColore == 0)
+;  494						{
+;  495							Fill_Rectangle(190, 94, 42, 10, 0);
+;  496				
+;  497							Draw_Image(190, 94, 48, 10, mBlack);
+;  498							
+;  499							mColore = 1;
+;  500						}
+;  501						else
+;  502						{
+;  503							Fill_Rectangle(190, 94, 48, 10, 0);
+;  504				
+;  505							Draw_Image(190, 94, 42, 10, mWhite);
+;  506							
+;  507							mColore = 0;
+;  508						}
+;  509						break;
+;  510						
+;  511					case		1:
+;  512						if (mLivello == 0)
+;  513						{
+;  514							Fill_Rectangle(190, 116, 58, 10, 0);
+;  515							
+;  516							Draw_Image(190, 116, 38, 10, mHard);
+;  517							
+;  518							mLivello = 1;
+;  519						}
+;  520						else
+;  521						{
+;  522							Fill_Rectangle(190, 116, 38, 10, 0);
+;  523							
+;  524							Draw_Image(190, 116, 58, 10, mNormal);
+;  525							
+;  526							mLivello = 0;
+;  527						}
+;  528						break;
+;  529						
+;  530					case 		2:
+;  531						return 1;
+;  532					
+;  533					case 		3:
+;  534						return 2;
+;  535				}
+;  536			}
+;  537			
+;  538		}
 ;  539		
-;  540		if (SaveBK)
-;  541			Save_Back_Selection(PosX, PosY, 0);
-;  542		
-;  543		Draw_Trans_Image(PosX, PosY, 25, 25, uS->Img, 0);
-;  544	}
-;  545	
-;  546	void Ottiemi_Mossa(PlSel *uS, char *OutBuf)
-;  547	{
-;  548		PlSel Old;
-;  549		unsigned char SKey;
-;  550		
-;  551		OutBuf[0] = 0;
-;  552		OutBuf[1] = 0;
-;  553		chAbort = 0;
-;  554		
-;  555		Old.co = uS->co;
-;  556		Old.ri = uS->ri;
-;  557		Old.Img = bsel;
+;  540		return 0;
+;  541	}
+;  542	
+;  543	void Save_Back_Selection(int PosX, int PosY, unsigned char Trans)
+;  544	{
+;  545		unsigned char Val = VideoMem[(PosY << 8) + (PosY << 6) + PosX];
+;  546		char i, j;
+;  547		
+;  548		memset(bsel, Val, 25 * 25);
+;  549		
+;  550		for (j = 1; j < 24; j++)
+;  551			for (i = 1; i < 24; i++)
+;  552				bsel[(j * 25) + i] = Trans;
+;  553	}
+;  554	
+;  555	void Draw_User_Selection(PlSel *uS, char SaveBK)
+;  556	{
+;  557		int PosX, PosY;
 ;  558		
-;  559		Draw_User_Selection(uS, 1);
-;  560		
-;  561		while (1)
-;  562		{
-;  563			SKey = GetKeyScanCode();
-;  564			
-;  565			if (SKey == 0x6B)
-;  566			{
-;  567				uS->co--;
-;  568				
-;  569				if (uS->co < 0)
-;  570					uS->co = 0;
-;  571			}
-;  572			
-;  573			if (SKey == 0x74)
-;  574			{
-;  575				uS->co++;
-;  576				
-;  577				if (uS->co > 7)
-;  578					uS->co = 7;
-;  579			}
-;  580			
-;  581			if (SKey == 0x75)
-;  582			{
-;  583				uS->ri--;
-;  584				
-;  585				if (uS->ri < 0)
-;  586					uS->ri = 0;
-;  587			}
-;  588			
-;  589			if (SKey == 0x72)
-;  590			{
-;  591				uS->ri++;
-;  592				
-;  593				if (uS->ri > 7)
-;  594					uS->ri = 7;
-;  595			}
-;  596			
-;  597			if (SKey == 0x07)
-;  598			{
-;  599				chAbort = 1;
-;  600				
-;  601				Draw_User_Selection(&Old, 0);
-;  602				
-;  603				return;
-;  604			}
-;  605			
-;  606			if (SKey == 0x29)
-;  607			{
-;  608				Draw_User_Selection(&Old, 0);
-;  609				
-;  610				OutBuf[0] = 'a' + uS->co;
-;  611				OutBuf[1] = '8' - uS->ri;
-;  612				
-;  613				return;
-;  614			}			
-;  615			
-;  616			if ((Old.co != uS->co) || (Old.ri != uS->ri))
-;  617			{
-;  618				Draw_User_Selection(&Old, 0);
-;  619				
-;  620				Draw_User_Selection(uS, 1);
-;  621				
-;  622				Old.co = uS->co;
-;  623				Old.ri = uS->ri;
-;  624			}		
-;  625		}
-;  626	}
-;  627	
-;  628	void Crea_Mossa(void)
-;  629	{
-;  630		User.Img = wSel;
-;  631		
-;  632		Ottiemi_Mossa(&User, Mossa1);
-;  633		
-;  634		if (!chAbort)
-;  635		{
-;  636			User.Img = rSel;
+;  559		PosX = (uS->co * 25) + 11;
+;  560		PosY = (uS->ri * 25) + 12;
+;  561		
+;  562		if (SaveBK)
+;  563			Save_Back_Selection(PosX, PosY, 0);
+;  564		
+;  565		Draw_Trans_Image(PosX, PosY, 25, 25, uS->Img, 0);
+;  566	}
+;  567	
+;  568	void Ottiemi_Mossa(PlSel *uS, char *OutBuf)
+;  569	{
+;  570		PlSel Old;
+;  571		unsigned char SKey;
+;  572		
+;  573		OutBuf[0] = 0;
+;  574		OutBuf[1] = 0;
+;  575		chAbort = 0;
+;  576		
+;  577		Old.co = uS->co;
+;  578		Old.ri = uS->ri;
+;  579		Old.Img = bsel;
+;  580		
+;  581		Draw_User_Selection(uS, 1);
+;  582		
+;  583		while (1)
+;  584		{
+;  585			SKey = GetKeyScanCode();
+;  586			
+;  587			if (SKey == 0x6B)
+;  588			{
+;  589				uS->co--;
+;  590				
+;  591				if (uS->co < 0)
+;  592					uS->co = 0;
+;  593			}
+;  594			
+;  595			if (SKey == 0x74)
+;  596			{
+;  597				uS->co++;
+;  598				
+;  599				if (uS->co > 7)
+;  600					uS->co = 7;
+;  601			}
+;  602			
+;  603			if (SKey == 0x75)
+;  604			{
+;  605				uS->ri--;
+;  606				
+;  607				if (uS->ri < 0)
+;  608					uS->ri = 0;
+;  609			}
+;  610			
+;  611			if (SKey == 0x72)
+;  612			{
+;  613				uS->ri++;
+;  614				
+;  615				if (uS->ri > 7)
+;  616					uS->ri = 7;
+;  617			}
+;  618			
+;  619			if (SKey == 0x07)
+;  620			{
+;  621				chAbort = 1;
+;  622				
+;  623				Draw_User_Selection(&Old, 0);
+;  624				
+;  625				return;
+;  626			}
+;  627			
+;  628			if (SKey == 0x29)
+;  629			{
+;  630				Draw_User_Selection(&Old, 0);
+;  631				
+;  632				OutBuf[0] = 'a' + uS->co;
+;  633				OutBuf[1] = '8' - uS->ri;
+;  634				
+;  635				return;
+;  636			}			
 ;  637			
-;  638			Ottiemi_Mossa(&User, Mossa2);
-;  639		}
-;  640	}
-;  641	
-;  642	void Show_End_Screen(char win)
-;  643	{
-;  644		unsigned int i, co, ri, x, y;	
-;  645		
-;  646		co = ((mossa_giocata / 10) % 10);
-;  647		ri = mossa_giocata % 10;
-;  648		
-;  649		x = PosScac[co][ri].X;
-;  650		y = PosScac[co][ri].Y;
-;  651		
-;  652		Draw_Trans_Image(x, y, 25, 25, rSel, 0);
+;  638			if ((Old.co != uS->co) || (Old.ri != uS->ri))
+;  639			{
+;  640				Draw_User_Selection(&Old, 0);
+;  641				
+;  642				Draw_User_Selection(uS, 1);
+;  643				
+;  644				Old.co = uS->co;
+;  645				Old.ri = uS->ri;
+;  646			}		
+;  647		}
+;  648	}
+;  649	
+;  650	void Crea_Mossa(void)
+;  651	{
+;  652		User.Img = wSel;
 ;  653		
-;  654		for (i = 0; i < 1500000; i++);
+;  654		Ottiemi_Mossa(&User, Mossa1);
 ;  655		
-;  656		BlackOut();
-;  657		
-;  658		switch (win)
-;  659		{
-;  660			case	1:
-;  661				
-;  662				Load_Raw_Data("win.raw", VideoMem, 320 * 240);
-;  663				Load_Raw_Data("win.pal", PaletteMem, 512);
-;  664				break;
-;  665				
-;  666			case	2:
-;  667				
-;  668				Load_Raw_Data("lose.raw", VideoMem, 320 * 240);
-;  669				Load_Raw_Data("lose.pal", PaletteMem, 512);
-;  670				break;
-;  671		}
-;  672		
-;  673		WaitKeyPress();
+;  656		if (!chAbort)
+;  657		{
+;  658			User.Img = rSel;
+;  659			
+;  660			Ottiemi_Mossa(&User, Mossa2);
+;  661		}
+;  662	}
+;  663	
+;  664	void Show_End_Screen(char win)
+;  665	{
+;  666		unsigned int i, co, ri, x, y;
+;  667		
+;  668		
+;  669		co = ((mossa_giocata / 10) % 10);
+;  670		ri = mossa_giocata % 10;
+;  671		
+;  672		x = PosScac[co][ri].X;
+;  673		y = PosScac[co][ri].Y;
 ;  674		
-;  675		Play_Raw_Audio(&Click);
+;  675		Draw_Trans_Image(x, y, 25, 25, rSel, 0);
+;  676		
+;  677		for (i = 0; i < 1500000; i++);	
+;  678		
+;  679		for (i = 0; i < 50; i++)
+;  680			ReadScancode();	
+;  681		
+;  682		BlackOut();
+;  683		
+;  684		switch (win)
+;  685		{
+;  686			case	1:
+;  687				
+;  688				Load_Raw_Data("win.raw", VideoMem, 320 * 240);
+;  689				Load_Raw_Data("win.pal", PaletteMem, 512);
+;  690				break;
+;  691				
+;  692			case	2:
+;  693				
+;  694				Load_Raw_Data("lose.raw", VideoMem, 320 * 240);
+;  695				Load_Raw_Data("lose.pal", PaletteMem, 512);
+;  696				break;
+;  697		}
+;  698		
+;  699		WaitKeyPress();
+;  700		
+;  701		Play_Raw_Audio(&Click);
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -11150,10 +11178,10 @@ L__354:
 	DB	"board.pal"
 	DB	0
 L__364:
-	DB	"Chess Fight ver 1.0 for eZ80P."
+	DB	"Chess Fight ver 1.0b for eZ80P."
 	DB	10,13,0
 L__365:
-	DB	"Progremmed by Enzo Antonio Calogiuri."
+	DB	"Programmed by Enzo Antonio Calogiuri."
 	DB	10,13,0
 L__366:
 	DB	10,13,0
@@ -11188,6 +11216,28 @@ pop ix
 ;**************************** _GetKeyScanCode ***************************
 ;Name                         Addr/Register   Size   Type
 ;_gScanCode                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+_ReadScancode:
+	XOR	A,A
+	LD	(_BufKey),A
+push ix
+ld a, kr_get_key
+call.lil prose_kernal
+jr nz, NoKeyInB
+ld (_BufKey), a
+NoKeyInB:
+pop ix
+	RET	
+
+
+;**************************** _ReadScancode ***************************
+;Name                         Addr/Register   Size   Type
+;_BufKey                             STATIC      1   variable
 
 
 ; Stack Frame Size: 6 (bytes)
@@ -11296,8 +11346,8 @@ _Free_All_Mem:
 	POP	BC
 	LD	BC,0
 	LD	(IX+-3),BC
-	JR	L_605
-L_603:
+	JR	L_606
+L_604:
 	LD	HL,(IX+-3)
 	ADD	HL,HL
 	ADD	HL,HL
@@ -11325,12 +11375,12 @@ L_603:
 	LD	BC,(IX+-3)
 	INC	BC
 	LD	(IX+-3),BC
-L_605:
+L_606:
 	LD	BC,6
 	LD	HL,(IX+-3)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L_603
+	JP	M,L_604
 	LD	BC,(_wPiece)
 	PUSH	BC
 	CALL	_free
@@ -11384,7 +11434,7 @@ L_605:
 _Load_Components:
 	LD	HL,-9
 	CALL	__frameset
-	LD	BC,L__375
+	LD	BC,L__376
 	PUSH	BC
 	CALL	_print
 	POP	BC
@@ -11397,7 +11447,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_mSelect)
 	PUSH	BC
-	LD	BC,L__376
+	LD	BC,L__377
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11412,7 +11462,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_mWhite)
 	PUSH	BC
-	LD	BC,L__377
+	LD	BC,L__378
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11427,7 +11477,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_mBlack)
 	PUSH	BC
-	LD	BC,L__378
+	LD	BC,L__379
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11442,7 +11492,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_mNormal)
 	PUSH	BC
-	LD	BC,L__379
+	LD	BC,L__380
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11457,7 +11507,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_mHard)
 	PUSH	BC
-	LD	BC,L__380
+	LD	BC,L__381
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11472,7 +11522,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_wSel)
 	PUSH	BC
-	LD	BC,L__381
+	LD	BC,L__382
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11487,7 +11537,7 @@ _Load_Components:
 	PUSH	BC
 	LD	BC,(_rSel)
 	PUSH	BC
-	LD	BC,L__382
+	LD	BC,L__383
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11500,8 +11550,8 @@ _Load_Components:
 	LD	(_bsel),HL
 	LD	BC,0
 	LD	(IX+-3),BC
-	JR	L_611
-L_609:
+	JR	L_612
+L_610:
 	LD	BC,506
 	PUSH	BC
 	CALL	_malloc
@@ -11539,22 +11589,22 @@ L_609:
 	LD	BC,(IX+-3)
 	INC	BC
 	LD	(IX+-3),BC
-L_611:
+L_612:
 	LD	BC,6
 	LD	HL,(IX+-3)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__404
-	JP	PE,L_609
-	JR	L__405
-L__404:
-	JP	PO,L_609
+	JP	M,L__405
+	JP	PE,L_610
+	JR	L__406
 L__405:
+	JP	PO,L_610
+L__406:
 	LD	BC,506
 	PUSH	BC
 	LD	BC,(_Bianchi)
 	PUSH	BC
-	LD	BC,L__384
+	LD	BC,L__385
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11565,7 +11615,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__385
+	LD	BC,L__386
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11576,7 +11626,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__386
+	LD	BC,L__387
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11587,7 +11637,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__387
+	LD	BC,L__388
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11598,7 +11648,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__388
+	LD	BC,L__389
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11609,7 +11659,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__389
+	LD	BC,L__390
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11619,7 +11669,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_Neri)
 	PUSH	BC
-	LD	BC,L__390
+	LD	BC,L__391
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11630,7 +11680,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__391
+	LD	BC,L__392
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11641,7 +11691,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__392
+	LD	BC,L__393
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11652,7 +11702,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__393
+	LD	BC,L__394
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11663,7 +11713,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__394
+	LD	BC,L__395
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11674,7 +11724,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(HL)
 	PUSH	BC
-	LD	BC,L__395
+	LD	BC,L__396
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11689,7 +11739,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_wPiece)
 	PUSH	BC
-	LD	BC,L__396
+	LD	BC,L__397
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11704,7 +11754,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_bPiece)
 	PUSH	BC
-	LD	BC,L__397
+	LD	BC,L__398
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11719,7 +11769,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_Think)
 	PUSH	BC
-	LD	BC,L__398
+	LD	BC,L__399
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11734,7 +11784,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_wPlay)
 	PUSH	BC
-	LD	BC,L__399
+	LD	BC,L__400
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11749,7 +11799,7 @@ L__405:
 	PUSH	BC
 	LD	BC,(_bPlay)
 	PUSH	BC
-	LD	BC,L__400
+	LD	BC,L__401
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11759,7 +11809,7 @@ L__405:
 	PUSH	BC
 	LD	BC,12582912
 	PUSH	BC
-	LD	BC,L__401
+	LD	BC,L__402
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11769,7 +11819,7 @@ L__405:
 	PUSH	BC
 	LD	BC,12598272
 	PUSH	BC
-	LD	BC,L__402
+	LD	BC,L__403
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11779,7 +11829,7 @@ L__405:
 	PUSH	BC
 	LD	BC,12608512
 	PUSH	BC
-	LD	BC,L__403
+	LD	BC,L__404
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -11861,89 +11911,89 @@ L__405:
 
 
 	SEGMENT STRSECT
-L__375:
+L__376:
 	DB	10,13
 	DB	" Loading data..."
 	DB	10,13,0
-L__376:
+L__377:
 	DB	"msel.raw"
 	DB	0
-L__377:
+L__378:
 	DB	"white.raw"
 	DB	0
-L__378:
+L__379:
 	DB	"black.raw"
 	DB	0
-L__379:
+L__380:
 	DB	"normal.raw"
 	DB	0
-L__380:
+L__381:
 	DB	"hard.raw"
 	DB	0
-L__381:
+L__382:
 	DB	"bsel.raw"
 	DB	0
-L__382:
+L__383:
 	DB	"rsel.raw"
 	DB	0
-L__384:
+L__385:
 	DB	"bped.raw"
 	DB	0
-L__385:
+L__386:
 	DB	"bcav.raw"
 	DB	0
-L__386:
+L__387:
 	DB	"balf.raw"
 	DB	0
-L__387:
+L__388:
 	DB	"btor.raw"
 	DB	0
-L__388:
+L__389:
 	DB	"breg.raw"
 	DB	0
-L__389:
+L__390:
 	DB	"bre.raw"
 	DB	0
-L__390:
+L__391:
 	DB	"nped.raw"
 	DB	0
-L__391:
+L__392:
 	DB	"ncav.raw"
 	DB	0
-L__392:
+L__393:
 	DB	"nalf.raw"
 	DB	0
-L__393:
+L__394:
 	DB	"ntor.raw"
 	DB	0
-L__394:
+L__395:
 	DB	"nreg.raw"
 	DB	0
-L__395:
+L__396:
 	DB	"nre.raw"
 	DB	0
-L__396:
+L__397:
 	DB	"wpiece.raw"
 	DB	0
-L__397:
+L__398:
 	DB	"bpiece.raw"
 	DB	0
-L__398:
+L__399:
 	DB	"pthink.raw"
 	DB	0
-L__399:
+L__400:
 	DB	"pwhite.raw"
 	DB	0
-L__400:
+L__401:
 	DB	"pblack.raw"
 	DB	0
-L__401:
+L__402:
 	DB	"click.snd"
 	DB	0
-L__402:
+L__403:
 	DB	"chs1.snd"
 	DB	0
-L__403:
+L__404:
 	DB	"chs2.snd"
 	DB	0
 	SEGMENT CODE
@@ -11952,12 +12002,12 @@ _Draw_Image:
 	CALL	__frameset
 	LD	BC,(IX+9)
 	LD	(IX+-6),BC
-	JR	L_622
-L_620:
+	JR	L_623
+L_621:
 	LD	BC,(IX+6)
 	LD	(IX+-3),BC
-	JR	L_619
-L_617:
+	JR	L_620
+L_618:
 	LD	BC,(IX+18)
 	LD	(IX+-9),BC
 	LD	BC,(IX+18)
@@ -11978,7 +12028,7 @@ L_617:
 	LD	BC,(IX+-3)
 	INC	BC
 	LD	(IX+-3),BC
-L_619:
+L_620:
 	LD	BC,(IX+12)
 	LD	HL,(IX+6)
 	ADD	HL,BC
@@ -11986,16 +12036,16 @@ L_619:
 	LD	HL,(IX+-3)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__409
-	JP	PE,L_617
-	JR	L__410
-L__409:
-	JP	PO,L_617
+	JP	M,L__410
+	JP	PE,L_618
+	JR	L__411
 L__410:
+	JP	PO,L_618
+L__411:
 	LD	BC,(IX+-6)
 	INC	BC
 	LD	(IX+-6),BC
-L_622:
+L_623:
 	LD	BC,(IX+15)
 	LD	HL,(IX+9)
 	ADD	HL,BC
@@ -12003,12 +12053,12 @@ L_622:
 	LD	HL,(IX+-6)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__411
-	JP	PE,L_620
-	JR	L__412
-L__411:
-	JP	PO,L_620
+	JP	M,L__412
+	JP	PE,L_621
+	JR	L__413
 L__412:
+	JP	PO,L_621
+L__413:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -12035,12 +12085,12 @@ _Draw_Trans_Image:
 	CALL	__frameset
 	LD	BC,(IX+9)
 	LD	(IX+-6),BC
-	JR	L_634
-L_632:
+	JR	L_635
+L_633:
 	LD	BC,(IX+6)
 	LD	(IX+-3),BC
-	JR	L_631
-L_629:
+	JR	L_632
+L_630:
 	LD	HL,(IX+18)
 	LD	A,(HL)
 	LD	B,A
@@ -12054,7 +12104,7 @@ L_629:
 	LD	HL,BC
 	OR	A,A
 	SBC	HL,DE
-	JR	Z,L_628
+	JR	Z,L_629
 	LD	HL,(IX+18)
 	LD	C,(HL)
 	LD	B,0
@@ -12067,14 +12117,14 @@ L_629:
 	POP	BC
 	POP	BC
 	POP	BC
-L_628:
+L_629:
 	LD	BC,(IX+18)
 	INC	BC
 	LD	(IX+18),BC
 	LD	BC,(IX+-3)
 	INC	BC
 	LD	(IX+-3),BC
-L_631:
+L_632:
 	LD	BC,(IX+12)
 	LD	HL,(IX+6)
 	ADD	HL,BC
@@ -12082,16 +12132,16 @@ L_631:
 	LD	HL,(IX+-3)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__417
-	JP	PE,L_629
-	JR	L__418
-L__417:
-	JP	PO,L_629
+	JP	M,L__418
+	JP	PE,L_630
+	JR	L__419
 L__418:
+	JP	PO,L_630
+L__419:
 	LD	BC,(IX+-6)
 	INC	BC
 	LD	(IX+-6),BC
-L_634:
+L_635:
 	LD	BC,(IX+15)
 	LD	HL,(IX+9)
 	ADD	HL,BC
@@ -12099,12 +12149,12 @@ L_634:
 	LD	HL,(IX+-6)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__419
-	JP	PE,L_632
-	JR	L__420
-L__419:
-	JP	PO,L_632
+	JP	M,L__420
+	JP	PE,L_633
+	JR	L__421
 L__420:
+	JP	PO,L_633
+L__421:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -12132,12 +12182,12 @@ _Fill_Rectangle:
 	CALL	__frameset
 	LD	BC,(IX+9)
 	LD	(IX+-6),BC
-	JR	L_643
-L_641:
+	JR	L_644
+L_642:
 	LD	BC,(IX+6)
 	LD	(IX+-3),BC
-	JR	L_640
-L_638:
+	JR	L_641
+L_639:
 	LD	C,(IX+18)
 	LD	B,0
 	PUSH	BC
@@ -12152,7 +12202,7 @@ L_638:
 	LD	BC,(IX+-3)
 	INC	BC
 	LD	(IX+-3),BC
-L_640:
+L_641:
 	LD	BC,(IX+12)
 	LD	HL,(IX+6)
 	ADD	HL,BC
@@ -12160,16 +12210,16 @@ L_640:
 	LD	HL,(IX+-3)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__424
-	JP	PE,L_638
-	JR	L__425
-L__424:
-	JP	PO,L_638
+	JP	M,L__425
+	JP	PE,L_639
+	JR	L__426
 L__425:
+	JP	PO,L_639
+L__426:
 	LD	BC,(IX+-6)
 	INC	BC
 	LD	(IX+-6),BC
-L_643:
+L_644:
 	LD	BC,(IX+15)
 	LD	HL,(IX+9)
 	ADD	HL,BC
@@ -12177,12 +12227,12 @@ L_643:
 	LD	HL,(IX+-6)
 	OR	A,A
 	SBC	HL,BC
-	JP	M,L__426
-	JP	PE,L_641
-	JR	L__427
-L__426:
-	JP	PO,L_641
+	JP	M,L__427
+	JP	PE,L_642
+	JR	L__428
 L__427:
+	JP	PO,L_642
+L__428:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -12214,7 +12264,7 @@ _MainMenu:
 	PUSH	BC
 	LD	BC,(_VideoMem)
 	PUSH	BC
-	LD	BC,L__429
+	LD	BC,L__430
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -12224,7 +12274,7 @@ _MainMenu:
 	PUSH	BC
 	LD	BC,(_PaletteMem)
 	PUSH	BC
-	LD	BC,L__430
+	LD	BC,L__431
 	PUSH	BC
 	CALL	_Load_Raw_Data
 	POP	BC
@@ -12232,7 +12282,7 @@ _MainMenu:
 	POP	BC
 	LD	A,(_mColore)
 	OR	A,A
-	JR	NZ,L_646
+	JR	NZ,L_647
 	LD	BC,(_mWhite)
 	PUSH	BC
 	LD	BC,10
@@ -12249,8 +12299,8 @@ _MainMenu:
 	POP	BC
 	POP	BC
 	POP	BC
-	JR	L_647
-L_646:
+	JR	L_648
+L_647:
 	LD	BC,(_mBlack)
 	PUSH	BC
 	LD	BC,10
@@ -12267,7 +12317,7 @@ L_646:
 	POP	BC
 	POP	BC
 	POP	BC
-L_647:
+L_648:
 	LD	BC,(_mSelect)
 	PUSH	BC
 	LD	BC,15
@@ -12286,7 +12336,7 @@ L_647:
 	POP	BC
 	LD	A,(_mLivello)
 	OR	A,A
-	JR	NZ,L_649
+	JR	NZ,L_650
 	LD	BC,(_mNormal)
 	PUSH	BC
 	LD	BC,10
@@ -12303,8 +12353,8 @@ L_647:
 	POP	BC
 	POP	BC
 	POP	BC
-	JR	L_670
-L_649:
+	JR	L_671
+L_650:
 	LD	BC,(_mHard)
 	PUSH	BC
 	LD	BC,10
@@ -12321,34 +12371,34 @@ L_649:
 	POP	BC
 	POP	BC
 	POP	BC
-L_670:
+L_671:
 	CALL	_GetKeyScanCode
 	LD	(IX+-3),A
 	CP	A,117
-	JR	NZ,L_654
+	JR	NZ,L_655
 	DEC	(IX+-1)
 	LD	A,(IX+-1)
 	OR	A,A
-	JP	P,L_654
+	JP	P,L_655
 	LD	(IX+-1),3
-L_654:
+L_655:
 	LD	A,(IX+-3)
 	CP	A,114
-	JR	NZ,L_656
+	JR	NZ,L_657
 	INC	(IX+-1)
 	LD	A,3
 	CP	A,(IX+-1)
-	JP	P,L__444
-	JP	PE,L_656
-	JR	L__445
-L__444:
-	JP	PO,L_656
+	JP	P,L__445
+	JP	PE,L_657
+	JR	L__446
 L__445:
+	JP	PO,L_657
+L__446:
 	LD	(IX+-1),0
-L_656:
+L_657:
 	LD	A,(IX+-1)
 	CP	A,(IX+-2)
-	JR	Z,L_668
+	JR	Z,L_669
 	LD	BC,_Click
 	PUSH	BC
 	CALL	_Play_Raw_Audio
@@ -12413,10 +12463,10 @@ L_656:
 	POP	BC
 	LD	A,(IX+-1)
 	LD	(IX+-2),A
-L_668:
+L_669:
 	LD	A,(IX+-3)
 	CP	A,41
-	JR	NZ,L_670
+	JR	NZ,L_671
 	LD	BC,_Click
 	PUSH	BC
 	CALL	_Play_Raw_Audio
@@ -12425,33 +12475,33 @@ L_668:
 	SEXT	HL
 	LD	L,(IX+-1)
 	LD	BC,HL
-L__440:
+L__441:
 	LD	HL,3
 	OR	A,A
 	SBC	HL,BC
-	JR	C,L_670
+	JR	C,L_671
 	LD	HL,BC
 	ADD	HL,HL
 	ADD	HL,HL
 	OR	A,A
 	SBC	HL,BC
-	LD	BC,L__439
+	LD	BC,L__440
 	ADD	HL,BC
 	LD	HL,(HL)
 	JP	(HL)
-L__439:
-	DW24	L_657	
+L__440:
+	DW24	L_658	
 
-	DW24	L_661	
-
-	DW24	L_665	
+	DW24	L_662	
 
 	DW24	L_666	
 
-L_657:
+	DW24	L_667	
+
+L_658:
 	LD	A,(_mColore)
 	OR	A,A
-	JR	NZ,L_659
+	JR	NZ,L_660
 	LD	BC,0
 	PUSH	BC
 	LD	BC,10
@@ -12486,8 +12536,8 @@ L_657:
 	POP	BC
 	LD	A,1
 	LD	(_mColore),A
-	JR	L_670
-L_659:
+	JR	L_671
+L_660:
 	LD	BC,0
 	PUSH	BC
 	LD	BC,10
@@ -12522,11 +12572,11 @@ L_659:
 	POP	BC
 	XOR	A,A
 	LD	(_mColore),A
-	JR	L_670
-L_661:
+	JR	L_671
+L_662:
 	LD	A,(_mLivello)
 	OR	A,A
-	JR	NZ,L_663
+	JR	NZ,L_664
 	LD	BC,0
 	PUSH	BC
 	LD	BC,10
@@ -12561,8 +12611,8 @@ L_661:
 	POP	BC
 	LD	A,1
 	LD	(_mLivello),A
-	JR	L_670
-L_663:
+	JR	L_671
+L_664:
 	LD	BC,0
 	PUSH	BC
 	LD	BC,10
@@ -12597,13 +12647,13 @@ L_663:
 	POP	BC
 	XOR	A,A
 	LD	(_mLivello),A
-	JR	L_670
-L_665:
-	LD	A,1
-	JR	L_673
+	JR	L_671
 L_666:
+	LD	A,1
+	JR	L_674
+L_667:
 	LD	A,2
-L_673:
+L_674:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -12637,10 +12687,10 @@ L_673:
 
 
 	SEGMENT STRSECT
-L__429:
+L__430:
 	DB	"menu.raw"
 	DB	0
-L__430:
+L__431:
 	DB	"menu.pal"
 	DB	0
 	SEGMENT CODE
@@ -12678,11 +12728,11 @@ _Save_Back_Selection:
 	POP	BC
 	POP	BC
 	LD	(IX+-2),1
-	JR	L_681
-L_679:
+	JR	L_682
+L_680:
 	LD	(IX+-1),1
-	JR	L_678
-L_676:
+	JR	L_679
+L_677:
 	LD	A,(IX+-2)
 	SEXT	HL
 	LD	L,(IX+-2)
@@ -12706,20 +12756,20 @@ L_676:
 	ADD	HL,BC
 	LD	(HL),A
 	INC	(IX+-1)
-L_678:
+L_679:
 	LD	A,(IX+-1)
 	CP	A,24
-	JP	M,L_676
+	JP	M,L_677
 	INC	(IX+-2)
-L_681:
+L_682:
 	LD	A,(IX+-2)
 	CP	A,24
-	JP	M,L__449
-	JP	PE,L_679
-	JR	L__450
-L__449:
-	JP	PO,L_679
+	JP	M,L__450
+	JP	PE,L_680
+	JR	L__451
 L__450:
+	JP	PO,L_680
+L__451:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -12783,7 +12833,7 @@ _Draw_User_Selection:
 	LD	(IX+-6),IY
 	LD	A,(IX+9)
 	OR	A,A
-	JR	Z,L_684
+	JR	Z,L_685
 	LD	BC,0
 	PUSH	BC
 	LD	BC,(IX+-6)
@@ -12794,7 +12844,7 @@ _Draw_User_Selection:
 	POP	BC
 	POP	BC
 	POP	BC
-L_684:
+L_685:
 	LD	BC,0
 	PUSH	BC
 	LD	IY,(IX+6)
@@ -12856,73 +12906,73 @@ _Ottiemi_Mossa:
 	CALL	_Draw_User_Selection
 	POP	BC
 	POP	BC
-L_709:
+L_710:
 	CALL	_GetKeyScanCode
 	LD	(IX+-1),A
 	CP	A,107
-	JR	NZ,L_692
+	JR	NZ,L_693
 	LD	IY,(IX+6)
 	LD	A,(IY+1)
 	DEC	A
 	LD	(IY+1),A
 	LD	A,(IY+1)
 	OR	A,A
-	JP	P,L_692
+	JP	P,L_693
 	LD	IY,(IX+6)
 	LD	(IY+1),0
-L_692:
+L_693:
 	LD	A,(IX+-1)
 	CP	A,116
-	JR	NZ,L_696
+	JR	NZ,L_697
 	LD	IY,(IX+6)
 	LD	A,(IY+1)
 	INC	A
 	LD	(IY+1),A
 	LD	A,7
 	CP	A,(IY+1)
-	JP	P,L__466
-	JP	PE,L_696
-	JR	L__467
-L__466:
-	JP	PO,L_696
+	JP	P,L__467
+	JP	PE,L_697
+	JR	L__468
 L__467:
+	JP	PO,L_697
+L__468:
 	LD	IY,(IX+6)
 	LD	(IY+1),7
-L_696:
+L_697:
 	LD	A,(IX+-1)
 	CP	A,117
-	JR	NZ,L_700
+	JR	NZ,L_701
 	LD	IY,(IX+6)
 	LD	A,(IY+0)
 	DEC	A
 	LD	(IY+0),A
 	LD	A,(IY+0)
 	OR	A,A
-	JP	P,L_700
+	JP	P,L_701
 	LD	IY,(IX+6)
 	LD	(IY+0),0
-L_700:
+L_701:
 	LD	A,(IX+-1)
 	CP	A,114
-	JR	NZ,L_702
+	JR	NZ,L_703
 	LD	IY,(IX+6)
 	LD	A,(IY+0)
 	INC	A
 	LD	(IY+0),A
 	LD	A,7
 	CP	A,(IY+0)
-	JP	P,L__468
-	JP	PE,L_702
-	JR	L__469
-L__468:
-	JP	PO,L_702
+	JP	P,L__469
+	JP	PE,L_703
+	JR	L__470
 L__469:
+	JP	PO,L_703
+L__470:
 	LD	IY,(IX+6)
 	LD	(IY+0),7
-L_702:
+L_703:
 	LD	A,(IX+-1)
 	CP	A,7
-	JR	NZ,L_704
+	JR	NZ,L_705
 	LD	BC,0
 	PUSH	BC
 	PEA	IX+-6
@@ -12931,11 +12981,11 @@ L_702:
 	CALL	_Draw_User_Selection
 	POP	BC
 	POP	BC
-	JR	L_710
-L_704:
+	JR	L_711
+L_705:
 	LD	A,(IX+-1)
 	CP	A,41
-	JR	NZ,L_707
+	JR	NZ,L_708
 	LD	BC,0
 	PUSH	BC
 	PEA	IX+-6
@@ -12952,17 +13002,17 @@ L_704:
 	LD	A,56
 	SUB	A,(IY+0)
 	LD	(HL),A
-	JR	L_710
-L_707:
+	JR	L_711
+L_708:
 	LD	A,(IX+-5)
 	LD	IY,(IX+6)
 	CP	A,(IY+1)
-	JR	NZ,L_706
+	JR	NZ,L_707
 	LD	A,(IX+-6)
 	LD	IY,(IX+6)
 	CP	A,(IY+0)
-	JR	Z,L_709
-L_706:
+	JR	Z,L_710
+L_707:
 	LD	BC,0
 	PUSH	BC
 	PEA	IX+-6
@@ -12981,8 +13031,8 @@ L_706:
 	LD	(IX+-5),A
 	LD	A,(IY+0)
 	LD	(IX+-6),A
-	JR	L_709
-L_710:
+	JR	L_710
+L_711:
 	LD	SP,IX
 	POP	IX
 	RET	
@@ -13015,7 +13065,7 @@ _Crea_Mossa:
 	POP	BC
 	LD	A,(_chAbort)
 	OR	A,A
-	JR	NZ,L_712
+	JR	NZ,L_713
 	LD	BC,_Mossa2
 	PUSH	BC
 	LD	BC,_User
@@ -13025,7 +13075,7 @@ _Crea_Mossa:
 	CALL	_Ottiemi_Mossa
 	POP	BC
 	POP	BC
-L_712:
+L_713:
 	RET	
 
 
@@ -13111,68 +13161,60 @@ _Show_End_Screen:
 	POP	BC
 	LD	BC,0
 	LD	(IX+-9),BC
-	JR	L_716
-L_714:
+	JR	L_717
+L_715:
 	LD	BC,(IX+-9)
 	INC	BC
 	LD	(IX+-9),BC
-L_716:
+L_717:
 	LD	BC,1500000
 	LD	HL,(IX+-9)
 	OR	A,A
 	SBC	HL,BC
-	JR	C,L_714
+	JR	C,L_715
+	LD	BC,0
+	LD	(IX+-9),BC
+	JR	L_721
+L_719:
+	CALL	_ReadScancode
+	LD	BC,(IX+-9)
+	INC	BC
+	LD	(IX+-9),BC
+L_721:
+	LD	BC,50
+	LD	HL,(IX+-9)
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_719
 	CALL	_BlackOut
 	LD	A,(IX+6)
 	SEXT	HL
 	LD	L,(IX+6)
 	LD	BC,HL
-L__475:
+L__477:
 	LD	DE,1
 	OR	A,A
 	SBC	HL,DE
-	JR	C,L_720
+	JR	C,L_726
 	LD	HL,2
 	OR	A,A
 	SBC	HL,BC
-	JR	C,L_720
+	JR	C,L_726
 	LD	HL,BC
 	ADD	HL,HL
 	ADD	HL,HL
 	OR	A,A
 	SBC	HL,BC
-	LD	BC,L__474-3
+	LD	BC,L__476-3
 	ADD	HL,BC
 	LD	HL,(HL)
 	JP	(HL)
-L__474:
-	DW24	L_718	
+L__476:
+	DW24	L_724	
 
-	DW24	L_719	
+	DW24	L_725	
 
-L_718:
-	LD	BC,76800
-	PUSH	BC
-	LD	BC,(_VideoMem)
-	PUSH	BC
-	LD	BC,L__478
-	PUSH	BC
-	CALL	_Load_Raw_Data
-	POP	BC
-	POP	BC
-	POP	BC
-	LD	BC,512
-	PUSH	BC
-	LD	BC,(_PaletteMem)
-	PUSH	BC
-	LD	BC,L__479
-	PUSH	BC
-	CALL	_Load_Raw_Data
-	POP	BC
-	POP	BC
-	POP	BC
-	JR	L_720
-L_719:
+L_724:
 	LD	BC,76800
 	PUSH	BC
 	LD	BC,(_VideoMem)
@@ -13193,7 +13235,29 @@ L_719:
 	POP	BC
 	POP	BC
 	POP	BC
-L_720:
+	JR	L_726
+L_725:
+	LD	BC,76800
+	PUSH	BC
+	LD	BC,(_VideoMem)
+	PUSH	BC
+	LD	BC,L__482
+	PUSH	BC
+	CALL	_Load_Raw_Data
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	BC,512
+	PUSH	BC
+	LD	BC,(_PaletteMem)
+	PUSH	BC
+	LD	BC,L__483
+	PUSH	BC
+	CALL	_Load_Raw_Data
+	POP	BC
+	POP	BC
+	POP	BC
+L_726:
 	CALL	_WaitKeyPress
 	LD	BC,_Click
 	PUSH	BC
@@ -13213,6 +13277,7 @@ L_720:
 ;_VideoMem                           STATIC      3   variable
 ;_Load_Raw_Data                      IMPORT  -----   function
 ;_BlackOut                           IMPORT  -----   function
+;_ReadScancode                       IMPORT  -----   function
 ;_rSel                               STATIC      3   variable
 ;_Draw_Trans_Image                   IMPORT  -----   function
 ;_PosScac                            STATIC    600   variable
@@ -13230,16 +13295,16 @@ L_720:
 
 
 	SEGMENT STRSECT
-L__478:
+L__480:
 	DB	"win.raw"
 	DB	0
-L__479:
+L__481:
 	DB	"win.pal"
 	DB	0
-L__480:
+L__482:
 	DB	"lose.raw"
 	DB	0
-L__481:
+L__483:
 	DB	"lose.pal"
 	DB	0
 	XREF _memset:ROM
@@ -13282,6 +13347,7 @@ L__481:
 	XDEF _Play_Raw_Audio
 	XDEF _Disable_Audio
 	XDEF _print
+	XDEF _ReadScancode
 	XDEF _GetKeyScanCode
 	XDEF _WaitKeyPress
 	XDEF _MyMain
@@ -13308,6 +13374,7 @@ L__481:
 	XDEF _User
 	XDEF _Mossa2
 	XDEF _Mossa1
+	XDEF _BufKey
 	XDEF _gScanCode
 	XDEF _DeleteBack
 	XDEF _chAbort

@@ -28,6 +28,7 @@ static SndRec Click, Chs1, Chs2;
 
 void WaitKeyPress(void);
 unsigned char GetKeyScanCode(void);
+unsigned char ReadScancode(void);
 void print(const char *txt);
 void Disable_Audio(void);
 void Play_Raw_Audio(const SndRec *S);
@@ -44,7 +45,7 @@ char *mSelect, *mWhite, *mBlack, *mNormal, *mHard, *Think, *wPlay, *bPlay;
 char *wSel, *rSel, *bsel, *wPiece, *bPiece;
 char *Bianchi[6], *Neri[6];
 char mColore = 0, mLivello = 0, chAbort, DeleteBack = 0;
-unsigned char gScanCode;
+unsigned char gScanCode, BufKey;
 char Mossa1[2], Mossa2[2];
 PlSel User;
 char PlayerColor;
@@ -204,8 +205,8 @@ LabelMainMenu:
 	asm ("call.lil prose_kernal");
 	asm ("pop ix");
 	
-	print("Chess Fight ver 1.0 for eZ80P.\n\r");
-	print("Progremmed by Enzo Antonio Calogiuri.\n\r");
+	print("Chess Fight ver 1.0b for eZ80P.\n\r");
+	print("Programmed by Enzo Antonio Calogiuri.\n\r");
 	print("\n\r");
 }
 
@@ -228,6 +229,21 @@ unsigned char GetKeyScanCode(void)
 	asm ("pop ix");
 	
 	return gScanCode;
+}
+
+unsigned char ReadScancode(void)
+{
+	BufKey = 0;
+	
+	asm ("push ix");
+	asm ("ld a, kr_get_key");
+	asm ("call.lil prose_kernal");
+	asm ("jr nz, NoKeyInB");
+	asm ("ld (_BufKey), a");
+	asm ("NoKeyInB:");
+	asm ("pop ix");
+	
+	return BufKey;
 }
 
 void print(const char *txt)
@@ -657,7 +673,10 @@ void Show_End_Screen(char win)
 	
 	Draw_Trans_Image(x, y, 25, 25, rSel, 0);
 	
-	for (i = 0; i < 1500000; i++);
+	for (i = 0; i < 1500000; i++);	
+	
+	for (i = 0; i < 70; i++)
+		ReadScancode();	
 	
 	BlackOut();
 	

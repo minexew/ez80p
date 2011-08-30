@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Fri Aug 26 11:07:39 2011
+DATE:      Mon Aug 29 16:13:28 2011
 PROCESSOR: assembler
 FILES:     .\main.obj             
            C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib
@@ -78,7 +78,7 @@ define __heaptop = highaddr of MEMORY
 define __heapbot = top of RAM + 1
 /* end additional user-defined directives */
 
-"C:\Users\fog76\Desktop\CHFIGH~2\Debug\chfight"=  .\main.obj,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crt.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crtS.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\nokernel.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\fplib.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\fplibS.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\zilog\zsldevinitdummy.obj
+"C:\Users\fog76\Desktop\CHFIGH~1\Debug\chfight"=  .\main.obj,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\chelp.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crt.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\crtS.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\nokernel.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\fplib.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\std\fplibS.lib,  C:\PROGRA~3\ZiLOG\ZDSII_~1.1\lib\zilog\zsldevinitdummy.obj
 
 GROUP MEMORY = ROM, RAM
 
@@ -87,13 +87,13 @@ SPACE ALLOCATION:
 
 Group: MEMORY                            Base        Top       Size  
 ------------------------------------ ----------- ----------- ----------
-Space: ROM                                010000      017419    741ah
-Space: RAM                                01741A      018000     be7h
+Space: ROM                                010000      017450    7451h
+Space: RAM                                017451      018039     be9h
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-RAM                   D:01741A    D:018000      be7h
-ROM                   C:010000    C:017419     741ah
+RAM                   D:017451    D:018039      be9h
+ROM                   C:010000    C:017450     7451h
 
 
 SEGMENTS WITHIN SPACE:
@@ -101,275 +101,275 @@ SEGMENTS WITHIN SPACE:
 
 RAM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-BSS                normal data            D:0175D5    D:017FD1      9fdh
-DATA               normal data            D:017FD2    D:018000       2fh
-STRSECT            normal data            D:01741A    D:0175D4      1bbh
+BSS                normal data            D:01760D    D:01800A      9feh
+DATA               normal data            D:01800B    D:018039       2fh
+STRSECT            normal data            D:017451    D:01760C      1bch
 
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               normal data            C:010000    C:017419     741ah
+CODE               normal data            C:010000    C:017450     7451h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: ..\MAIN.C (File: main.obj) Version: 1:0 08/26/2011 11:07:39
+Module: ..\MAIN.C (File: main.obj) Version: 1:0 08/29/2011 16:13:27
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:0175D5    D:017FCB      9f7h
-    Segment: CODE                              C:010000    C:016DFA     6dfbh
-    Segment: DATA                              D:017FD2    D:017FF9       28h
-    Segment: STRSECT                           D:01741A    D:0175D4      1bbh
+    Segment: BSS                               D:01760D    D:018004      9f8h
+    Segment: CODE                              C:010000    C:016E31     6e32h
+    Segment: DATA                              D:01800B    D:018032       28h
+    Segment: STRSECT                           D:017451    D:01760C      1bch
 
 
 Module: ..\src\boot\common\zsldevinitdummy.asm (File: zsldevinitdummy.obj) Version: 1:0 06/17/2010 14:49:12
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:016DFB    C:016DFB        1h
+    Segment: CODE                              C:016E32    C:016E32        1h
 
 
 Module: .\rtl\common\fpadd.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:06
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0172FD    C:01735B       5fh
+    Segment: CODE                              C:017334    C:017392       5fh
 
 
 Module: .\rtl\common\fpcmp.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:06
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017200    C:01721C       1dh
+    Segment: CODE                              C:017237    C:017253       1dh
 
 
 Module: .\rtl\common\fppack.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:06
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01735C    C:0173D2       77h
+    Segment: CODE                              C:017393    C:017409       77h
 
 
 Module: .\rtl\common\fpsub.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:06
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017003    C:017013       11h
+    Segment: CODE                              C:01703A    C:01704A       11h
 
 
 Module: .\rtl\common\fpupop1.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:06
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0173D3    C:0173F7       25h
+    Segment: CODE                              C:01740A    C:01742E       25h
 
 
 Module: .\rtl\common\fpupop2.asm (Library: fplib.lib) Version: 1:0 06/17/2010 14:49:07
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0173F8    C:017419       22h
+    Segment: CODE                              C:01742F    C:017450       22h
 
 
 Module: .\rtl\common\frameset.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0170BF    C:0170CE       10h
+    Segment: CODE                              C:0170F6    C:017105       10h
 
 
 Module: .\rtl\common\frameset0.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017096    C:0170A2        dh
+    Segment: CODE                              C:0170CD    C:0170D9        dh
 
 
 Module: .\RTL\COMMON\FREE.C (Library: nokernel.lib) Version: 1:0 06/17/2010 14:48:50
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:016E11    C:016F03       f3h
+    Segment: CODE                              C:016E48    C:016F3A       f3h
 
 
 Module: .\rtl\common\iand.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0172E2    C:0172FC       1bh
+    Segment: CODE                              C:017319    C:017333       1bh
 
 
 Module: .\rtl\common\icmpzero.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017157    C:017162        ch
+    Segment: CODE                              C:01718E    C:017199        ch
 
 
 Module: .\rtl\common\idivu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01703F    C:01705F       21h
+    Segment: CODE                              C:017076    C:017096       21h
 
 
 Module: .\rtl\common\ildix.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0172CD    C:0172D8        ch
+    Segment: CODE                              C:017304    C:01730F        ch
 
 
 Module: .\rtl\common\imulu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017163    C:0171AA       48h
+    Segment: CODE                              C:01719A    C:0171E1       48h
 
 
 Module: .\rtl\common\irems.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:016FCB    C:017002       38h
+    Segment: CODE                              C:017002    C:017039       38h
 
 
 Module: .\rtl\common\iremu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017036    C:01703E        9h
+    Segment: CODE                              C:01706D    C:017075        9h
 
 
 Module: .\rtl\common\ishl.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01724E    C:01725F       12h
+    Segment: CODE                              C:017285    C:017296       12h
 
 
 Module: .\rtl\common\istix.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01702A    C:017035        ch
+    Segment: CODE                              C:017061    C:01706C        ch
 
 
 Module: .\rtl\common\itol.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0171AB    C:0171B1        7h
+    Segment: CODE                              C:0171E2    C:0171E8        7h
 
 
 Module: .\rtl\common\ladd.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:016DFC    C:016E10       15h
+    Segment: CODE                              C:016E33    C:016E47       15h
 
 
 Module: .\rtl\common\land.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0172D9    C:0172E1        9h
+    Segment: CODE                              C:017310    C:017318        9h
 
 
 Module: .\rtl\common\lcmpu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0171B2    C:0171C7       16h
+    Segment: CODE                              C:0171E9    C:0171FE       16h
 
 
 Module: .\rtl\common\ldivu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017060    C:017095       36h
+    Segment: CODE                              C:017097    C:0170CC       36h
 
 
 Module: .\rtl\common\lmulu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017260    C:0172CC       6dh
+    Segment: CODE                              C:017297    C:017303       6dh
 
 
 Module: .\rtl\common\lremu.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01721D    C:01722C       10h
+    Segment: CODE                              C:017254    C:017263       10h
 
 
 Module: .\rtl\common\lshru.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017110    C:017131       22h
+    Segment: CODE                              C:017147    C:017168       22h
 
 
 Module: .\RTL\COMMON\MALLOC.C (Library: nokernel.lib) Version: 1:0 06/17/2010 14:48:50
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:017FCC    D:017FD1        6h
-    Segment: CODE                              C:016F04    C:016FCA       c7h
+    Segment: BSS                               D:018005    D:01800A        6h
+    Segment: CODE                              C:016F3B    C:017001       c7h
 
 
 Module: .\rtl\common\memcpy.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0170A3    C:0170BE       1ch
+    Segment: CODE                              C:0170DA    C:0170F5       1ch
 
 
 Module: .\rtl\common\memset.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:01722D    C:01724D       21h
+    Segment: CODE                              C:017264    C:017284       21h
 
 
 Module: .\RTL\COMMON\RAND.C (Library: crt.lib) Version: 1:0 06/17/2010 14:48:28
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0170CF    C:01710F       41h
-    Segment: DATA                              D:017FFA    D:017FFD        4h
+    Segment: CODE                              C:017106    C:017146       41h
+    Segment: DATA                              D:018033    D:018036        4h
 
 
 Module: .\rtl\common\sbrk.asm (Library: crt.lib) Version: 1:0 06/17/2010 14:48:30
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017132    C:017156       25h
-    Segment: DATA                              D:017FFE    D:018000        3h
+    Segment: CODE                              C:017169    C:01718D       25h
+    Segment: DATA                              D:018037    D:018039        3h
 
 
 Module: .\rtl\common\seqcase.asm (Library: chelp.lib) Version: 1:0 06/17/2010 14:48:56
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:0171C8    C:0171FF       38h
+    Segment: CODE                              C:0171FF    C:017236       38h
 
 
 Module: .\RTL\COMMON\SRAND.C (Library: crt.lib) Version: 1:0 06/17/2010 14:48:28
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:017014    C:017029       16h
+    Segment: CODE                              C:01704B    C:017060       16h
 
 EXTERNAL DEFINITIONS:
 =====================
 
 Symbol                             Address   Module          Segment
 -------------------------------- ----------- --------------- --------------------------------
-__alloc_base                        D:017FCC MALLOC          BSS                             
-__close_periphdevice                C:016DFB zsldevinitdummy CODE                            
+__alloc_base                        D:018005 MALLOC          BSS                             
+__close_periphdevice                C:016E32 zsldevinitdummy CODE                            
 __crtl                              00000001 (User Defined)
 __CS0_BMC_INIT_PARAM                00000082 (User Defined)
 __CS0_CTL_INIT_PARAM                00000088 (User Defined)
@@ -387,136 +387,138 @@ __CS3_BMC_INIT_PARAM                00000084 (User Defined)
 __CS3_CTL_INIT_PARAM                00000018 (User Defined)
 __CS3_LBR_INIT_PARAM                00000003 (User Defined)
 __CS3_UBR_INIT_PARAM                00000003 (User Defined)
-__fadd                              C:0172FD fpadd           CODE                            
-__fcmp                              C:017200 fpcmp           CODE                            
-__fppack                            C:01735C fppack          CODE                            
-__fpupop1                           C:0173D3 fpupop1         CODE                            
-__fpupop2                           C:0173F8 fpupop2         CODE                            
-__frameset                          C:0170BF frameset        CODE                            
-__frameset0                         C:017096 frameset0       CODE                            
-__fsub                              C:017003 fpsub           CODE                            
-__heapbot                           00018001 (User Defined)
+__fadd                              C:017334 fpadd           CODE                            
+__fcmp                              C:017237 fpcmp           CODE                            
+__fppack                            C:017393 fppack          CODE                            
+__fpupop1                           C:01740A fpupop1         CODE                            
+__fpupop2                           C:01742F fpupop2         CODE                            
+__frameset                          C:0170F6 frameset        CODE                            
+__frameset0                         C:0170CD frameset0       CODE                            
+__fsub                              C:01703A fpsub           CODE                            
+__heapbot                           0001803A (User Defined)
 __heaptop                           000FFFFF (User Defined)
-__iand                              C:0172E2 iand            CODE                            
-__icmpzero                          C:017157 icmpzero        CODE                            
-__idivu                             C:01703F idivu           CODE                            
-__idvrmu                            C:017049 idivu           CODE                            
-__ildix                             C:0172CD ildix           CODE                            
-__imul_b                            C:017163 imulu           CODE                            
-__imuls                             C:01716F imulu           CODE                            
-__imulu                             C:01716F imulu           CODE                            
-__irems                             C:016FCB irems           CODE                            
-__iremu                             C:017036 iremu           CODE                            
-__ishl                              C:017256 ishl            CODE                            
-__ishl_b                            C:01724E ishl            CODE                            
-__istix                             C:01702A istix           CODE                            
-__itol                              C:0171AB itol            CODE                            
-__ladd                              C:016E0B ladd            CODE                            
-__ladd_b                            C:016DFC ladd            CODE                            
-__land                              C:0172D9 land            CODE                            
-__lcmps                             C:0171B2 lcmpu           CODE                            
-__lcmpu                             C:0171B2 lcmpu           CODE                            
-__ldivu                             C:017060 ldivu           CODE                            
-__ldvrmu                            C:017072 ldivu           CODE                            
-__lmuls                             C:017260 lmulu           CODE                            
-__lmulu                             C:017260 lmulu           CODE                            
-__lremu                             C:01721D lremu           CODE                            
-__lshru                             C:017110 lshru           CODE                            
-__next                              D:017FFA RAND            DATA                            
-__open_periphdevice                 C:016DFB zsldevinitdummy CODE                            
+__iand                              C:017319 iand            CODE                            
+__icmpzero                          C:01718E icmpzero        CODE                            
+__idivu                             C:017076 idivu           CODE                            
+__idvrmu                            C:017080 idivu           CODE                            
+__ildix                             C:017304 ildix           CODE                            
+__imul_b                            C:01719A imulu           CODE                            
+__imuls                             C:0171A6 imulu           CODE                            
+__imulu                             C:0171A6 imulu           CODE                            
+__irems                             C:017002 irems           CODE                            
+__iremu                             C:01706D iremu           CODE                            
+__ishl                              C:01728D ishl            CODE                            
+__ishl_b                            C:017285 ishl            CODE                            
+__istix                             C:017061 istix           CODE                            
+__itol                              C:0171E2 itol            CODE                            
+__ladd                              C:016E42 ladd            CODE                            
+__ladd_b                            C:016E33 ladd            CODE                            
+__land                              C:017310 land            CODE                            
+__lcmps                             C:0171E9 lcmpu           CODE                            
+__lcmpu                             C:0171E9 lcmpu           CODE                            
+__ldivu                             C:017097 ldivu           CODE                            
+__ldvrmu                            C:0170A9 ldivu           CODE                            
+__lmuls                             C:017297 lmulu           CODE                            
+__lmulu                             C:017297 lmulu           CODE                            
+__lremu                             C:017254 lremu           CODE                            
+__lshru                             C:017147 lshru           CODE                            
+__next                              D:018033 RAND            DATA                            
+__open_periphdevice                 C:016E32 zsldevinitdummy CODE                            
 __PLL_CTL0_INIT_PARAM               00000000 (User Defined)
-__s_sbrk                            C:017132 sbrk            CODE                            
-__seqcase                           C:0171C8 seqcase         CODE                            
+__s_sbrk                            C:017169 sbrk            CODE                            
+__seqcase                           C:0171FF seqcase         CODE                            
 _acquisisci                         C:015790 MAIN            CODE                            
-_ap                                 D:017CF9 MAIN            BSS                             
+_ap                                 D:017D31 MAIN            BSS                             
 _apri                               C:0159F0 MAIN            CODE                            
-_Bianchi                            D:017D93 MAIN            BSS                             
+_Bianchi                            D:017DCB MAIN            BSS                             
 _BlackOut                           C:0100B1 MAIN            CODE                            
-_bPiece                             D:017D90 MAIN            BSS                             
-_bPlay                              D:017D81 MAIN            BSS                             
-_bsel                               D:017D8A MAIN            BSS                             
-_chAbort                            D:017DB7 MAIN            BSS                             
-_close_periphdevice                 C:016DFB zsldevinitdummy CODE                            
-_col_prof                           D:017FE0 MAIN            DATA                            
-_cont                               D:017FF3 MAIN            DATA                            
+_bPiece                             D:017DC8 MAIN            BSS                             
+_bPlay                              D:017DB9 MAIN            BSS                             
+_bsel                               D:017DC2 MAIN            BSS                             
+_BufKey                             D:017DF1 MAIN            BSS                             
+_chAbort                            D:017DEF MAIN            BSS                             
+_close_periphdevice                 C:016E32 zsldevinitdummy CODE                            
+_col_prof                           D:018019 MAIN            DATA                            
+_cont                               D:01802C MAIN            DATA                            
 _controllo                          C:015B72 MAIN            CODE                            
-_Crea_Mossa                         C:016C65 MAIN            CODE                            
-_DeleteBack                         D:017FF9 MAIN            DATA                            
-_Disable_Audio                      C:015F60 MAIN            CODE                            
-_Draw_Image                         C:0164C4 MAIN            CODE                            
-_Draw_Trans_Image                   C:01654C MAIN            CODE                            
-_Draw_User_Selection                C:016A69 MAIN            CODE                            
-_effe                               D:017FE7 MAIN            DATA                            
-_Fill_Rectangle                     C:0165E9 MAIN            CODE                            
-_free                               C:016E11 FREE            CODE                            
-_Free_All_Mem                       C:015F8E MAIN            CODE                            
+_Crea_Mossa                         C:016C7C MAIN            CODE                            
+_DeleteBack                         D:018032 MAIN            DATA                            
+_Disable_Audio                      C:015F77 MAIN            CODE                            
+_Draw_Image                         C:0164DB MAIN            CODE                            
+_Draw_Trans_Image                   C:016563 MAIN            CODE                            
+_Draw_User_Selection                C:016A80 MAIN            CODE                            
+_effe                               D:018020 MAIN            DATA                            
+_Fill_Rectangle                     C:016600 MAIN            CODE                            
+_free                               C:016E48 FREE            CODE                            
+_Free_All_Mem                       C:015FA5 MAIN            CODE                            
 _GetKeyScanCode                     C:015F2B MAIN            CODE                            
-_gScanCode                          D:017DB8 MAIN            BSS                             
+_gScanCode                          D:017DF0 MAIN            BSS                             
 _inizializza                        C:010779 MAIN            CODE                            
-_livello                            D:017FEF MAIN            DATA                            
-_Load_Components                    C:016078 MAIN            CODE                            
+_livello                            D:018028 MAIN            DATA                            
+_Load_Components                    C:01608F MAIN            CODE                            
 _Load_Raw_Data                      C:01005E MAIN            CODE                            
 _main                               C:010000 MAIN            CODE                            
-_MainDest                           D:017DC6 MAIN            BSS                             
-_MainFile                           D:017DC3 MAIN            BSS                             
-_MainFileSize                       D:017DC9 MAIN            BSS                             
-_MainMenu                           C:016663 MAIN            CODE                            
-_malloc                             C:016F35 MALLOC          CODE                            
-_mBlack                             D:017D72 MAIN            BSS                             
-_mColore                            D:017FF7 MAIN            DATA                            
-_memcpy                             C:0170A3 memcpy          CODE                            
-_memset                             C:01722D memset          CODE                            
-_mHard                              D:017D78 MAIN            BSS                             
-_mLivello                           D:017FF8 MAIN            DATA                            
-_mNormal                            D:017D75 MAIN            BSS                             
+_MainDest                           D:017DFF MAIN            BSS                             
+_MainFile                           D:017DFC MAIN            BSS                             
+_MainFileSize                       D:017E02 MAIN            BSS                             
+_MainMenu                           C:01667A MAIN            CODE                            
+_malloc                             C:016F6C MALLOC          CODE                            
+_mBlack                             D:017DAA MAIN            BSS                             
+_mColore                            D:018030 MAIN            DATA                            
+_memcpy                             C:0170DA memcpy          CODE                            
+_memset                             C:017264 memset          CODE                            
+_mHard                              D:017DB0 MAIN            BSS                             
+_mLivello                           D:018031 MAIN            DATA                            
+_mNormal                            D:017DAD MAIN            BSS                             
 _modifica                           C:01562D MAIN            CODE                            
-_Mossa1                             D:017DB9 MAIN            BSS                             
-_Mossa2                             D:017DBB MAIN            BSS                             
-_mossa_giocata                      D:017FD8 MAIN            DATA                            
-_mossa_in_analisi                   D:017FDC MAIN            DATA                            
+_Mossa1                             D:017DF2 MAIN            BSS                             
+_Mossa2                             D:017DF4 MAIN            BSS                             
+_mossa_giocata                      D:018011 MAIN            DATA                            
+_mossa_in_analisi                   D:018015 MAIN            DATA                            
 _mossaimposs                        C:011E98 MAIN            CODE                            
-_mSelect                            D:017D6C MAIN            BSS                             
-_mWhite                             D:017D6F MAIN            BSS                             
+_mSelect                            D:017DA4 MAIN            BSS                             
+_mWhite                             D:017DA7 MAIN            BSS                             
 _MyMain                             C:015BF1 MAIN            CODE                            
-_Neri                               D:017DA5 MAIN            BSS                             
-_nmossa                             D:017FE3 MAIN            DATA                            
-_oldscac                            D:017765 MAIN            BSS                             
-_open_periphdevice                  C:016DFB zsldevinitdummy CODE                            
+_Neri                               D:017DDD MAIN            BSS                             
+_nmossa                             D:01801C MAIN            DATA                            
+_oldscac                            D:01779D MAIN            BSS                             
+_open_periphdevice                  C:016E32 zsldevinitdummy CODE                            
 _OSC_FREQ                           01312D00 (User Defined)
 _OSC_FREQ_MULT                      00000001 (User Defined)
-_Ottiemi_Mossa                      C:016AF6 MAIN            CODE                            
-_Palette                            D:017DCC MAIN            BSS                             
-_PaletteMem                         D:017FD5 MAIN            DATA                            
-_Play_Raw_Audio                     C:015F6C MAIN            CODE                            
-_PlayerColor                        D:017DC2 MAIN            BSS                             
+_Ottiemi_Mossa                      C:016B0D MAIN            CODE                            
+_Palette                            D:017E05 MAIN            BSS                             
+_PaletteMem                         D:01800E MAIN            DATA                            
+_Play_Raw_Audio                     C:015F83 MAIN            CODE                            
+_PlayerColor                        D:017DFB MAIN            BSS                             
 _posiniz                            C:0116BF MAIN            CODE                            
-_PosScac                            D:0178F5 MAIN            BSS                             
-_possibili                          D:017B69 MAIN            BSS                             
-_print                              C:015F40 MAIN            CODE                            
-_prof                               D:017FEB MAIN            DATA                            
+_PosScac                            D:01792D MAIN            BSS                             
+_possibili                          D:017BA1 MAIN            BSS                             
+_print                              C:015F57 MAIN            CODE                            
+_prof                               D:018024 MAIN            DATA                            
 _raccogli                           C:01063D MAIN            CODE                            
-_ramo                               D:017B4D MAIN            BSS                             
-_rand                               C:0170CF RAND            CODE                            
-_rSel                               D:017D87 MAIN            BSS                             
-_Save_Back_Selection                C:0169C5 MAIN            CODE                            
-_scac                               D:0175D5 MAIN            BSS                             
+_ramo                               D:017B85 MAIN            BSS                             
+_rand                               C:017106 RAND            CODE                            
+_ReadScancode                       C:015F40 MAIN            CODE                            
+_rSel                               D:017DBF MAIN            BSS                             
+_Save_Back_Selection                C:0169DC MAIN            CODE                            
+_scac                               D:01760D MAIN            BSS                             
 _Set_320_240_Mode                   C:01001B MAIN            CODE                            
 _Set_PosScac                        C:011604 MAIN            CODE                            
-_Show_End_Screen                    C:016CA1 MAIN            CODE                            
-_srand                              C:017014 SRAND           CODE                            
+_Show_End_Screen                    C:016CB8 MAIN            CODE                            
+_srand                              C:01704B SRAND           CODE                            
 _stampap                            C:011AC6 MAIN            CODE                            
 _SYS_CLK_FREQ                       01312D00 (User Defined)
 _SYS_CLK_SRC                        00000000 (User Defined)
-_Think                              D:017D7B MAIN            BSS                             
-_User                               D:017DBD MAIN            BSS                             
-_VideoMem                           D:017FD2 MAIN            DATA                            
+_Think                              D:017DB3 MAIN            BSS                             
+_User                               D:017DF6 MAIN            BSS                             
+_VideoMem                           D:01800B MAIN            DATA                            
 _vincitore                          C:01069F MAIN            CODE                            
 _WaitKeyPress                       C:015F1F MAIN            CODE                            
-_wPiece                             D:017D8D MAIN            BSS                             
-_wPlay                              D:017D7E MAIN            BSS                             
-_wSel                               D:017D84 MAIN            BSS                             
+_wPiece                             D:017DC5 MAIN            BSS                             
+_wPlay                              D:017DB6 MAIN            BSS                             
+_wSel                               D:017DBC MAIN            BSS                             
 
-147 external symbol(s).
+149 external symbol(s).
 
 SYMBOL CROSS REFERENCE:
 =======================
@@ -632,6 +634,7 @@ _BlackOut                         Defined     ..\MAIN.C
 _bPiece                           Defined     ..\MAIN.C
 _bPlay                            Defined     ..\MAIN.C
 _bsel                             Defined     ..\MAIN.C
+_BufKey                           Defined     ..\MAIN.C
 _chAbort                          Defined     ..\MAIN.C
 _close_periphdevice               Defined     ..\src\boot\common\zsldevinitdummy.asm
 _col_prof                         Defined     ..\MAIN.C
@@ -699,6 +702,7 @@ _raccogli                         Defined     ..\MAIN.C
 _ramo                             Defined     ..\MAIN.C
 _rand                             Defined     .\RTL\COMMON\RAND.C
                                   Referenced  ..\MAIN.C
+_ReadScancode                     Defined     ..\MAIN.C
 _rSel                             Defined     ..\MAIN.C
 _Save_Back_Selection              Defined     ..\MAIN.C
 _scac                             Defined     ..\MAIN.C
