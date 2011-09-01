@@ -62,7 +62,7 @@ rx_lnb			call s_goodack
 
 rxtd_blok		call s_holdack							; tell sender to wait, before sending next 256-byte block
 				
-				ld hl,sector_buffer						; copy 256 bytes to load buffer
+				ld hl,serial_buffer						; copy 256 bytes to load buffer
 				ld de,(rx_buffer_ptr)
 				push bc
 				ld bc,256
@@ -132,7 +132,7 @@ rxe_badblock	push af									; if ZF not set there was an error (code in A)
 				pop af
 				ret
 	
-rxe_fblok		ld bc,(sector_buffer+5)					; start address
+rxe_fblok		ld bc,(serial_buffer+5)					; start address
 				push bc
 				pop hl
 				ld de,(serial_fileheader+16)
@@ -148,14 +148,14 @@ rxe_fblok		ld bc,(sector_buffer+5)					; start address
 				pop af
 				ret
 	
-rxe_norampro	ld hl,(sector_buffer+2)
+rxe_norampro	ld hl,(serial_buffer+2)
 				ld de,04f5250h							; check "PRO" ID tag
 				xor a
 				jr z,rxe_ok
 				ld a,1ah								; not a prose executable message
 				or a
 				ret
-rxe_ok			ld hl,(sector_buffer+5)					; Get executable's start address
+rxe_ok			ld hl,(serial_buffer+5)					; Get executable's start address
 				ld (serial_ez80_address),hl
 				ld bc,256								; copy first 256 (max) bytes to desired location
 				ld ix,serial_fileheader
@@ -166,7 +166,7 @@ rxe_ok			ld hl,(sector_buffer+5)					; Get executable's start address
 				jr nz,mtones
 				ld b,0
 				ld c,(ix+16)							;length 7:0
-mtones			ld hl,sector_buffer							 
+mtones			ld hl,serial_buffer							 
 				ld de,(serial_ez80_address)					
 				ldir
 				

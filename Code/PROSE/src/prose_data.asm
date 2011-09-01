@@ -99,22 +99,24 @@ kernal_table
 	dw24 os_allocate_ram			;50
 	dw24 os_deallocate_ram			;51
 	dw24 os_get_mem_top				;52
-
+	dw24 os_init_msec_counter		;53
+	dw24 os_read_msec_counter		;54
+	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
 ;-------------------------------------------------------------------------------------------
 
 welcome_message			db "PROSE for EZ80P by Phil Ruston 2011",11,11,0
 storage_txt				db "Drives:",11,0
-os_dos_cmds_txt			db "COMMANDS",0
-startup_script_fn		db "STARTUP.SCR",0
+startup_script_fn		db "STARTUP.PBF",0
 os_hex_prefix_txt		db "$",0
 os_version_txt			db "PROSE Ver: $",0		
 hw_version_txt			db "AMOEBA Ver: $",0
 fwd_slash_txt			db " / ",0
 loading_txt				db "Loading..",11,0
 saving_txt				db "Saving..",11,0
-ezp_extension_txt		db ".ezp",32
+ezp_txt					db ".ezp",32
+pbf_txt					db ".pbf",32
 os_more_txt				db 11,"More?",11,11,0
 nmi_freeze_txt			db "Register Dump:"
 crlfx2_txt				db 11,11,0
@@ -127,6 +129,7 @@ hw_warn_txt1			db "OS REQUIRES AMOEBA V:"
 hw_warn_txt2			db "----",0
 pmq_txt					db "This will overwrite protected RAM. Continue (y/n)? ",11,0
 envar_out_n_txt			db "OUTxx",0
+path_txt				db "PATH",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -184,7 +187,7 @@ dictionary				db 0,"DEBUG"			;01
 						
 						db 0,"OS/HW"			;30
 						db 0,"Version"			;31
-						db 0,"[pen paper]"		;32				
+						db 0,"pen paper"		;32				
 						db 80h,":"				;33
 						db 81h,">"				;34
 						db 82h,"SOUND"			;35
@@ -303,7 +306,7 @@ hex_byte_txt			db "xx"					;90 (for hex-to-ascii)
 						db 0,"Any"				;9c
 						db 0,"Key"				;9d
 						db 0,"Enter"			;9e
-						db 9ah,"EXEC"			;9f
+						db 9ah,"ECHO"			;9f				
 				
 						db 0,"Run"				;a0
 						db 0,"Script"			;a1
@@ -319,7 +322,7 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"FPGA config"		;ab
 						db 0,"Unchanged"		;ac
 						db 0,"loc len [per vol chans loop?] " ;ad
-						db 9ch,"PALETTE"		;ae
+						db 0,">>Unused<<"		;ae					<- SLOT IS SPARE!
 						db 0,"palette"			;af
 						
 						db 9dh,"MOUSE"			;b0
@@ -351,6 +354,7 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"Allocate"			;c9
 						db 0,"Allocated"		;ca
 						db 0a3h,"FI"			;cb
+						db 0,"Text"				;cc
 						
 						db 0,1					;END MARKER
 
@@ -408,11 +412,10 @@ packed_help1				db 097h,0
 							db 006h,0											; ----
 							db 0c6h,05fh,010h,0c7h,050h,0						; "AVAIL - show free mem
 							db 039h,05fh,015h,016h,0							; "CLS - clear screen"
-							db 09fh,01fh,05fh,0a0h,0a1h,0						; "EXEC fn - run script"
+							db 09fh,051h,05fh,010h,0cch,0						; "ECHO "txt" - show text"
 							db 0bah,01fh,05fh,01bh,082h,0						; "FONT fn - change font"
 							db 0b0h,05fh,0b1h,0b0h,0a7h,0h						; "MOUSE - enable mouse driver"
-							db 0aeh,09h,05fh,01bh,0afh,0						; "PALETTE a b c - change palette"
-							db 03ah,032h,05fh,01bh,05bh,0						; "PEN [pen paper] change cols"
+							db 03ah,032h,05fh,09h,01bh,05bh,0					; "PEN pen paper a b c change cols"
 							db 0beh,0bfh,05fh,0a4h,0c0h,0						; "SET var=string - set envar" 
 							db 035h,0adh,05fh,0c4h,050h,013h,0c5h,0				; "SOUND loc len [per vol chans loop?] - play mem as audio"
 							db 04eh,05fh,010h,030h,031h,0						; "VERS - show OS/HW version"
@@ -453,9 +456,9 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							
 							dw24 os_cmd_md								;18
 							dw24 os_cmd_help							;19
-							dw24 os_cmd_exec							;1a
+							dw24 os_cmd_echo							;1a
 							dw24 os_cmd_ltn								;1b
-							dw24 os_cmd_palette							;1c
+							dw24 os_cmd_unused							;1c		<- spare! (was PALETTE)
 							dw24 os_cmd_mouse							;1d
 							dw24 os_cmd_vmode							;1e
 							dw24 os_cmd_font							;1f
@@ -572,7 +575,7 @@ current_pen				dw 07h				; Current pen selection. NOTE: 16bit padded for COLOUR 
 background_colour		dw 00h				; For areas where characters have not been plotted. 16bit padded ""
 
 pen_palette				dw 0000h,000fh,0f00h,0f0fh,00f0h,00ffh,0ff0h,0fffh
-						dw 0555h,0999h,0ccch,0f71h,007fh,0df8h,0840h,038ch
+						dw 0555h,0999h,0ccch,0f71h,007fh,0df8h,0840h,0f88h
 
 plotchar_colour			db 0				; colour that the plot_char routine will use.
 
@@ -719,6 +722,11 @@ charmap_size			dw24 0
 
 ;----------------------------------------------------------------------------------
 
+milliseconds_counter	dw24 0
+seconds_counter			dw24 0
+
+;----------------------------------------------------------------------------------
+
 store_a1				db 0		
 store_bc1				dw24 0
 store_de1				dw24 0
@@ -792,6 +800,11 @@ script_length			dw24 0
 
 script_flags			db 0
 
+path_parse_loc			dw24 0
+
+original_dir			dw24 0 
+original_vol		 	db 0
+		
 if_name_txt				blkb max_if_chars+2,0
 if_value_txt			blkb max_if_chars+2,0
 if_label_txt			blkb max_if_chars+2,0
@@ -853,6 +866,7 @@ last_os_var				db 0
 ;=======================================================================================
 
 envar_list				db "ERROR=00",0
+						db "PATH=COMMANDS",0
 first_ext_ev_entry		db 0ffh
 						blkb envar_buffer_size,0
 

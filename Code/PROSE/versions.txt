@@ -2,7 +2,44 @@
 Current version
 ---------------
 
-27-8-2011
+01-09-2011
+
+039		: PATH environment variable created, set to "COMMANDS" by default
+                  extra folders can be added with spaced between the dir names.
+                  EG: SET PATH = "COMMANDS APPS" note: quotes must be used when spaces
+                  are required.
+
+                : Removed EXEC command, scripts can now be run by entering their
+                  file names (no extension required)
+
+                : Script extension is now .PBF (PROSE batch file) to prevent clash
+                  with Windows .SCR (screen saver files)
+
+		: LB and SB commands allow full path in filename string
+
+		: Removed PALETTE command, PEN performs now handles palette changes
+		  EG: PEN x y aaa bbb (aaa bbb are palette colours)
+
+		: G command, when a program is run from G xxxx, HL = first parameter
+                  after the address.
+
+		: ECHO command is now internal
+
+		: Colour F = pink
+
+		: Serial buffer separated from disk sector buffer
+		
+		: Fixed CD with no-args-shows-path (filesystem routine was not adjusting ZF)
+		
+		: Added kr_init_msec_timer and kr_read_msec_timer - uses timer 1 and IRQ
+                : to count seconds and milliseconds
+
+
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
+
 
 038		: Kernal call "kr_set_pointer" initialize / display the mouse pointer
 	        : (512 bytes at top of VRAM B reserved for OS pointer sprite)
@@ -31,9 +68,6 @@ Current version
                 ; DIR and format show capacity in MB (or KB if less than 1MB)
  
 
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 037		: File loads faster (when more than 4 bytes at a time are loaded)

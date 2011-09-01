@@ -491,6 +491,7 @@ fs_parent_dir_command
 				or e
 				jr nz,pdnaroot
 				ld a,0cah								; error $ca = already at root block
+				or a
 				ret
 pdnaroot		ld hl,0202e2eh							; make filename = '..         '
 				ld (fs_sought_filename),hl				; (cant use normal filename copier due to dots)

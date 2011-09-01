@@ -34,12 +34,12 @@ serial_get_header
 				ret
 	
 s_gbfhok		ld hl,serial_header_id					; Check to make sure its tagged as a header block
-				ld de,sector_buffer+20					; check ASCII chars 
+				ld de,serial_buffer+20					; check ASCII chars 
 				ld b,12
 				call os_compare_strings
 				jr nz,s_nfhdr
 				ld b,256-32								; bytes 32-256 should be zero
-				ld hl,sector_buffer+32
+				ld hl,serial_buffer+32
 s_chdr			ld a,(hl)
 				inc hl
 				or a
@@ -52,12 +52,12 @@ s_nfhdr			call s_badack							; not a header - tell sender to abort the file par
 				or a
 				ret
 		
-s_fhcsok		ld hl,sector_buffer+16					; copy file details 
+s_fhcsok		ld hl,serial_buffer+16					; copy file details 
 				ld de,serial_fileheader+16
 				ld bc,4
 				ldir
 				
-				ld hl,sector_buffer
+				ld hl,serial_buffer
 				ld de,serial_fileheader					; Convert filename to uppercase	
 				ld b,16									; if necessary (for string compare)
 s_tuclp			ld a,(hl)								; and compare filenames
@@ -123,7 +123,7 @@ serial_receive_file
 s_gbloop		call s_getblock
 				jr nz,s_fail
 				ld c,0										; copy buffer to actual location
-				ld iy,sector_buffer
+				ld iy,serial_buffer
 s_rfloop		ld a,(iy)
 				ld (ix),a									; put byte at memory location
 				dec de										; length of file countdown
@@ -161,7 +161,7 @@ s_getblock
 				push hl									; transfer didnt even start)
 				push de
 				push bc
-				ld hl,sector_buffer						; load a block of 256 bytes
+				ld hl,serial_buffer						; load a block of 256 bytes
 				ld b,0
 				exx
 				ld hl,0ffffh							; CRC checksum
@@ -309,13 +309,13 @@ s_makeblock
 ; xDE = byte count
 ; a=0 on return if all ok	
 
-				ld hl,sector_buffer							
+				ld hl,serial_buffer							
 				ld bc,256									
 				xor a										
 				call os_bchl_memfill					; first, clear the serial block 	
 				
 				ld b,0									; count bytes in sector
-				ld iy,sector_buffer	
+				ld iy,serial_buffer	
 s_sloop			ld a,(ix)
 				ld (iy),a
 				dec de									; dec byte count
@@ -343,14 +343,14 @@ s_sendblock
 				push hl
 				push de									;sends a 256 byte block and its 2 byte checksum
 				push bc				
-				ld hl,sector_buffer			
+				ld hl,serial_buffer			
 				ld e,0
 s_sblklp		ld a,(hl)
 				call send_serial_byte
 				inc hl
 				dec e
 				jr nz,s_sblklp
-				ld de,sector_buffer
+				ld de,serial_buffer
 				ld bc,0
 				call crc_checksum
 				ld a,l

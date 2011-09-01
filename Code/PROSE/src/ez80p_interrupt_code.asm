@@ -79,9 +79,34 @@ int_routine
 				bit 5,a
 				call nz,ms_interrupt_handler
 				pop af
-
 				ei										;re-enable maskable interrupts
 				reti.l									;restores original ADL mode before returning
+
+
+
+prt1_irq_handler
+
+				push af
+				push de
+				push hl
+				in0 a,(TMR1_CTL)						;reading TMRx_CTL clears the interrupt flag
+				
+				ld hl,(milliseconds_counter)
+				inc hl
+				ld (milliseconds_counter),hl
+				ld de,1000
+				xor a
+				sbc hl,de
+				jr nz,sec_count_ok
+				ld (milliseconds_counter),hl
+				ld hl,(seconds_counter)
+				inc hl
+				ld (seconds_counter),hl
+sec_count_ok	pop hl
+				pop de
+				pop af
+				ei
+				reti.l
 
 ;----------------------------------------------------------------------------------------
 ; Keyboard IRQ routine v0.03
