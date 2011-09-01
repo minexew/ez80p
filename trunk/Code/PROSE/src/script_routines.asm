@@ -1,5 +1,5 @@
 ;---------------------------------------------------------------------------------------------------------------
-;"exec" - execute script V0.04 - ADL mode
+;"PROSE script routines V0.04 
 ;
 ; Notes: Changing drives within a script not supported yet.
 ;        Scripts cannot launch scripts as this would require nested script filenames

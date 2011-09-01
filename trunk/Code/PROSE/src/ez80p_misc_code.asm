@@ -1,6 +1,6 @@
-;-------------------------------------------------
-;Misc eZ80p specific routines v0.05 (ADL version)
-;-------------------------------------------------
+;----------------------------------
+;Misc eZ80p specific routines v0.06
+;----------------------------------
 
 hwsc_default_hw_settings
 
@@ -107,7 +107,7 @@ gethwvlp			ld a,b
 
 
 ;---------------------------------------------------------------------------------------------
-; Timer related 
+; Timer0 related 
 ;---------------------------------------------------------------------------------------------
 
 hwsc_time_delay
@@ -182,6 +182,57 @@ hwsc_write_rtc
 					cp a								; set zero flag, no error
 					ret	
 
+;---------------------------------------------------------------------------------------------
+; Timer1 related 
+;---------------------------------------------------------------------------------------------
+
+os_init_msec_counter
+
+; set E = 1 enable, E = 0 disable
+
+; 1 tick = 50MHz/4, EG:  Reload value = 12500, IRQ period = 0.001 seconds
+			
+				push hl
+
+				xor a
+				out0 (TMR1_CTL),a				;disable timer1
+				
+				bit 0,e
+				jr z,disable_tmr1
+				
+				ld hl,prt1_irq_handler
+				ld (074h),hl
+				
+				in0 a,(TMR_ISS)
+				and 11110011b
+				out0 (TMR_ISS),a
+				
+				ld hl,30d4h
+				out0 (TMR1_RR_H),h
+				out0 (TMR1_RR_L),l
+
+				ld hl,0
+				ld (seconds_counter),hl
+				ld (milliseconds_counter),hl
+
+				ld a,01010011b
+				out0 (TMR1_CTL),a				;enable timer1
+			
+disable_tmr1	pop hl
+				xor a
+				ret
+
+
+
+os_read_msec_counter
+			
+			di
+			ld de,(milliseconds_counter)
+			ld hl,(seconds_counter)
+			ei
+			xor a
+			ret
+			
 
 ;----------------------------------------------------------------------------------------------
 ; INIT KEYBOARD ROUTINE 

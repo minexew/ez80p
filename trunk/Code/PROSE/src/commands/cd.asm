@@ -1,18 +1,16 @@
 ;-----------------------------------------------------------------------
-;'cd' - Change Dir command. V0.02 - ADL mode
+;'cd' - Change Dir command. V0.03 - ADL mode
 ;-----------------------------------------------------------------------
 
 os_cmd_cd	
 
 				call os_check_volume_format	
 				ret nz
-			
-			
+				
 				ld a,(hl)								; if no args, just show dir path		
 				or a				
 				jp z,cd_show_path		
-			
-			
+					
 				ld a,(hl)								;'..' = goto parent dir
 				inc hl
 				ld b,(hl)
@@ -31,76 +29,16 @@ cd_nual			cp 02fh
 				ret
 				
 				
-cd_nogor		cp '%'									; '%' char = go assigned dir
+cd_nogor		cp '%'									
 				jr nz,cd_no_assign
-				call os_get_envar
-				jr z,cd_evok
-				ld a,0d1h								; return fs error - dir not found
-				or a
-				ret
-cd_evok			ld de,0
-				ld e,(hl)
-				inc hl
-				ld d,(hl)
-				inc hl
-				ld a,(hl)
-				push de
-				call os_change_volume
-				pop de
-				ret nz
-				call fs_update_dir_cluster
+				xor a
 				ret
 				
-				
-cd_no_assign
-			
-				ld a,(current_volume)
-				ld (original_vol_cd_cmd),a
-			
-				push hl
-				pop ix
-				ld a,(ix+4)
-				cp ':'								; wish to change volume?
-				jr nz,cd_nchvol
-				ld de,vol_txt+1
-				ld b,3
-				call os_compare_strings
-				jr nz,cd_nchvol
-				ld de,5
-				add hl,de
-				ld (os_args_loc),hl					; update args position
-				ld a,(ix+3)							; volume digit char
-				sub 030h
-				call os_change_volume
-				ret nz								; error if new volume is invalid
-				call os_root_dir					; go to new drive's root block as drive has changed
-				jr cd_mol							; look for additional paths in args
-				
-			
-cd_nchvol		call fs_get_dir_cluster
-				ld (original_dir_cd_cmd),de
-			
-cd_mollp		push hl
-				call os_change_dir					;step through args changing dirs as apt
-				pop hl
-				jr nz,cd_dcherr
-cd_mol			ld a,(hl)							;move to next dir name in args (after '/') if no more found, quit
-				inc hl
-				or a
+cd_no_assign	call os_cache_original_vol_dir
+				ld a,1
+				call os_parse_path_string
 				ret z
-				cp 02fh
-				jr z,cd_mollp
-				jr cd_mol
-					
-cd_dcherr	
-			
-				push af								;if a dir is not found go back to original dir and drive 
-				ld de,(original_dir_cd_cmd)
-				call fs_update_dir_cluster
-				ld a,(original_vol_cd_cmd)
-				call os_change_volume	
-				pop af
-				or a
+				call os_restore_original_vol_dir
 				ret
 				
 ;--------------------------------------------------------------------------------------------------
@@ -140,9 +78,4 @@ shdir_lp		pop de
 			
 cd_fwdslash_txt	db '/',0	
 			
-;--------------------------------------------------------------------------------------------------
-			
-original_dir_cd_cmd		equ scratch_pad 
-original_vol_cd_cmd	 	equ scratch_pad+3
-					
 ;--------------------------------------------------------------------------------------------------

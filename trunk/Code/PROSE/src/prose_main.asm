@@ -11,11 +11,13 @@
 	include 'misc_system_equates.asm'
 	
 	sector_buffer	equ 800h
+	serial_buffer	equ 700h
+	
 	scratch_pad		equ 100h
 
 ;----------------------------------------------------------------------
 
-prose_version			equ 38h
+prose_version			equ 39h
 amoeba_version_required	equ 107h
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -168,7 +170,9 @@ dont_resetkb
 				ld hl,no_keyboard_msg
 				call os_show_packed_text
 kb_present				
+
 				ld hl,startup_script_fn
+				call set_script_fn
 				ld (os_args_loc),hl
 				call os_cmd_exec						; any start-up commands?
 									
@@ -423,7 +427,7 @@ posmatch		ld a,(iy-1)							; if command string char is a space, the command mat
 				ld ix,(hl)							; get INTERNAL command routine address
 
 				ld hl,(os_args_loc)					; hl = first non-space char after command 
-				call os_run_command					; call internal command
+go_int_cmd		call os_run_command					; call internal command
 
 				or a
 				ret z								; <- FIRST INSTRUCTION FOLLOWING RETURN FROM INTERNAL COMMAND
@@ -514,43 +518,55 @@ gotgargs		call ascii_to_hex_no_scan			; returns DE = goto address
 				xor a
 				out (port_memory_paging),a			; enable ROM if "G 0"
 not_reset		push de
+				ld hl,(os_args_loc)
+				call os_next_arg					; start G command with HL set to arg after address
 				pop ix			
 				jp os_run_command					; run external command
 				
 				
 
-not_g_cmd		ld (os_args_loc),hl					; attempt to load external OS command
+
+not_g_cmd		ld (os_args_loc),hl					; attempt to load external OS command or script
 				ld (os_args_pos_cache),hl
-				call os_args_to_fn_append_ezp		; note: this moves the arg location to end of command
-	
-				call cache_dir_block				; cache dir pos in case we have to look in 'root/os_commands'
 
 				call fs_check_disk_format			; System looks on the ACTIVE SELECTED drive only
-				jr c,os_ndfxc						; make sure disk is available
-				jr nz,os_ndfxc
+				jr c,os_noextcmd					; make sure disk is available
+				jr nz,os_noextcmd
 	
-				call fs_open_file_command			; get header info, test file exists in current dir
-				jp c,os_hwerr			 			; h/w error?
-				jr z,os_gecmd						; 0 = got external command
+				call cache_dir_block				; cache dir pos in case we have to check path dirs 
 
-				call fs_goto_root_dir_command		; cant find it, so move to root dir
-				ld hl,os_dos_cmds_txt
-				call fs_hl_to_filename
-				call fs_change_dir_command			; try to move to dir 'commands'
-				jp c,os_hwerr
-				jr nz,os_ndfxc						; 'unknown command' if that dir isnt there
-	
-				ld hl,(os_args_pos_cache)			; put original command filename back	
-				ld (os_args_loc),hl
-				call os_args_to_fn_append_ezp		; note: this moves the arg location to end of command
-				call fs_open_file_command			; try to find the command in the new dir
-				jp c,os_hwerr
-				jr z,os_gecmd
-os_ndfxc		call restore_dir_block				; jump back to original dir
-				ld a,0bh							; return 'unknown command' error
+				ld bc,ezp_txt						; look for .ezp file
+				call scan_current_and_path_dirs
+				jp c,os_hwerr	
+				jr z,os_got_extcmd
+				
+				call restore_dir_block
+				
+				ld bc,pbf_txt						; did not find an .ezp file, look for .pbf file
+				call scan_current_and_path_dirs
+				jp c,os_hwerr	
+				jr z,os_got_script
+				
+				call restore_dir_block				; jump back to original dir
+os_noextcmd		ld a,0bh							; return 'unknown command' error
 				jp show_erm
 
-os_gecmd		ld hl,(os_args_loc)					; Found external command!
+				
+os_got_script	ld hl,script_flags					;test if already in a script
+				bit scr_in_script,(hl)
+				jp nz,script_error
+				ld hl,temp_string					;copy filename that was written to temp_string as script filename 
+				call set_script_fn
+				ld hl,(os_args_loc)		
+				call os_scan_for_non_space
+				ld ix,os_cmd_exec					
+				jp go_int_cmd
+				
+
+
+
+
+os_got_extcmd	ld hl,(os_args_loc)					; Found external command!
 				call os_scan_for_non_space			; args start is first non-space character after command
 				ld (os_args_loc),hl
 
@@ -574,7 +590,7 @@ loc_header		ld a,(scratch_pad+15)				; store default ADL mode of command (for R 
 				ld (store_adl),a			
 				call fs_open_file_command			; OK, file has special PROSE header, open file again	
 				jp c,os_hwerr
-				jr nz,os_ndfxc
+				jr nz,os_noextcmd
 				ld hl,(scratch_pad+5)				; set load address from previously loaded header
 				ld (fs_ez80_address),hl
 				
@@ -695,7 +711,60 @@ restore_dir_block
 				call fs_update_dir_cluster
 				pop de
 				ret
-		
+
+;---------------------------------------------------------------------------------------------------------------
+
+
+scan_current_and_path_dirs
+
+				ld (scratch_pad),bc					; cache location of extension (.ezp, .scr)
+				ld hl,(os_args_pos_cache)			; get location of command string	
+				ld (os_args_loc),hl
+				call os_args_to_fn_append_extn		; note: this moves the arg location to end of command
+
+				call fs_open_file_command			; does file exist in current dir?
+				ret c					 			; h/w error?
+				ret z								; 0 = got external command
+
+				ld hl,path_txt						; cant find it in current dir, examine path
+				call os_get_envar
+				ld (path_parse_loc),de
+
+path_loop		call fs_goto_root_dir_command		; move to root dir
+				ld hl,(path_parse_loc)				; get dir name from path	
+				call fs_hl_to_filename							
+				call fs_change_dir_command			; try to move to path dir ('commands' first)
+				ret c
+				jr nz,next_dir_in_path				; if that dir doesnt exist, try next path element
+	
+				ld hl,(os_args_pos_cache)			; get location of command string	
+				ld (os_args_loc),hl
+				ld bc,(scratch_pad)					; bc = extension location
+				call os_args_to_fn_append_extn		; note: this moves the arg location to end of command
+				
+				call fs_open_file_command			; try to find the command in the new dir
+				ret c
+				ret z								; return if found
+				
+next_dir_in_path
+				
+				ld hl,(path_parse_loc)				; next path element
+				call os_next_arg
+				ld (path_parse_loc),hl
+				jr nz,path_loop						; if nothing else in path, quit
+				xor a
+				inc a
+				ret									; ZF not set, didnt find it
+				
+;---------------------------------------------------------------------------------------------------------------
+				
+set_script_fn	ld de,script_fn
+				ld b,13
+				call os_copy_ascii_run
+				xor a
+				ld (de),a
+				ret
+
 ;==================================================================================================
 ; Routines called by command line
 ;==================================================================================================
@@ -881,10 +950,10 @@ os_cfne			ld (os_args_loc),hl					;update arg position for next parameter
 
 
 
+os_args_to_fn_append_extn
 
-os_args_to_fn_append_ezp
+; Set BC to location of extension text
 
-	
 				call os_atfn_pre					; find non-space char	
 				ret z
 				ld de,temp_string
@@ -901,7 +970,8 @@ ccmdtlp			ld a,(hl)							; copy argument (command name) to temp string
 				jr ccmdtlp
 	
 goteocmd		push hl
-				ld hl,ezp_extension_txt
+				push bc
+				pop hl
 				ld bc,5
 				ldir 
 				ld hl,temp_string
@@ -3106,10 +3176,8 @@ test_de			push hl
 	include 'commands\t.asm'
 	include 'commands\mount.asm'
 	include 'commands\vers.asm'
-	include 'commands\exec.asm'
 	include 'commands\ltn.asm'
 	include 'commands\pen.asm'
-	include 'commands\palette.asm'
 	include 'commands\mouse.asm'
 	include 'commands\vmode.asm'
 	include 'commands\font.asm'
@@ -3118,6 +3186,7 @@ test_de			push hl
 	include 'commands\sound.asm'
 	include 'commands\avail.asm'
 	include 'commands\fi.asm'
+	include 'commands\echo.asm'
 	
 os_cmd_unused	ret		; <- dummy command, should never be called
 
@@ -3564,6 +3633,98 @@ del_out_envlp	push bc
 				xor a
 				ret			
 
+
+;-----------------------------------------------------------------------------------------------
+
+os_parse_path_string
+
+; Set HL = string address in format "locomotion/walks/silly" or "volx:locomotion/walks/silly"
+; A: 1 = change to all names in string, 0 = stop at last part, return with HL at filename
+				
+				ld (scratch_pad+6),a
+	
+				push hl
+				pop ix
+				ld a,(ix+4)
+				cp ':'								; wish to change volume?
+				jr nz,pp_nchvol
+				ld de,vol_txt+1
+				ld b,3
+				call os_compare_strings
+				jr nz,pp_nchvol
+				ld de,5
+				add hl,de
+				ld (os_args_loc),hl					; update args position
+				ld a,(ix+3)							; volume digit char
+				sub 030h
+				call os_change_volume
+				ret nz								; error if new volume is invalid
+				call os_root_dir					; go to new drive's root block as drive has changed
+				ld hl,(os_args_loc)	
+			
+pp_nchvol		push hl
+				pop de
+				
+				dec de
+pp_chkstring	inc de
+				ld a,(de)							; scan ahead looking for space, zero or "/"
+				or a
+				jr z,pp_end
+				cp ' '
+				jr z,pp_end
+				cp '/'
+				jr nz,pp_chkstring
+
+				inc de
+				ld (scratch_pad+7),de
+				call os_change_dir					;step through args changing dirs as we go
+				ret nz
+				
+				ld hl,(scratch_pad+7)				;move to next dir name in args (after '/') if no more found, quit
+				ld (os_args_loc),hl
+				jr pp_nchvol
+					
+pp_end			ld a,(scratch_pad+6)				;whether we change to this final "dir" depends on mode 
+				or a
+				ret z
+				ld (os_args_loc),de	
+				call os_change_dir
+				ret
+
+;-----------------------------------------------------------------------------------------------
+
+os_restore_original_vol_dir
+
+				push af								;if a dir is not found go back to original dir and drive 
+				ld de,(original_dir)
+				call fs_update_dir_cluster
+				ld a,(original_vol)
+				call os_change_volume	
+				pop af
+				or a
+				ret
+				
+				
+os_cache_original_vol_dir
+
+				push af
+				push bc
+				push de
+				push hl
+				ld a,(current_volume)
+				ld (original_vol),a
+				call fs_get_dir_cluster
+				ld (original_dir),de
+				pop hl
+				pop de
+				pop bc
+				pop af
+				ret
+				
+;-----------------------------------------------------------------------------------------------
+
+	include 'script_routines.asm'
+	
 ;-----------------------------------------------------------------------------------------------
 ; Storage Device Drivers
 ;-----------------------------------------------------------------------------------------------

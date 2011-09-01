@@ -1,13 +1,24 @@
 ;-----------------------------------------------------------------------
-;"lb" - Load binary file command. V0.04 - ADL mode
+;"lb" - Load binary file command. V0.05
 ;-----------------------------------------------------------------------
 
-os_cmd_lb
-	
-				call os_check_volume_format	
+os_cmd_lb		call os_check_volume_format	
 				ret nz
 				
-				call filename_or_bust					;filename supplied?
+				call os_cache_original_vol_dir
+				call do_lb
+				call os_restore_original_vol_dir
+				ret
+				
+do_lb			call os_scan_for_non_space				;filename supplied?
+				jr nz,lb_got_fn
+missing_args	ld a,8dh
+				or a
+				ret
+				
+lb_got_fn		xor a
+				call os_parse_path_string
+				ret nz
 				call os_find_file						;get header info
 				ret nz
 				ld (filesize_cache),de					;note the filesize (23:0)
@@ -16,12 +27,14 @@ os_cmd_lb
 				
 				ld hl,(os_args_loc)
 				call os_next_arg
-
-				call hexword_or_bust					;the call only returns here if the hex in DE is valid
-				jr z,os_lbnao							;load location override?
-				ld (data_load_addr),de
-
-os_lbnao		ld bc,(data_load_addr)					;ensure load doesn't overwrite OS/Low VRAM/Allocated RAM
+				call ascii_to_hexword					;load address
+				jr z,lb_argsok
+				cp 81h
+				jr z,missing_args
+				ret
+				
+lb_argsok		ld (data_load_addr),de
+				ld bc,(data_load_addr)					;ensure load doesn't overwrite OS/Low VRAM/Allocated RAM
 				push bc
 				pop hl
 				ld de,(filesize_cache)
