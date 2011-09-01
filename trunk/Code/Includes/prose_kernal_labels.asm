@@ -12,7 +12,10 @@ kr_change_dir					equ 07h
 kr_parent_dir					equ 08h	
 kr_root_dir						equ 09h
 kr_delete_dir					equ 0ah
+
 kr_find_file					equ 0bh
+kr_open_file					equ 0bh	; preferred name for above
+
 kr_set_file_pointer				equ 0ch
 kr_set_load_length				equ 0dh
 kr_read_file					equ 0eh
@@ -85,7 +88,7 @@ kr_write_rtc					equ 42h
 kr_get_keymap_location			equ 43h
 
 kr_get_os_high_mem				equ 44h
-kr_get_mem_base					equ 44h	;preferred name for above
+kr_get_mem_base					equ 44h			;preferred name for above
 
 kr_play_audio					equ 45h
 kr_disable_audio				equ 46h
@@ -102,5 +105,7 @@ kr_set_pointer					equ 4fh
 kr_allocate_ram					equ 50h
 kr_deallocate_ram				equ 51h
 kr_get_mem_top					equ 52h
+kr_init_msec_counter			equ 53h
+kr_read_msec_counter			equ 54h
 
 ;---------------------------------------------------------------------------------------------------

@@ -46,6 +46,10 @@ TMR0_DR_H		equ 082h
 TMR0_RR_H		equ 082h
 TMR_ISS			equ 092h
 
+TMR1_CTL		equ 083h 
+TMR1_RR_L		equ 084h
+TMR1_RR_H		equ 085h
+
 RTC_CTRL		equ 0edh			;RTC equates
 RTC_ACTRL		equ 0ech
 RTC_SEC			equ 0e0h
