@@ -1,0 +1,1391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>kernal routines</title></head>
+<body>
+PROSE KERNAL ROUTINES (last updated 01-09-2011)<br>
+<br>
+To
+call a PROSE kernal routine, load register A with the routine label,
+set other CPU registers as appropriate for the required routine and do
+a call.lil to &#8220;prose_kernal&#8221;. EG: To print a line of text:<br>
+<br>
+ld hl,message_txt &nbsp;&nbsp; &nbsp;; string location<br>
+ld a,kr_print_string &nbsp;&nbsp; &nbsp;; desired kernal
+routine<br>
+call.lil prose_kernal&nbsp;&nbsp; &nbsp;; call PROSE kernal
+routine<br><br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="vertical-align: top;"><span style="font-weight: bold;">File System:</span><br>
+<br>
+<a href="#kr_mount_volumes">kr_mount_volumes</a><br>
+<a href="#kr_get_device_info">kr_get_device_info</a><br>
+<a href="#kr_check_volume_format">kr_check_volume_format</a><br>
+<a href="#kr_change_volume">kr_change_volume</a><br>
+<a href="#kr_get_volume_info">kr_get_volume_info</a><br>
+<a href="#kr_format_device">kr_format_device</a><br>
+<a href="#kr_make_dir">kr_make_dir</a>&nbsp;&nbsp;
+&nbsp;<br>
+<a href="#kr_change_dir_">kr_change_dir</a><br>
+<a href="#kr_parent_dir">kr_parent_dir</a><br>
+<a href="#kr_root_dir">kr_root_dir</a>&nbsp;&nbsp;
+&nbsp;<br>
+<a href="#kr_delete_dir">kr_delete_dir</a><br>
+<a href="#kr_open_file">kr_open_file</a><br>
+<a href="#kr_set_file_pointer">kr_set_file_pointer</a><br>
+<a href="#kr_set_load_length">kr_set_load_length</a><br>
+<a href="#kr_read_file">kr_read_file</a><br>
+<a href="#kr_erase_file">kr_erase_file</a><br>
+<a href="#kr_rename_file">kr_rename_file</a><br>
+<a href="#kr_create_file">kr_create_file</a><br>
+<a href="#kr_write_file">kr_write_file</a><br>
+<a href="#kr_get_total_sectors">kr_get_total_sectors</a><br>
+<a href="#kr_dir_list_first_entry">kr_dir_list_first_entry</a><br>
+<a href="#kr_dir_list_get_entry">kr_dir_list_get_entry</a><br>
+<a href="#kr_dir_list_next_entry">kr_dir_list_next_entry</a><br>
+<a href="#kr_read_sector">kr_read_sector</a><br>
+<a href="#kr_write_sector">kr_write_sector</a><br>
+<a href="#kr_file_sector_list">kr_file_sector_list</a><br>
+<a href="#kr_get_dir_cluster">kr_get_dir_cluster</a><br>
+<a href="#kr_set_dir_cluster">kr_set_dir_cluster</a><br>
+<a href="#kr_get_dir_name_">kr_get_dir_name</a><br>
+<a href="#kr_get_disk_sector_ptr">kr_get_disk_sector_ptr</a><br>
+<br>
+<span style="font-weight: bold;">Serial Comms:</span><br>
+<br>
+<a href="#kr_serial_receive_header">kr_serial_receive_header</a><br>
+<a href="#kr_serial_receive_file">kr_serial_receive_file</a><br>
+<a href="#kr_serial_send_file_">kr_serial_send_file</a><br>
+<a href="#kr_serial_tx_byte">kr_serial_tx_byte</a><br>
+<a href="#kr_serial_rx_byte">kr_serial_rx_byte</a></td>
+<td style="vertical-align: top;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">Keyboard and Mouse:</span><br>
+<br><a href="#kr_wait_key_">
+kr_wait_key</a><br><a href="#kr_get_key">
+kr_get_key</a><br><a href="#kr_get_key_mod_flags">
+kr_get_key_mod_flags</a><br><a href="#kr_get_keymap_location">
+kr_get_keymap_location</a><br><a href="#kr_set_mouse_window">
+kr_set_mouse_window</a><br><a href="#kr_get_mouse_position">
+kr_get_mouse_position</a><br><a href="#kr_get_mouse_counters">
+kr_get_mouse_counters</a><br><a href="#kr_set_pointer">
+kr_set_pointer</a><br><a href="#kr_get_joysticks">
+kr_get_joysticks</a><br>
+<br>
+<span style="font-weight: bold;">Text / Display:</span><br>
+<br><a href="#kr_print_string">
+kr_print_string</a><br><a href="#kr_clear_screen">
+kr_clear_screen</a><br><a href="#kr_plot_char">
+kr_plot_char</a><br><a href="#kr_set_pen">
+kr_set_pen</a><br><a href="#kr_get_pen_">
+kr_get_pen</a><br><a href="#kr_background_colours">
+kr_background_colours</a><br><a href="#kr_set_cursor_position">
+kr_set_cursor_position</a><br><a href="#kr_draw_cursor">
+kr_draw_cursor</a><br><a href="#kr_remove_cursor">
+kr_remove_cursor</a><br><a href="#kr_set_cursor_image">
+kr_set_cursor_image</a><br><a href="#kr_scroll_up">
+kr_scroll_up</a><br><a href="#kr_os_display">
+kr_os_display</a><br><a href="#kr_get_video_mode">
+kr_get_video_mode</a><br><a href="#kr_set_video_mode">
+kr_set_video_mode</a><br><a href="#kr_get_charmap_addr_xy">
+kr_get_charmap_addr_xy</a><br><a href="#kr_get_cursor_position">
+kr_get_cursor_position</a><br><a href="#kr_wait_vrt">
+kr_wait_vrt</a><br><a href="#kr_char_to_font">
+kr_char_to_font</a><br>
+<br>
+<span style="font-weight: bold;">Strings:</span><br>
+<br><a href="#kr_compare_strings">
+kr_compare_strings</a><br><a href="#kr_hex_byte_to_ascii">
+kr_hex_byte_to_ascii</a><br><a href="#kr_ascii_to_hex_word">
+kr_ascii_to_hex_word</a><br><a href="#kr_get_string">
+kr_get_string</a></td>
+<td style="vertical-align: top;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">Environment variables:</span><br>
+<br><a href="#kr_set_envar">
+kr_set_envar</a><br><a href="#kr_get_envar_">
+kr_get_envar</a><br><a href="#kr_delete_envar">
+kr_delete_envar</a><br>
+&nbsp;&nbsp; &nbsp;<br>
+<span style="font-weight: bold;">Timer:</span><br>
+<br><a href="#kr_time_delay">
+kr_time_delay</a><br><a href="#kr_set_timeout">
+kr_set_timeout</a><br><a href="#kr_test_timeout">
+kr_test_timeout</a><br><a href="#kr_read_rtc">
+kr_read_rtc</a><br><a href="#kr_write_rtc">
+kr_write_rtc</a><br><a href="#kr_init_msec_counter">
+kr_init_msec_counter</a><br><a href="#kr_read_msec_counter">
+kr_read_msec_counter</a><br>
+<br>
+<br>
+<span style="font-weight: bold;">Sound:</span><br>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br><a href="#kr_play_audio">
+kr_play_audio</a><br><a href="#kr_disable_audio">
+kr_disable_audio</a><br>
+<br>
+<span style="font-weight: bold;">Memory:</span><br>
+<br><a href="#kr_get_mem_base">
+kr_get_mem_base</a><br><a href="#kr_get_mem_top">
+kr_get_mem_top</a><br><a href="#kr_allocate_ram">
+kr_allocate_ram</a><br><a href="#kr_deallocate_ram">
+kr_deallocate_ram</a><br>
+<br>
+<span style="font-weight: bold;">Misc:</span><br>
+<br><a href="#kr_get_version_">
+kr_get_version</a><br>
+<a href="#kr_dont_store_registers">kr_dont_store_registers</a></td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+Notes:<br>
+<br>
+When
+a Z80 mode program calls the PROSE kernal, location pointer registers
+such as HL in the example above automatically have their MSB [23:16]
+set to the MBASE register by the Kernal routine.<br>
+<br>
+All DISK
+routines set the zero flag on return if the operation was
+successful.&nbsp; If the zero flag is not set, CPU register "A"
+will
+contain an error code (see PROSE manual for list). Other routines set
+the flags as shown below.<br>
+<br>
+IX and IY are preserved by all kernal routines, assume all other
+registers are trashed unless otherwise stated.<br>
+<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_mount_volumes"></a>kr_mount_volumes</span><br>
+<br>
+Action: Rescans hardware for storage devices.<br>
+<br>
+Input :<br><br><ul><li>E (0= Show device list, 1 = Mount quietly)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_device_info"></a>kr_get_device_info</span><br>
+<br>
+Action: Returns info about the storage devices<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>
+HL = Location of device info table </li><li>
+DE = Location of driver table </li><li>
+B = Device count </li><li>
+A = Currently selected driver </li></ul> <br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_check_volume_format"></a>kr_check_volume_format</span><br>
+<br>
+Action: Checks if currently selected volume is formatted to FAT16<br>
+<br>
+Input : None<br>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_change_volume"></a>kr_change_volume</span><br>
+<br>
+Action: Changes volume selection<br>
+<br>
+Input : <br><ul><li>E = Desired volume number </li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_volume_info"></a>kr_get_volume_info</span><br>
+<br>
+Action: Returns info about storage volumes.<br>
+<br>
+Input : None<br>
+<br>
+Output<br><ul><li>HL =location of volume mount
+list (see PROSE manual for info)</li><li>B =
+volume count</li><li>A&nbsp;= currently selected volume</li></ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_format_device"></a>kr_format_device&nbsp;&nbsp;</span>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>
+<br>
+Action: Formats a device to FAT16 (no MBR is created and the entire
+device<br>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+is treated as one volume, max 2GB)<br>
+<br>
+Input :<br><ul><li>E&nbsp; = device</li><li>HL =
+location of desired volume label</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_make_dir"></a>kr_make_dir</span><br>
+<br>
+Action: Creates a new directory<br>
+<br>
+Input :<br><ul><li>&nbsp;HL = Location of zero-terminated dir name</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_change_dir_"></a>kr_change_dir&nbsp;</span>&nbsp;
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;<br>
+<br>
+Action: Changes current directory<br>
+<br>
+Input :<br><ul><li>&nbsp;HL = Location of zero-terminated dir name</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_parent_dir"></a>kr_parent_dir</span><br>
+<br>
+Action: Moves towards the root directory by one place<br>
+<br>
+Input : None<br>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_root_dir"></a>kr_root_dir</span><br>
+<br>
+Action: Sets the root dir as the current directory<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_delete_dir"></a>kr_delete_dir</span><br>
+<br>
+Action: Removes an (empty) directory<br>
+<br>
+Input :<br><ul><li>HL&nbsp; = Location of zero-terminated dir name</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_open_file"></a>kr_open_file</span><br>
+<br>
+Action: Opens a file so that data from it may be loaded.<br>
+<br>
+Input :<br><ul><li>HL = Location of zero-terminated file name</li></ul>
+<br>
+Output: If zero flag set:<br><ul><li>HL =
+start cluster of file</li><li>C:DE =
+length of file (32 bit)</li></ul>Else: see
+error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_file_pointer"></a>kr_set_file_pointer</span><br>
+<br>
+Action: Moves the file pointer to a position within the currently
+opened file<br>
+<br>
+Input :<br><ul><li>C:DE (32 bit file pointer)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_load_length"></a>kr_set_load_length</span><br>
+<br>
+Action: Sets the maximum data transfer length for a file read<br>
+<br>
+Input : <br><ul><li>DE = load length (24 bit)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_read_file"></a>kr_read_file</span><br>
+<br>
+Action: Reads data from the currently opened file<br>
+<br>
+Input :<br><ul><li>HL = load address</li></ul>
+<br>
+Output: see error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_erase_file"></a>kr_erase_file</span><br>
+<br>
+Action: Deletes a file<br>
+<br>
+Input : <br><ul><li>HL = Location of zero-terminated file name</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_rename_file"></a>kr_rename_file</span><br>
+<br>
+Action: Renames a file or directory<br>
+<br>
+Input :<br><ul><li>HL = Location of original name</li><li>DE =
+Location of new name</li></ul><br>(Both strings should be zero terminated.)<br>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_create_file"></a>kr_create_file</span><br>
+<br>
+Action: Creates a new file (zero bytes) for writing data to.<br>
+<br>
+Input :<br><ul><li>HL = location of zero-terminated file name</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_write_file"></a>kr_write_file</span><br>
+<br>
+Action: Appends data to an existing file<br>
+<br>
+Input :<br><ul><li>HL = location of zero terminated
+filename</li><li>DE =
+source address of data</li><li>BC = length (24 bit)</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_total_sectors"></a>kr_get_total_sectors</span><br>
+<br>
+Action: Returns the total capacity (in sectors) of the currently
+selected volume<br>
+<br>
+Input : None<br>
+<br>
+Output: <br><ul><li>DE = sector count (24 bit)</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_dir_list_first_entry"></a>kr_dir_list_first_entry</span><br>
+<br>
+Action: Returns the first line of a directory<br>
+<br>
+Input : None<br>
+<br>
+Output: If zero flag set:<br><ul><li>HL&nbsp; = Location of null terminated filename
+string</li><li>C:DE&nbsp; = Length of file (if applicable)</li><li>B = File flag 0 = File, 1 = Dir</li></ul>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Else: see error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_dir_list_get_entry"></a>kr_dir_list_get_entry</span><br>
+<br>
+Action: Returns a line from directory<br>
+&nbsp;<br>
+Input : None<br>
+<br>
+Output: If zero flag set:<br><ul><li>HL&nbsp;&nbsp;&nbsp;&nbsp; = Location of null
+terminated filename string</li><li>C:DE&nbsp;&nbsp; = Length of file&nbsp; (if applicable)</li><li>&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = File flag 0 =
+File, 1 = Dir</li></ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>Else: see error codes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
+&nbsp; &nbsp;<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+&nbsp; &nbsp;<br>
+<span style="font-weight: bold;"><a name="kr_dir_list_next_entry"></a>kr_dir_list_next_entry</span><br>
+<br>
+Action: Returns next line of directory<br>
+<br>
+Input : None<br>
+<br>
+Output: If zero flag set:<br><ul><li>HL&nbsp;&nbsp;&nbsp;&nbsp; = Location of null
+terminated filename string</li><li>C:DE&nbsp;&nbsp; = Length of file&nbsp; - if applicable)</li><li>B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = File flag 0 =
+File, 1 = Dir</li></ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>Else: see error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_read_sector"></a>kr_read_sector</span><br>
+<br>
+Action: Reads a sector from the specified device to the target address<br>
+<br>
+Input :<br><ul><li>HL = destination address</li><li>C:DE =
+sector (32 bit)</li><li>
+B =
+device number</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_write_sector"></a>kr_write_sector</span><br>
+<br>
+Action: Writes a sector from specified address to the specified device<br>
+<br>
+Input :<br><ul><li>HL = source address</li><li>C:DE =
+sector (32 bit)</li><li>B =
+device number</li></ul>
+<br>
+Output: See error codes<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_file_sector_list"></a>kr_file_sector_list</span><br>
+<br>
+Action: Used to obtain a list of the sectors that a file occupies<br>
+<br>
+Input :<br><ul><li>HL = cluster</li><li>E =
+sector within cluster</li></ul>
+<br>
+Output:<br><ul><li>E&nbsp; = Next sector offset</li><li>HL = Updated cluster</li><li>BC = Location of variable holding 32 bit sector (LSB)</li></ul><br>[Also see error codes]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
+Notes:
+First call "kr_open_file" with the filename in HL as normal. On exit,
+HL will be equal the first cluster that the file occupies. Clear E (as
+we're starting at the first sector of a cluster), and call
+"kr_file_sector_list". On return E and HL are updated to the values
+required for the next time the routine is called and BC points to the
+lowest significant byte of the sector address (LBA0). Copy the 4 bytes
+from BC to BC+3 to your sector list buffer and loop around, calling
+"kr_file_sector_list" for as many sectors as are used by the file
+(simply subtract 512 from a variable holding the file size every call
+until variable is = &lt; 0)<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_dir_cluster"></a>kr_get_dir_cluster</span><br>
+<br>
+Action: Reads the cluster location of the current directory<br>
+<br>
+Input : none<br>
+<br>
+Output:<br><ul><li>DE = current dir's cluster address</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_dir_cluster"></a>kr_set_dir_cluster</span><br>
+<br>
+Action: Sets the current directory cluster location<br>
+<br>
+Input :<br><ul><li>DE = cluster address to set as current dir</li></ul>
+<br>
+Output: none<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_dir_name_"></a>kr_get_dir_name</span><br>
+<br>
+Action: Returns current directory name<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>HL = location of directory name ASCII string</li></ul><br>[See also error codes]<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_disk_sector_ptr"></a>kr_get_disk_sector_ptr</span><br>
+<br>
+Action:
+Returns location of LSB of LBA sector variable and location of
+sector&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer for external
+drivers<br>
+<br>
+Input : none<br>
+<br>
+Output:<br><ul><li>HL = location of LSB of 32-bit sector address variable</li><li>DE = location of sector buffer </li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_wait_key_"></a>kr_wait_key</span><br>
+<br>
+Action: Pauses until a key is pressed<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>A = Scancode of keypress</li><li>B&nbsp; =&nbsp;ASCII character as defined by keymap and modified by
+shift/alt/CRTL as applicable. B = 0 if no applicable&nbsp;ASCII
+data.</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_key"></a>kr_get_key</span><br>
+<br>
+Action: Returns any keypresses that are in the buffer (does not wait)<br>
+<br>
+Input : None<br>
+<br>
+Output: If zero flag is set:<br><ul><li>A&nbsp; = New scancode</li><li>B&nbsp; = ASCII character as
+defined by keymap and modified by
+shift/alt/CRTL as applicable. B = 0 if no applicable ASCII
+data.</li></ul>
+<br>Else: No new key data is in the buffer<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<a name="kr_get_key_mod_flags"></a><br>
+<span style="font-weight: bold;">kr_get_key_mod_flags</span><br>
+<br>
+Action: Returns the status of the modifier keys<br>
+<br>
+Input : None<br>
+<br>
+Output: A: Bits:<ul><li>0 - left shift</li><li>1 - left/right ctrl</li><li>2 - left GUI</li><li>3 - left/right alt</li><li>4 - right shift</li><li>5 - right GUI</li><li>6 - Apps</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_serial_receive_header"></a>kr_serial_receive_header</span><br>
+<br>
+Action: Waits for a file header from serial port<br>
+<br>
+Input:<br><ul><li>HL = location of zero-terminated
+filename</li><li>E =
+timeout allowance in seconds</li></ul>
+<br>
+Output: <br><br>If zero flag set, all OK, xDE returns location of serial file
+header<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>Else, A
+=<br><br>$83 : timed out error<br>$84 : memory address out of range<br>$85 : comms error<br>$86 : checksum bad<br>$87 : Incorrect file<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_serial_receive_file"></a>kr_serial_receive_file</span><br>
+<br>
+Action: Waits for a serial file transfer following the reception of a
+header<br>
+<br>
+Input :<br><ul><li>HL = load address</li></ul>
+<br>
+Output: If zero flag is set, all OK.<br>
+<br>Else, A =<br><br>&nbsp;$84 : memory address out of range,<br>&nbsp;$85 : comms error<br>&nbsp;$86 : checksum error<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_serial_send_file_"></a>kr_serial_send_file&nbsp;</span>&nbsp;
+&nbsp;<br>
+<br>
+Action: Sends a file to the serial port<br>
+<br>
+Input :<br><ul><li>HL = filename location</li><li>DE =
+source address</li><li>BC =
+length </li></ul>
+<br>
+Output: If zero flag is set, all OK.<br>
+<br>Else, A=
+<br><br>$81 = Save length zero,<br>$84 = memory address out of
+range<br>$85 = comms error<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_serial_tx_byte"></a>kr_serial_tx_byte</span><br>
+<br>
+Action: Sends a single byte to the serial port<br>
+<br>
+Input :<br><ul><li>E = byte to send</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+&nbsp;<br>
+<span style="font-weight: bold;"><a name="kr_serial_rx_byte"></a>kr_serial_rx_byte</span><br>
+<br>
+Action: Waits for a single byte from serial port<br>
+<br>
+Input :<br><ul><li>E = timeout allowance in seconds</li></ul>
+<br>
+Output: Zero Flag set if byte received OK, Else operation timed out (A
+= $83)<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_print_string"></a>kr_print_string</span><br>
+<br>
+Action: Writes a string of text to the display at the current cursor
+position and in the current pen colour<br>
+<br>
+Input :<br><ul><li>HL (Zero-terminated ASCII string location)</li></ul>
+<br>
+Output:<br><ul><li>HL = address of the string terminating zero + 1 (BC and
+DE are preserved)</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_clear_screen"></a>kr_clear_screen</span><br>
+<br>
+Action: Clears the display window<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_wait_vrt"></a>kr_wait_vrt</span><br>
+<br>
+Action: Waits for the Vertical Retrace flip-flop to become set (ie: the
+last scanline of display)<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_cursor_position"></a>kr_set_cursor_position</span><br>
+<br>
+Action: Moves the cursor position to a specific place<br>
+<br>
+Input :<br><ul><li>B&nbsp;= x char coord</li><li>
+C = y
+char coord</li></ul>
+<br>
+Output: Zero flag is set if coordinates are within the display window,
+unset if not.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_plot_char"></a>kr_plot_char</span><br>
+<br>
+Action: Plots a character at a specific location in current pen colour
+(doesn't affect cursor position)<br>
+<br>
+Input :<br><ul><li>B = x char coord</li><li>C = y
+char coord</li><li>E = ASCII
+char to plot</li></ul>
+<br>
+Output: Zero flag is set if coordinates are within the display window,
+unset if not.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_pen"></a>kr_set_pen</span><br>
+<br>
+Action: Changes the current pen colour<br>
+<br>
+Input :<br><ul><li>E = pen colour:</li></ul>
+<br>Bits
+[7:4] = background colour selection [3:0] = character's pixel
+colour selection.<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_background_colours"></a>kr_background_colours</span><br>
+<br>
+Action: Changes the palette of 16 colours used by the OS<br>
+<br>
+Input :<br><ul><li>HL (location of colour data, standard 16 words of "0RGB" format)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_draw_cursor"></a>kr_draw_cursor</span><br>
+<br>
+Action: Draws the cursor image as defined by the routine
+"kr_set_cursor_image"<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_pen_"></a>kr_get_pen&nbsp;</span>&nbsp;
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;<br>
+<br>
+Action: Returns the current pen colour<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><br><ul><li>E = pen colour:</li></ul>
+<br>Bits
+[7:4] = background colour selection&nbsp;[3:0] = character's pixel
+colour selection.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_scroll_up"></a>kr_scroll_up</span><br>
+<br>
+Action: Scrolls the display up a line<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_os_display"></a>kr_os_display</span><br>
+<br>
+Action: Restores the display hardware settings to that used by the OS
+(useful only if the area of VRAM used by PROSE were not overwritten.)<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_video_mode"></a>kr_get_video_mode</span><br>
+<br>
+Action: Returns the OS video mode and size of the OS window (in
+characters)<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>A = Video Mode</li><li>B =
+Columns</li><li>C = Rows</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_charmap_addr_xy"></a>kr_get_charmap_addr_xy</span><br>
+<br>
+Action: Returns address of character map and attribute map for a specific coordinate<br>
+<br>
+Input :<br><ul><li>B = x coord</li><li>C = y
+coord</li></ul>
+<br>
+Output:<br><ul><li>&nbsp;HL = OS character map address</li><li>&nbsp;DE = OS
+attribute map addresss</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_cursor_position"></a>kr_get_cursor_position</span><br>
+<br>
+Action: Returns cursor position<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>&nbsp;B = x char coord</li><li>&nbsp;C = y
+char coord</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_video_mode"></a>kr_set_video_mode</span><br>
+<br>
+Action: Sets the Video Mode<br>
+<br>
+Input: E, <br><ul><li>E= 0 : 80x60</li><li>E=1 : 80x30</li><li>E=2 : 40x60</li><li>E=3 : 40x30</li></ul>
+<br>
+Output: Zero Flag set if all OK. Error code 88h if A is out of range.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_cursor_image"></a>kr_set_cursor_image</span><br>
+<br>
+Action: Selects which character is to be used for the cursor.<br>
+<br>
+Input :<br><ul><li>E: ASCII character to use (EG: 05fh = underscore, 07fh = solid
+block)</li></ul>
+<br>
+Output: None.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_remove_cursor"></a>kr_remove_cursor</span><br>
+<br>
+Action: Removes the cursor image from the character map (replaces with
+character that was saved by kr_draw_cursor)<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_char_to_font"></a>kr_char_to_font</span><br>
+<br>
+Action: Patches the PROSE font (allows user defined characters)<br>
+<br>
+Input :<br><ul><li>E = ASCII character to change&nbsp;HL =
+address of font data (8 bytes)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_envar"></a>kr_set_envar</span><br>
+<br>
+Input :<br><ul><li>HL = location of
+zero-terminated variable name string</li><li>DE =
+location of zero-terminated variable value string</li></ul>
+<br>
+Output:&nbsp; ZF set if OK<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+&nbsp;<br>
+<span style="font-weight: bold;"><a name="kr_get_envar_"></a>kr_get_envar</span>&nbsp;&nbsp;
+&nbsp;<br>
+<br>
+Input :<br><ul><li>HL = location of zero-terminated variable name string</li></ul>
+<br>
+Output: &nbsp;&nbsp;&nbsp; &nbsp;ZF set if name found<br><ul><li>DE =
+location of zero-terminated variable value string</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_delete_envar"></a>kr_delete_envar</span><br>
+<br>
+Input :<br><ul><li>HL = location of zero-terminated variable name string</li></ul>
+<br>
+Output:&nbsp; ZF set if OK<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_mouse_window"></a>kr_set_mouse_window</span><br>
+<br>
+Action: Sets the constraining dimensions for absolute mouse pointer
+position<br>
+<br>
+Input :<br><ul><li>HL&nbsp; = width of window
+in pixels</li><li>DE&nbsp; = height of window in pixels</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_mouse_position"></a>kr_get_mouse_position</span><br>
+<br>
+Action: Returns the absolute position of the mouse pointer within the
+window button status and scroll wheel counter (if applicable)<br>
+<br>
+Input:&nbsp; None<br>
+<br>
+Output: If zero flag is set:<br><ul><li>
+HL = x
+coord</li><li>DE = y
+coord</li><li>A =
+buttons. Bit 0 = left, bit 1 = right, bit 2 = middle</li><li>B = mouse wheel counter
+(always zero if no mouse wheel)</li></ul>
+<br>If zero
+Flag is not set mouse is not enabled<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_mouse_counters"></a>kr_get_mouse_counters</span>
+(previously &#8220;kr_get_mouse_motion&#8221;)<br>
+<br>
+Action:&nbsp; Returns the current value of the (wrap around) mouse
+counters button
+status and scroll wheel counter (if applicable)<br>
+<br>
+Input : None<br>
+<br>
+Output: If zero flag is set:<br><ul><li>HL = x
+coord</li><li>DE = y
+coord</li><li>A =
+buttons. Bit 0 = left, bit 1 = right, bit 2 = middle</li><li>B = mouse wheel counter
+(always zero if no mouse wheel)</li></ul>
+<br>If zero
+Flag is not set mouse is not enabled<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_time_delay"></a>kr_time_delay</span><br>
+<br>
+Action: Pauses (Granularity of 30 microseconds)<br>
+<br>
+Input :<br><ul><li>DE = 32768Hz ticks to pause. (Max value 65535, IE: 2 seconds)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_compare_strings"></a>kr_compare_strings</span><br>
+<br>
+Action: Compares ASCII strings, ignoring the case.<br>
+<br>
+Input:<br><ul><li>HL = location of string
+1</li><li>DE =
+location of string 2</li><li>B = count
+of characters to compare</li></ul>
+<br>
+Output: Zero flag set if strings are the same<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<a name="kr_hex_byte_to_ascii"></a><br>
+<span style="font-weight: bold;">kr_hex_byte_to_ascii</span><br>
+<br>
+Action: Puts ascii version of hex byte at (HL) and (HL+1)<br>
+<br>
+Input :<br><ul><li>&nbsp;HL = Desired location for ASCII output</li><li>&nbsp;E = byte
+to convert</li></ul>
+<br>
+Output:<br><ul><li>HL=HL+2</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_ascii_to_hex_word"></a>kr_ascii_to_hex_word</span><br style="font-weight: bold;">
+<br>
+Action: Converts ASCII hex characters to 24 bit hexadecimal number<br>
+<br>
+Input:<br><ul><li>&nbsp;HL = location of ASCII string
+(Note: routine scans for first non-space
+character)</li></ul>
+<br>
+Output: <br><br>If zero flag set:<br>
+<br><ul><li>DE = result</li></ul>
+<br>Else, A =
+<br><br>$81: No ASCII chars<br>$82: Bad ASCII chars<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_get_string"></a>kr_get_string</span><br>
+<br>
+Action: Waits for user to enter a string of characters followed by
+return (Escape
+quits)<br>
+<br>
+Input :<br><ul><li>HL = location of string</li><li>E = max
+number of characters.</li></ul>
+<br>
+Output: If zero flag set, all OK:<br>
+<br>A = number of characters
+entered.<br>
+<br>&nbsp;Else:&nbsp;&nbsp; &nbsp;A = <br><br>&nbsp;$80 if ESC was pressed<br>&nbsp;$81 if no characters were entered<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<a name="kr_get_version_"></a><br>
+<span style="font-weight: bold;">kr_get_version</span><br>
+<br>
+Action: Returns version info for OS and Hardware<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>HL = Version of PROSE OS (numeric)</li><li>DE =
+version of AMOEBA FPGA config (numeric)</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_dont_store_registers"></a>kr_dont_store_registers</span><br>
+<br>
+Action:&nbsp; Prevents the OS caching the contents of the CPU
+registers when an
+app returns control to it.<br>
+<br>
+Input : None<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_read_rtc"></a>kr_read_rtc</span><br>
+<br>
+Action: Reads the real time clock data<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>HL = location of ez80 time data:</li></ul>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>(sec,
+min, hr, d.o,w, date, mon, year, century)<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_write_rtc"></a>kr_write_rtc</span><br>
+<br>
+Action: Writes data to the real time clock<br>
+<br>
+Input :<br><ul><li>HL = location of ez80 time data</li></ul>
+<br>(sec,
+min, hr, d.o.w, date, mon, year, century)<br>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_keymap_location"></a>kr_get_keymap_location</span><br>
+<br>
+Action: Returns location of keymap within the OS<br>
+<br>
+Input : None<br>
+<br>
+Output:<br><ul><li>HL = location of keymap data within OS</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_get_mem_base"></a>kr_get_mem_base</span><br>
+<br>
+Action:&nbsp; Returns the first available address (IE: not used by
+the OS) in system
+RAM, VRAM A and VRAM B<br>
+<br>
+Input : none<br>
+<br>
+Output:<br><ul><li>HL = first free system RAM
+address</li><li>DE = same
+for VRAM A</li><li>BC = same
+for VRAM B</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_play_audio"></a>kr_play_audio</span><br>
+<br>
+Action: Plays sound samples<br>
+<br>
+Input :<br><ul><li>HL = Address of sound description
+table</li><li>C&nbsp; = channel enable bits.</li></ul>
+<br>
+Output: None<br>
+<br>
+Notes: The sound description table format is:<br>
+<br>
+&nbsp;00h [3 bytes]&nbsp;&nbsp; &nbsp;;location
+(address in VRAM B)<br>
+&nbsp;03h [3 bytes]&nbsp;&nbsp; &nbsp;;length in bytes<br>
+&nbsp;06h [3 bytes]&nbsp;&nbsp; &nbsp;;loop location
+(address in VRAM B)<br>
+&nbsp;09h [3 bytes]&nbsp;&nbsp; &nbsp;;loop length in
+bytes<br>
+&nbsp;0ch [2 bytes]&nbsp;&nbsp; &nbsp;;period constant
+(see hardware manual)<br>
+&nbsp;0eh [1 bytes]&nbsp;&nbsp; &nbsp;;volume (0-64)<br>
+<br>
+The channel enable bits set in C specify which channels are to play the
+sound:<br>
+<br>
+&nbsp;Bit 0 = channel 0<br>
+&nbsp;Bit 1 = channel 1<br>
+&nbsp;Bit 2 = channel 2<br>
+&nbsp;etc etc<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_disable_audio"></a>kr_disable_audio</span><br>
+<br>
+Action: Silences all channels by disabling the audio hardware and
+silencing each channel's volume register<br>
+<br>
+Input : none<br>
+<br>
+Output: none<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_joysticks"></a>kr_get_joysticks</span><br>
+<br>
+Action: Reads status of joystick pins<br>
+<br>
+Input : none<br>
+<br>
+Output:<br><ul><li>E = joystick 0</li><li>D = joystick 1</li></ul><br>Bits:<br>
+<br>
+&nbsp;&nbsp; &nbsp;Bit 0 = Up<br>
+&nbsp;&nbsp; &nbsp;Bit 1 = Down<br>
+&nbsp;&nbsp; &nbsp;Bit 2 = Left<br>
+&nbsp;&nbsp; &nbsp;Bit 3 = Right<br>
+&nbsp;&nbsp; &nbsp;Bit 4 = Fire 0<br>
+&nbsp;&nbsp; &nbsp;Bit 5 = Fire 1<br>
+<br>
+Note: Bit set = direction / button asserted.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_timeout"></a>kr_set_timeout</span><br>
+<br>
+Action: Sets the timeout period (in 32768 Hz ticks), max 65536 (two
+seconds)&nbsp;and starts the countdown<br>
+<br>
+Input :<br><ul><li>DE = time-out value</li></ul>
+<br>
+Output: none<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;"><a name="kr_test_timeout"></a>kr_test_timeout</span><br>
+<br>
+Action: Reports on status of time out flag<br>
+<br>
+Input : none<br>
+<br>
+Output: ZF not set if timed out (no time-out if zero flag set)<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_set_pointer"></a>kr_set_pointer</span><br>
+<br>
+Action:&nbsp; Initializes + enables / disables the mouse pointer
+sprite.<br>
+<br>
+Input:<br><ul><li>E: 1 = Enable pointer, 0 = disable pointer</li><li>D:&nbsp; = 1 Use default PROSE pointer (no other registers required)</li><li>&nbsp; &nbsp;&nbsp;&nbsp;= 0 Use custom pointer, the following parameters are required:</li></ul>
+<ul><li>HL = location of sprite data in system memory (copied to end&nbsp;of sprite RAM by
+this routine). Sprite data consists of the definition
+pixel data followed by:</li></ul>
+<br>$xx (byte) - first palette index used by sprite<br>$xx
+(byte) - number of colours (words) in palette data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;<br>then.. palette data<br>
+<br><ul><li>C = pointer sprite height
+in lines (max 32)</li><li>B = palette 0-3 to use for
+pointer (and all) sprites</li></ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<br>
+Output:&nbsp;&nbsp; Returns with Zero Flag not set if mouse
+driver was not activated.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_allocate_ram"></a>kr_allocate_ram</span><br>
+<br>
+Action: Sets aside an area at the top of memory for a specific use<br>
+<br>
+Input :<br><ul><li>BC = number of bytes to allocate</li><li>E&nbsp;&nbsp;= 0 : allocate system RAM</li><li>1 : allocate VRAM_A (Video RAM)</li><li>2 : allocate VRAM_B (Sprite/Audio RAM)<br></li></ul>
+<br>
+Output:<br><ul><li>HL = address of allocated RAM, Zero Flag set if allocated OK</li></ul>
+<br>
+Notes : Apps only need to allocate memory if it is to be protected from
+program loads etc after the app has exited to PROSE. EG: driver code.
+Otherwise apps can assume they have the entire (non-protected) RAM
+range to themselves, checking the free location range with
+"kr_get_mem_base"&nbsp;and "kr_get_mem_top"<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_deallocate_ram"></a>kr_deallocate_ram</span><br>
+<br>
+Action: Releases an area of RAM. IE: Moves the current allocation
+pointer upwards. <br>
+<br>
+Input : <br><ul><li>BC = number of bytes to deallocate</li><li>E&nbsp;= 0 : Deallocate system RAM,</li><li>E =&nbsp;1 :
+deallocate VRAM_A (Video RAM)</li><li>E = 2 :
+deallocate VRAM_B (Sprite/Audio RAM)</li></ul>
+<br>
+Output: None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<span style="font-weight: bold;"><a name="kr_get_mem_top"></a>kr_get_mem_top</span><br>
+&nbsp; <br>
+Action: Returns the maximum free address locations in system RAM, VRAM
+A and VRAM B<br>
+<br>
+Input : none<br>
+<br>
+Output:<br><ul><li>HL = system RAM high</li><li>
+DE =
+VRAM_A high (Video RAM)</li><li>BC =
+VRAM_B high (Sprite/Audio RAM)</li></ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_init_msec_counter"></a>kr_init_msec_counter</span><br>
+<br>
+Action: &nbsp;&nbsp; &nbsp;Initializes and clears the millisecond/millisecond
+counter, enables the required interrupt<br>
+<br>
+Input : &nbsp;&nbsp; <br><ul><li>&nbsp;E, 1 = enable, 0 = disable</li></ul>
+<br>
+Output: &nbsp;&nbsp; &nbsp;None<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<span style="font-weight: bold;"><a name="kr_read_msec_counter"></a>kr_read_msec_counter&nbsp;&nbsp;</span>
+&nbsp;&nbsp;&nbsp;
+&nbsp;<br>
+<br>
+Action: Returns second and millisecond counter values<br>
+<br>
+Input :&nbsp;&nbsp; &nbsp;none<br>
+<br>
+Output:<br><ul><li>HL = Seconds count (24 bit)</li><li>DE = Milliseconds count (0-999)<br></li></ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body></html>
