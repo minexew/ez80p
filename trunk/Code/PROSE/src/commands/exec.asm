@@ -19,24 +19,14 @@ scr_if_condition	equ 2
 scr_end				equ 3
 
 
-os_cmd_exec		ld hl,script_flags					;test if already in a script
-				bit scr_in_script,(hl)
-				jp nz,script_error
-				push hl
-				call do_script
-				pop hl
+os_cmd_exec		call do_script
+				ld hl,script_flags
 				res scr_in_script,(hl)
 				ret
 				
-do_script		set scr_in_script,(hl)
-			
-				ld hl,(os_args_loc)					;copy the script filename 
-				ld de,script_fn						
-				ld b,13
-				call os_copy_ascii_run
-				xor a
-				ld (de),a
-				
+do_script		ld hl,script_flags	
+				set scr_in_script,(hl)
+						
 				call fs_get_dir_cluster				;store location of dir that holds the script
 				ld (script_dir),de
 				
