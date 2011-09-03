@@ -101,6 +101,7 @@ kernal_table
 	dw24 os_get_mem_top				;52
 	dw24 os_init_msec_counter		;53
 	dw24 os_read_msec_counter		;54
+	dw24 ext_parse_path				;55
 	
 ;-------------------------------------------------------------------------------------------
 ; Non-packed Text Strings
@@ -115,8 +116,8 @@ hw_version_txt			db "AMOEBA Ver: $",0
 fwd_slash_txt			db " / ",0
 loading_txt				db "Loading..",11,0
 saving_txt				db "Saving..",11,0
-ezp_txt					db ".ezp",32
-pbf_txt					db ".pbf",32
+ezp_txt					db ".ezp",32,0
+pbf_txt					db ".pbf",32,0
 os_more_txt				db 11,"More?",11,11,0
 nmi_freeze_txt			db "Register Dump:"
 crlfx2_txt				db 11,11,0
@@ -130,6 +131,7 @@ hw_warn_txt2			db "----",0
 pmq_txt					db "This will overwrite protected RAM. Continue (y/n)? ",11,0
 envar_out_n_txt			db "OUTxx",0
 path_txt				db "PATH",0
+chvol_txt				db "VOLx: ",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -793,7 +795,7 @@ os_args_pos_cache		dw24 0
 os_dir_block_cache  	dw24 0
 os_extcmd_jmp_addr		dw24 0
 
-
+script_orig_dir			dw24 0
 script_dir				dw24 0
 script_file_offset		dw24 0
 script_length			dw24 0
@@ -862,15 +864,13 @@ last_os_var				db 0
 ;---------------------------------------------------------------------------------------
 
 ;=======================================================================================
-; Environment variables
+; Default environment variables
 ;=======================================================================================
 
-envar_list				db "ERROR=00",0
+default_envars			db "ERROR=00",0
 						db "PATH=COMMANDS",0
-first_ext_ev_entry		db 0ffh
-						blkb envar_buffer_size,0
-
-envar_top_loc			dw24 first_ext_ev_entry
+						db 0ffh
+envar_top_loc			dw24 0 						;also acts as end of defaults marker
 
 ;=======================================================================================
 

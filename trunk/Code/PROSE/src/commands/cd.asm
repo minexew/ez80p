@@ -66,13 +66,19 @@ shdir_lp		pop de
 				call fs_update_dir_cluster
 				call os_get_current_dir_name
 				call os_print_string
-				ld hl,cd_fwdslash_txt
-				call os_print_string
 				pop bc
 				dec c
-				jr nz,shdir_lp
+				jr z,cd_sp_done
+				dec hl
+				dec hl
+				ld a,(hl)
+				cp ':'
+				jr z,shdir_lp				;no fwd slash if volx: previously shown
+				ld hl,cd_fwdslash_txt
+				call os_print_string
+				jr shdir_lp
 			
-				call os_new_line	
+cd_sp_done		call os_new_line	
 				xor a
 				ret
 			

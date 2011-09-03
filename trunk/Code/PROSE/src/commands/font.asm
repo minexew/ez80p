@@ -1,42 +1,43 @@
 ;-----------------------------------------------------------------------
-;"font" - replace font. V0.01 - ADL mode
+;"font" - replace font. V0.02
 ;-----------------------------------------------------------------------
 
-os_cmd_font
-	
-				call os_check_volume_format	
+os_cmd_font		call os_check_volume_format	
 				ret nz
 				
-				call filename_or_bust					; filename supplied?
-				ld (scratch_pad),hl
+				call os_cache_original_vol_dir
+				call do_font
+				call os_restore_original_vol_dir
+				ret
 
-				call fs_get_dir_cluster					; stash current dir position
-				ld (scratch_pad+3),de
-				
+do_font			call os_scan_for_non_space				; filename supplied?
+				jp z,missing_args
+
+				xor a									; A=0, expecting file at end of path
+				call os_parse_path_string
+				ret nz
+				ld (scratch_pad),hl						; hl = filename part of path
+
+				call os_find_file						; look for font at this location
+				jr z,got_font
+
 				call os_root_dir						; change to root dir, look for fonts dir
 				ret nz
 				ld hl,fonts_fn
 				call os_change_dir
-				jr nz,no_font
-				
+				ret nz
 				ld hl,(scratch_pad)
-				call os_find_file						;get header info
-				jr nz,no_font
+				call os_find_file						;look for file in fonts dir
+				ret nz
 				
-				ld de,800h
+got_font		ld de,800h
 				call os_set_load_length					;make sure no more than 800h bytes loaded
-
 				ld hl,vram_a_addr						;load the font file to start of video ram
 				call os_read_bytes_from_file
 				call convert_font
-				
-no_font			push af
-				ld de,(scratch_pad+3)					;restore original dir
-				call fs_update_dir_cluster
-				pop af
+				xor a
 				ret
 				
-
 ;-----------------------------------------------------------------------------------------------
 				
 convert_font	ld e,255						;convert linear font to format required by hardware

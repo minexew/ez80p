@@ -7,6 +7,7 @@ buffer_blocks			 equ 64							;number of 256 byte blocks to buffer
 rx_buffer_loc			 equ scratch_pad
 rx_buffer_ptr			 equ scratch_pad+3
 serial_file_length_cache equ scratch_pad+6
+rxe_args_location		 equ scratch_pad+9
 
 
 os_cmd_rx		ld a,(hl)								; check args exist
@@ -116,6 +117,9 @@ rx_nrs			ld a,'!'								; if filename is "!" then this is a load-and-run comman
 				cp (hl)
 				dec hl
 				jr nz,notrxe
+				call os_next_arg
+				ld (rxe_args_location),hl
+							
 				ld de,02ah								; set filename to wildcard. 
 				ld (serial_filename),de					
 				call rx_get_header
@@ -188,8 +192,9 @@ mtones			ld hl,serial_buffer
 				ret nz
 rxe_done		pop hl									; this pops the RX CMD's return address off the stack as it wont be used.
 				call enable_button_nmi					; as we're launching an external program, enable freezer by default
-				ld hl,(serial_ez80_address)
-				jp (hl)									; run loaded program
+				ld hl,(rxe_args_location)
+				ld ix,(serial_ez80_address)
+				jp (ix)									; run loaded program
 				
 				
 

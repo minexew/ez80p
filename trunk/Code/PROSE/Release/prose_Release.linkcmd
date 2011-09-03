@@ -5,7 +5,7 @@
 /*  IDE component: d:5.1:10042301 */
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"E:\MY_OWN~1\Coding\ez80p\Code\PROSE;..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -NOdebug -NOigcase -cpu:eZ80L92 */
 

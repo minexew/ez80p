@@ -10,14 +10,17 @@
 	include	'amoeba_hardware_equates.asm'
 	include 'misc_system_equates.asm'
 	
-	sector_buffer	equ 800h
-	serial_buffer	equ 700h
+	sector_buffer		equ 800h
+	serial_buffer		equ 700h
 	
-	scratch_pad		equ 100h
+	scratch_pad			equ 100h
 
+	envar_list			equ 200h
+	envar_buffer_size	equ 200h
+	
 ;----------------------------------------------------------------------
 
-prose_version			equ 39h
+prose_version			equ 3ah
 amoeba_version_required	equ 107h
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -142,6 +145,17 @@ dont_resetkb
 				ld bc,last_os_var-os_variables
 				xor a
 				call os_bchl_memfill
+				
+				ld hl,envar_list						; clear / set default envars
+				ld bc,envar_buffer_size
+				xor a
+				call os_bchl_memfill
+				ld hl,default_envars
+				ld de,envar_list
+				ld bc,envar_top_loc-default_envars
+				ldir
+				dec de
+				ld (envar_top_loc),de				
 	
 				call hwsc_default_hw_settings
 				call hwsc_disable_audio
@@ -174,7 +188,7 @@ kb_present
 				ld hl,startup_script_fn
 				call set_script_fn
 				ld (os_args_loc),hl
-				call os_cmd_exec						; any start-up commands?
+				call os_do_script						; any start-up commands?
 									
 				ld a,(frozen)							; if OS was restarted with an NMI, show registers
 				or a
@@ -364,7 +378,7 @@ os_parse_cmd_chk_ps
 				call os_parse_command_line
 				cp 0feh								; was a new command issued by exiting program?
 				ret nz
-				ld bc,max_buffer_chars				; max string length = width of window in chars
+				ld bc,max_buffer_chars				
 				ld de,commandstring					; copy string at HL to command string and reparse it
 				ldir
 				jr os_parse_cmd_chk_ps
@@ -429,6 +443,7 @@ posmatch		ld a,(iy-1)							; if command string char is a space, the command mat
 				ld hl,(os_args_loc)					; hl = first non-space char after command 
 go_int_cmd		call os_run_command					; call internal command
 
+				call error_to_envar
 				or a
 				ret z								; <- FIRST INSTRUCTION FOLLOWING RETURN FROM INTERNAL COMMAND
 				cp 1
@@ -475,11 +490,11 @@ findmsg			ld a,(hl)
 
 os_no_kernal_command_found
 
-				ld a,030h							; was 'VOLx:' entered? This is a special case to avoid	
-fvolcmd			ld (vol_txt+4),a					; having a seperate command name for each volume.
+				ld a,030h							; was 'VOLx: ' entered? This is a special case to avoid	
+fvolcmd			ld (chvol_txt+3),a					; having a seperate command name for each volume.
 				push af			
-				ld de,vol_txt+1		
-				ld b,5			
+				ld de,chvol_txt		
+				ld b,6
 				call os_compare_strings	
 				jr z,gotvolcmd		
 				pop af				
@@ -557,9 +572,12 @@ os_got_script	ld hl,script_flags					;test if already in a script
 				jp nz,script_error
 				ld hl,temp_string					;copy filename that was written to temp_string as script filename 
 				call set_script_fn
+				call fs_get_dir_cluster				;store location of dir that holds the script
+				ld (script_dir),de
+				call restore_dir_block				;go back to dir that was active before the script started
 				ld hl,(os_args_loc)		
 				call os_scan_for_non_space
-				ld ix,os_cmd_exec					
+				ld ix,os_do_script					
 				jp go_int_cmd
 				
 
@@ -664,17 +682,7 @@ extcmd_return	push af								; <-FIRST INSTRUCTION UPON RETURN FROM EXTERNAL COM
 				push af
 skp_strg		pop af
 
-cntuasr			push af
-				push bc								; protect any driver error code in B
-				ld hl,scratch_pad					; update "error" envar on exit of previous program
-				call hexbyte_to_ascii
-				ld (hl),0
-				ld de,scratch_pad
-				ld hl,error_txt
-				call os_set_envar
-				call disable_button_nmi				; prevent NMI button taking any action				
-				pop bc
-				pop af
+				call error_to_envar
 extcmderf		or a								; If A = 0, there was no error
 				ret z	
 				cp 1								; If A = 1, there was a hardware error
@@ -712,21 +720,46 @@ restore_dir_block
 				pop de
 				ret
 
-;---------------------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------------
 
+error_to_envar
+
+				push af								; protect return code
+				push bc								; protect any driver error code in B
+				push hl								; protect any launch on exit string loc in HL
+				ld hl,scratch_pad					; update "error" envar on exit of previous program
+				call hexbyte_to_ascii
+				ld (hl),0
+				ld de,scratch_pad
+				ld hl,error_txt
+				call os_set_envar
+				call disable_button_nmi				; prevent NMI button taking any action				
+				pop hl
+				pop bc
+				pop af
+				ret
+
+;---------------------------------------------------------------------------------------------------------------
 
 scan_current_and_path_dirs
 
-				ld (scratch_pad),bc					; cache location of extension (.ezp, .scr)
+				ld (scratch_pad),bc					; cache location of extension to be added (.ezp, .scr)
 				ld hl,(os_args_pos_cache)			; get location of command string	
 				ld (os_args_loc),hl
-				call os_args_to_fn_append_extn		; note: this moves the arg location to end of command
+				
+				xor a								; mode 0, last element is a filename
+				call os_parse_path_string			; follow any path given in the command string, output HL = filename part
+				jr nz,no_ecmd_here
+				
+				ld (os_args_loc),hl					; filename part address
 
-				call fs_open_file_command			; does file exist in current dir?
+				ld bc,(scratch_pad)					; attach extension
+				call os_args_to_fn_append_extn		; note: this moves the arg location to end of command
+				call fs_open_file_command			; does file exist in specified (or current) dir? (uses filename as set)				
 				ret c					 			; h/w error?
 				ret z								; 0 = got external command
 
-				ld hl,path_txt						; cant find it in current dir, examine path
+no_ecmd_here	ld hl,path_txt						; cant find it in current dir, examine "PATH" envar
 				call os_get_envar
 				ld (path_parse_loc),de
 
@@ -972,7 +1005,7 @@ ccmdtlp			ld a,(hl)							; copy argument (command name) to temp string
 goteocmd		push hl
 				push bc
 				pop hl
-				ld bc,5
+				ld bc,6
 				ldir 
 				ld hl,temp_string
 				call fs_hl_to_filename
@@ -2170,7 +2203,9 @@ os_write_bytes_to_file
 
 os_check_volume_format
 
+				push hl
 				call fs_check_disk_format
+				pop hl
 os_rffsc		jp c,os_fferr
 				ret
 
@@ -2945,10 +2980,6 @@ cch_end			pop hl
 ; Environment variable code V0.01
 ;--------------------------------------------------------------------------------------------
 
-envar_buffer_size equ 256
-
-;--------------------------------------------------------------------------------------------
-
 ext_get_envar
 				call z,mbase_hl
 
@@ -3636,6 +3667,10 @@ del_out_envlp	push bc
 
 ;-----------------------------------------------------------------------------------------------
 
+ext_parse_path
+
+				ld a,e
+				
 os_parse_path_string
 
 ; Set HL = string address in format "locomotion/walks/silly" or "volx:locomotion/walks/silly"
