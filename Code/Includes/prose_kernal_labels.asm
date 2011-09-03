@@ -107,5 +107,6 @@ kr_deallocate_ram				equ 51h
 kr_get_mem_top					equ 52h
 kr_init_msec_counter			equ 53h
 kr_read_msec_counter			equ 54h
+kr_parse_path					equ 55h
 
 ;---------------------------------------------------------------------------------------------------
