@@ -1,16 +1,19 @@
 ;-----------------------------------------------------------------------------------------------
-; "Avail" = Show OS / Hardware version v0.02 - ADL mode
+; "Avail" = Show OS / Hardware version v0.03
 ;-----------------------------------------------------------------------------------------------
 
 os_cmd_avail	ld a,(hl)
 				cp '#'
 				jr nz,avnoenv
 				
-				call clear_output_envars
+				call clear_output_envars		;if #, just set the envars
 				ld ix,free_sysram_base
 				ld b,6
 				ld c,0
 				call os_output_to_envars
+				xor a
+				ret
+				
 								
 avnoenv			ld ix,free_sysram_base
 				ld hl,sysram_txt

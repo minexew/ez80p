@@ -1,13 +1,23 @@
 ;-----------------------------------------------------------------------
-; FAT16 'dir' - show directory command. v0.03 - ADL mode
+; FAT16 'dir' - show directory command. v0.04
 ;-----------------------------------------------------------------------
 
-os_cmd_dir
-
-				call os_check_volume_format	
+os_cmd_dir		call os_check_volume_format	
 				ret nz
 				
-				call div_line
+				call os_cache_original_vol_dir
+				call do_dir
+				call os_restore_original_vol_dir
+				ret
+				
+do_dir			call os_scan_for_non_space						; path supplied?
+				jr z,dir_no_args
+				
+				ld a,1											; A=1, interpret all as dirs
+				call os_parse_path_string
+				ret nz
+										
+dir_no_args		call div_line
 				call fs_get_current_dir_name					;show dir name
 				ret c
 				ret nz

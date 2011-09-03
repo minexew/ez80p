@@ -19,18 +19,15 @@ scr_if_condition	equ 2
 scr_end				equ 3
 
 
-os_cmd_exec		call do_script
+os_do_script	call run_script
 				ld hl,script_flags
 				res scr_in_script,(hl)
 				ret
 				
-do_script		ld hl,script_flags	
+run_script		ld hl,script_flags	
 				set scr_in_script,(hl)
-						
-				call fs_get_dir_cluster				;store location of dir that holds the script
-				ld (script_dir),de
-				
-				call os_check_volume_format			;make sure volume is vaiid
+
+				call os_check_volume_format			; going in, make sure volume is vaiid
 				ret nz
 				
 				call new_script
@@ -51,9 +48,7 @@ scrp_loop		ld a,(key_mod_flags)				; exit script if CTRL-C is pressed
 				ret
 					
 
-no_quit_script	call open_script					;open script file
-				ret nz
-				call read_script					;move to offset location and read in a line from script file
+no_quit_script	call get_script_line	
 				ret nz
 				ld hl,script_flags					;check to see if we're at the end of the script file
 				bit scr_end,(hl)
@@ -81,7 +76,8 @@ scr_to_do		ld hl,commandstring					;is command a label? skip it if so..
 exec_scr_next	ld hl,script_flags
 				set scr_find_new_line,(hl)
 				jr scrp_loop
-	
+
+		
 ;-----------------------------------------------------------------------------------------------
 
 ; Handle "IF" instructions in the format:
@@ -128,9 +124,25 @@ if_equals		call os_scan_for_space			;look for space following "="
 								
 				ld hl,if_name_txt				;does this envar even exist? 
 				call os_get_envar				;if it does return "value" string location in DE
-				jp nz,exec_scr_next				;if it does not exist, ignore the "IF.." line of the script
-								
-				ld hl,if_value_txt
+				jr z,scr_env_exists				;if it does not exist, ignore the "IF.." line of the script
+				
+				ld a,(if_value_txt)				;the envar does not exist, is this the condition we want?
+				cp '*'
+				jr nz,if_cond_failed
+				ld ix,script_flags				
+				bit scr_if_condition,(ix)
+				jr nz,if_cond_met
+if_cond_failed	jp exec_scr_next
+
+scr_env_exists	ld a,(if_value_txt)				;the envar exists, is this alone enough to meet the condition?
+				cp '*'
+				jr nz,if_test_cond
+				ld ix,script_flags				
+				bit scr_if_condition,(ix)
+				jr nz,if_cond_failed
+				jr if_cond_met
+
+if_test_cond	ld hl,if_value_txt
 				ld ix,script_flags
 				bit scr_if_condition,(ix)
 				jr nz,if_cond_diff
@@ -142,10 +154,7 @@ if_cond_diff	call os_compare_strings			;we want the strings to be different
 
 if_cond_met		call new_script					;Condition met. Go to start of script and find label..
 
-find_if_label	call open_script				
-				ret nz
-
-				call read_script
+find_if_label	call get_script_line				
 				ret nz
 				ld hl,script_flags
 				bit scr_end,(hl)
@@ -175,6 +184,7 @@ not_a_label		ld hl,script_flags
 											
 ;---------------------------------------------------------------------------------------------------------------------
 
+
 new_script		push hl
 				ld hl,0
 				ld (script_file_offset),hl			;reset to start of script file
@@ -183,31 +193,46 @@ new_script		push hl
 				res scr_end,(hl)
 				pop hl
 				ret
-								
-;---------------------------------------------------------------------------------------------------------------------
 
-open_script		call fs_get_dir_cluster				;store current dir
-				push de
+
+;-----------------------------------------------------------------------------------------------
+	
+	
+get_script_line
+				
+				call fs_get_dir_cluster				;store current dir (prior to going back to the script dir)
+				ld (script_orig_dir),de				
 				ld de,(script_dir)					;return to dir that contains the script
 				call fs_update_dir_cluster
-				
-				ld hl,script_fn						;locate the script file - this needs to be done every
+
+				call open_script					;open script file
+				jr nz,scr_error
+				call read_script					;move to offset location and read in a line from script file
+								
+scr_error		push af
+				ld de,(script_orig_dir)				;go back to the directory we were at before the script line was read
+				call fs_update_dir_cluster
+				pop af
+				ret
+
+
+;---------------------------------------------------------------------------------------------------------------------
+
+
+open_script		ld hl,script_fn						;locate the script file - this needs to be done every
 				call os_find_file					;script line as external commands will have opened files
-				ld (script_length),de				;save the script length
-				pop de
 				ret nz
+				
+				ld (script_length),de				;save the script length							
 				ld a,c								;if script filesize is over 16MB: error!
 				or a
-				jr z,scr_flok
+				ret z
 				
-script_error	ld a,08ch
+script_error	ld a,08ch							;else return a script error
 				or a
 				ret
 				
-scr_flok		call fs_update_dir_cluster			;return to dir selected prior to script
-				xor a
-				ret
-				
+
 ;---------------------------------------------------------------------------------------------------------------------
 
 

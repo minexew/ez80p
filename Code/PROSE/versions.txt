@@ -2,7 +2,43 @@
 Current version
 ---------------
 
-01-09-2011
+02-09-2011
+
+03A 		: All internal commands now accept path strings.
+
+		: Commands and scripts can be lauched with a path, EG:
+		  entering "tests/joystick" from the root dir will launch
+		  joystick.ezp
+
+		: Scripts go back to the original folder on completion (unless
+                  the directory was changed in-script).
+		
+		: Internal commands now set the ERROR envar too.
+
+		: When # is used (AVAIL,FI,VERS etc) to output data to envars
+                  the command runs without showing text (only error code
+                  returns. FI is an exception, it does not return an error code
+                  when # is used allowing it to silently test for the existence
+		  of a file. See below.
+
+		: In scripts: "IF envar_name = *" syntax added, this tests for the
+		  mere existence of an envar. EG: Following an "FI filename #", test
+		  "OUT00" with "if OUT00 = * file_exists", a jump will occur to the
+		  file_exists label if the file specified exists.
+ 
+		: If A = FE on return from a program, PROSE will run the command
+		  string pointed at by HL.
+			
+		: When a program is started with RX !, the location of argument string
+		  following the "!" is now set up in HL
+
+		: CD with no args now reports current dir in correct PROSE format
+		  (no fwd slash after VOLx: or after last dir name)
+			
+------------------------------------------------------------------------------------------
+Previous versions:
+------------------------------------------------------------------------------------------
+
 
 039		: PATH environment variable created, set to "COMMANDS" by default
                   extra folders can be added with spaced between the dir names.
@@ -35,9 +71,6 @@ Current version
                 : to count seconds and milliseconds
 
 
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 
