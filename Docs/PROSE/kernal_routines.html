@@ -52,7 +52,7 @@ routine<br><br>
 <a href="#kr_set_dir_cluster">kr_set_dir_cluster</a><br>
 <a href="#kr_get_dir_name_">kr_get_dir_name</a><br>
 <a href="#kr_get_disk_sector_ptr">kr_get_disk_sector_ptr</a><br>
-<br>
+<a href="#kr_parse_path">kr_parse_path</a><br><br>
 <span style="font-weight: bold;">Serial Comms:</span><br>
 <br>
 <a href="#kr_serial_receive_header">kr_serial_receive_header</a><br>
@@ -562,7 +562,7 @@ Output:<br><ul><li>HL = location of LSB of 32-bit sector address variable</li><l
 <br>
 <br>
 <hr style="width: 100%; height: 2px;"><br>
-<br>
+<span style="font-weight: bold;"><a name="kr_parse_path"></a>kr_parse_path</span><br><br>Action: Sets the current directory by following a path string.<br><br>Input:<br><ul><li>HL = location of zero-terminated path string (string format EG: "vol0:tests/phil" .. "games/chfight/chfight.ezp")</li><li>E =&nbsp;0: &nbsp;The last element in the string is a filename, so stop parsing there.</li><li>E = 1: All elements of the string are folder names.</li></ul><br>Output:<br><br><ul><li>HL = location of filename part of string (when mode 0 is used)</li></ul><br><br><hr style="width: 100%; height: 2px;"><br>
 <br>
 <span style="font-weight: bold;"><a name="kr_wait_key_"></a>kr_wait_key</span><br>
 <br>
