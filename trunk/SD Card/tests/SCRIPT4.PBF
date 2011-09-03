@@ -1,0 +1,5 @@
+echo "This is PROSE test script 4"
+echo ""
+echo "Attempting to run a non-existant program"
+afjpszrx.ezp
+echo "This line should appear regardless"
