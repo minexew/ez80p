@@ -2,13 +2,13 @@
 Current version
 ---------------
 
-02-09-2011
+03-09-2011
 
 03A 		: All internal commands now accept path strings.
 
 		: Commands and scripts can be lauched with a path, EG:
 		  entering "tests/joystick" from the root dir will launch
-		  joystick.ezp
+		  joystick.ezp (remember that this does not change the current PROSE dir)
 
 		: Scripts go back to the original folder on completion (unless
                   the directory was changed in-script).
@@ -35,6 +35,7 @@ Current version
 		: CD with no args now reports current dir in correct PROSE format
 		  (no fwd slash after VOLx: or after last dir name)
 			
+
 ------------------------------------------------------------------------------------------
 Previous versions:
 ------------------------------------------------------------------------------------------
