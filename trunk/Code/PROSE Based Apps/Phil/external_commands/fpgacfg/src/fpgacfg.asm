@@ -1,11 +1,11 @@
 ;***********************************************
-; FPGACFG v0.03 COMMAND LINE APP for PROSE/EZ80P
+; FPGACFG v0.04 COMMAND LINE APP for PROSE/EZ80P
 ;***********************************************
 
 ;----------------------------------------------------------------------------------------------
 
 amoeba_version_req	equ	0h				; 0 = dont care about HW version
-prose_version_req	equ 32h				; 0 = dont care about OS version
+prose_version_req	equ 03bh			; 0 = dont care about OS version
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
 
@@ -13,7 +13,35 @@ load_location		equ 10000h			; anywhere in system ram
 
 ;---------------------------------------------------------------------------------------------
 
-				ld (command_line_arg_ptr),hl
+			push hl
+			ld a,kr_get_volume_info		;store original vol/dir
+			call.lil prose_kernal
+			ld (orig_volume),a
+			ld a,kr_get_dir_cluster
+			call.lil prose_kernal
+			ld (orig_dir_cluster),de
+ 			pop hl
+			
+			call my_prog
+			
+			push af						;restore original vol/dir
+			ld a,(orig_volume)
+			ld e,a
+			ld a,kr_change_volume
+			call.lil prose_kernal
+			ld de,(orig_dir_cluster)
+			ld a,kr_set_dir_cluster
+			call.lil prose_kernal
+			pop af
+			jp.lil prose_return
+
+
+orig_volume			db 0
+orig_dir_cluster	dw24 0
+
+;------------------------------------------------------------------------------------------------
+
+my_prog			ld (command_line_arg_ptr),hl
 				
 				in0 a,(port_pic_data)						; clear PIC receive buffer
 				call short_pause
@@ -57,7 +85,7 @@ slc_ok			ld hl,(command_line_arg_ptr)
 				ld hl,unknown_arg_txt
 quit_string		call print_string
 				xor a
-				jp prose_return
+				ret
 
 
 ;----------------------------------------------------------------------------------------------
@@ -166,6 +194,11 @@ clbuflp			ld (hl),a
 				
 				call find_next_argument					; HL = filename location
 				jp z,serial_cfg_load
+				
+				ld e,0
+				ld a,kr_parse_path
+				call.lil prose_kernal
+				
 				ld de,filename
 				ld b,16
 cpy_fn			ld a,(hl)
@@ -1187,7 +1220,7 @@ usage_txt				db 11,"Usage: FPGACFG [W/E/B/L/C/P] [SLOT] [FILENAME]",11,11
 						db "L - List slot contents",11
 						db "C - Configure from slot",11
 						db "P - Show PIC firware version",11,11
-						db "(FPGACFG.EZP Version 0.03)",11,11,0
+						db "(FPGACFG.EZP Version 0.04)",11,11,0
 
 unknown_arg_txt			db "ERROR - Unexpected argument.",11,0
 

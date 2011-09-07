@@ -14,7 +14,7 @@ kr_root_dir						equ 09h
 kr_delete_dir					equ 0ah
 
 kr_find_file					equ 0bh
-kr_open_file					equ 0bh	; preferred name for above
+kr_open_file					equ 0bh		; preferred name for above
 
 kr_set_file_pointer				equ 0ch
 kr_set_load_length				equ 0dh
@@ -58,7 +58,7 @@ kr_scroll_up					equ 2eh
 kr_os_display					equ 2fh
 
 kr_get_display_size				equ 30h	
-kr_get_video_mode				equ 30h	;prefered name for above
+kr_get_video_mode				equ 30h		;prefered name for above
 
 kr_get_charmap_addr_xy			equ 31h
 kr_get_cursor_position			equ 32h
@@ -67,11 +67,12 @@ kr_set_envar					equ 33h
 kr_get_envar					equ 34h
 kr_delete_envar					equ 35h
 
-kr_set_mouse_window				equ 36h
+kr_init_mouse					equ 36h 	; new name for kr_set_mouse_window
+
 kr_get_mouse_position			equ 37h
 
 kr_get_mouse_motion				equ 38h
-kr_get_mouse_counters			equ 38h	;preferred name for above
+kr_get_mouse_counters			equ 38h		;preferred name for above
 
 kr_time_delay					equ 39h
 kr_compare_strings				equ 3ah
@@ -88,7 +89,8 @@ kr_write_rtc					equ 42h
 kr_get_keymap_location			equ 43h
 
 kr_get_os_high_mem				equ 44h
-kr_get_mem_base					equ 44h			;preferred name for above
+kr_get_mem_base					equ 44h		
+kr_get_ram_base					equ 44h		;preferred name for above
 
 kr_play_audio					equ 45h
 kr_disable_audio				equ 46h
@@ -104,7 +106,10 @@ kr_test_timeout					equ 4eh
 kr_set_pointer					equ 4fh
 kr_allocate_ram					equ 50h
 kr_deallocate_ram				equ 51h
+
 kr_get_mem_top					equ 52h
+kr_get_ram_top					equ 52h		;preferred name for above
+
 kr_init_msec_counter			equ 53h
 kr_read_msec_counter			equ 54h
 kr_parse_path					equ 55h

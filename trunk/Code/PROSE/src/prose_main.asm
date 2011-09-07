@@ -20,7 +20,7 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 3ah
+prose_version			equ 3bh
 amoeba_version_required	equ 107h
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -168,6 +168,8 @@ dont_resetkb
 				
 				call os_cmd_vers						; show OS / HW versions
 				
+				xor a
+				ld (current_volume),a
 				call os_cmd_remount						; set up drives
 
 				call os_new_line						; skip 1 line
@@ -490,25 +492,12 @@ findmsg			ld a,(hl)
 
 os_no_kernal_command_found
 
-				ld a,030h							; was 'VOLx: ' entered? This is a special case to avoid	
-fvolcmd			ld (chvol_txt+3),a					; having a seperate command name for each volume.
-				push af			
-				ld de,chvol_txt		
-				ld b,6
-				call os_compare_strings	
-				jr z,gotvolcmd		
-				pop af				
-				inc a			
-				cp 030h+max_volumes		
-				jr nz,fvolcmd		
-				jr novolcmd		
-gotvolcmd		pop af
-				sub 030h
+				call test_volx						; was 'VOLx: ' entered? This is a special case to avoid						
+				jr nz,novolcmd						; having a seperate command name for each volume.
+gotvolcmd		sub 030h
 				call os_change_volume
 				jp extcmderf						; treat error codes as if external command as routine use ZF error system	
 		
-
-
 novolcmd		ld a,(hl)							; special case for 'G' command, this is internal but the code it
 				cp 'G'								; will be executing will be external, so it should treated as
 				jr nz,not_g_cmd						; an external command
@@ -702,6 +691,24 @@ os_run_command
 
 ;---------------------------------------------------------------------------------------------------------------
 
+
+test_volx		ld a,030h							; 'VOLx: ' at HL?
+fvolcmd			ld (chvol_txt+3),a					; ZF set if so, A = ASCII char 0-9
+				ld de,chvol_txt		
+				ld b,6
+				call os_compare_strings	
+				ld a,(chvol_txt+3)
+				ret z	
+				inc a			
+				cp 030h+max_volumes		
+				jr nz,fvolcmd
+				or a
+				ret
+				
+;---------------------------------------------------------------------------------------------------------------
+				
+				
+				
 cache_dir_block
 
 	
@@ -1210,7 +1217,7 @@ os_user_input
 				ld a,(overwrite_mode)
 				ld (ui_im_cache),a
 				xor a
-				ld (overwrite_mode),a				;user input routine always shows underscore cursor
+				ld (overwrite_mode),a			;user input routine always shows underscore cursor
 				
 ui_loop			call hwsc_draw_cursor			;draw underscore cursor
 				call os_wait_key_press			;wait for a new scan code in buffer
@@ -1805,19 +1812,40 @@ eoword			ld (ix),32								; enter a space
 		
 ;--------- Mouse functions ------------------------------------------------------------------------
 
-os_set_mouse_window
+default_sample_rate 	equ 100			; 100 samples per second, valid: 10,20,40,60,80,100,200
+default_resolution		equ 03h			; 8 counts per mm, valid: 00h-03h
+default_scaling			equ 0e6h		; valid commands 0e6h (1:1) / 0e7h (2:1)
 
-; Set: HL/DE = window size mouse pointer is to work within (for absolute coordinates)
-	
+
+os_init_mouse	ld hl,640
+				ld de,480
 				ld (mouse_window_size_x),hl	 
 				ld (mouse_window_size_y),de
 				ld hl,0
 				ld (mouse_abs_x),hl
 				ld (mouse_abs_y),hl
-				ld a,1
-				ld (mouse_new_window),a
+				ld (mouse_disp_x),hl
+				ld (mouse_disp_y),hl
+			
+				call disable_ms_irq
+
+				ld hl,devices_connected
+				res 1,(hl)
+		
+				call init_mouse
+				ret nz
+			
 				xor a
-				ret
+				ld (mouse_packet_index),a
+				ld (mouse_buttons),a				
+
+				call enable_ms_irq
+
+				ld hl,devices_connected
+				set 1,(hl)
+				xor a
+				ret				
+				
 				
 			
 os_get_mouse_motion
@@ -2215,30 +2243,22 @@ os_rffsc		jp c,os_fferr
 ext_format		ld a,e
 				call z,mbase_hl						; if called from Z80 mode prog, adjust HL(23:16)
 
-os_format		push hl								; set HL to label and A to DEV number
-				call dev_to_driver_lookup
-				pop hl
-				jr c,sdevok
+os_format		ld ix,current_driver
+				ld e,(ix)
+				push de
+				push ix
+				call setup_dev_format				; if carry set on return, all OK
+				jr c,osfdok
+				
 				ld a,0d0h							; error - $d0: invalid DEVICE selection
 				or a
-				ret
-
-sdevok			push af				
-				ld de,fs_sought_filename
-				call fs_clear_filename
-				ld b,11
-				call os_copy_ascii_run
-				pop af
+				jr osfdbad
 				
-				ld hl,current_driver
-				ld b,(hl)
-				ld (hl),a
-				push bc
-				push hl
-				call fs_format_device_command
-				pop hl
-				pop bc
-				ld (hl),b
+osfdok			call fs_format_partition
+			
+osfdbad			pop ix								; restore original driver number
+				pop de
+				ld (ix),e
 				jr os_rffsc
 
 
@@ -2501,15 +2521,28 @@ os_mount_volumes
 				
 				ld hl,storage_txt
 				call os_print_string_cond
+				ld a,(current_volume)
+				push af
 				call mount_go
+				pop af	
+				ld (current_volume),a					; restore original volume
+				call fs_set_driver_for_volume			; set driver appropriately
+				call fs_check_disk_format				; check that it is a valid volume
+				jr c,m_inv_vol	
+				ret z
+
+m_inv_vol		xor a									; if original volume is no good, start at vol0:
+m_try_vol_lp	push af									; and try to change to a volume until a valid one is found
+				call os_change_volume					
+				jr nz,pmvbad							
+				pop af
 				xor a
-tvloop			ld (current_volume),a
-				call os_change_volume					; after mount, current volume is set to 0
-				ret z									; unless its not valid, then try next vol
-				ld a,(current_volume)					; until good volume found
-				inc a
+				ret
+pmvbad			pop af
+				inc a									;
 				cp max_volumes
-				jr nz,tvloop
+				jr nz,m_try_vol_lp
+				
 				ld a,(device_count)
 				or a
 				jr nz,mfsdevs
@@ -2603,12 +2636,15 @@ clrrode			ld (de),a								; pad device entry with zeroes to 32 bytes
 				ld (dhwn_temp_pointer),de				; update device info pointer ready for next device
 					
 				xor a									; Now scan this device for partitions
-fnxtpart		push iy
+fnxtpart		ld (partition_temp),a
+				push iy
 				call fs_get_partition_info
 				pop iy
 				jr c,nxt_dev							; if hardware error skip device
-				cp 0ceh									; if bad format, skip device
-				jr z,nxt_dev
+				cp 0ceh
+				jr z,nxt_dev							; if no FAT signature on sector 0, next device
+				cp 0cfh									
+				jr z,nxt_dev							; if not a FATxx partition, next device
 				push af
 				ld (iy),1								; Found a partition - set volume present
 				ld a,(current_driver)
@@ -2616,8 +2652,8 @@ fnxtpart		push iy
 				ld a,(partition_temp)	
 				ld (iy+7),a								; Set its partition-on-host device number	
 				pop af
-				or a
-				jr z,dev_mbr
+				cp 0d3h
+				jr nz,dev_mbr							; No MBR?
 				xor a
 				ld (iy+8),a								; No MBR on device - fill in partition offset as zero
 				ld (iy+9),a								; and go immediately to next device
@@ -2639,44 +2675,24 @@ skp_cu			ld hl,no_vols_msg						; if not say 'No volumes'
 				call os_new_line_cond
 				ret
 				
-			
-dev_mbr			ld de,4
-				add hl,de
-				ld a,(hl)								;A = type of partition
-				or a
-				ret z									;end if partition type is zero
-				add hl,de
-				
-				push iy
-				ld b,4
-sfmbrlp			ld a,(hl)								; fill in offset in sectors from MBR to partition
-				ld (iy+8),a
-				inc hl
-				inc iy
-				djnz sfmbrlp
-				pop iy
-				push iy
-				ld b,3	
-nsivlp			ld a,(hl)
-				ld (iy+4),a								; fill in number of sectors in volume (partition)
-				inc hl
-				inc iy
-				djnz nsivlp
-				pop iy
-				
+dev_mbr			ld de,(ix+8)							;ix = start of partition entry				
+				ld (iy+8),de
+				ld a,(ix+0bh)							;fill in parition base in mount list
+				ld (iy+0bh),a
+				ld de,(ix+0ch)				
+				ld (iy+4),de							;fill in partition size in mount list
+					
 				call show_vol_info
 				call test_max_vol	
 				ret z									; quit if reached max allowable number of volumes
 				ld a,(partition_temp)
 				inc a
 				cp 4									; max number of partitions per device
-				jp nz,fnxtpart
+				jr nz,fnxtpart
 				jr nxt_dev
 				
 
-test_max_vol
-			
-				ld de,16
+test_max_vol	ld de,16
 				add iy,de			
 				ld hl,volume_count
 				inc (hl)
@@ -2685,9 +2701,7 @@ test_max_vol
 				ret
 			
 			
-show_vol_info
-				
-				call test_quiet_mode
+show_vol_info	call test_quiet_mode
 				jr nz,skp_cm2
 				ld a,9			
 				ld (cursor_x),a
@@ -3209,7 +3223,6 @@ test_de			push hl
 	include 'commands\vers.asm'
 	include 'commands\ltn.asm'
 	include 'commands\pen.asm'
-	include 'commands\mouse.asm'
 	include 'commands\vmode.asm'
 	include 'commands\font.asm'
 	include 'commands\set.asm'
@@ -3669,8 +3682,9 @@ del_out_envlp	push bc
 
 ext_parse_path
 
+				call z,mbase_hl
 				ld a,e
-				
+									
 os_parse_path_string
 
 ; Set HL = string address in format "locomotion/walks/silly" or "volx:locomotion/walks/silly"
@@ -3731,10 +3745,10 @@ pp_end			ld a,(scratch_pad+6)				;whether we change to this final "dir" depends 
 os_restore_original_vol_dir
 
 				push af								;if a dir is not found go back to original dir and drive 
-				ld de,(original_dir)
-				call fs_update_dir_cluster
 				ld a,(original_vol)
 				call os_change_volume	
+				ld de,(original_dir)
+				call fs_update_dir_cluster
 				pop af
 				or a
 				ret
@@ -3787,7 +3801,7 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 
 	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
-	include		'prose_fat16_code_v08.asm'
+	include		'prose_fat16_code_v09.asm'
 
 ;-----------------------------------------------------------------------------------------------
 ; OS Data 

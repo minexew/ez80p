@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\keymap\Debug
+WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\keymap\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"..;..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\keymap_cmd_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\keymap\Debug
+OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\keymap\Debug
 
 build: keymap_cmd
 
@@ -68,6 +68,6 @@ keymap_cmd: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\keymap.obj :  \
-            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\keymap\src\keymap.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\keymap\src\keymap.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\keymap\src\keymap.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\keymap\src\keymap.asm
 

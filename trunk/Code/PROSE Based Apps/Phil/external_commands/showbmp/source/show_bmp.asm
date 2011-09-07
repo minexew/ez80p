@@ -1,11 +1,11 @@
-; Show_BMP command, v 0.01 - By Phil Ruston
+; Show_BMP command, v 0.02 - By Phil Ruston
 
 ;----------------------------------------------------------------------------------------------
 ; ADL mode PROSE executable header
 ;----------------------------------------------------------------------------------------------
 
 amoeba_version_req	equ	0				; 0 = dont care about HW version
-prose_version_req	equ 0				; 0 = dont care about OS version
+prose_version_req	equ 03bh			; 0 = dont care about OS version
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
 
@@ -15,11 +15,41 @@ load_location		equ 10000h			; anywhere in system ram
 ; ADL-mode user program follows..
 ;---------------------------------------------------------------------------------------------
 
-;			ld hl,test_fn
+			push hl
+			ld a,kr_get_volume_info		;store original vol/dir
+			call.lil prose_kernal
+			ld (orig_volume),a
+			ld a,kr_get_dir_cluster
+			call.lil prose_kernal
+			ld (orig_dir_cluster),de
+ 			pop hl
+			
+			call my_prog
+			
+			push af						;restore original vol/dir
+			ld a,(orig_volume)
+			ld e,a
+			ld a,kr_change_volume
+			call.lil prose_kernal
+			ld de,(orig_dir_cluster)
+			ld a,kr_set_dir_cluster
+			call.lil prose_kernal
+			pop af
+			jp.lil prose_return
+
+
+orig_volume			db 0
+orig_dir_cluster	dw24 0
+
+;---------------------------------------------------------------------------------------------
 					
-			ld a,(hl)						; get filename from command string. If 0, no filename supplied
+my_prog		ld a,(hl)						; get filename from command string. If 0, no filename supplied
 			or a
 			jr z,no_args
+			
+			ld e,0
+			ld a,kr_parse_path
+			call.lil prose_kernal
 			
 			call load_header
 			jr nz,load_error
@@ -42,8 +72,8 @@ load_location		equ 10000h			; anywhere in system ram
 			ld a,kr_os_display
 			call.lil prose_kernal
 			
-			xor a							; Restart PROSE on exit
-			jp.lil prose_return			
+			xor a				
+			ret			
 
 
 ;------------------------------------------------------------------------------------------

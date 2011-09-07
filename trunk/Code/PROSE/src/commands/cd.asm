@@ -29,12 +29,16 @@ cd_nual			cp 02fh
 				ret
 				
 				
-cd_nogor		cp '%'									
-				jr nz,cd_no_assign
-				xor a
+cd_nogor		call test_volx							; VOLx: entered? If so change volume and go to root dir 
+				jr nz,notvolx
+				sub 30h
+				call os_change_volume
+				ret nz
+				call os_root_dir
 				ret
 				
-cd_no_assign	call os_cache_original_vol_dir
+				
+notvolx			call os_cache_original_vol_dir
 				ld a,1
 				call os_parse_path_string
 				ret z

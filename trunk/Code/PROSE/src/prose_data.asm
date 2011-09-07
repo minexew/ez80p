@@ -67,7 +67,7 @@ kernal_table
 	dw24 ext_get_envar				;34		
 	dw24 ext_delete_envar			;35		
 
-	dw24 os_set_mouse_window		;36		
+	dw24 os_init_mouse				;36			; originally "os_set_window_size"
 	dw24 os_get_mouse_position		;37		
 	dw24 os_get_mouse_motion		;38		
 
@@ -327,7 +327,7 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,">>Unused<<"		;ae					<- SLOT IS SPARE!
 						db 0,"palette"			;af
 						
-						db 9dh,"MOUSE"			;b0
+						db 0,"???"				;b0					<- SLOT IS FREE, was 9d MOUSE cmd
 						db 0,"Enable"			;b1
 						db 0,"Keyboard"			;b2
 						db 0,"Detected"			;b3
@@ -357,6 +357,8 @@ yes_txt					db 0,"YES" 				;a2
 						db 0,"Allocated"		;ca
 						db 0a3h,"FI"			;cb
 						db 0,"Text"				;cc
+						db 0,"Format"			;cd
+						db 0,"Overwrite"		;ce
 						
 						db 0,1					;END MARKER
 
@@ -365,6 +367,7 @@ yes_txt					db 0,"YES" 				;a2
 
 
 save_append_msg			db 021h,099h,069h,06ah,05fh,091h,06fh,092h,097h,0		;"File Name Already Exists - Append data?"
+overwrite_msg			db 021h,099h,069h,06ah,05fh,0ceh,092h,097h,0			;"File Name Already Exists - Overwrite ?"
 os_loadaddress_msg 		db 02fh,00ah,093h,0										;"Load Addr: $",0
 os_filesize_msg			db 021h,064h,093h,0										;"File Size: $",0
 ser_rec_msg				db 094h,021h,097h,0										;"Awaiting file",11,0
@@ -416,7 +419,6 @@ packed_help1				db 097h,0
 							db 039h,05fh,015h,016h,0							; "CLS - clear screen"
 							db 09fh,051h,05fh,010h,0cch,0						; "ECHO "txt" - show text"
 							db 0bah,01fh,05fh,01bh,082h,0						; "FONT fn - change font"
-							db 0b0h,05fh,0b1h,0b0h,0a7h,0h						; "MOUSE - enable mouse driver"
 							db 03ah,032h,05fh,09h,01bh,05bh,0					; "PEN pen paper a b c change cols"
 							db 0beh,0bfh,05fh,0a4h,0c0h,0						; "SET var=string - set envar" 
 							db 035h,0adh,05fh,0c4h,050h,013h,0c5h,0				; "SOUND loc len [per vol chans loop?] - play mem as audio"
@@ -461,7 +463,7 @@ os_cmd_locs					dw24 os_cmd_colon							;command 0
 							dw24 os_cmd_echo							;1a
 							dw24 os_cmd_ltn								;1b
 							dw24 os_cmd_unused							;1c		<- spare! (was PALETTE)
-							dw24 os_cmd_mouse							;1d
+							dw24 os_cmd_unused							;1d		<- spare! (was MOUSE)
 							dw24 os_cmd_vmode							;1e
 							dw24 os_cmd_font							;1f
 							
@@ -494,7 +496,7 @@ bytes_loaded_msg			db 09ah,07ah,0								;$10 [Space] Bytes Loaded
 							db 07bh,07ch,0								;$11 Comms error
 							db 074h,07dh,0								;$12 Bad arguments
 
-format_err_msg				db 062h,07fh,0								;$13 not FAT16
+format_err_msg				db 072h,0cdh,0								;$13 unknown format
 
 							db 081h,066h,0								;$14 time out
 							db 021h,099h,083h,084h,0					;$15 file name too long
@@ -840,18 +842,13 @@ mouse_packet_index		db 0				;
 mouse_buttons			db 0				;
 mouse_disp_x			dw24 0				; cumulative mouse x displacement (not absolute position)
 mouse_disp_y			dw24 0				; cumulative mouse y displacement (not absolute position)
+mouse_abs_x				dw24 0
+mouse_abs_y				dw24 0
 mouse_wheel				db 0				; mouse wheel data (if available)
 mouse_updated			db 0
 
-mouse_window_size_x		dw24 0				; these registers provide higher level absolute location functions
-mouse_window_size_y		dw24 0
-mouse_abs_x				dw24 0
-mouse_abs_y				dw24 0
-mouse_disp_x_old		dw24 0
-mouse_disp_y_old		dw24 0
-mouse_disp_x_buffer		dw24 0
-mouse_disp_y_buffer		dw24 0
-mouse_new_window		db 0
+mouse_window_size_x		dw24 640			; never actually changed from these values, could be made 
+mouse_window_size_y		dw24 480			; immediate in code
 
 os_pointer_enable		db 0
 os_pointer_definition	dw24 0				
@@ -868,7 +865,7 @@ last_os_var				db 0
 ;=======================================================================================
 
 default_envars			db "ERROR=00",0
-						db "PATH=COMMANDS",0
+						db "PATH=COMMANDS UTILS",0
 						db 0ffh
 envar_top_loc			dw24 0 						;also acts as end of defaults marker
 
