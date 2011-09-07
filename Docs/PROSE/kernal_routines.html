@@ -2,7 +2,7 @@
 <html><head>
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>kernal routines</title></head>
 <body>
-PROSE KERNAL ROUTINES (last updated 01-09-2011)<br>
+PROSE KERNAL ROUTINES (last updated 06-09-2011 for PROSE v3B)<br>
 <br>
 To
 call a PROSE kernal routine, load register A with the routine label,
@@ -60,13 +60,13 @@ routine<br><br>
 <a href="#kr_serial_send_file_">kr_serial_send_file</a><br>
 <a href="#kr_serial_tx_byte">kr_serial_tx_byte</a><br>
 <a href="#kr_serial_rx_byte">kr_serial_rx_byte</a></td>
-<td style="vertical-align: top;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">Keyboard and Mouse:</span><br>
+<td style="vertical-align: top;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">Keyboard, mouse etc:</span><br>
 <br><a href="#kr_wait_key_">
 kr_wait_key</a><br><a href="#kr_get_key">
 kr_get_key</a><br><a href="#kr_get_key_mod_flags">
 kr_get_key_mod_flags</a><br><a href="#kr_get_keymap_location">
 kr_get_keymap_location</a><br><a href="#kr_set_mouse_window">
-kr_set_mouse_window</a><br><a href="#kr_get_mouse_position">
+kr_init_mouse</a><br><a href="#kr_get_mouse_position">
 kr_get_mouse_position</a><br><a href="#kr_get_mouse_counters">
 kr_get_mouse_counters</a><br><a href="#kr_set_pointer">
 kr_set_pointer</a><br><a href="#kr_get_joysticks">
@@ -123,8 +123,8 @@ kr_disable_audio</a><br>
 <br>
 <span style="font-weight: bold;">Memory:</span><br>
 <br><a href="#kr_get_mem_base">
-kr_get_mem_base</a><br><a href="#kr_get_mem_top">
-kr_get_mem_top</a><br><a href="#kr_allocate_ram">
+kr_get_ram_base</a><br><a href="#kr_get_mem_top">
+kr_get_ram_top</a><br><a href="#kr_allocate_ram">
 kr_allocate_ram</a><br><a href="#kr_deallocate_ram">
 kr_deallocate_ram</a><br>
 <br>
@@ -949,15 +949,12 @@ Output:&nbsp; ZF set if OK<br>
 <hr style="width: 100%; height: 2px;"><br>
 <br>
 <br>
-<span style="font-weight: bold;"><a name="kr_set_mouse_window"></a>kr_set_mouse_window</span><br>
+<span style="font-weight: bold;"><a name="kr_set_mouse_window"></a>kr_init_mouse</span><br>
 <br>
-Action: Sets the constraining dimensions for absolute mouse pointer
-position<br>
+Action: Initializes the mouse driver.<br>
 <br>
-Input :<br><ul><li>HL&nbsp; = width of window
-in pixels</li><li>DE&nbsp; = height of window in pixels</li></ul>
-<br>
-Output: None<br>
+Input : None<br><br>
+Output: ZF set if mouse initialized OK, else error code 0x8A in A = Device not detected..<br>
 <br>
 <br>
 <hr style="width: 100%; height: 2px;"><br>
@@ -1145,7 +1142,7 @@ Output:<br><ul><li>HL = location of keymap data within OS</li></ul>
 <hr style="width: 100%; height: 2px;"><br>
 <br>
 <br style="font-weight: bold;">
-<span style="font-weight: bold;"><a name="kr_get_mem_base"></a>kr_get_mem_base</span><br>
+<span style="font-weight: bold;"><a name="kr_get_mem_base"></a>kr_get_ram_base</span><br>
 <br>
 Action:&nbsp; Returns the first available address (IE: not used by
 the OS) in system
@@ -1313,7 +1310,7 @@ Output: None<br>
 <hr style="width: 100%; height: 2px;"><br>
 <br>
 <br>
-<span style="font-weight: bold;"><a name="kr_get_mem_top"></a>kr_get_mem_top</span><br>
+<span style="font-weight: bold;"><a name="kr_get_mem_top"></a>kr_get_ram_top</span><br>
 &nbsp; <br>
 Action: Returns the maximum free address locations in system RAM, VRAM
 A and VRAM B<br>
