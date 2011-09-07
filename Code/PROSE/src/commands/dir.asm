@@ -91,7 +91,7 @@ os_dlr			call div_line									;now show remaining disk space
 show_capacity	
 
 ; set xDE = capacity in KB
-; (trashed all other registers!)
+; (trashes all other registers!)
 
 				ld ix,dir_kb_txt
 				xor a

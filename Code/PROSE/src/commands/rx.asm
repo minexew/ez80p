@@ -40,9 +40,30 @@ os_cmd_rx		ld a,(hl)								; check args exist
 				
 				ld hl,serial_fileheader					; try to make file
 				call os_create_file
-				jp nz,rxwtd_fail						; quit if file creation error
+				jr z,rx_ok_ttd
+				cp 0c9h
+				jp nz,rxwtd_fail						; does the file exist already?
 				
-				ld hl,ser_recsave_msg
+				ld hl,overwrite_msg						; ask if want to overwrite
+				call os_show_packed_text
+				call os_wait_key_press
+				ld a,b
+				cp 'Y'
+				jr z,rx_overwrite
+				cp 'y'
+				jr z,rx_overwrite
+				ld a,2ch
+				or a
+				jp rxwtd_fail
+				
+rx_overwrite	ld hl,serial_fileheader					; remove old file..
+				call os_erase_file
+				jp nz,rxwtd_fail				
+				ld hl,serial_fileheader					; try to make file (again)
+				call os_create_file
+				jp nz,rxwtd_fail
+				
+rx_ok_ttd		ld hl,ser_recsave_msg
 				call os_show_packed_text
 				
 rx_rnblk		ld hl,(serial_fileheader+16)			; (remaining) length of file

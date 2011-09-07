@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Thu Jul 14 16:15:31 2011
+DATE:      Wed Sep 07 15:25:35 2011
 PROCESSOR: assembler
 FILES:     .\type.obj             
 
@@ -18,7 +18,7 @@ COMMAND LIST:
 /*  IDE component: d:5.1:10042301 */
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"..;..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;..\..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -debug -NOigcase -cpu:eZ80L92 */
 
@@ -55,7 +55,7 @@ define _SYS_CLK_SRC = 0
 define _OSC_FREQ_MULT = 1
 define __PLL_CTL0_INIT_PARAM = $00
 
-"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\type\Debug\type"=  .\type.obj
+"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\type\Debug\type"=  .\type.obj
 
 
 SPACE ALLOCATION:
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:010400      401h
+ROM                   C:010000    C:010434      435h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:010400      401h
+CODE               absolute data          C:010000    C:010434      435h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\type\src\type.asm (File: type.obj) Version: 1:0 07/14/2011 16:15:30
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\type\src\type.asm (File: type.obj) Version: 1:0 09/07/2011 15:25:34
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:010400      401h
+    Segment: CODE                              C:010000    C:010434      435h
 
 EXTERNAL DEFINITIONS:
 =====================

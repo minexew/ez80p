@@ -2,11 +2,40 @@
 Current version
 ---------------
 
-03-09-2011
+03B
+
+04-09-2011	: FORMAT command can now format volumes as well as entire disks.
+		  EG: "FORMAT VOL1: NAME" (volume must be an existing partition
+		  use the utility "PARTDISK.EZP" to partition disks).
+
+		: Removed MOUSE command - programs should initialize the mouse
+		  as required with "kr_init_mouse" (optionally, test for active
+		  mouse driver first with "kr_get_mouse_position" - if zero flag
+                  is set, there's no need to call "kr_init_mouse)
+
+		: "kr_init_mouse" replaces "kr_set_mouse_window" - the mouse routine
+		   always now uses an absolute range of 640x480 pixels, read the
+		   raw mouse counter values for other applications. 
+		
+		: Fixed Z80-mode support added for Kr_parse_path (mbase_hl)
+		
+		: Fixed directory cluster setting when switching dirs (was leaving
+		  dir cluster in no mans land when deleting dirs on non-active volume)
+
+		: Can enter "CD VOLx:" to go root of volume x 
+
+		: When RX > is entered to copy a file serially to the current
+		  disk dir, you are now prompted to overwrite existing files.
+
+
+------------------------------------------------------------------------------------------
+Previous releases:
+------------------------------------------------------------------------------------------
+
 
 03A 		: All internal commands now accept path strings.
 
-		: Commands and scripts can be lauched with a path, EG:
+		: Commands and scripts can be launched with a path, EG:
 		  entering "tests/joystick" from the root dir will launch
 		  joystick.ezp (remember that this does not change the current PROSE dir)
 
@@ -36,9 +65,6 @@ Current version
 		  (no fwd slash after VOLx: or after last dir name)
 			
 
-------------------------------------------------------------------------------------------
-Previous versions:
-------------------------------------------------------------------------------------------
 
 
 039		: PATH environment variable created, set to "COMMANDS" by default

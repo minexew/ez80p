@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Tue Jul 19 20:17:36 2011
+DATE:      Wed Sep 07 15:41:01 2011
 PROCESSOR: assembler
 FILES:     .\date.obj             
 
@@ -18,7 +18,7 @@ COMMAND LIST:
 /*  IDE component: d:5.1:10042301 */
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"..;..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;..\..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -debug -NOigcase -cpu:eZ80L92 */
 
@@ -55,7 +55,7 @@ define _SYS_CLK_SRC = 0
 define _OSC_FREQ_MULT = 1
 define __PLL_CTL0_INIT_PARAM = $00
 
-"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\Debug\date"=  .\date.obj
+"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\date\Debug\date"=  .\date.obj
 
 
 SPACE ALLOCATION:
@@ -76,7 +76,7 @@ CODE               absolute data          C:010000    C:0100F3       f4h
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\date\src\date.asm (File: date.obj) Version: 1:0 07/19/2011 20:17:35
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\date\src\date.asm (File: date.obj) Version: 1:0 09/07/2011 15:40:46
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------

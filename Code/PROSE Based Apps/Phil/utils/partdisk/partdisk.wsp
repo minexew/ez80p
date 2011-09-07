@@ -11,10 +11,10 @@ ptn_Child1=Document-0
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-0.ViewFrame-0]
-DocPathName=src\echo.asm
+DocPathName=src\partdisk.asm
 DocTemplateIndex=0
 DocumentString=IDE.Document
 IsActiveChildFrame=True
 IsFrameVisible=True
-WindowPlacement=MCAAAAAACAAAAAAADAAAAAAAPPPPPPPPPPPPPPPPMPPPPPPPJOPPPPPPMCAAAAAAMCAAAAAAJGDAAAAACCCAAAAA
+WindowPlacement=MCAAAAAACAAAAAAADAAAAAAAPPPPPPPPPPPPPPPPMPPPPPPPJOPPPPPPAAAAAAAAAAAAAAAALGDAAAAAGPBAAAAA
 

@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\Debug
+WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\PLAY_T~1\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"..;..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\pt_play_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\Debug
+OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\PLAY_T~1\Debug
 
 build: pt_play
 
@@ -68,6 +68,8 @@ pt_play: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\pt_play.obj :  \
-            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\src\pt_play.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\PLAY_T~1\src\pt_play.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\PLAY_T~1\src\pt_play.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\Routines\ADL_mode_Protracker_Player_v101.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\Routines\ADL_mode_Protracker_to_EZ80P_audio.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\PLAY_T~1\src\pt_play.asm
 

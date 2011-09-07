@@ -56,22 +56,13 @@
 
 fs_format_device_command
 
-; Creates a single partition (truncated to 2GB) @ sector zero (no MBR)
+; Formats a FAT16 partition based on:
 
+; "partition_base" LBA 32bit
+; "partition_size" LBA 24bit (will be truncated to 0x3f0000 sectors)
 
-				ld a,(device_count)							;get current driver's entry in the device info table
-				ld b,a										;ix = location of 32 byte entry
-				ld ix,host_device_hardware_info
-fdevinfo		ld a,(current_driver)
-				cp (ix)
-				jr z,got_dev_info
-				lea ix,ix+32
-				djnz fdevinfo
-				ld a,0d0h									;device not present error
-				or a
-				ret	
 	
-got_dev_info	call fs_clear_sector_buffer					;wipe sectors 0-767 sectors (this range covers
+				call fs_clear_sector_buffer					;wipe sectors 0-767 sectors (this range covers
 				ld de,0										;(max fat length * 2) + root length + reserved sectors.)
 form_ws			call set_lba_and_write_sector
 				ret c
@@ -85,34 +76,25 @@ form_ws			call set_lba_and_write_sector
 				ld bc,03fh
 				ldir
 	
-				ld a,(ix+4)									;if MSB of 32 bit total sectors <> 0, cap at 2GB
-				or a
-				jr nz,above_2gb
-				ld hl,3f0000h								;if total sectors [23:0] > 3f0000, cap at 2GB
-				ld de,(ix+1)								
-				xor a			
-				sbc hl,de									
-				jr nc,lessthan2gb							
-above_2gb		ld a,40h									;if cap is > 2GB, fix cluster size = 32KB
-				ld de,3f0000h								;and truncate total sectors to = 2GB
-				jr spcvalok
-
-lessthan2gb		ld c,(ix+3)									;calc appropriate cluster size for capacity
-				inc c										;c = (total sectors / 65536) + 1
-spc_loop		ld a,1										;working cluster size
-spc_comp		cp c										;sectors per cluster can only be 1,2,4,8,16,32 or 64
-				jr z,spcvalok
-				rlca
-				cp 080h										;if not one of these values, inc until it is
-				jr nz,spc_comp
-				inc c			
-				jr spc_loop									;loop until appropriate cluster size found
-							
-spcvalok		ld ix,sector_buffer
-				ld (ix+0dh),a								;fill in sectors-per-cluster in boot sector data
+				ld hl,(partition_size)
+				ld de,3f0000h
+				xor a
+				sbc hl,de				
+				jr c,fs_fssok								;if more than $3f0000 sectors, fix at $3f0000
+fs_truncs		ld (partition_size),de
 				
-				call os_get_xde_msb							;get xDE [23:16] in A
-				ld c,a										;store xDE [23:16] in C for following division
+fs_fssok		ld a,(partition_size+2)
+				ld hl,080h									;find appropriate cluster size (in h)
+fs_fcls			add hl,hl
+				cp h
+				jr nc,fs_fcls
+
+				ld ix,sector_buffer
+				ld (ix+0dh),h								;fill in sectors-per-cluster in boot sector data
+				
+				ld de,(partition_size)
+				ld a,(partition_size+2)
+				ld c,a										;C = [23:16] for following division
 				or a										;if A = 0, write 16 bit sector size word
 				jr nz,ts_dword								;else update the 32 bit sector size word
 				ld (ix+13h),e								;set total sectors (word) when < 65536
@@ -121,25 +103,36 @@ spcvalok		ld ix,sector_buffer
 ts_dword		ld (ix+20h),de								;set total sectors (dword) when >65535
 				ld (ix+23h),0
 
-ts_done			ex de,hl									;xHL = total clusters
-				ld de,0						
-				ld d,(ix+0dh)								;xDE = cluster size * 256
-				ld bc,0										;BC = xHL/xDE
-div_tscls		xor a										;at end, xBC = size of fat table in sectors
-				sbc hl,de
-				jr z,gotfats
-				jr c,gotfats	
-				inc bc
-				jr div_tscls
-gotfats			inc bc
-				ld (ix+16h),c								;fill in sectors per FAT in boot sector data
-				ld (ix+17h),b
-				ld (fs_sectors_per_fat),bc
+				ld a,h										; A = cluster size
+				ld hl,0				
+ffatslp1		srl a	
+				jr z,fatsc1									;divide total sectors by sectors per cluster..
+				srl c				
+				rr d
+				rr e
+				rr h
+				rr l
+				jr ffatslp1
+fatsc1			ld b,8
+ffatslp2		srl c										; ..and 256 to find length of FAT tables
+				rr d
+				rr e
+				rr h
+				rr l
+				djnz ffatslp2
+				ld a,h
+				or l
+				jr z,gotfatsize								; if remainder, add 1 to number of sectors in FAT
+				inc de
+	
+gotfatsize		ld (ix+16h),e								;fill in sectors per FAT in boot sector data
+				ld (ix+17h),d
+				ld (fs_sectors_per_fat),de
 				
 				ld bc,0aa5500h
 				ld (sector_buffer+1fdh),bc					;fill in $55,$AA format ID
 				ld de,0
-				call set_lba_and_write_sector				;write boot sector (LBA zero)
+				call set_lba_and_write_sector				;write boot sector
 				ret c
 				
 				ld hl,0
@@ -184,11 +177,17 @@ gotfats			inc bc
 
 set_lba_and_write_sector
 
-				push ix
-				ld ix,sector_lba0							
-				ld (ix),de									;set sector required = xDE 
-				ld (ix+3),0
-				pop ix
+				push hl
+				push bc
+				ld hl,(partition_base)
+				ld a,(partition_base+3)
+				ld b,0
+				add hl,de
+				adc a,b
+				ld (sector_lba),de						 
+				ld (sector_lba+3),a
+				pop bc
+				pop hl
 				call fs_write_sector
 				ret
 				
