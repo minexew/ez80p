@@ -13,11 +13,12 @@ load_location		equ 10000h			; anywhere in system ram
 ; ADL-mode user program follows..
 ;---------------------------------------------------------------------------------------------
 
-		ld hl,message_txt				; ADL mode program
-		ld a,kr_print_string			; desired kernal routine
-		call.lil prose_kernal			; call PROSE routine
-		xor a
-		jp.lil prose_return				; back to OS
+		ld hl,message_txt				; string to print
+		prose_call kr_print_string		; "prose_call" is a MACRO defined in "PROSE_header"
+										; it is defined as "ld a,<argument> .. call.lil prose_kernal"
+		
+		xor a							; no error on return
+		jp.lil prose_return				; return back to OS
 
 ;-----------------------------------------------------------------------------------------------
 
