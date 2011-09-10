@@ -13,7 +13,7 @@ load_location		equ 10000h			; anywhere in system ram
 ; Z80-mode user program follows..
 ;---------------------------------------------------------------------------------------------
 
-		ld sp,0fffeh						; init Z80 SP stack pointer
+		ld sp,0ffffh						; init Z80 SP stack pointer
 		
 		ld hl,message_txt					; As it is a Z80 routine, PROSE kernal will use MBASE for [23:16] 
 		ld a,kr_print_string				; Desired routine
