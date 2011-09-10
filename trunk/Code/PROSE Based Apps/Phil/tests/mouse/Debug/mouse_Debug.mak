@@ -25,7 +25,7 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\mouse;E:\My_Own_Files\Coding\Ez80 Project\Code\PROSE Apps\includes;E:\My_Own_Files\Coding\Ez80 Project\Code\includes;..\..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
