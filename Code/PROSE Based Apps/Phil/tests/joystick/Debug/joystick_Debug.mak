@@ -15,7 +15,7 @@ BIN = $(ZDS)\bin
 # ZDS include base directory
 INCLUDE = C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include
 # intermediate files directory
-WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\Debug
+WORKDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\joystick\Debug
 
 CC = @$(BIN)\eZ80cc
 AS = @$(BIN)\eZ80asm
@@ -25,12 +25,12 @@ WEBTOC = @$(BIN)\mkwebpage
 
 ASFLAGS =  \
 -define:_EZ80=1 -define:_SIMULATE=1  \
--include:"..;..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
+-include:"..;..\..\..\..\..\Includes;$(INCLUDE)\std;$(INCLUDE)\zilog"  \
 -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt  \
 -warn -debug -NOigcase -cpu:eZ80L92
 
 LDFLAGS = @.\joystick_Debug.linkcmd
-OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\Debug
+OUTDIR = E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\joystick\Debug
 
 build: joystick
 
@@ -68,6 +68,6 @@ joystick: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\joystick.obj :  \
-            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\src\joystick.asm
-	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\TEST_J~1\src\joystick.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\joystick\src\joystick.asm
+	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\joystick\src\joystick.asm
 

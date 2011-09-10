@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Sun Sep 04 13:51:23 2011
+DATE:      Sat Sep 10 13:17:51 2011
 PROCESSOR: assembler
 FILES:     .\mouse_test.obj
 
@@ -18,7 +18,7 @@ COMMAND LIST:
 /*  IDE component: d:5.1:10042301 */
 /* assembler options */
 /* -define:_EZ80=1 -define:_SIMULATE=1 */
-/* -include:"E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\mouse;E:\My_Own_Files\Coding\Ez80 Project\Code\PROSE Apps\includes;E:\My_Own_Files\Coding\Ez80 Project\Code\includes;..\..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
+/* -include:"..;..\..\..\..\..\Includes;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\std;C:\PROGRA~1\ZiLOG\ZDSII_~1.1\include\zilog" */
 /* -list -NOlistmac -name -pagelen:56 -pagewidth:80 -quiet -sdiopt */
 /* -warn -debug -NOigcase -cpu:eZ80L92 */
 
@@ -76,7 +76,7 @@ CODE               absolute data          C:010000    C:010177      178h
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\mouse\src\mouse_test.asm (File: mouse_test.obj) Version: 1:0 09/04/2011 13:51:21
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\mouse\src\mouse_test.asm (File: mouse_test.obj) Version: 1:0 09/10/2011 13:17:51
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
