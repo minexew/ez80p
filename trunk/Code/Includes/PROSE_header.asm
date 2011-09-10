@@ -3,16 +3,21 @@
 
 include "ez80_cpu_equates.asm"
 
-
 include "amoeba_hardware_equates.asm"
-
 
 include "prose_kernal_labels.asm"
 
-
 include "misc_system_equates.asm"
 
+;------------------------------------------------------------------------------------------------------------------------
 
+prose_call : MACRO kernal_routine_required
+	
+	ld a,kernal_routine_required
+	call.lil prose_kernal
+
+ENDMACRO prose_call
+	
 ;---------------------------------------------------------------------------------------------------------------------------
 ; Standard PROSE executable header
 ;--------------------------------------------------------------------------------------------------------------------------
