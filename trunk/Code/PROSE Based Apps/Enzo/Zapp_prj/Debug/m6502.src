@@ -1,0 +1,5925 @@
+; Zilog eZ80 ANSI C Compiler Release 3.3
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\M6502.C"
+	.assume ADL=1
+	SEGMENT BSS
+_accumulator:
+	DS	1
+_xRegister:
+	DS	1
+_yRegister:
+	DS	1
+	SEGMENT DATA
+_statusRegister:
+	DB	36
+	SEGMENT BSS
+_stackPointer:
+	DS	1
+	SEGMENT DATA
+_IRQ:
+	DW	0
+	DB	0
+_NMI:
+	DW	0
+	DB	0
+	SEGMENT BSS
+_programCounter:
+	DS	3
+_btmp:
+	DS	1
+_op:
+	DS	3
+_opH:
+	DS	3
+_opL:
+	DS	3
+_ptr:
+	DS	3
+_ptrH:
+	DS	3
+_ptrL:
+	DS	3
+_tmp:
+	DS	3
+_Cpu_Opcode:
+	DS	762
+;    1	#ifndef M6502_C
+;    2	#define M6502_C
+;    3	
+;    4	#define N 0x80
+;    5	#define V 0x40
+;    6	#define M 0x20
+;    7	#define B 0x10
+;    8	#define D 0x08
+;    9	#define I 0x04
+;   10	#define Z 0x02
+;   11	#define C 0x01
+;   12	
+;   13	static unsigned char accumulator, xRegister, yRegister, statusRegister = 0x24, stackPointer;
+;   14	static int IRQ = 0, NMI = 0;
+;   15	int programCounter;
+;   16	static unsigned char btmp;
+;   17	int op, opH, opL, ptr, ptrH, ptrL, tmp;
+;   18	//static long lastTime = 0;
+;   19	//static int //cycles = 0, //cyclesBeforeSynchro, _synchroMillis;
+;   20	
+;   21	void (*Cpu_Opcode[0xFE])(void);
+	SEGMENT CODE
+;   22	
+;   23	/*-------------------------------------------------------------------------------------*/
+;   24	
+;   25	static unsigned short Mem_Read_Absolute(int adr)
+;   26	{
+_Mem_Read_Absolute:
+	LD	HL,-4
+	CALL	__frameset
+;   27		return (Mem_Read(adr) | Mem_Read(adr + 1) << 8);
+	LD	BC,(IX+6)
+	INC	BC
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(IX+6)
+	PUSH	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	DE,HL
+	LD	(IX+-3),DE
+	LD	(IX+-4),D
+	CALL	_Mem_Read
+	LD	DE,(IX+-3)
+	LD	D,(IX+-4)
+	POP	BC
+	LD	BC,HL
+	LD	HL,DE
+	CALL	__ior
+;   28	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _Mem_Read_Absolute ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Read                           IMPORT  -----   function
+;adr                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 13 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;   29	
+;   30	/*static void Synchronize(void)
+;   31	{
+;   32		long currentTime = Read_MSec_Counter();
+;   33		int realTimeMillis = (int)(currentTime - lastTime);
+;   34		int sleepMillis = _synchroMillis - realTimeMillis;
+;   35		
+;   36		if (sleepMillis < 0)
+;   37			sleepMillis = 5;
+;   38		
+;   39		mDelay(sleepMillis);
+;   40		
+;   41		lastTime = currentTime;
+;   42	}*/
+;   43	
+;   44	static void pushProgramCounter(void)
+;   45	{
+_pushProgramCounter:
+;   46		Mem_Write((unsigned short)(stackPointer + 0x100), (unsigned char)(programCounter >> 8));	
+	LD	HL,(_programCounter)
+	LD	A,8
+	CALL	__ishrs_b
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;   47		Mem_Write((unsigned short)(stackPointer + 0xFF), (unsigned char)programCounter);	
+	LD	A,(_programCounter)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,255
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;   48		
+;   49		stackPointer -= 2;
+	LD	A,(_stackPointer)
+	DEC	A
+	DEC	A
+	LD	(_stackPointer),A
+;   50		
+;   51		//cycles += 2;
+;   52	}
+	RET	
+
+
+;**************************** _pushProgramCounter ***************************
+;Name                         Addr/Register   Size   Type
+;_stackPointer                       STATIC      1   variable
+;_programCounter                     STATIC      3   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;   53	
+;   54	static void popProgramCounter(void)
+;   55	{
+_popProgramCounter:
+;   56		stackPointer++;
+	LD	A,(_stackPointer)
+	INC	A
+;   57		
+;   58		programCounter = Mem_Read((unsigned short)(stackPointer + 0x100));
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	LD	(_stackPointer),A
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_programCounter),HL
+;   59		
+;   60		stackPointer++;
+	LD	A,(_stackPointer)
+	INC	A
+;   61		
+;   62		programCounter += Mem_Read((unsigned short)(stackPointer + 0x100)) << 8;
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	LD	(_stackPointer),A
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_programCounter)
+	LD	A,8
+	CALL	__ishl_b
+	ADD	HL,BC
+	LD	(_programCounter),HL
+;   63		
+;   64		//cycles += 2;
+;   65	}
+	RET	
+
+
+;**************************** _popProgramCounter ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_stackPointer                       STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;   66	
+;   67	static void handleIRQ(void)
+;   68	{
+_handleIRQ:
+;   69		pushProgramCounter();
+	CALL	_pushProgramCounter
+;   70		
+;   71		Mem_Write((unsigned short)(0x100 + stackPointer), (unsigned char)(statusRegister & ~0x10));
+	LD	A,(_statusRegister)
+	RES	4,A
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;   72		
+;   73		stackPointer--;
+	LD	A,(_stackPointer)
+;   74		
+;   75		statusRegister |= I;
+;   76		
+;   77		programCounter = Mem_Read_Absolute(0xFFFE);
+	LD	BC,65534
+	PUSH	BC
+	DEC	A
+	LD	(_stackPointer),A
+	LD	A,(_statusRegister)
+	SET	2,A
+	LD	(_statusRegister),A
+	CALL	_Mem_Read_Absolute
+	POP	BC
+	LD	BC,HL
+	CALL	__stoiu
+	LD	(_programCounter),HL
+;   78		
+;   79		//cycles += 8;
+;   80	}
+	RET	
+
+
+;**************************** _handleIRQ ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_stackPointer                       STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;   81	
+;   82	static void handleNMI(void)
+;   83	{
+_handleNMI:
+;   84		pushProgramCounter();
+	CALL	_pushProgramCounter
+;   85		
+;   86		Mem_Write((unsigned short)(0x100 + stackPointer), (unsigned char)(statusRegister & ~0x10));
+	LD	A,(_statusRegister)
+	RES	4,A
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;   87		
+;   88		stackPointer--;
+	LD	A,(_stackPointer)
+	DEC	A
+	LD	(_stackPointer),A
+;   89		
+;   90		statusRegister |= I;
+;   91		
+;   92		NMI = 0;
+;   93		
+;   94		programCounter = Mem_Read_Absolute(0xFFFA);
+	LD	BC,65530
+	PUSH	BC
+	LD	A,(_statusRegister)
+	SET	2,A
+	LD	(_statusRegister),A
+	LD	BC,0
+	LD	(_NMI),BC
+	CALL	_Mem_Read_Absolute
+	POP	BC
+	LD	BC,HL
+	CALL	__stoiu
+	LD	(_programCounter),HL
+;   95		
+;   96		//cycles += 8;
+;   97	}
+	RET	
+
+
+;**************************** _handleNMI ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_NMI                                STATIC      3   variable
+;_stackPointer                       STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;   98	
+;   99	static void Imm(void)
+;  100	{
+_Imm:
+;  101		op = programCounter++;
+	LD	BC,(_programCounter)
+	LD	(_op),BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+;  102	}
+	RET	
+
+
+;**************************** _Imm ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  103	
+;  104	static void Zero(void)
+;  105	{
+_Zero:
+;  106		op = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_op),HL
+;  107		
+;  108		//cycles++;
+;  109	}
+	RET	
+
+
+;**************************** _Zero ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  110	
+;  111	static void ZeroX(void)
+;  112	{
+_ZeroX:
+;  113		op = (Mem_Read(programCounter++) + xRegister) & 0xFF;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	LD	(_op),HL
+;  114		
+;  115		//cycles++;
+;  116	}
+	RET	
+
+
+;**************************** _ZeroX ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_xRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  117	
+;  118	static void ZeroY(void)
+;  119	{
+_ZeroY:
+;  120		op = (Mem_Read(programCounter++) + yRegister) & 0xFF;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	LD	(_op),HL
+;  121		
+;  122		//cycles++;
+;  123	}
+	RET	
+
+
+;**************************** _ZeroY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  124	
+;  125	static void Abs(void)
+;  126	{
+_Abs:
+;  127		op = Mem_Read_Absolute(programCounter);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	CALL	_Mem_Read_Absolute
+	POP	BC
+	LD	BC,HL
+	CALL	__stoiu
+	LD	(_op),HL
+;  128		
+;  129		programCounter += 2;
+	LD	IY,(_programCounter)
+	LEA	BC,IY+2
+	LD	(_programCounter),BC
+;  130		//cycles += 2;
+;  131	}
+	RET	
+
+
+;**************************** _Abs ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  132	
+;  133	static void AbsX(void)
+;  134	{
+_AbsX:
+;  135		opL = Mem_Read(programCounter++) + xRegister;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  136		opH = Mem_Read(programCounter++) << 8;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  137		
+;  138		//cycles += 2;
+;  139		
+;  140		//if (opL >= 0x100)
+;  141			//cycles++;
+;  142		
+;  143		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  144	}
+	RET	
+
+
+;**************************** _AbsX ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_xRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  145	
+;  146	static void AbsY(void)
+;  147	{
+_AbsY:
+;  148		opL = Mem_Read(programCounter++) + yRegister;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  149		opH = Mem_Read(programCounter++) << 8;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  150		
+;  151		//cycles += 2;
+;  152		
+;  153		//if (opL >= 0x100)
+;  154			//cycles++;
+;  155		
+;  156		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  157	}
+	RET	
+
+
+;**************************** _AbsY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  158	
+;  159	static void Ind(void)
+;  160	{
+_Ind:
+;  161		ptrL = Mem_Read(programCounter++); 
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_ptrL),HL
+;  162		ptrH = Mem_Read(programCounter++) << 8;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_ptrH),HL
+;  163		op = Mem_Read((unsigned short)(ptrH + ptrL));
+	LD	BC,(_ptrL)
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_op),HL
+;  164		
+;  165		ptrL = (ptrL + 1) & 0xFF;
+	LD	HL,(_ptrL)
+	INC	HL
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	LD	(_ptrL),HL
+;  166		
+;  167		op += Mem_Read((unsigned short)(ptrH + ptrL)) << 8;
+	LD	BC,(_ptrL)
+	LD	HL,(_ptrH)
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_op)
+	LD	A,8
+	CALL	__ishl_b
+	ADD	HL,BC
+	LD	(_op),HL
+;  168		
+;  169		//cycles += 4;
+;  170	}
+	RET	
+
+
+;**************************** _Ind ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_ptrH                               STATIC      3   variable
+;_ptrL                               STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  171	
+;  172	static void IndZeroX(void)
+;  173	{
+_IndZeroX:
+	LD	HL,-3
+	CALL	__frameset
+;  174		ptr = xRegister + Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	(IX+-3),BC
+	CALL	_Mem_Read
+	LD	BC,(IX+-3)
+	POP	DE
+	ADD	HL,BC
+	LD	(_ptr),HL
+;  175		
+;  176		op = Mem_Read(ptr);	
+	LD	BC,(_ptr)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_op),HL
+;  177		
+;  178		op += Mem_Read((unsigned short)((ptr + 1) & 0xFF)) << 8;
+	LD	HL,(_ptr)
+	INC	HL
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_op)
+	LD	A,8
+	CALL	__ishl_b
+	ADD	HL,BC
+	LD	(_op),HL
+;  179		
+;  180		//cycles += 3;
+;  181	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _IndZeroX ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_ptr                                STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_xRegister                          STATIC      1   variable
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  182	
+;  183	static void IndZeroY(void)
+;  184	{
+_IndZeroY:
+;  185		ptr = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_ptr),HL
+;  186		opL = Mem_Read(ptr) + yRegister;
+	LD	BC,(_ptr)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  187		opH = Mem_Read((unsigned short)(ptr + 1)) << 8;
+	LD	BC,(_ptr)
+	INC	BC
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  188		
+;  189		//cycles += 3;
+;  190		
+;  191		//if (opL >= 0x100)
+;  192			//cycles++;
+;  193		
+;  194		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  195	}
+	RET	
+
+
+;**************************** _IndZeroY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_ptr                                STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  196	
+;  197	static void Rel(void)
+;  198	{
+_Rel:
+;  199		op = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_op),HL
+;  200		
+;  201		if (op >= 0x80)
+	LD	BC,128
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__16
+	JP	PE,L_33
+	JR	L__17
+L__16:
+	JP	PO,L_33
+L__17:
+;  202			op |= 0xFF00;
+	LD	HL,(_op)
+	LD	BC,65280
+	CALL	__ior
+	LD	(_op),HL
+L_33:
+;  203		
+;  204		op += programCounter;
+	LD	BC,(_programCounter)
+	LD	HL,(_op)
+	ADD	HL,BC
+	LD	(_op),HL
+;  205		//cycles++;
+;  206	}
+	RET	
+
+
+;**************************** _Rel ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  207	
+;  208	static void WAbsX(void)
+;  209	{
+_WAbsX:
+;  210		opL = Mem_Read(programCounter++) + xRegister;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  211		opH = Mem_Read(programCounter++) << 8;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  212		
+;  213		//cycles += 3;
+;  214		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  215	}
+	RET	
+
+
+;**************************** _WAbsX ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_xRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  216	
+;  217	static void WAbsY(void)
+;  218	{
+_WAbsY:
+;  219		opL = Mem_Read(programCounter++) + yRegister;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,HL
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  220		opH = Mem_Read(programCounter++) << 8;
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  221		
+;  222		//cycles += 3;
+;  223		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  224	}
+	RET	
+
+
+;**************************** _WAbsY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  225	
+;  226	static void WIndZeroY(void)
+;  227	{
+_WIndZeroY:
+;  228		ptr = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_ptr),HL
+;  229		opL = Mem_Read(ptr) + yRegister;
+	LD	BC,(_ptr)
+	PUSH	BC
+	CALL	_Mem_Read
+	LD	BC,HL
+	POP	DE
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_opL),HL
+;  230		opH = Mem_Read((unsigned short)((ptr + 1) & 0xFF)) << 8;
+	LD	HL,(_ptr)
+	INC	HL
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,8
+	CALL	__ishl_b
+	LD	(_opH),HL
+;  231		
+;  232		//cycles += 4;
+;  233		op = opH + opL;
+	LD	BC,(_opL)
+	ADD	HL,BC
+	LD	(_op),HL
+;  234	}
+	RET	
+
+
+;**************************** _WIndZeroY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_opH                                STATIC      3   variable
+;_opL                                STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_ptr                                STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  235	
+;  236	static void setStatusRegisterNZ(unsigned char val)
+;  237	{
+_setStatusRegisterNZ:
+	CALL	__frameset0
+;  238		if (val & 0x80)
+	LD	A,(IX+6)
+	AND	A,128
+	JR	Z,L_44
+;  239			statusRegister |= N;
+	LD	A,(_statusRegister)
+	SET	7,A
+	LD	(_statusRegister),A
+;  240		else
+	JR	L_47
+L_44:
+;  241			statusRegister &= ~N;
+	LD	A,(_statusRegister)
+	RES	7,A
+	LD	(_statusRegister),A
+L_47:
+;  242		
+;  243		if (!val)
+	LD	A,(IX+6)
+	OR	A,A
+	JR	NZ,L_46
+;  244			statusRegister |= Z;
+	LD	A,(_statusRegister)
+	SET	1,A
+	LD	(_statusRegister),A
+;  245		else
+	JR	L_48
+L_46:
+;  246			statusRegister &= ~Z;
+	LD	A,(_statusRegister)
+	RES	1,A
+	LD	(_statusRegister),A
+;  247	}
+L_48:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _setStatusRegisterNZ ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+;val                                   IX+6      1   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  248	
+;  249	static void LDA(void)
+;  250	{
+_LDA:
+;  251		accumulator = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+;  252		
+;  253		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  254		
+;  255		//cycles++;
+;  256	}
+	RET	
+
+
+;**************************** _LDA ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  257	
+;  258	static void LDX(void)
+;  259	{
+_LDX:
+;  260		xRegister = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+;  261		
+;  262		setStatusRegisterNZ(xRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_xRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  263		
+;  264		//cycles++;
+;  265	}
+	RET	
+
+
+;**************************** _LDX ***************************
+;Name                         Addr/Register   Size   Type
+;_xRegister                          STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  266	
+;  267	static void LDY(void)
+;  268	{
+_LDY:
+;  269		yRegister = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+;  270		
+;  271		setStatusRegisterNZ(yRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_yRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  272		
+;  273		//cycles++;
+;  274	}
+	RET	
+
+
+;**************************** _LDY ***************************
+;Name                         Addr/Register   Size   Type
+;_yRegister                          STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  275	
+;  276	static void STA(void)
+;  277	{
+_STA:
+;  278		Mem_Write(op, accumulator);
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  279		
+;  280		//cycles++;
+;  281	}
+	RET	
+
+
+;**************************** _STA ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_accumulator                        STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  282	
+;  283	static void STX(void)
+;  284	{
+_STX:
+;  285		Mem_Write(op, xRegister);
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  286		
+;  287		//cycles++;
+;  288	}
+	RET	
+
+
+;**************************** _STX ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_xRegister                          STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  289	
+;  290	static void STY(void)
+;  291	{
+_STY:
+;  292		Mem_Write(op, yRegister);
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  293		
+;  294		//cycles++;
+;  295	}
+	RET	
+
+
+;**************************** _STY ***************************
+;Name                         Addr/Register   Size   Type
+;_op                                 STATIC      3   variable
+;_yRegister                          STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  296	
+;  297	static void setFlagCarry(int val)
+;  298	{
+_setFlagCarry:
+	CALL	__frameset0
+;  299		if (val & 0x100)
+	LD	BC,256
+	LD	HL,(IX+6)
+	CALL	__iand
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_56
+;  300			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  301		else
+	JR	L_57
+L_56:
+;  302			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+;  303	}
+L_57:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _setFlagCarry ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+;val                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  304	
+;  305	static void ADC(void)
+;  306	{
+_ADC:
+	LD	HL,-16
+	CALL	__frameset
+;  307		int Op1 = accumulator, Op2 = Mem_Read(op);
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	LD	(IX+-3),HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(IX+-6),HL
+;  308		char srtmp = (statusRegister & C ? 1 : 0);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_60
+	LD	BC,1
+	LD	(IX+-10),BC
+	JR	L_61
+L_60:
+	LD	BC,0
+	LD	(IX+-10),BC
+L_61:
+	LD	A,(IX+-10)
+	LD	(IX+-7),A
+;  309		
+;  310		//cycles++;
+;  311		
+;  312		if (statusRegister & D)
+	LD	A,(_statusRegister)
+	AND	A,8
+	JR	Z,L_86
+;  313		{
+;  314			if (!((Op1 + Op2 + srtmp) & 0xFF))
+	LD	BC,(IX+-6)
+	LD	HL,(IX+-3)
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-7)
+	SEXT	HL
+	LD	L,(IX+-7)
+	ADD	HL,BC
+	LD	A,L
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_63
+;  315				statusRegister |= Z;
+	LD	A,(_statusRegister)
+	SET	1,A
+	LD	(_statusRegister),A
+;  316			else
+	JR	L_64
+L_63:
+;  317				statusRegister &= ~Z;
+	LD	A,(_statusRegister)
+	RES	1,A
+	LD	(_statusRegister),A
+L_64:
+;  318			
+;  319			tmp = (Op1 & 0x0F) + (Op2 & 0x0F) + srtmp;
+	LD	A,(IX+-3)
+	AND	A,15
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	A,(IX+-6)
+	AND	A,15
+	UEXT	HL
+	LD	L,A
+	LD	A,(IX+-7)
+	ADD	HL,BC
+	LD	BC,HL
+	SEXT	HL
+	LD	L,(IX+-7)
+	ADD	HL,BC
+	LD	(_tmp),HL
+;  320			accumulator = tmp < 0x0A ? tmp : tmp + 6;
+	OR	A,A
+	LD	BC,10
+	SBC	HL,BC
+	JP	P,L_67
+	LD	BC,(_tmp)
+	LD	(IX+-13),BC
+	JR	L_68
+L_67:
+	LD	IY,(_tmp)
+	LEA	IY,IY+6
+	LD	(IX+-13),IY
+L_68:
+	LD	A,(IX+-13)
+	LD	(_accumulator),A
+;  321			tmp = (Op1 & 0xF0) + (Op2 & 0xF0) + (tmp & 0xF0);
+	LD	A,(IX+-3)
+	AND	A,240
+	UEXT	HL
+	LD	L,A
+	LD	A,(IX+-6)
+	AND	A,240
+	LD	BC,HL
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	A,(_tmp)
+	AND	A,240
+	LD	BC,HL
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	(_tmp),HL
+;  322			
+;  323			if (tmp & 0x80)
+	LD	A,(_tmp)
+	AND	A,128
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_70
+;  324				statusRegister |= N;
+	LD	A,(_statusRegister)
+	SET	7,A
+	LD	(_statusRegister),A
+;  325			else
+	JR	L_73
+L_70:
+;  326				statusRegister &= ~N;
+	LD	A,(_statusRegister)
+	RES	7,A
+	LD	(_statusRegister),A
+L_73:
+;  327			
+;  328			if ((Op1 ^ tmp) & ~(Op1 ^ Op2) & 0x80)
+	LD	HL,(_tmp)
+	LD	BC,(IX+-3)
+	CALL	__ixor
+	LD	DE,HL
+	LD	HL,(IX+-3)
+	LD	BC,(IX+-6)
+	CALL	__ixor
+	CALL	__inot
+	LD	BC,HL
+	LD	HL,DE
+	CALL	__iand
+	LD	A,L
+	AND	A,128
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_72
+;  329				statusRegister |= V;
+	LD	A,(_statusRegister)
+	SET	6,A
+	LD	(_statusRegister),A
+;  330			else
+	JR	L_78
+L_72:
+;  331				statusRegister &= ~V;
+	LD	A,(_statusRegister)
+	RES	6,A
+	LD	(_statusRegister),A
+L_78:
+;  332			
+;  333			tmp = (accumulator & 0x0F) | (tmp < 0xA0 ? tmp : tmp + 0x60);
+	LD	BC,160
+	LD	HL,(_tmp)
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L__42
+	JP	PE,L_76
+	JR	L__43
+L__42:
+	JP	PO,L_76
+L__43:
+	LD	BC,(_tmp)
+	LD	(IX+-16),BC
+	JR	L_77
+L_76:
+	LD	IY,(_tmp)
+	LEA	IY,IY+96
+	LD	(IX+-16),IY
+L_77:
+	LD	A,(_accumulator)
+	AND	A,15
+	UEXT	HL
+	LD	L,A
+;  334			
+;  335			if (tmp >= 0x100)
+	OR	A,A
+	LD	BC,(IX+-16)
+	CALL	__ior
+	LD	(_tmp),HL
+	LD	BC,256
+	SBC	HL,BC
+	JP	M,L__44
+	JP	PE,L_80
+	JR	L__45
+L__44:
+	JP	PO,L_80
+L__45:
+;  336				statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  337			else
+	JR	L_81
+L_80:
+;  338				statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_81:
+;  339			
+;  340			accumulator = tmp & 0xFF;
+	LD	A,(_tmp)
+	LD	(_accumulator),A
+;  341		}
+;  342		else
+	JR	L_87
+L_86:
+;  343		{
+;  344			tmp = Op1 + Op2 + srtmp;
+	LD	BC,(IX+-6)
+	LD	HL,(IX+-3)
+	ADD	HL,BC
+	LD	BC,HL
+	LD	A,(IX+-7)
+	SEXT	HL
+	LD	L,(IX+-7)
+	ADD	HL,BC
+	LD	(_tmp),HL
+;  345			accumulator = tmp & 0xFF;
+	LD	A,(_tmp)
+	LD	(_accumulator),A
+;  346			
+;  347			if ((Op1 ^ accumulator) & ~(Op1 ^ Op2) & 0x80)
+	LD	HL,(IX+-3)
+	LD	BC,(IX+-6)
+	CALL	__ixor
+	CALL	__inot
+	LD	DE,HL
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	HL,(IX+-3)
+	CALL	__ixor
+	LD	BC,HL
+	LD	HL,DE
+	CALL	__iand
+	LD	A,L
+	AND	A,128
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_83
+;  348				statusRegister |= V;
+	LD	A,(_statusRegister)
+	SET	6,A
+	LD	(_statusRegister),A
+;  349			else
+	JR	L_84
+L_83:
+;  350				statusRegister &= ~V;
+	LD	A,(_statusRegister)
+	RES	6,A
+	LD	(_statusRegister),A
+L_84:
+;  351			
+;  352			setFlagCarry(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagCarry
+	POP	BC
+;  353			
+;  354			setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  355		}
+;  356	}
+L_87:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _ADC ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_statusRegister                     STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_accumulator                        STATIC      1   variable
+;temp74                               IX-16      3   variable
+;temp65                               IX-13      3   variable
+;temp58                               IX-10      3   variable
+;srtmp                                 IX-7      1   variable
+;Op2                                   IX-6      3   variable
+;Op1                                   IX-3      3   variable
+
+
+; Stack Frame Size: 22 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  357	
+;  358	static void setFlagBorrow(int val)
+;  359	{
+_setFlagBorrow:
+	CALL	__frameset0
+;  360		if (!(val & 0x100))
+	LD	BC,256
+	LD	HL,(IX+6)
+	CALL	__iand
+	LD	BC,0
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_89
+;  361			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  362		else
+	JR	L_90
+L_89:
+;  363			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+;  364	}
+L_90:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _setFlagBorrow ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+;val                                   IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  365	
+;  366	static void SBC(void)
+;  367	{
+_SBC:
+	LD	HL,-16
+	CALL	__frameset
+;  368		int Op1 = accumulator, Op2 = Mem_Read(op);
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	LD	(IX+-3),HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(IX+-6),HL
+;  369		char srtmp = (statusRegister & C ? 0 : 1);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_93
+	LD	BC,0
+	LD	(IX+-10),BC
+	JR	L_94
+L_93:
+	LD	BC,1
+	LD	(IX+-10),BC
+L_94:
+	LD	A,(IX+-10)
+	LD	(IX+-7),A
+;  370		
+;  371		//cycles++;
+;  372		
+;  373		if (statusRegister & D)
+	LD	A,(_statusRegister)
+	AND	A,8
+	JR	Z,L_107
+;  374		{
+;  375			tmp = (Op1 & 0x0F) - (Op2 & 0x0F) - srtmp;
+	LD	A,(IX+-3)
+	AND	A,15
+	UEXT	HL
+	LD	L,A
+	LD	A,(IX+-6)
+	AND	A,15
+	LD	DE,HL
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	A,(IX+-7)
+	SEXT	HL
+	LD	L,(IX+-7)
+	ADD	HL,BC
+	LD	BC,HL
+	LD	HL,DE
+	OR	A,A
+	SBC	HL,BC
+	LD	(_tmp),HL
+;  376			accumulator = !(tmp & 0x10) ? tmp : tmp - 6;
+	LD	BC,0
+	LD	A,(_tmp)
+	AND	A,16
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	SBC	HL,BC
+	JR	NZ,L_97
+	LD	BC,(_tmp)
+	LD	(IX+-13),BC
+	JR	L_98
+L_97:
+	LD	IY,(_tmp)
+	LEA	IY,IY+-6
+	LD	(IX+-13),IY
+L_98:
+	LD	A,(IX+-13)
+	LD	(_accumulator),A
+;  377			tmp = (Op1 & 0xF0) - (Op2 & 0xF0) - (accumulator & 0x10);
+	LD	A,(IX+-3)
+	AND	A,240
+	UEXT	HL
+	LD	L,A
+	LD	DE,HL
+	LD	A,(IX+-6)
+	AND	A,240
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	A,(_accumulator)
+	AND	A,16
+	UEXT	HL
+	LD	L,A
+	ADD	HL,BC
+	LD	BC,HL
+	LD	HL,DE
+	OR	A,A
+	SBC	HL,BC
+;  378			accumulator = (accumulator & 0x0F) | (!(tmp & 0x100) ? tmp : tmp - 0x60);
+	OR	A,A
+	LD	(_tmp),HL
+	LD	BC,256
+	CALL	__iand
+	LD	BC,0
+	SBC	HL,BC
+	JR	NZ,L_101
+	LD	BC,(_tmp)
+	LD	(IX+-16),BC
+	JR	L_102
+L_101:
+	LD	IY,(_tmp)
+	LEA	IY,IY+-96
+	LD	(IX+-16),IY
+L_102:
+	LD	A,(_accumulator)
+	AND	A,15
+	LD	B,(IX+-16)
+	OR	A,B
+	LD	(_accumulator),A
+;  379			tmp = Op1 - Op2 - srtmp;
+	LD	A,(IX+-7)
+	SEXT	HL
+	LD	L,(IX+-7)
+	LD	BC,(IX+-6)
+	ADD	HL,BC
+	LD	BC,HL
+	LD	HL,(IX+-3)
+	OR	A,A
+	SBC	HL,BC
+	LD	(_tmp),HL
+;  380			
+;  381			setFlagBorrow(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagBorrow
+	POP	BC
+;  382			
+;  383			setStatusRegisterNZ((unsigned char)tmp);
+	LD	A,(_tmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  384		}
+;  385		else
+	JR	L_108
+L_107:
+;  386		{
+;  387			tmp = Op1 - Op2 - srtmp;
+	LD	A,(IX+-7)
+	SEXT	HL
+	LD	L,(IX+-7)
+	LD	BC,(IX+-6)
+	ADD	HL,BC
+	LD	BC,HL
+	LD	HL,(IX+-3)
+	OR	A,A
+	SBC	HL,BC
+	LD	(_tmp),HL
+;  388			accumulator = tmp & 0xFF;
+	LD	A,(_tmp)
+	LD	(_accumulator),A
+;  389			
+;  390			if ((Op1 ^ Op2) & (Op1 ^ accumulator) & 0x80)
+	LD	HL,(IX+-3)
+	LD	BC,(IX+-6)
+	CALL	__ixor
+	LD	DE,HL
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	HL,(IX+-3)
+	CALL	__ixor
+	LD	BC,HL
+	LD	HL,DE
+	CALL	__iand
+	LD	A,L
+	AND	A,128
+	UEXT	HL
+	LD	L,A
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_104
+;  391				statusRegister |= V;
+	LD	A,(_statusRegister)
+	SET	6,A
+	LD	(_statusRegister),A
+;  392			else
+	JR	L_105
+L_104:
+;  393				statusRegister &= ~V;
+	LD	A,(_statusRegister)
+	RES	6,A
+	LD	(_statusRegister),A
+L_105:
+;  394			
+;  395			setFlagBorrow(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagBorrow
+	POP	BC
+;  396			
+;  397			setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  398		}
+;  399	}
+L_108:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _SBC ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_statusRegister                     STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_accumulator                        STATIC      1   variable
+;temp99                               IX-16      3   variable
+;temp95                               IX-13      3   variable
+;temp91                               IX-10      3   variable
+;srtmp                                 IX-7      1   variable
+;Op2                                   IX-6      3   variable
+;Op1                                   IX-3      3   variable
+
+
+; Stack Frame Size: 22 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  400	
+;  401	static void CMP(void)
+;  402	{
+_CMP:
+	LD	HL,-3
+	CALL	__frameset
+;  403		tmp = accumulator - Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	(IX+-3),BC
+	CALL	_Mem_Read
+	LD	BC,(IX+-3)
+	POP	DE
+	LD	DE,HL
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	LD	(_tmp),HL
+;  404		
+;  405		//cycles++;
+;  406		
+;  407		setFlagBorrow(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagBorrow
+	POP	BC
+;  408		
+;  409		setStatusRegisterNZ((unsigned char)tmp);
+	LD	A,(_tmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  410	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _CMP ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_accumulator                        STATIC      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  411	
+;  412	static void CPX(void)
+;  413	{
+_CPX:
+	LD	HL,-3
+	CALL	__frameset
+;  414		tmp = xRegister - Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	LD	A,(_xRegister)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	(IX+-3),BC
+	CALL	_Mem_Read
+	LD	BC,(IX+-3)
+	POP	DE
+	LD	DE,HL
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	LD	(_tmp),HL
+;  415		
+;  416		//cycles++;
+;  417		
+;  418		setFlagBorrow(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagBorrow
+	POP	BC
+;  419		
+;  420		setStatusRegisterNZ((unsigned char)tmp);
+	LD	A,(_tmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  421	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _CPX ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_xRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  422	
+;  423	static void CPY(void)
+;  424	{
+_CPY:
+	LD	HL,-3
+	CALL	__frameset
+;  425		tmp = yRegister - Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	LD	A,(_yRegister)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+	LD	(IX+-3),BC
+	CALL	_Mem_Read
+	LD	BC,(IX+-3)
+	POP	DE
+	LD	DE,HL
+	LD	HL,BC
+	OR	A,A
+	SBC	HL,DE
+	LD	(_tmp),HL
+;  426		
+;  427		//cycles++;
+;  428		
+;  429		setFlagBorrow(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagBorrow
+	POP	BC
+;  430		
+;  431		setStatusRegisterNZ((unsigned char)tmp);
+	LD	A,(_tmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  432	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _CPY ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_yRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  433	
+;  434	static void AND(void)
+;  435	{
+_AND:
+;  436		accumulator &= Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_accumulator)
+	LD	A,L
+	AND	A,C
+;  437		
+;  438		//cycles++;
+;  439		
+;  440		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  441	}
+	RET	
+
+
+;**************************** _AND ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  442	
+;  443	static void ORA(void)
+;  444	{
+_ORA:
+;  445		accumulator |= Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_accumulator)
+	LD	A,L
+	OR	A,C
+;  446		
+;  447		//cycles++;
+;  448		
+;  449		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  450	}
+	RET	
+
+
+;**************************** _ORA ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  451	
+;  452	static void EOR(void)
+;  453	{
+_EOR:
+;  454		accumulator ^= Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_accumulator)
+	LD	A,L
+	XOR	A,C
+;  455		
+;  456		//cycles++;
+;  457		
+;  458		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  459	}
+	RET	
+
+
+;**************************** _EOR ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  460	
+;  461	static void ASL(void)
+;  462	{
+_ASL:
+;  463		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  464		
+;  465		if (btmp & 0x80)
+	AND	A,128
+	JR	Z,L_116
+;  466			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  467		else
+	JR	L_117
+L_116:
+;  468			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_117:
+;  469		
+;  470		btmp <<= 1;
+	LD	A,(_btmp)
+	ADD	A,A
+;  471		
+;  472		setStatusRegisterNZ(btmp);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_btmp),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  473		
+;  474		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  475		
+;  476		//cycles += 3;
+;  477	}
+	RET	
+
+
+;**************************** _ASL ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_statusRegister                     STATIC      1   variable
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  478	
+;  479	static void ASL_A(void)
+;  480	{
+_ASL_A:
+;  481		tmp = accumulator << 1;
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,HL
+	LD	(_tmp),HL
+;  482		accumulator = tmp & 0xFF;
+	LD	A,(_tmp)
+	LD	(_accumulator),A
+;  483		
+;  484		setFlagCarry(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagCarry
+	POP	BC
+;  485		
+;  486		setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  487	}
+	RET	
+
+
+;**************************** _ASL_A ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_accumulator                        STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  488	
+;  489	static void LSR(void)
+;  490	{
+_LSR:
+;  491		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  492		
+;  493		if (btmp & 1)
+	AND	A,1
+	JR	Z,L_121
+;  494			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  495		else
+	JR	L_122
+L_121:
+;  496			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_122:
+;  497		
+;  498		btmp >>= 1;
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	LD	A,1
+	CALL	__ishrs_b
+	LD	A,L
+;  499		
+;  500		setStatusRegisterNZ(btmp);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_btmp),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  501		
+;  502		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  503		
+;  504		//cycles += 3;
+;  505	}
+	RET	
+
+
+;**************************** _LSR ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_statusRegister                     STATIC      1   variable
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  506	
+;  507	static void LSR_A(void)
+;  508	{
+_LSR_A:
+;  509		if (accumulator & 1)
+	LD	A,(_accumulator)
+	AND	A,1
+	JR	Z,L_125
+;  510			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  511		else
+	JR	L_126
+L_125:
+;  512			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_126:
+;  513		
+;  514		accumulator >>= 1;
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	LD	A,1
+	CALL	__ishrs_b
+	LD	A,L
+;  515		
+;  516		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  517	}
+	RET	
+
+
+;**************************** _LSR_A ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+;_accumulator                        STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  518	
+;  519	static void ROL(void)
+;  520	{
+_ROL:
+	LD	HL,-6
+	CALL	__frameset
+;  521		int newCarry;
+;  522		
+;  523		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  524		newCarry = btmp & 0x80;
+	AND	A,128
+	UEXT	HL
+	LD	L,A
+	LD	(IX+-6),HL
+;  525		btmp = (btmp << 1) | (statusRegister & C ? 1 : 0);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_130
+	LD	BC,1
+	LD	(IX+-3),BC
+	JR	L_131
+L_130:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_131:
+	LD	A,(_btmp)
+	ADD	A,A
+	LD	B,(IX+-3)
+	OR	A,B
+	LD	(_btmp),A
+;  526		
+;  527		if (newCarry)
+	LD	HL,(IX+-6)
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_133
+;  528			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  529		else
+	JR	L_134
+L_133:
+;  530			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_134:
+;  531		
+;  532		setStatusRegisterNZ(btmp);
+	LD	A,(_btmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  533		
+;  534		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  535		
+;  536		//cycles += 3;
+;  537	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _ROL ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_statusRegister                     STATIC      1   variable
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;newCarry                              IX-6      3   variable
+;temp128                               IX-3      3   variable
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  538	
+;  539	static void ROL_A(void)
+;  540	{
+_ROL_A:
+	LD	HL,-3
+	CALL	__frameset
+;  541		tmp = (accumulator << 1) | (statusRegister & C ? 1 : 0);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_138
+	LD	BC,1
+	LD	(IX+-3),BC
+	JR	L_139
+L_138:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_139:
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	ADD	HL,HL
+	LD	BC,(IX+-3)
+	CALL	__ior
+	LD	(_tmp),HL
+;  542		accumulator = tmp & 0xFF;
+	LD	A,(_tmp)
+	LD	(_accumulator),A
+;  543		
+;  544		setFlagCarry(tmp);
+	LD	BC,(_tmp)
+	PUSH	BC
+	CALL	_setFlagCarry
+	POP	BC
+;  545		
+;  546		setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  547	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _ROL_A ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_accumulator                        STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;temp136                               IX-3      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  548	
+;  549	static void ROR(void)
+;  550	{
+_ROR:
+	LD	HL,-6
+	CALL	__frameset
+;  551		int newCarry;
+;  552		
+;  553		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  554		newCarry = btmp & 1;
+	AND	A,1
+	UEXT	HL
+	LD	L,A
+	LD	(IX+-6),HL
+;  555		btmp = (btmp >> 1) | (statusRegister & C ? 0x80 : 0);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_143
+	LD	BC,128
+	LD	(IX+-3),BC
+	JR	L_144
+L_143:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_144:
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	LD	A,1
+	CALL	__ishrs_b
+	LD	A,L
+	LD	B,(IX+-3)
+	OR	A,B
+	LD	(_btmp),A
+;  556		
+;  557		if (newCarry)
+	LD	HL,(IX+-6)
+	OR	A,A
+	LD	BC,0
+	SBC	HL,BC
+	JR	Z,L_146
+;  558			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  559		else
+	JR	L_147
+L_146:
+;  560			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_147:
+;  561		
+;  562		setStatusRegisterNZ(btmp);
+	LD	A,(_btmp)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  563		
+;  564		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  565		
+;  566		//cycles += 3;
+;  567	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _ROR ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_statusRegister                     STATIC      1   variable
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;newCarry                              IX-6      3   variable
+;temp141                               IX-3      3   variable
+
+
+; Stack Frame Size: 12 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  568	
+;  569	static void ROR_A(void)
+;  570	{
+_ROR_A:
+	LD	HL,-3
+	CALL	__frameset
+;  571		tmp = accumulator | (statusRegister & C ? 0x100 : 0);
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_151
+	LD	BC,256
+	LD	(IX+-3),BC
+	JR	L_152
+L_151:
+	LD	BC,0
+	LD	(IX+-3),BC
+L_152:
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	LD	BC,(IX+-3)
+	CALL	__ior
+	LD	(_tmp),HL
+;  572		
+;  573		if (accumulator & 1)
+	LD	A,(_accumulator)
+	AND	A,1
+	JR	Z,L_154
+;  574			statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  575		else
+	JR	L_155
+L_154:
+;  576			statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+L_155:
+;  577		
+;  578		accumulator = tmp >> 1;
+	LD	HL,(_tmp)
+	LD	A,1
+	CALL	__ishrs_b
+	LD	A,L
+;  579		
+;  580		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  581	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _ROR_A ***************************
+;Name                         Addr/Register   Size   Type
+;_tmp                                STATIC      3   variable
+;_accumulator                        STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;temp149                               IX-3      3   variable
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  582	
+;  583	static void INC(void)
+;  584	{
+_INC:
+;  585		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  586		btmp++;
+	INC	A
+;  587		
+;  588		setStatusRegisterNZ(btmp);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_btmp),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  589		
+;  590		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  591		
+;  592		//cycles += 2;
+;  593	}
+	RET	
+
+
+;**************************** _INC ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  594	
+;  595	static void DEC(void)
+;  596	{
+_DEC:
+;  597		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  598		btmp--;
+	DEC	A
+;  599		
+;  600		setStatusRegisterNZ(btmp);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_btmp),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  601		
+;  602		Mem_Write(op, btmp);
+	LD	A,(_btmp)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  603		
+;  604		//cycles += 2;
+;  605	}
+	RET	
+
+
+;**************************** _DEC ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Write                          IMPORT  -----   function
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  606	
+;  607	static void INX(void)
+;  608	{
+_INX:
+;  609		xRegister++;
+	LD	A,(_xRegister)
+	INC	A
+;  610		
+;  611		setStatusRegisterNZ(xRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_xRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  612	}
+	RET	
+
+
+;**************************** _INX ***************************
+;Name                         Addr/Register   Size   Type
+;_xRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  613	
+;  614	static void INY(void)
+;  615	{
+_INY:
+;  616		yRegister++;
+	LD	A,(_yRegister)
+	INC	A
+;  617		
+;  618		setStatusRegisterNZ(yRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_yRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  619	}
+	RET	
+
+
+;**************************** _INY ***************************
+;Name                         Addr/Register   Size   Type
+;_yRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  620	
+;  621	static void DEX(void)
+;  622	{
+_DEX:
+;  623		xRegister--;
+	LD	A,(_xRegister)
+	DEC	A
+;  624		
+;  625		setStatusRegisterNZ(xRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_xRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  626	}
+	RET	
+
+
+;**************************** _DEX ***************************
+;Name                         Addr/Register   Size   Type
+;_xRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  627	
+;  628	static void DEY(void)
+;  629	{
+_DEY:
+;  630		yRegister--;
+	LD	A,(_yRegister)
+	DEC	A
+;  631		
+;  632		setStatusRegisterNZ(yRegister);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_yRegister),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  633	}
+	RET	
+
+
+;**************************** _DEY ***************************
+;Name                         Addr/Register   Size   Type
+;_yRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  634	
+;  635	static void BIT(void)
+;  636	{
+_BIT:
+;  637		btmp = Mem_Read(op);
+	LD	BC,(_op)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_btmp),A
+;  638		
+;  639		if (btmp & 0x40)
+	AND	A,64
+	JR	Z,L_170
+;  640			statusRegister |= V;
+	LD	A,(_statusRegister)
+	SET	6,A
+	LD	(_statusRegister),A
+;  641		else
+	JR	L_173
+L_170:
+;  642			statusRegister &= ~V;
+	LD	A,(_statusRegister)
+	RES	6,A
+	LD	(_statusRegister),A
+L_173:
+;  643		
+;  644		if (btmp & 0x80)
+	LD	A,(_btmp)
+	AND	A,128
+	JR	Z,L_172
+;  645			statusRegister |= N;
+	LD	A,(_statusRegister)
+	SET	7,A
+	LD	(_statusRegister),A
+;  646		else
+	JR	L_176
+L_172:
+;  647			statusRegister &= ~N;
+	LD	A,(_statusRegister)
+	RES	7,A
+	LD	(_statusRegister),A
+L_176:
+;  648		
+;  649		if (!(btmp & accumulator))
+	LD	BC,(_accumulator)
+	LD	A,(_btmp)
+	AND	A,C
+	JR	NZ,L_175
+;  650			statusRegister |= Z;
+	LD	A,(_statusRegister)
+	SET	1,A
+	LD	(_statusRegister),A
+;  651		else
+	JR	L_177
+L_175:
+;  652			statusRegister &= ~Z;
+	LD	A,(_statusRegister)
+	RES	1,A
+	LD	(_statusRegister),A
+;  653		
+;  654		//cycles++;
+;  655	}
+L_177:
+	RET	
+
+
+;**************************** _BIT ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;_btmp                               STATIC      1   variable
+;_op                                 STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  656	
+;  657	static void PHA(void)
+;  658	{
+_PHA:
+;  659		Mem_Write((unsigned short)(0x100 + stackPointer), accumulator);
+	LD	A,(_accumulator)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  660		
+;  661		stackPointer--;
+	LD	A,(_stackPointer)
+	DEC	A
+	LD	(_stackPointer),A
+;  662		
+;  663		//cycles++;
+;  664	}
+	RET	
+
+
+;**************************** _PHA ***************************
+;Name                         Addr/Register   Size   Type
+;_stackPointer                       STATIC      1   variable
+;_accumulator                        STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  665	
+;  666	static void PHP(void)
+;  667	{
+_PHP:
+;  668		Mem_Write((unsigned short)(0x100 + stackPointer), statusRegister);
+	LD	A,(_statusRegister)
+	UEXT	HL
+	LD	L,A
+	PUSH	HL
+	LD	A,(_stackPointer)
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	CALL	_Mem_Write
+	POP	BC
+	POP	BC
+;  669		
+;  670		stackPointer--;
+	LD	A,(_stackPointer)
+	DEC	A
+	LD	(_stackPointer),A
+;  671		
+;  672		//cycles++;
+;  673	}
+	RET	
+
+
+;**************************** _PHP ***************************
+;Name                         Addr/Register   Size   Type
+;_stackPointer                       STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+;_Mem_Write                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  674	
+;  675	static void PLA(void)
+;  676	{
+_PLA:
+;  677		stackPointer++;
+	LD	A,(_stackPointer)
+	INC	A
+;  678		
+;  679		accumulator = Mem_Read((unsigned short)(stackPointer + 0x100));
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	LD	(_stackPointer),A
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+;  680		
+;  681		setStatusRegisterNZ(accumulator);
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	LD	(_accumulator),A
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  682		
+;  683		//cycles += 2;
+;  684	}
+	RET	
+
+
+;**************************** _PLA ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_stackPointer                       STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  685	
+;  686	static void PLP(void)
+;  687	{
+_PLP:
+;  688		stackPointer++;
+	LD	A,(_stackPointer)
+	INC	A
+;  689		
+;  690		statusRegister = Mem_Read((unsigned short)(stackPointer + 0x100));
+	UEXT	HL
+	LD	L,A
+	LD	BC,256
+	ADD	HL,BC
+	LD	BC,HL
+	CALL	__stoiu
+	PUSH	HL
+	LD	(_stackPointer),A
+	CALL	_Mem_Read
+	POP	BC
+	LD	A,L
+	LD	(_statusRegister),A
+;  691		
+;  692		//cycles += 2;
+;  693	}
+	RET	
+
+
+;**************************** _PLP ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+;_Mem_Read                           IMPORT  -----   function
+;_stackPointer                       STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  694	
+;  695	static void BRK(void)
+;  696	{
+_BRK:
+;  697		pushProgramCounter();
+	CALL	_pushProgramCounter
+;  698		
+;  699		PHP();
+	CALL	_PHP
+;  700		
+;  701		statusRegister |= B;
+;  702		
+;  703		programCounter = Mem_Read_Absolute(0xFFFE);
+	LD	BC,65534
+	PUSH	BC
+	LD	A,(_statusRegister)
+	SET	4,A
+	LD	(_statusRegister),A
+	CALL	_Mem_Read_Absolute
+	POP	BC
+	LD	BC,HL
+	CALL	__stoiu
+	LD	(_programCounter),HL
+;  704		
+;  705		//cycles += 3;
+;  706	}
+	RET	
+
+
+;**************************** _BRK ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  707	
+;  708	static void RTI(void)
+;  709	{
+_RTI:
+;  710		PLP();
+	CALL	_PLP
+;  711		
+;  712		popProgramCounter();
+	CALL	_popProgramCounter
+;  713		
+;  714		//cycles++;
+;  715	}
+	RET	
+
+
+;**************************** _RTI ***************************
+;Name                         Addr/Register   Size   Type
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  716	
+;  717	static void JMP(void)
+;  718	{
+_JMP:
+;  719		programCounter = op;
+	LD	BC,(_op)
+	LD	(_programCounter),BC
+;  720	}
+	RET	
+
+
+;**************************** _JMP ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_op                                 STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  721	
+;  722	static void RTS(void)
+;  723	{
+_RTS:
+;  724		popProgramCounter();
+	CALL	_popProgramCounter
+;  725		
+;  726		programCounter++;
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+;  727		
+;  728		//cycles += 2;
+;  729	}
+	RET	
+
+
+;**************************** _RTS ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  730	
+;  731	static void JSR(void)
+;  732	{
+_JSR:
+;  733		opL = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(_opL),HL
+;  734		
+;  735		pushProgramCounter();
+	CALL	_pushProgramCounter
+;  736		
+;  737		programCounter = opL + (Mem_Read(programCounter) << 8);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	BC,(_opL)
+	LD	A,8
+	CALL	__ishl_b
+	ADD	HL,BC
+	LD	(_programCounter),HL
+;  738		
+;  739		//cycles += 3;
+;  740	}
+	RET	
+
+
+;**************************** _JSR ***************************
+;Name                         Addr/Register   Size   Type
+;_opL                                STATIC      3   variable
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  741	
+;  742	static void branch(void)
+;  743	{
+_branch:
+;  744		//cycles++;
+;  745		
+;  746		/*if ((programCounter & 0xFF00) != (op & 0xFF00))
+;  747			//cycles++;*/
+;  748		
+;  749		programCounter = op;
+	LD	BC,(_op)
+	LD	(_programCounter),BC
+;  750	}
+	RET	
+
+
+;**************************** _branch ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_op                                 STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  751	
+;  752	static void BNE(void)
+;  753	{
+_BNE:
+;  754		if (!(statusRegister & Z))
+	LD	A,(_statusRegister)
+	AND	A,2
+	JR	NZ,L_195
+;  755			branch();
+	CALL	_branch
+;  756	}
+L_195:
+	RET	
+
+
+;**************************** _BNE ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  757	
+;  758	static void BEQ(void)
+;  759	{
+_BEQ:
+;  760		if (statusRegister & Z)
+	LD	A,(_statusRegister)
+	AND	A,2
+	JR	Z,L_197
+;  761			branch();
+	CALL	_branch
+;  762	}
+L_197:
+	RET	
+
+
+;**************************** _BEQ ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  763	
+;  764	static void BVC(void)
+;  765	{
+_BVC:
+;  766		if (!(statusRegister & V))
+	LD	A,(_statusRegister)
+	AND	A,64
+	JR	NZ,L_199
+;  767			branch();
+	CALL	_branch
+;  768	}
+L_199:
+	RET	
+
+
+;**************************** _BVC ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  769	
+;  770	static void BVS(void)
+;  771	{
+_BVS:
+;  772		if (statusRegister & V)
+	LD	A,(_statusRegister)
+	AND	A,64
+	JR	Z,L_201
+;  773			branch();
+	CALL	_branch
+;  774	}
+L_201:
+	RET	
+
+
+;**************************** _BVS ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  775	
+;  776	static void BCC(void)
+;  777	{
+_BCC:
+;  778		if (!(statusRegister & C))
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	NZ,L_203
+;  779			branch();
+	CALL	_branch
+;  780	}
+L_203:
+	RET	
+
+
+;**************************** _BCC ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  781	
+;  782	static void BCS(void)
+;  783	{
+_BCS:
+;  784		if (statusRegister & C)
+	LD	A,(_statusRegister)
+	AND	A,1
+	JR	Z,L_205
+;  785			branch();
+	CALL	_branch
+;  786	}
+L_205:
+	RET	
+
+
+;**************************** _BCS ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  787	
+;  788	static void BPL(void)
+;  789	{
+_BPL:
+;  790		if (!(statusRegister & N))
+	LD	A,(_statusRegister)
+	AND	A,128
+	JR	NZ,L_207
+;  791			branch();
+	CALL	_branch
+;  792	}
+L_207:
+	RET	
+
+
+;**************************** _BPL ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  793	
+;  794	static void BMI(void)
+;  795	{
+_BMI:
+;  796		if (statusRegister & N)
+	LD	A,(_statusRegister)
+	AND	A,128
+	JR	Z,L_209
+;  797			branch();
+	CALL	_branch
+;  798	}
+L_209:
+	RET	
+
+
+;**************************** _BMI ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  799	
+;  800	static void TAX(void)
+;  801	{
+_TAX:
+;  802		xRegister = accumulator;
+	LD	A,(_accumulator)
+	LD	(_xRegister),A
+;  803		
+;  804		setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  805	}
+	RET	
+
+
+;**************************** _TAX ***************************
+;Name                         Addr/Register   Size   Type
+;_xRegister                          STATIC      1   variable
+;_accumulator                        STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  806	
+;  807	static void TXA(void)
+;  808	{
+_TXA:
+;  809		accumulator = xRegister;
+	LD	A,(_xRegister)
+	LD	(_accumulator),A
+;  810		
+;  811		setStatusRegisterNZ(accumulator);
+	LD	A,(_xRegister)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  812	}
+	RET	
+
+
+;**************************** _TXA ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_xRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  813	
+;  814	static void TAY(void)
+;  815	{
+_TAY:
+;  816		yRegister = accumulator;
+	LD	A,(_accumulator)
+	LD	(_yRegister),A
+;  817		
+;  818		setStatusRegisterNZ(accumulator);
+	LD	A,(_accumulator)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  819	}
+	RET	
+
+
+;**************************** _TAY ***************************
+;Name                         Addr/Register   Size   Type
+;_yRegister                          STATIC      1   variable
+;_accumulator                        STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  820	
+;  821	static void TYA(void)
+;  822	{
+_TYA:
+;  823		accumulator = yRegister;
+	LD	A,(_yRegister)
+	LD	(_accumulator),A
+;  824		
+;  825		setStatusRegisterNZ(accumulator);
+	LD	A,(_yRegister)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  826	}
+	RET	
+
+
+;**************************** _TYA ***************************
+;Name                         Addr/Register   Size   Type
+;_accumulator                        STATIC      1   variable
+;_yRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  827	
+;  828	static void TXS(void)
+;  829	{
+_TXS:
+;  830		stackPointer = xRegister;
+	LD	A,(_xRegister)
+	LD	(_stackPointer),A
+;  831	}
+	RET	
+
+
+;**************************** _TXS ***************************
+;Name                         Addr/Register   Size   Type
+;_stackPointer                       STATIC      1   variable
+;_xRegister                          STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  832	
+;  833	static void TSX(void)
+;  834	{
+_TSX:
+;  835		xRegister = stackPointer;
+	LD	A,(_stackPointer)
+	LD	(_xRegister),A
+;  836		
+;  837		setStatusRegisterNZ(xRegister);
+	LD	A,(_stackPointer)
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	CALL	_setStatusRegisterNZ
+	POP	BC
+;  838	}
+	RET	
+
+
+;**************************** _TSX ***************************
+;Name                         Addr/Register   Size   Type
+;_xRegister                          STATIC      1   variable
+;_stackPointer                       STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  839	
+;  840	static void CLC(void)
+;  841	{
+_CLC:
+;  842		statusRegister &= ~C;
+	LD	A,(_statusRegister)
+	RES	0,A
+	LD	(_statusRegister),A
+;  843	}
+	RET	
+
+
+;**************************** _CLC ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  844	
+;  845	static void SEC(void)
+;  846	{
+_SEC:
+;  847		statusRegister |= C;
+	LD	A,(_statusRegister)
+	SET	0,A
+	LD	(_statusRegister),A
+;  848	}
+	RET	
+
+
+;**************************** _SEC ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  849	
+;  850	static void CLI(void)
+;  851	{
+_CLI:
+;  852		statusRegister &= ~I;
+	LD	A,(_statusRegister)
+	RES	2,A
+	LD	(_statusRegister),A
+;  853	}
+	RET	
+
+
+;**************************** _CLI ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  854	
+;  855	static void SEI(void)
+;  856	{
+_SEI:
+;  857		statusRegister |= I;
+	LD	A,(_statusRegister)
+	SET	2,A
+	LD	(_statusRegister),A
+;  858	}
+	RET	
+
+
+;**************************** _SEI ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  859	
+;  860	static void CLV(void)
+;  861	{
+_CLV:
+;  862		statusRegister &= ~V;
+	LD	A,(_statusRegister)
+	RES	6,A
+	LD	(_statusRegister),A
+;  863	}
+	RET	
+
+
+;**************************** _CLV ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  864	
+;  865	static void CLD(void)
+;  866	{
+_CLD:
+;  867		statusRegister &= ~D;
+	LD	A,(_statusRegister)
+	RES	3,A
+	LD	(_statusRegister),A
+;  868	}
+	RET	
+
+
+;**************************** _CLD ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  869	
+;  870	static void SED(void)
+;  871	{
+_SED:
+;  872		statusRegister |= D;
+	LD	A,(_statusRegister)
+	SET	3,A
+	LD	(_statusRegister),A
+;  873	}
+	RET	
+
+
+;**************************** _SED ***************************
+;Name                         Addr/Register   Size   Type
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  874	
+;  875	static void Execute_Opcode(void)
+;  876	{
+_Execute_Opcode:
+	LD	HL,-1
+	CALL	__frameset
+;  877		unsigned char opcode = Mem_Read(programCounter++);
+	LD	BC,(_programCounter)
+	PUSH	BC
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+	CALL	_Mem_Read
+	POP	BC
+	LD	(IX+-1),L
+;  878		
+;  879		switch (opcode)
+	LD	A,(IX+-1)
+	UEXT	HL
+	LD	L,A
+	LD	BC,HL
+L__129:
+	LD	HL,254
+	OR	A,A
+	SBC	HL,BC
+	JR	C,L_414
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,L__128
+	ADD	HL,BC
+	LD	HL,(HL)
+	JP	(HL)
+L__128:
+	DW24	L_224	
+
+	DW24	L_225	
+
+	DW24	L_226	
+
+	DW24	L_414	
+
+	DW24	L_239	
+
+	DW24	L_254	
+
+	DW24	L_255	
+
+	DW24	L_414	
+
+	DW24	L_256	
+
+	DW24	L_257	
+
+	DW24	L_258	
+
+	DW24	L_259	
+
+	DW24	L_260	
+
+	DW24	L_267	
+
+	DW24	L_268	
+
+	DW24	L_414	
+
+	DW24	L_269	
+
+	DW24	L_270	
+
+	DW24	L_227	
+
+	DW24	L_414	
+
+	DW24	L_240	
+
+	DW24	L_271	
+
+	DW24	L_272	
+
+	DW24	L_414	
+
+	DW24	L_273	
+
+	DW24	L_274	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_261	
+
+	DW24	L_275	
+
+	DW24	L_276	
+
+	DW24	L_414	
+
+	DW24	L_277	
+
+	DW24	L_278	
+
+	DW24	L_228	
+
+	DW24	L_414	
+
+	DW24	L_279	
+
+	DW24	L_280	
+
+	DW24	L_281	
+
+	DW24	L_414	
+
+	DW24	L_282	
+
+	DW24	L_283	
+
+	DW24	L_284	
+
+	DW24	L_285	
+
+	DW24	L_286	
+
+	DW24	L_287	
+
+	DW24	L_288	
+
+	DW24	L_414	
+
+	DW24	L_289	
+
+	DW24	L_290	
+
+	DW24	L_229	
+
+	DW24	L_414	
+
+	DW24	L_241	
+
+	DW24	L_291	
+
+	DW24	L_292	
+
+	DW24	L_414	
+
+	DW24	L_293	
+
+	DW24	L_294	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_262	
+
+	DW24	L_295	
+
+	DW24	L_296	
+
+	DW24	L_414	
+
+	DW24	L_298	
+
+	DW24	L_299	
+
+	DW24	L_230	
+
+	DW24	L_414	
+
+	DW24	L_242	
+
+	DW24	L_300	
+
+	DW24	L_301	
+
+	DW24	L_414	
+
+	DW24	L_302	
+
+	DW24	L_303	
+
+	DW24	L_304	
+
+	DW24	L_414	
+
+	DW24	L_305	
+
+	DW24	L_306	
+
+	DW24	L_307	
+
+	DW24	L_414	
+
+	DW24	L_308	
+
+	DW24	L_309	
+
+	DW24	L_231	
+
+	DW24	L_414	
+
+	DW24	L_243	
+
+	DW24	L_310	
+
+	DW24	L_311	
+
+	DW24	L_414	
+
+	DW24	L_312	
+
+	DW24	L_313	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_263	
+
+	DW24	L_314	
+
+	DW24	L_315	
+
+	DW24	L_414	
+
+	DW24	L_316	
+
+	DW24	L_317	
+
+	DW24	L_232	
+
+	DW24	L_414	
+
+	DW24	L_244	
+
+	DW24	L_318	
+
+	DW24	L_319	
+
+	DW24	L_414	
+
+	DW24	L_320	
+
+	DW24	L_321	
+
+	DW24	L_322	
+
+	DW24	L_414	
+
+	DW24	L_323	
+
+	DW24	L_324	
+
+	DW24	L_325	
+
+	DW24	L_414	
+
+	DW24	L_326	
+
+	DW24	L_327	
+
+	DW24	L_233	
+
+	DW24	L_414	
+
+	DW24	L_245	
+
+	DW24	L_328	
+
+	DW24	L_329	
+
+	DW24	L_414	
+
+	DW24	L_330	
+
+	DW24	L_331	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_264	
+
+	DW24	L_332	
+
+	DW24	L_333	
+
+	DW24	L_414	
+
+	DW24	L_246	
+
+	DW24	L_334	
+
+	DW24	L_247	
+
+	DW24	L_414	
+
+	DW24	L_335	
+
+	DW24	L_336	
+
+	DW24	L_337	
+
+	DW24	L_414	
+
+	DW24	L_338	
+
+	DW24	L_248	
+
+	DW24	L_339	
+
+	DW24	L_414	
+
+	DW24	L_340	
+
+	DW24	L_341	
+
+	DW24	L_342	
+
+	DW24	L_414	
+
+	DW24	L_343	
+
+	DW24	L_344	
+
+	DW24	L_234	
+
+	DW24	L_414	
+
+	DW24	L_345	
+
+	DW24	L_346	
+
+	DW24	L_347	
+
+	DW24	L_414	
+
+	DW24	L_348	
+
+	DW24	L_349	
+
+	DW24	L_350	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_351	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_352	
+
+	DW24	L_353	
+
+	DW24	L_354	
+
+	DW24	L_414	
+
+	DW24	L_355	
+
+	DW24	L_356	
+
+	DW24	L_357	
+
+	DW24	L_414	
+
+	DW24	L_358	
+
+	DW24	L_359	
+
+	DW24	L_360	
+
+	DW24	L_414	
+
+	DW24	L_361	
+
+	DW24	L_362	
+
+	DW24	L_363	
+
+	DW24	L_414	
+
+	DW24	L_364	
+
+	DW24	L_365	
+
+	DW24	L_235	
+
+	DW24	L_414	
+
+	DW24	L_366	
+
+	DW24	L_367	
+
+	DW24	L_368	
+
+	DW24	L_414	
+
+	DW24	L_369	
+
+	DW24	L_370	
+
+	DW24	L_371	
+
+	DW24	L_414	
+
+	DW24	L_372	
+
+	DW24	L_373	
+
+	DW24	L_374	
+
+	DW24	L_414	
+
+	DW24	L_375	
+
+	DW24	L_376	
+
+	DW24	L_249	
+
+	DW24	L_414	
+
+	DW24	L_377	
+
+	DW24	L_378	
+
+	DW24	L_379	
+
+	DW24	L_414	
+
+	DW24	L_380	
+
+	DW24	L_381	
+
+	DW24	L_382	
+
+	DW24	L_414	
+
+	DW24	L_383	
+
+	DW24	L_384	
+
+	DW24	L_385	
+
+	DW24	L_414	
+
+	DW24	L_386	
+
+	DW24	L_387	
+
+	DW24	L_236	
+
+	DW24	L_414	
+
+	DW24	L_250	
+
+	DW24	L_388	
+
+	DW24	L_389	
+
+	DW24	L_414	
+
+	DW24	L_390	
+
+	DW24	L_391	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_265	
+
+	DW24	L_392	
+
+	DW24	L_393	
+
+	DW24	L_414	
+
+	DW24	L_394	
+
+	DW24	L_395	
+
+	DW24	L_251	
+
+	DW24	L_414	
+
+	DW24	L_396	
+
+	DW24	L_397	
+
+	DW24	L_398	
+
+	DW24	L_414	
+
+	DW24	L_399	
+
+	DW24	L_400	
+
+	DW24	L_414	
+
+	DW24	L_402	
+
+	DW24	L_403	
+
+	DW24	L_404	
+
+	DW24	L_405	
+
+	DW24	L_414	
+
+	DW24	L_406	
+
+	DW24	L_407	
+
+	DW24	L_237	
+
+	DW24	L_414	
+
+	DW24	L_252	
+
+	DW24	L_408	
+
+	DW24	L_409	
+
+	DW24	L_414	
+
+	DW24	L_410	
+
+	DW24	L_411	
+
+	DW24	L_414	
+
+	DW24	L_414	
+
+	DW24	L_266	
+
+	DW24	L_412	
+
+	DW24	L_413	
+
+;  880		{
+;  881		case 0x00:
+L_224:
+;  882		    Imm();
+	CALL	_Imm
+;  883		    BRK();
+	CALL	_BRK
+;  884		    break;
+	JR	L_414
+;  885		case 0x01:
+L_225:
+;  886		    IndZeroX();
+	CALL	_IndZeroX
+;  887		    ORA();
+	CALL	_ORA
+;  888		    break;
+	JR	L_414
+;  889		case 0x02:
+L_226:
+;  890		case 0x12:
+L_227:
+;  891		case 0x22:
+L_228:
+;  892		case 0x32:
+L_229:
+;  893		case 0x42:
+L_230:
+;  894		case 0x52:
+L_231:
+;  895		case 0x62:
+L_232:
+;  896		case 0x72:
+L_233:
+;  897		case 0x92:
+L_234:
+;  898		case 0xb2:
+L_235:
+;  899		case 0xd2:
+L_236:
+;  900		case 0xf2:
+L_237:
+;  901		    programCounter--;
+	LD	BC,(_programCounter)
+	DEC	BC
+	LD	(_programCounter),BC
+;  902		    break;	
+	JR	L_414
+;  903		case 0x04:
+L_239:
+;  904		case 0x14:
+L_240:
+;  905		case 0x34:
+L_241:
+;  906		case 0x44:
+L_242:
+;  907		case 0x54:
+L_243:
+;  908		case 0x64:
+L_244:
+;  909		case 0x74:
+L_245:
+;  910		case 0x80:
+L_246:
+;  911		case 0x82:
+L_247:
+;  912		case 0x89:
+L_248:
+;  913		case 0xc2:
+L_249:
+;  914		case 0xd4:
+L_250:
+;  915		case 0xe2:
+L_251:
+;  916		case 0xf4:
+L_252:
+;  917		    programCounter++;
+	LD	BC,(_programCounter)
+	INC	BC
+	LD	(_programCounter),BC
+;  918		    break;
+	JR	L_414
+;  919		case 0x05:
+L_254:
+;  920		    Zero();
+	CALL	_Zero
+;  921		    ORA();
+	CALL	_ORA
+;  922		    break;
+	JR	L_414
+;  923		case 0x06:
+L_255:
+;  924		    Zero();
+	CALL	_Zero
+;  925		    ASL();
+	CALL	_ASL
+;  926		    break;	
+	JR	L_414
+;  927		case 0x08:
+L_256:
+;  928		    PHP();
+	CALL	_PHP
+;  929		    break;
+	JR	L_414
+;  930		case 0x09:
+L_257:
+;  931		    Imm();
+	CALL	_Imm
+;  932		    ORA();
+	CALL	_ORA
+;  933		    break;
+	JR	L_414
+;  934		case 0x0a:
+L_258:
+;  935		    ASL_A();
+	CALL	_ASL_A
+;  936		    break;
+	JR	L_414
+;  937		case 0x0b:
+L_259:
+;  938		    Imm();
+	CALL	_Imm
+;  939		    AND();
+	CALL	_AND
+;  940		    break;
+	JR	L_414
+;  941		case 0x0c:
+L_260:
+;  942		case 0x1c:
+L_261:
+;  943		case 0x3c:
+L_262:
+;  944		case 0x5c:
+L_263:
+;  945		case 0x7c:
+L_264:
+;  946		case 0xdc:
+L_265:
+;  947		case 0xfc:
+L_266:
+;  948		    programCounter += 2;
+	LD	IY,(_programCounter)
+	LEA	BC,IY+2
+	LD	(_programCounter),BC
+;  949		    break;
+	JR	L_414
+;  950		case 0x0d:
+L_267:
+;  951		    Abs();
+	CALL	_Abs
+;  952		    ORA();
+	CALL	_ORA
+;  953		    break;
+	JR	L_414
+;  954		case 0x0e:
+L_268:
+;  955		    Abs();
+	CALL	_Abs
+;  956		    ASL();
+	CALL	_ASL
+;  957		    break;	
+	JR	L_414
+;  958		case 0x10:
+L_269:
+;  959		    Rel();
+	CALL	_Rel
+;  960		    BPL();
+	CALL	_BPL
+;  961		    break;
+	JR	L_414
+;  962		case 0x11:
+L_270:
+;  963		    IndZeroY();
+	CALL	_IndZeroY
+;  964		    ORA();
+	CALL	_ORA
+;  965		    break;	
+	JR	L_414
+;  966		case 0x15:
+L_271:
+;  967		    ZeroX();
+	CALL	_ZeroX
+;  968		    ORA();
+	CALL	_ORA
+;  969		    break;
+	JR	L_414
+;  970		case 0x16:
+L_272:
+;  971		    ZeroX();
+	CALL	_ZeroX
+;  972		    ASL();
+	CALL	_ASL
+;  973		    break;	
+	JR	L_414
+;  974		case 0x18:
+L_273:
+;  975		    CLC();
+	CALL	_CLC
+;  976		    break;
+	JR	L_414
+;  977		case 0x19:
+L_274:
+;  978		    AbsY();
+	CALL	_AbsY
+;  979		    ORA();
+	CALL	_ORA
+;  980		    break;	
+	JR	L_414
+;  981		case 0x1d:
+L_275:
+;  982		    AbsX();
+	CALL	_AbsX
+;  983		    ORA();
+	CALL	_ORA
+;  984		    break;
+	JR	L_414
+;  985		case 0x1e:
+L_276:
+;  986		    WAbsX();
+	CALL	_WAbsX
+;  987		    ASL();
+	CALL	_ASL
+;  988		    break;	
+	JR	L_414
+;  989		case 0x20:
+L_277:
+;  990		    JSR();
+	CALL	_JSR
+;  991		    break;
+	JR	L_414
+;  992		case 0x21:
+L_278:
+;  993		    IndZeroX();
+	CALL	_IndZeroX
+;  994		    AND();
+	CALL	_AND
+;  995		    break;	
+	JR	L_414
+;  996		case 0x24:
+L_279:
+;  997		    Zero();
+	CALL	_Zero
+;  998		    BIT();
+	CALL	_BIT
+;  999		    break;
+	JR	L_414
+; 1000		case 0x25:
+L_280:
+; 1001		    Zero();
+	CALL	_Zero
+; 1002		    AND();
+	CALL	_AND
+; 1003		    break;
+	JR	L_414
+; 1004		case 0x26:
+L_281:
+; 1005		    Zero();
+	CALL	_Zero
+; 1006		    ROL();
+	CALL	_ROL
+; 1007		    break;	
+	JR	L_414
+; 1008		case 0x28:
+L_282:
+; 1009		    PLP();
+	CALL	_PLP
+; 1010		    break;
+	JR	L_414
+; 1011		case 0x29:
+L_283:
+; 1012		    Imm();
+	CALL	_Imm
+; 1013		    AND();
+	CALL	_AND
+; 1014		    break;
+	JR	L_414
+; 1015		case 0x2a:
+L_284:
+; 1016		    ROL_A();
+	CALL	_ROL_A
+; 1017		    break;
+	JR	L_414
+; 1018		case 0x2b:
+L_285:
+; 1019		    Imm();
+	CALL	_Imm
+; 1020		    AND();
+	CALL	_AND
+; 1021		    break;
+	JR	L_414
+; 1022		case 0x2c:
+L_286:
+; 1023		    Abs();
+	CALL	_Abs
+; 1024		    BIT();
+	CALL	_BIT
+; 1025		    break;
+	JR	L_414
+; 1026		case 0x2d:
+L_287:
+; 1027		    Abs();
+	CALL	_Abs
+; 1028		    AND();
+	CALL	_AND
+; 1029		    break;
+	JR	L_414
+; 1030		case 0x2e:
+L_288:
+; 1031		    Abs();
+	CALL	_Abs
+; 1032		    ROL();
+	CALL	_ROL
+; 1033		    break;	
+	JR	L_414
+; 1034		case 0x30:
+L_289:
+; 1035		    Rel();
+	CALL	_Rel
+; 1036		    BMI();
+	CALL	_BMI
+; 1037		    break;
+	JR	L_414
+; 1038		case 0x31:
+L_290:
+; 1039		    IndZeroY();
+	CALL	_IndZeroY
+; 1040		    AND();
+	CALL	_AND
+; 1041		    break;	
+	JR	L_414
+; 1042		case 0x35:
+L_291:
+; 1043		    ZeroX();
+	CALL	_ZeroX
+; 1044		    AND();
+	CALL	_AND
+; 1045		    break;
+	JR	L_414
+; 1046		case 0x36:
+L_292:
+; 1047		    ZeroX();
+	CALL	_ZeroX
+; 1048		    ROL();
+	CALL	_ROL
+; 1049		    break;	
+	JR	L_414
+; 1050		case 0x38:
+L_293:
+; 1051		    SEC();
+	CALL	_SEC
+; 1052		    break;
+	JR	L_414
+; 1053		case 0x39:
+L_294:
+; 1054		    AbsY();
+	CALL	_AbsY
+; 1055		    AND();
+	CALL	_AND
+; 1056		    break;		
+	JR	L_414
+; 1057		case 0x3d:
+L_295:
+; 1058		    AbsX();
+	CALL	_AbsX
+; 1059		    AND();
+	CALL	_AND
+; 1060		    break;
+	JR	L_414
+; 1061		case 0x3e:
+L_296:
+; 1062		    WAbsX();
+	CALL	_WAbsX
+; 1063		    ROL();
+	CALL	_ROL
+; 1064		    break;
+	JR	L_414
+; 1065		case 0x3f:
+; 1066		    break;
+; 1067		case 0x40:
+L_298:
+; 1068		    RTI();
+	CALL	_RTI
+; 1069		    break;
+	JR	L_414
+; 1070		case 0x41:
+L_299:
+; 1071		    IndZeroX();
+	CALL	_IndZeroX
+; 1072		    EOR();
+	CALL	_EOR
+; 1073		    break;	
+	JR	L_414
+; 1074		case 0x45:
+L_300:
+; 1075		    Zero();
+	CALL	_Zero
+; 1076		    EOR();
+	CALL	_EOR
+; 1077		    break;
+	JR	L_414
+; 1078		case 0x46:
+L_301:
+; 1079		    Zero();
+	CALL	_Zero
+; 1080		    LSR();
+	CALL	_LSR
+; 1081		    break;	
+	JR	L_414
+; 1082		case 0x48:
+L_302:
+; 1083		    PHA();
+	CALL	_PHA
+; 1084		    break;
+	JR	L_414
+; 1085		case 0x49:
+L_303:
+; 1086		    Imm();
+	CALL	_Imm
+; 1087		    EOR();
+	CALL	_EOR
+; 1088		    break;
+	JR	L_414
+; 1089		case 0x4a:
+L_304:
+; 1090		    LSR_A();
+	CALL	_LSR_A
+; 1091		    break;
+	JR	L_414
+; 1092		case 0x4c:
+L_305:
+; 1093		    Abs();
+	CALL	_Abs
+; 1094		    JMP();
+	CALL	_JMP
+; 1095		    break;
+	JR	L_414
+; 1096		case 0x4d:
+L_306:
+; 1097		    Abs();
+	CALL	_Abs
+; 1098		    EOR();
+	CALL	_EOR
+; 1099		    break;
+	JR	L_414
+; 1100		case 0x4e:
+L_307:
+; 1101		    Abs();
+	CALL	_Abs
+; 1102		    LSR();
+	CALL	_LSR
+; 1103		    break;
+	JR	L_414
+; 1104		case 0x50:
+L_308:
+; 1105		    Rel();
+	CALL	_Rel
+; 1106		    BVC();
+	CALL	_BVC
+; 1107		    break;
+	JR	L_414
+; 1108		case 0x51:
+L_309:
+; 1109		    IndZeroY();
+	CALL	_IndZeroY
+; 1110		    EOR();
+	CALL	_EOR
+; 1111		    break;	
+	JR	L_414
+; 1112		case 0x55:
+L_310:
+; 1113		    ZeroX();
+	CALL	_ZeroX
+; 1114		    EOR();
+	CALL	_EOR
+; 1115		    break;
+	JR	L_414
+; 1116		case 0x56:
+L_311:
+; 1117		    ZeroX();
+	CALL	_ZeroX
+; 1118		    LSR();
+	CALL	_LSR
+; 1119		    break;
+	JR	L_414
+; 1120		case 0x58:
+L_312:
+; 1121		    CLI();
+	CALL	_CLI
+; 1122		    break;
+	JR	L_414
+; 1123		case 0x59:
+L_313:
+; 1124		    AbsY();
+	CALL	_AbsY
+; 1125		    EOR();
+	CALL	_EOR
+; 1126		    break;	
+	JR	L_414
+; 1127		case 0x5d:
+L_314:
+; 1128		    AbsX();
+	CALL	_AbsX
+; 1129		    EOR();
+	CALL	_EOR
+; 1130		    break;
+	JR	L_414
+; 1131		case 0x5e:
+L_315:
+; 1132		    WAbsX();
+	CALL	_WAbsX
+; 1133		    LSR();
+	CALL	_LSR
+; 1134		    break;
+	JR	L_414
+; 1135		case 0x60:
+L_316:
+; 1136		    RTS();
+	CALL	_RTS
+; 1137		    break;
+	JR	L_414
+; 1138		case 0x61:
+L_317:
+; 1139		    IndZeroX();
+	CALL	_IndZeroX
+; 1140		    ADC();
+	CALL	_ADC
+; 1141		    break;	
+	JR	L_414
+; 1142		case 0x65:
+L_318:
+; 1143		    Zero();
+	CALL	_Zero
+; 1144		    ADC();
+	CALL	_ADC
+; 1145		    break;
+	JR	L_414
+; 1146		case 0x66:
+L_319:
+; 1147		    Zero();
+	CALL	_Zero
+; 1148		    ROR();
+	CALL	_ROR
+; 1149		    break;
+	JR	L_414
+; 1150		case 0x68:
+L_320:
+; 1151		    PLA();
+	CALL	_PLA
+; 1152		    break;
+	JR	L_414
+; 1153		case 0x69:
+L_321:
+; 1154		    Imm();
+	CALL	_Imm
+; 1155		    ADC();
+	CALL	_ADC
+; 1156		    break;
+	JR	L_414
+; 1157		case 0x6a:
+L_322:
+; 1158		    ROR_A();
+	CALL	_ROR_A
+; 1159		    break;
+	JR	L_414
+; 1160		case 0x6c:
+L_323:
+; 1161		    Ind();
+	CALL	_Ind
+; 1162		    JMP();
+	CALL	_JMP
+; 1163		    break;
+	JR	L_414
+; 1164		case 0x6d:
+L_324:
+; 1165		    Abs();
+	CALL	_Abs
+; 1166		    ADC();
+	CALL	_ADC
+; 1167		    break;
+	JR	L_414
+; 1168		case 0x6e:
+L_325:
+; 1169		    Abs();
+	CALL	_Abs
+; 1170		    ROR();
+	CALL	_ROR
+; 1171		    break;
+	JR	L_414
+; 1172		case 0x70:
+L_326:
+; 1173		    Rel();
+	CALL	_Rel
+; 1174		    BVS();
+	CALL	_BVS
+; 1175		    break;
+	JR	L_414
+; 1176		case 0x71:
+L_327:
+; 1177		    IndZeroY();
+	CALL	_IndZeroY
+; 1178		    ADC();
+	CALL	_ADC
+; 1179		    break;	
+	JR	L_414
+; 1180		case 0x75:
+L_328:
+; 1181		    ZeroX();
+	CALL	_ZeroX
+; 1182		    ADC();
+	CALL	_ADC
+; 1183		    break;
+	JR	L_414
+; 1184		case 0x76:
+L_329:
+; 1185		    ZeroX();
+	CALL	_ZeroX
+; 1186		    ROR();
+	CALL	_ROR
+; 1187		    break;
+	JR	L_414
+; 1188		case 0x78:
+L_330:
+; 1189		    SEI();
+	CALL	_SEI
+; 1190		    break;
+	JR	L_414
+; 1191		case 0x79:
+L_331:
+; 1192		    AbsY();
+	CALL	_AbsY
+; 1193		    ADC();
+	CALL	_ADC
+; 1194		    break;	
+	JR	L_414
+; 1195		case 0x7d:
+L_332:
+; 1196		    AbsX();
+	CALL	_AbsX
+; 1197		    ADC();
+	CALL	_ADC
+; 1198		    break;
+	JR	L_414
+; 1199		case 0x7e:
+L_333:
+; 1200		    WAbsX();
+	CALL	_WAbsX
+; 1201		    ROR();
+	CALL	_ROR
+; 1202		    break;	
+	JR	L_414
+; 1203		case 0x81:
+L_334:
+; 1204		    IndZeroX();
+	CALL	_IndZeroX
+; 1205		    STA();
+	CALL	_STA
+; 1206		    break;	
+	JR	L_414
+; 1207		case 0x84:
+L_335:
+; 1208		    Zero();
+	CALL	_Zero
+; 1209		    STY();
+	CALL	_STY
+; 1210		    break;
+	JR	L_414
+; 1211		case 0x85:
+L_336:
+; 1212		    Zero();
+	CALL	_Zero
+; 1213		    STA();
+	CALL	_STA
+; 1214		    break;
+	JR	L_414
+; 1215		case 0x86:
+L_337:
+; 1216		    Zero();
+	CALL	_Zero
+; 1217		    STX();
+	CALL	_STX
+; 1218		    break;
+	JR	L_414
+; 1219		case 0x88:
+L_338:
+; 1220		    DEY();
+	CALL	_DEY
+; 1221		    break;	
+	JR	L_414
+; 1222		case 0x8a:
+L_339:
+; 1223		    TXA();
+	CALL	_TXA
+; 1224		    break;
+	JR	L_414
+; 1225		case 0x8c:
+L_340:
+; 1226		    Abs();
+	CALL	_Abs
+; 1227		    STY();
+	CALL	_STY
+; 1228		    break;
+	JR	L_414
+; 1229		case 0x8d:
+L_341:
+; 1230		    Abs();
+	CALL	_Abs
+; 1231		    STA();
+	CALL	_STA
+; 1232		    break;
+	JR	L_414
+; 1233		case 0x8e:
+L_342:
+; 1234		    Abs();
+	CALL	_Abs
+; 1235		    STX();
+	CALL	_STX
+; 1236		    break;
+	JR	L_414
+; 1237		case 0x90:
+L_343:
+; 1238		    Rel();
+	CALL	_Rel
+; 1239		    BCC();
+	CALL	_BCC
+; 1240		    break;
+	JR	L_414
+; 1241		case 0x91:
+L_344:
+; 1242		    WIndZeroY();
+	CALL	_WIndZeroY
+; 1243		    STA();
+	CALL	_STA
+; 1244		    break;	
+	JR	L_414
+; 1245		case 0x94:
+L_345:
+; 1246		    ZeroX();
+	CALL	_ZeroX
+; 1247		    STY();
+	CALL	_STY
+; 1248		    break;
+	JR	L_414
+; 1249		case 0x95:
+L_346:
+; 1250		    ZeroX();
+	CALL	_ZeroX
+; 1251		    STA();
+	CALL	_STA
+; 1252		    break;
+	JR	L_414
+; 1253		case 0x96:
+L_347:
+; 1254		    ZeroY();
+	CALL	_ZeroY
+; 1255		    STX();
+	CALL	_STX
+; 1256		    break;
+	JR	L_414
+; 1257		case 0x98:
+L_348:
+; 1258		    TYA();
+	CALL	_TYA
+; 1259		    break;
+	JR	L_414
+; 1260		case 0x99:
+L_349:
+; 1261		    WAbsY();
+	CALL	_WAbsY
+; 1262		    STA();
+	CALL	_STA
+; 1263		    break;
+	JR	L_414
+; 1264		case 0x9a:
+L_350:
+; 1265		    TXS();
+	CALL	_TXS
+; 1266		    break;
+	JR	L_414
+; 1267		case 0x9d:
+L_351:
+; 1268		    WAbsX();
+	CALL	_WAbsX
+; 1269		    STA();
+	CALL	_STA
+; 1270		    break;
+	JR	L_414
+; 1271		case 0xa0:
+L_352:
+; 1272		    Imm();
+	CALL	_Imm
+; 1273		    LDY();
+	CALL	_LDY
+; 1274		    break;
+	JR	L_414
+; 1275		case 0xa1:
+L_353:
+; 1276		    IndZeroX();
+	CALL	_IndZeroX
+; 1277		    LDA();
+	CALL	_LDA
+; 1278		    break;
+	JR	L_414
+; 1279		case 0xa2:
+L_354:
+; 1280		    Imm();
+	CALL	_Imm
+; 1281		    LDX();
+	CALL	_LDX
+; 1282		    break;
+	JR	L_414
+; 1283		case 0xa4:
+L_355:
+; 1284		    Zero();
+	CALL	_Zero
+; 1285		    LDY();
+	CALL	_LDY
+; 1286		    break;
+	JR	L_414
+; 1287		case 0xa5:
+L_356:
+; 1288		    Zero();
+	CALL	_Zero
+; 1289		    LDA();
+	CALL	_LDA
+; 1290		    break;
+	JR	L_414
+; 1291		case 0xa6:
+L_357:
+; 1292		    Zero();
+	CALL	_Zero
+; 1293		    LDX();
+	CALL	_LDX
+; 1294		    break;
+	JR	L_414
+; 1295		case 0xa8:
+L_358:
+; 1296		    TAY();
+	CALL	_TAY
+; 1297		    break;
+	JR	L_414
+; 1298		case 0xa9:
+L_359:
+; 1299		    Imm();
+	CALL	_Imm
+; 1300		    LDA();
+	CALL	_LDA
+; 1301		    break;
+	JR	L_414
+; 1302		case 0xaa:
+L_360:
+; 1303		    TAX();
+	CALL	_TAX
+; 1304		    break;
+	JR	L_414
+; 1305		case 0xac:
+L_361:
+; 1306		    Abs();
+	CALL	_Abs
+; 1307		    LDY();
+	CALL	_LDY
+; 1308		    break;
+	JR	L_414
+; 1309		case 0xad:
+L_362:
+; 1310		    Abs();
+	CALL	_Abs
+; 1311		    LDA();
+	CALL	_LDA
+; 1312		    break;
+	JR	L_414
+; 1313		case 0xae:
+L_363:
+; 1314		    Abs();
+	CALL	_Abs
+; 1315		    LDX();
+	CALL	_LDX
+; 1316		    break;
+	JR	L_414
+; 1317		case 0xb0:
+L_364:
+; 1318		    Rel();
+	CALL	_Rel
+; 1319		    BCS();
+	CALL	_BCS
+; 1320		    break;
+	JR	L_414
+; 1321		case 0xb1:
+L_365:
+; 1322		    IndZeroY();
+	CALL	_IndZeroY
+; 1323		    LDA();
+	CALL	_LDA
+; 1324		    break;	
+	JR	L_414
+; 1325		case 0xb4:
+L_366:
+; 1326		    ZeroX();
+	CALL	_ZeroX
+; 1327		    LDY();
+	CALL	_LDY
+; 1328		    break;
+	JR	L_414
+; 1329		case 0xb5:
+L_367:
+; 1330		    ZeroX();
+	CALL	_ZeroX
+; 1331		    LDA();
+	CALL	_LDA
+; 1332		    break;
+	JR	L_414
+; 1333		case 0xb6:
+L_368:
+; 1334		    ZeroY();
+	CALL	_ZeroY
+; 1335		    LDX();
+	CALL	_LDX
+; 1336		    break;
+	JR	L_414
+; 1337		case 0xb8:
+L_369:
+; 1338		    CLV();
+	CALL	_CLV
+; 1339		    break;
+	JR	L_414
+; 1340		case 0xb9:
+L_370:
+; 1341		    AbsY();
+	CALL	_AbsY
+; 1342		    LDA();
+	CALL	_LDA
+; 1343		    break;
+	JR	L_414
+; 1344		case 0xba:
+L_371:
+; 1345		    TSX();
+	CALL	_TSX
+; 1346		    break;
+	JR	L_414
+; 1347		case 0xbc:
+L_372:
+; 1348		    AbsX();
+	CALL	_AbsX
+; 1349		    LDY();
+	CALL	_LDY
+; 1350		    break;
+	JR	L_414
+; 1351		case 0xbd:
+L_373:
+; 1352		    AbsX();
+	CALL	_AbsX
+; 1353		    LDA();
+	CALL	_LDA
+; 1354		    break;
+	JR	L_414
+; 1355		case 0xbe:
+L_374:
+; 1356		    AbsY();
+	CALL	_AbsY
+; 1357		    LDX();
+	CALL	_LDX
+; 1358		    break;
+	JR	L_414
+; 1359		case 0xc0:
+L_375:
+; 1360		    Imm();
+	CALL	_Imm
+; 1361		    CPY();
+	CALL	_CPY
+; 1362		    break;
+	JR	L_414
+; 1363		case 0xc1:
+L_376:
+; 1364		    IndZeroX();
+	CALL	_IndZeroX
+; 1365		    CMP();
+	CALL	_CMP
+; 1366		    break;	
+	JR	L_414
+; 1367		case 0xc4:
+L_377:
+; 1368		    Zero();
+	CALL	_Zero
+; 1369		    CPY();
+	CALL	_CPY
+; 1370		    break;
+	JR	L_414
+; 1371		case 0xc5:
+L_378:
+; 1372		    Zero();
+	CALL	_Zero
+; 1373		    CMP();
+	CALL	_CMP
+; 1374		    break;
+	JR	L_414
+; 1375		case 0xc6:
+L_379:
+; 1376		    Zero();
+	CALL	_Zero
+; 1377		    DEC();
+	CALL	_DEC
+; 1378		    break;
+	JR	L_414
+; 1379		case 0xc8:
+L_380:
+; 1380		    INY();
+	CALL	_INY
+; 1381		    break;
+	JR	L_414
+; 1382		case 0xc9:
+L_381:
+; 1383		    Imm();
+	CALL	_Imm
+; 1384		    CMP();
+	CALL	_CMP
+; 1385		    break;
+	JR	L_414
+; 1386		case 0xca:
+L_382:
+; 1387		    DEX();
+	CALL	_DEX
+; 1388		    break;
+	JR	L_414
+; 1389		case 0xcc:
+L_383:
+; 1390		    Abs();
+	CALL	_Abs
+; 1391		    CPY();
+	CALL	_CPY
+; 1392		    break;
+	JR	L_414
+; 1393		case 0xcd:
+L_384:
+; 1394		    Abs();
+	CALL	_Abs
+; 1395		    CMP();
+	CALL	_CMP
+; 1396		    break;
+	JR	L_414
+; 1397		case 0xce:
+L_385:
+; 1398		    Abs();
+	CALL	_Abs
+; 1399		    DEC();
+	CALL	_DEC
+; 1400		    break;
+	JR	L_414
+; 1401		case 0xd0:
+L_386:
+; 1402		    Rel();
+	CALL	_Rel
+; 1403		    BNE();
+	CALL	_BNE
+; 1404		    break;
+	JR	L_414
+; 1405		case 0xd1:
+L_387:
+; 1406		    IndZeroY();
+	CALL	_IndZeroY
+; 1407		    CMP();
+	CALL	_CMP
+; 1408		    break;	
+	JR	L_414
+; 1409		case 0xd5:
+L_388:
+; 1410		    ZeroX();
+	CALL	_ZeroX
+; 1411		    CMP();
+	CALL	_CMP
+; 1412		    break;
+	JR	L_414
+; 1413		case 0xd6:
+L_389:
+; 1414		    ZeroX();
+	CALL	_ZeroX
+; 1415		    DEC();
+	CALL	_DEC
+; 1416		    break;
+	JR	L_414
+; 1417		case 0xd8:
+L_390:
+; 1418		    CLD();
+	CALL	_CLD
+; 1419		    break;
+	JR	L_414
+; 1420		case 0xd9:
+L_391:
+; 1421		    AbsY();
+	CALL	_AbsY
+; 1422		    CMP();
+	CALL	_CMP
+; 1423		    break;
+	JR	L_414
+; 1424		
+; 1425		case 0xdd:
+L_392:
+; 1426		    AbsX();
+	CALL	_AbsX
+; 1427		    CMP();
+	CALL	_CMP
+; 1428		    break;
+	JR	L_414
+; 1429		case 0xde:
+L_393:
+; 1430		    WAbsX();
+	CALL	_WAbsX
+; 1431		    DEC();
+	CALL	_DEC
+; 1432		    break;
+	JR	L_414
+; 1433		case 0xe0:
+L_394:
+; 1434		    Imm();
+	CALL	_Imm
+; 1435		    CPX();
+	CALL	_CPX
+; 1436		    break;
+	JR	L_414
+; 1437		case 0xe1:
+L_395:
+; 1438		    IndZeroX();
+	CALL	_IndZeroX
+; 1439		    SBC();
+	CALL	_SBC
+; 1440		    break;	
+	JR	L_414
+; 1441		case 0xe4:
+L_396:
+; 1442		    Zero();
+	CALL	_Zero
+; 1443		    CPX();
+	CALL	_CPX
+; 1444		    break;
+	JR	L_414
+; 1445		case 0xe5:
+L_397:
+; 1446		    Zero();
+	CALL	_Zero
+; 1447		    SBC();
+	CALL	_SBC
+; 1448		    break;
+	JR	L_414
+; 1449		case 0xe6:
+L_398:
+; 1450		    Zero();
+	CALL	_Zero
+; 1451		    INC();
+	CALL	_INC
+; 1452		    break;
+	JR	L_414
+; 1453		case 0xe8:
+L_399:
+; 1454		    INX();
+	CALL	_INX
+; 1455		    break;
+	JR	L_414
+; 1456		case 0xe9:
+L_400:
+; 1457		    Imm();
+	CALL	_Imm
+; 1458		    SBC();
+	CALL	_SBC
+; 1459		    break;
+	JR	L_414
+; 1460		case 0xea:
+; 1461		    break;
+; 1462		case 0xeb:
+L_402:
+; 1463		    Imm();
+	CALL	_Imm
+; 1464		    SBC();
+	CALL	_SBC
+; 1465		    break;
+	JR	L_414
+; 1466		case 0xec:
+L_403:
+; 1467		    Abs();
+	CALL	_Abs
+; 1468		    CPX();
+	CALL	_CPX
+; 1469		    break;
+	JR	L_414
+; 1470		case 0xed:
+L_404:
+; 1471		    Abs();
+	CALL	_Abs
+; 1472		    SBC();
+	CALL	_SBC
+; 1473		    break;
+	JR	L_414
+; 1474		case 0xee:
+L_405:
+; 1475		    Abs();
+	CALL	_Abs
+; 1476		    INC();
+	CALL	_INC
+; 1477		    break;
+	JR	L_414
+; 1478		case 0xf0:
+L_406:
+; 1479		    Rel();
+	CALL	_Rel
+; 1480		    BEQ();
+	CALL	_BEQ
+; 1481		    break;
+	JR	L_414
+; 1482		case 0xf1:
+L_407:
+; 1483		    IndZeroY();
+	CALL	_IndZeroY
+; 1484		    SBC();
+	CALL	_SBC
+; 1485		    break;	
+	JR	L_414
+; 1486		case 0xf5:
+L_408:
+; 1487		    ZeroX();
+	CALL	_ZeroX
+; 1488		    SBC();
+	CALL	_SBC
+; 1489		    break;
+	JR	L_414
+; 1490		case 0xf6:
+L_409:
+; 1491		    ZeroX();
+	CALL	_ZeroX
+; 1492		    INC();
+	CALL	_INC
+; 1493		    break;
+	JR	L_414
+; 1494		case 0xf8:
+L_410:
+; 1495		    SED();
+	CALL	_SED
+; 1496		    break;
+	JR	L_414
+; 1497		case 0xf9:
+L_411:
+; 1498		    AbsY();
+	CALL	_AbsY
+; 1499		    SBC();
+	CALL	_SBC
+; 1500		    break;	
+	JR	L_414
+; 1501		case 0xfd:
+L_412:
+; 1502		    AbsX();
+	CALL	_AbsX
+; 1503		    SBC();
+	CALL	_SBC
+; 1504		    break;
+	JR	L_414
+; 1505		case 0xfe:
+L_413:
+; 1506		    WAbsX();
+	CALL	_WAbsX
+; 1507		    INC();
+	CALL	_INC
+; 1508		    break;
+; 1509		}
+; 1510	}
+L_414:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _Execute_Opcode ***************************
+;Name                         Addr/Register   Size   Type
+;_Mem_Read                           IMPORT  -----   function
+;_programCounter                     STATIC      3   variable
+;opcode                                IX-1      1   variable
+
+
+; Stack Frame Size: 7 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1511	
+; 1512	static void Run_M6502(void)
+; 1513	{
+_Run_M6502:
+; 1514		if (!(statusRegister & I) && IRQ)
+	LD	A,(_statusRegister)
+	AND	A,4
+	JR	NZ,L_418
+	LD	BC,0
+	LD	HL,(_IRQ)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_418
+; 1515			handleIRQ();
+	CALL	_handleIRQ
+L_418:
+; 1516		
+; 1517		if (NMI)
+	LD	BC,0
+	LD	HL,(_NMI)
+	OR	A,A
+	SBC	HL,BC
+	JR	Z,L_419
+; 1518			handleNMI();
+	CALL	_handleNMI
+L_419:
+; 1519		
+; 1520		Execute_Opcode();
+	CALL	_Execute_Opcode
+; 1521	}
+	RET	
+
+
+;**************************** _Run_M6502 ***************************
+;Name                         Addr/Register   Size   Type
+;_NMI                                STATIC      3   variable
+;_IRQ                                STATIC      3   variable
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1522	
+; 1523	void Reset_M6502(void)
+; 1524	{
+_Reset_M6502:
+; 1525		statusRegister |= I;
+	LD	A,(_statusRegister)
+; 1526		stackPointer = 0xFF;
+; 1527		programCounter = Mem_Read_Absolute(0xFFFC);
+	LD	BC,65532
+	PUSH	BC
+	SET	2,A
+	LD	(_statusRegister),A
+	LD	A,255
+	LD	(_stackPointer),A
+	CALL	_Mem_Read_Absolute
+	POP	BC
+	LD	BC,HL
+	CALL	__stoiu
+	LD	(_programCounter),HL
+; 1528	}
+	RET	
+
+
+;**************************** _Reset_M6502 ***************************
+;Name                         Addr/Register   Size   Type
+;_programCounter                     STATIC      3   variable
+;_stackPointer                       STATIC      1   variable
+;_statusRegister                     STATIC      1   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1529	
+; 1530	/*void Set_Speed(int freq, int synchroMillis)
+; 1531	{
+; 1532		//cyclesBeforeSynchro = synchroMillis * freq;
+; 1533		_synchroMillis = synchroMillis;
+; 1534	}*/
+; 1535	
+; 1536	void Set_IRQ(int state)
+; 1537	{
+_Set_IRQ:
+	CALL	__frameset0
+; 1538		IRQ = state;
+	LD	BC,(IX+6)
+	LD	(_IRQ),BC
+; 1539	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _Set_IRQ ***************************
+;Name                         Addr/Register   Size   Type
+;_IRQ                                STATIC      3   variable
+;state                                 IX+6      3   parameter
+
+
+; Stack Frame Size: 9 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+; 1540	
+; 1541	void setNMI(void)
+; 1542	{
+_setNMI:
+; 1543		NMI = 1;
+	LD	BC,1
+	LD	(_NMI),BC
+; 1544	}
+	RET	
+
+
+;**************************** _setNMI ***************************
+;Name                         Addr/Register   Size   Type
+;_NMI                                STATIC      3   variable
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	XREF _Mem_Write:ROM
+	XREF _Mem_Read:ROM
+	XREF __inot:ROM
+	XREF __ior:ROM
+	XREF __iand:ROM
+	XREF __ixor:ROM
+	XREF __stoiu:ROM
+	XREF __frameset0:ROM
+	XREF __frameset:ROM
+	XREF __ishl_b:ROM
+	XREF __ishrs_b:ROM
+	XDEF _setNMI
+	XDEF _Set_IRQ
+	XDEF _Reset_M6502
+	XDEF _Cpu_Opcode
+	XDEF _tmp
+	XDEF _ptrL
+	XDEF _ptrH
+	XDEF _ptr
+	XDEF _opL
+	XDEF _opH
+	XDEF _op
+	XDEF _programCounter
+	END
