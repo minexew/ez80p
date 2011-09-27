@@ -13,7 +13,8 @@ port_nmi_ack			equ 006h
 port_ps2_ctrl			equ 007h
 port_selector			equ 008h
 port_mouse_data			equ 006h
-port_clear_flags		equ 009h
+port_clear_flags			equ 009h
+port_hw_enable			equ 00ah
 
 sdc_power				equ 0		;(port_sd_ctrl, bit 0 - active high)
 sdc_cs					equ 1		;(port_sd_ctrl, bit 1 - active low)
