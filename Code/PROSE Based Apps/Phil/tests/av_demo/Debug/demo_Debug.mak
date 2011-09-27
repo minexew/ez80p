@@ -68,6 +68,8 @@ demo: $(OBJS)
 	 $(LD) $(LDFLAGS)
 
 $(WORKDIR)\demo.obj :  \
-            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\av_demo\src\demo.asm
+            E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\av_demo\src\demo.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\Routines\ADL_mode_Protracker_Player_v101.asm  \
+            E:\My_Own_Files\Coding\ez80p\Code\Includes\Routines\ADL_mode_Protracker_to_AMOEBA_audio_v102.asm
 	 $(AS) $(ASFLAGS) E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\av_demo\src\demo.asm
 

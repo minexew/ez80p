@@ -1,8 +1,8 @@
-; test tilemap mode with audio + sprites - Requires AMOEBA v87+
+; test tilemap mode with audio + sprites - Requires AMOEBA v10A+
 
 ;----------------------------------------------------------------------------------------------
 
-amoeba_version_req	equ	0087h			; (0 = dont care about HW version)
+amoeba_version_req	equ	010ah			; (0 = dont care about HW version)
 prose_version_req	equ 001eh			; (0 = dont care about OS version)
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
@@ -26,9 +26,11 @@ tilemap_location	equ 60000h					; in VRAM
 
 tilemap_width		equ 256*2
 
-demo_code
-			
 ;---- Set up Protracker module -------------------------------------------------------------
+
+demo_code
+			ld a,81h
+			out0 (port_hw_enable),a			; make sure sound system is active
 
 			xor a
 			ld (relocated_samples),a
@@ -592,7 +594,7 @@ waitvrt1	in0 a,(port_hw_flags)		; wait for the VRT latch to become set
 
 			include "routines/ADL_mode_Protracker_Player_v101.asm"
 	
-			include "routines/ADL_mode_Protracker_to_EZ80P_audio.asm"
+			include "routines/ADL_mode_Protracker_to_AMOEBA_audio_v102.asm"
 			
 ;---------------------------------------------------------------------------------------------
 ; tilemap data and vars

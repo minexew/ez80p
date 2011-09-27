@@ -2,9 +2,14 @@
 Current version
 ---------------
 
-03B
+03C 27-09-2011  : Changed audio code for AMOEBA v10A
 
-04-09-2011	: FORMAT command can now format volumes as well as entire disks.
+------------------------------------------------------------------------------------------
+Previous releases:
+------------------------------------------------------------------------------------------
+
+
+03B		: FORMAT command can now format volumes as well as entire disks.
 		  EG: "FORMAT VOL1: NAME" (volume must be an existing partition
 		  use the utility "PARTDISK.EZP" to partition disks).
 
@@ -28,9 +33,6 @@ Current version
 		  disk dir, you are now prompted to overwrite existing files.
 
 
-------------------------------------------------------------------------------------------
-Previous releases:
-------------------------------------------------------------------------------------------
 
 
 03A 		: All internal commands now accept path strings.

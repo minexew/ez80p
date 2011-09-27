@@ -680,11 +680,18 @@ hwsc_play_audio
 
 ; set C register to set channels wave is to play on
 
+				ld a,81h
+				out0 (port_hw_enable),a					;make sure audio system is enabled
+				
+				push hl
 				push hl
 				pop iy
-				ld ix,hw_audio_registers
-				call audio_reg_wait						;wait until hw has read audio registers
+
+				ld a,c
+				ld l,c
+				ld (hw_audio_registers+80h),a			;lock the applicable channels
 				
+				ld ix,hw_audio_registers
 				ld b,8
 audchanloop		srl c
 				jr nc,not_this_chan
@@ -698,19 +705,51 @@ audchanloop		srl c
 				ld de,(iy+0ch)
 				ld (ix+08h),de							;frequency constant
 				
-				ld e,(iy+0eh)
-				ld (ix+0ch),de							;volume
+				ld a,(iy+0eh)
+				ld (ix+0ch),a							;volume
 				
+				xor a
+				ld (ix+0eh),a
+				
+				ld a,011b
+				ld (ix+0fh),a							;restart channel and swap on loop
+				
+not_this_chan	lea ix,ix+10h			
+				djnz audchanloop
+						
+				xor a
+				ld (hw_audio_registers+80h),a			;unlock channels
+				
+				ld de,5
+				call hwsc_time_delay
+				
+				ld a,l
+				ld (hw_audio_registers+80h),a			;lock the applicable channels
+				
+				ld ix,hw_audio_registers
+				ld b,8
+audchanloop2	srl l
+				jr nc,not_this_chan2
+						
 				ld de,(iy+6)
-				ld (ix+10h),de							;loop location
+				ld (ix+0h),de							;loop location
 				
 				ld de,(iy+9)
-				ld (ix+14h),de							;loop length
-
-not_this_chan	
-				lea ix,ix+20h			
-				djnz audchanloop
+				ld (ix+4h),de							;loop length
+								
 				xor a
+				ld (ix+0eh),a
+				
+				ld a,000b
+				ld (ix+0fh),a							;dont restart channel and dont swap on loop
+				
+not_this_chan2	lea ix,ix+10h			
+				djnz audchanloop2
+						
+				xor a
+				ld (hw_audio_registers+80h),a
+				
+				pop hl
 				ret
 
 
@@ -729,20 +768,13 @@ wait_audreg		in0 a,(port_hw_flags)				; wait for audio hardware to finish readin
 				ret
 
 
-;-----------------------------------------------------------------------------------------------
-				
+;-----------------------------------------------------------------------------------------------	
 				
 hwsc_disable_audio
 
+				ld a,01h
+				out0 (port_hw_enable),a					
 				xor a
-				ld (hw_audio_registers+3),a			;disable audio hardware 
-				
-				ld ix,hw_audio_registers			;silence each channel's volume
-				ld b,8
-				ld de,0
-disaud_lp		ld (ix+0ch),de
-				lea ix,ix+020h
-				djnz disaud_lp
 				ret
 				
 ;--------------------------------------------------------------------------------------------
