@@ -2,6 +2,9 @@
 AMOEBA for EZ80P Version info:
 -------------------------------
 
+V10A - Altered Sound System, allows IRQ based on looping channels etc. Registers
+       etc changed so incompatible with previous versions of AMOEBA.
+
 v109 - ROM 0.07. Added "scanline build complete" status flag to port 1 bit 3
 
 V108 - Swapped VRAM_A and VRAM_B pin assignments in attempt to cure ongoing character
