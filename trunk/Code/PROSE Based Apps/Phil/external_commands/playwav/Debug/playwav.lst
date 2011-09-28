@@ -1,4 +1,4 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   1
 
 
 PC     Object              I  Line    Source 
@@ -54,7 +54,7 @@ PC     Object              I  Line    Source
        000000AA            C    31    CS0_CTL			equ 0aah			
        000000AB            C    32    CS1_LBR			equ 0abh			;eZ80 wait 
        000000AC            C    33    CS1_UBR			equ 0ach
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_equates.asm
@@ -110,7 +110,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_eq
        0000000A            C    17    port_hw_enable			equ 00ah
                            C    18    
        00000000            C    19    sdc_power				equ 0		;(port_sd_c
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   3
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hardware_equates.asm
@@ -166,7 +166,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hard
                            C    15    
        0000000B            C    16    kr_find_file					equ 0bh
        0000000B            C    17    kr_open_file					equ 0bh		; p
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   4
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   4
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
@@ -222,7 +222,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
        00000034            C    67    kr_get_envar					equ 34h
        00000035            C    68    kr_delete_envar					equ 35h
                            C    69    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   5
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   5
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
@@ -278,7 +278,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
                            C     0    include "misc_system_equates.asm"
                            C     1    
                            C     2    ;-- System Equates ----------------------------
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   6
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   6
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\misc_system_equates.asm
@@ -334,7 +334,7 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\misc_system
                            B    43    	
                            B    44    	IF ADL_mode = 0 
                            B    45    		
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   7
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   7
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
@@ -352,416 +352,452 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B    57    	
                            B    58    ;----------------------------------------------
                            B    59    	
-                           A    16    
-                           A    17    ;----------------------------------------------
-                           A    18    			
-010010 CD 19 00 01         A    19    			call my_prog
-010014 5BC3140A 00         A    20    			jp.lil prose_return
-                           A    21    			
-                           A    22    ;----------------------------------------------
-                           A    23    
-       00000008            A    24    chans equ 8								; numbe
-                           A    25    
-010019 7E                  A    26    my_prog		ld a,(hl)					; exami
-01001A B7                  A    27    			or a			
-01001B CA 6F 03 01         A    28    			jp z,show_use
-                           A    29    			
-01001F 11 6B 04 01         A    30    			ld de,filename				; copy 
-010023 0610                A    31    			ld b,16
-010025 7E                  A    32    fnclp		ld a,(hl)
-010026 B7                  A    33    			or a
-010027 28 09               A    34    			jr z,fncdone
-010029 FE20                A    35    			cp ' '
-01002B 28 05               A    36    			jr z,fncdone
-01002D 12                  A    37    			ld (de),a
-01002E 23                  A    38    			inc hl
-01002F 13                  A    39    			inc de
-010030 10 F3               A    40    			djnz fnclp
-010032 AF                  A    41    fncdone		xor a
-010033 12                  A    42    			ld (de),a					; null 
-                           A    43    
-010034 21 5F 04 01         A    44    			ld hl,loading_txt
-                           A    45    			prose_call kr_print_string
-                           A    46    			
-                           A    47    ;----------------------------------------------
-                           A    48    
-01003F 3E81                A    49    			ld a,081h
-010041 ED390A              A    50    			out0 (port_hw_enable),a		; ensur
-                           A    51    
-010044 CD 4B 03 01         A    52    			call silence_all_channels
-                           A    53    	
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   8
+                           A    16    			
+                           A    17    			
+                           A    18    ;----------------------------------------------
+                           A    19    
+010010 E5                  A    20    			push hl
+010011 3E04                A    21    			ld a,kr_get_volume_info		;store 
+010013 5BCD200A 00         A    22    			call.lil prose_kernal
+010018 32 4C 00 01         A    23    			ld (orig_volume),a
+01001C 3E1A                A    24    			ld a,kr_get_dir_cluster
+01001E 5BCD200A 00         A    25    			call.lil prose_kernal
+010023 ED53 4D 00 01       A    26    			ld (orig_dir_cluster),de
+010028 E1                  A    27     			pop hl
+                           A    28    			
+010029 CD 50 00 01         A    29    			call my_prog
+                           A    30    			
+01002D F5                  A    31    			push af						;restor
+01002E 3A 4C 00 01         A    32    			ld a,(orig_volume)
+010032 5F                  A    33    			ld e,a
+010033 3E03                A    34    			ld a,kr_change_volume
+010035 5BCD200A 00         A    35    			call.lil prose_kernal
+01003A ED5B 4D 00 01       A    36    			ld de,(orig_dir_cluster)
+01003F 3E1B                A    37    			ld a,kr_set_dir_cluster
+010041 5BCD200A 00         A    38    			call.lil prose_kernal
+010046 F1                  A    39    			pop af
+010047 5BC3140A 00         A    40    			jp.lil prose_return
+                           A    41    
+                           A    42    
+01004C 00                  A    43    orig_volume			db 0
+01004D 000000              A    44    orig_dir_cluster	dw24 0
+                           A    45    
+                           A    46    ;----------------------------------------------
+                           A    47    ; App starts here..
+                           A    48    ;----------------------------------------------
+                           A    49    
+                           A    50    
+       00000008            A    51    chans equ 8								; numbe
+                           A    52    
+010050 7E                  A    53    my_prog		ld a,(hl)					; exami
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   8
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-010048 21 6B 04 01         A    54    			ld hl,filename				; does 
-                           A    55    			prose_call kr_open_file
-010053 C0                  A    56    			ret nz
-                           A    57    				
-010054 0E00                A    58    			ld c,0
-010056 112C0000            A    59    			ld de,44
-                           A    60    			prose_call kr_set_load_length
-                           A    61    				
-010061 21 99 04 01         A    62    			ld hl,wav_header
-                           A    63    			prose_call kr_read_file		; load 
-01006C C0                  A    64    			ret nz	
-                           A    65    				
-01006D DD21 99 04 01       A    66    			ld ix,wav_header			; check
-010072 DD7E08              A    67    			ld a,(ix+8)					
-010075 FE57                A    68    			cp 'W'
-010077 C2 7C 03 01         A    69    			jp nz,notwav
-01007B DD7E09              A    70    			ld a,(ix+9)
-01007E FE41                A    71    			cp 'A'
-010080 C2 7C 03 01         A    72    			jp nz,notwav
-010084 DD7E16              A    73    			ld a,(ix+22)				; 1 = m
-010087 FE01                A    74    			cp 1
-010089 C2 82 03 01         A    75    			jp nz,badwavtype
-01008D DD7E20              A    76    			ld a,(ix+32)				; 1 = 8
-010090 FE01                A    77    			cp 1
-010092 C2 82 03 01         A    78    			jp nz,badwavtype
-                           A    79    
-010096 21000000            A    80    			ld hl,0						; conve
-01009A AF                  A    81    			xor a						; a:hl 
-01009B 11CCAB00            A    82    			ld de,43980					; c:de 
-01009F 0E00                A    83    			ld c,0
-0100A1 0610                A    84    			ld b,16
-0100A3 DDCB193E            A    85    mult_lp		srl (ix+25)					; 24:25
-0100A7 DDCB181E            A    86    			rr (ix+24)
-0100AB 30 02               A    87    			jr nc,mult_no_add
-0100AD 19                  A    88    			add hl,de
-0100AE 89                  A    89    			adc a,c
-0100AF EB                  A    90    mult_no_add	ex de,hl
-0100B0 29                  A    91    			add hl,hl
-0100B1 CB11                A    92    			rl c
-0100B3 EB                  A    93    			ex de,hl
-0100B4 10 ED               A    94    			djnz mult_lp
-0100B6 22 91 04 01         A    95    			ld (mult32_result),hl
-0100BA 32 94 04 01         A    96    			ld (mult32_result+3),a
-0100BE 2A 93 04 01         A    97    			ld hl,(mult32_result+2)
-0100C2 29                  A    98    			add hl,hl
-0100C3 22 96 04 01         A    99    			ld (frequency_constant),hl
-                           A   100    			
-                           A   101    				
-0100C7 DD2728              A   102    			ld hl,(ix+40)
-0100CA DD7E2B              A   103    			ld a,(ix+43)				; a:hl 
-0100CD 22 8C 04 01         A   104    			ld (samp_len_lo),hl
-0100D1 32 8F 04 01         A   105    			ld (samp_len_hi),a
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:   9
+010051 B7                  A    54    			or a			
+010052 CA B0 03 01         A    55    			jp z,show_use
+                           A    56    			
+010056 1E00                A    57    			ld e,0
+010058 3E55                A    58    			ld a,kr_parse_path
+01005A 5BCD200A 00         A    59    			call.lil prose_kernal
+01005F C0                  A    60    			ret nz
+                           A    61    			
+010060 11 AC 04 01         A    62    			ld de,filename				; copy 
+010064 0610                A    63    			ld b,16
+010066 7E                  A    64    fnclp		ld a,(hl)
+010067 B7                  A    65    			or a
+010068 28 09               A    66    			jr z,fncdone
+01006A FE20                A    67    			cp ' '
+01006C 28 05               A    68    			jr z,fncdone
+01006E 12                  A    69    			ld (de),a
+01006F 23                  A    70    			inc hl
+010070 13                  A    71    			inc de
+010071 10 F3               A    72    			djnz fnclp
+010073 AF                  A    73    fncdone		xor a
+010074 12                  A    74    			ld (de),a					; null 
+                           A    75    
+010075 21 A0 04 01         A    76    			ld hl,loading_txt
+                           A    77    			prose_call kr_print_string
+                           A    78    			
+                           A    79    ;----------------------------------------------
+                           A    80    
+010080 3E81                A    81    			ld a,081h
+010082 ED390A              A    82    			out0 (port_hw_enable),a		; ensur
+                           A    83    
+010085 CD 8C 03 01         A    84    			call silence_all_channels
+                           A    85    	
+010089 21 AC 04 01         A    86    			ld hl,filename				; does 
+                           A    87    			prose_call kr_open_file
+010094 C0                  A    88    			ret nz
+                           A    89    				
+010095 0E00                A    90    			ld c,0
+010097 112C0000            A    91    			ld de,44
+                           A    92    			prose_call kr_set_load_length
+                           A    93    				
+0100A2 21 DA 04 01         A    94    			ld hl,wav_header
+                           A    95    			prose_call kr_read_file		; load 
+0100AD C0                  A    96    			ret nz	
+                           A    97    				
+0100AE DD21 DA 04 01       A    98    			ld ix,wav_header			; check
+0100B3 DD7E08              A    99    			ld a,(ix+8)					
+0100B6 FE57                A   100    			cp 'W'
+0100B8 C2 BD 03 01         A   101    			jp nz,notwav
+0100BC DD7E09              A   102    			ld a,(ix+9)
+0100BF FE41                A   103    			cp 'A'
+0100C1 C2 BD 03 01         A   104    			jp nz,notwav
+0100C5 DD7E16              A   105    			ld a,(ix+22)				; 1 = m
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:   9
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-0100D5 B7                  A   106    			or a
-0100D6 C2 8D 01 01         A   107    			jp nz,long_samp				; is sa
-0100DA 11010002            A   108    			ld de,20001h
-0100DE AF                  A   109    			xor a
-0100DF ED52                A   110    			sbc hl,de
-0100E1 D2 8D 01 01         A   111    			jp nc,long_samp
-                           A   112    			
-                           A   113    ;----------------------------------------------
-                           A   114    
-0100E5 21 6B 04 01         A   115    short_samp	ld hl,filename						                           A   116    			prose_call kr_open_file
-0100F0 C0                  A   117    			ret nz
-                           A   118    			
-0100F1 0E00                A   119    			ld c,0
-0100F3 112C0000            A   120    			ld de,44
-                           A   121    			prose_call kr_set_file_pointer
-                           A   122    			
-0100FE 210000C0            A   123    			ld hl,vram_b_addr					                           A   124    			prose_call kr_read_file				010109 C0                  A   125    			ret nz
-                           A   126    			
-01010A 210000C0            A   127    			ld hl,vram_b_addr					01010E CD 40 03 01         A   128    			call convert_samples
-010112 210000C1            A   129    			ld hl,vram_b_addr+10000h			010116 CD 40 03 01         A   130    			call convert_samples
-                           A   131    
-01011A 3EFF                A   132    			ld a,0ffh							01011C 328014FF            A   133    			ld (hw_audio_registers+80h),a		010120 DD210014 FF         A   134    			ld ix,hw_audio_registers			010125 0608                A   135    			ld b,chans
-010127 110000C0            A   136    initchlp1	ld de,vram_b_addr
-01012B DD1F00              A   137    			ld (ix+00h),de						01012E ED5B 8C 04 01       A   138    			ld de,(samp_len_lo)
-010133 DD1F04              A   139    			ld (ix+04h),de						010136 ED5B 96 04 01       A   140    			ld de,(frequency_constant)
-01013B DD1F08              A   141    			ld (ix+08h),de						01013E DD360C40            A   142    			ld (ix+0ch),40h						010142 DD360E00            A   143    			ld (ix+0eh),0
-010146 DD360F03            A   144    			ld (ix+0fh),011b					01014A ED3210              A   145    			lea ix,ix+16
-01014D 10 D8               A   146    			djnz initchlp1
-01014F AF                  A   147    			xor a
-010150 328014FF            A   148    			ld (hw_audio_registers+80h),a		                           A   149    
-010154 CD 22 03 01         A   150    			call wait_audio_swap				                           A   151    
-010158 3EFF                A   152    			ld a,0ffh
-01015A 328014FF            A   153    			ld (hw_audio_registers+80h),a		01015E DD210014 FF         A   154    			ld ix,hw_audio_registers			010163 0608                A   155    			ld b,chans
-010165 210000C0            A   156    initchlp2	ld hl,vram_b_addr
-010169 ED5B 8C 04 01       A   157    			ld de,(samp_len_lo)					Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  10
+0100C8 FE01                A   106    			cp 1
+0100CA C2 C3 03 01         A   107    			jp nz,badwavtype
+0100CE DD7E20              A   108    			ld a,(ix+32)				; 1 = 8
+0100D1 FE01                A   109    			cp 1
+0100D3 C2 C3 03 01         A   110    			jp nz,badwavtype
+                           A   111    
+0100D7 21000000            A   112    			ld hl,0						; conve
+0100DB AF                  A   113    			xor a						; a:hl 
+0100DC 11CCAB00            A   114    			ld de,43980					; c:de 
+0100E0 0E00                A   115    			ld c,0
+0100E2 0610                A   116    			ld b,16
+0100E4 DDCB193E            A   117    mult_lp		srl (ix+25)					; 24:25
+0100E8 DDCB181E            A   118    			rr (ix+24)
+0100EC 30 02               A   119    			jr nc,mult_no_add
+0100EE 19                  A   120    			add hl,de
+0100EF 89                  A   121    			adc a,c
+0100F0 EB                  A   122    mult_no_add	ex de,hl
+0100F1 29                  A   123    			add hl,hl
+0100F2 CB11                A   124    			rl c
+0100F4 EB                  A   125    			ex de,hl
+0100F5 10 ED               A   126    			djnz mult_lp
+0100F7 22 D2 04 01         A   127    			ld (mult32_result),hl
+0100FB 32 D5 04 01         A   128    			ld (mult32_result+3),a
+0100FF 2A D4 04 01         A   129    			ld hl,(mult32_result+2)
+010103 29                  A   130    			add hl,hl
+010104 22 D7 04 01         A   131    			ld (frequency_constant),hl
+                           A   132    			
+                           A   133    				
+010108 DD2728              A   134    			ld hl,(ix+40)
+01010B DD7E2B              A   135    			ld a,(ix+43)				; a:hl 
+01010E 22 CD 04 01         A   136    			ld (samp_len_lo),hl
+010112 32 D0 04 01         A   137    			ld (samp_len_hi),a
+010116 B7                  A   138    			or a
+010117 C2 CE 01 01         A   139    			jp nz,long_samp				; is sa
+01011B 11010002            A   140    			ld de,20001h
+01011F AF                  A   141    			xor a
+010120 ED52                A   142    			sbc hl,de
+010122 D2 CE 01 01         A   143    			jp nc,long_samp
+                           A   144    			
+                           A   145    ;----------------------------------------------
+                           A   146    
+010126 21 AC 04 01         A   147    short_samp	ld hl,filename						                           A   148    			prose_call kr_open_file
+010131 C0                  A   149    			ret nz
+                           A   150    			
+010132 0E00                A   151    			ld c,0
+010134 112C0000            A   152    			ld de,44
+                           A   153    			prose_call kr_set_file_pointer
+                           A   154    			
+01013F 210000C0            A   155    			ld hl,vram_b_addr					                           A   156    			prose_call kr_read_file				01014A C0                  A   157    			ret nz
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  10
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-01016E 19                  A   158    			add hl,de
-01016F 2B                  A   159    			dec hl
-010170 DD2F00              A   160    			ld (ix+00h),hl						010173 11010000            A   161    			ld de,1
-010177 DD1F04              A   162    			ld (ix+04h),de						01017A DD360E00            A   163    			ld (ix+0eh),0
-01017E DD360F00            A   164    			ld (ix+0fh),000b					010182 ED3210              A   165    			lea ix,ix+16
-010185 10 DE               A   166    			djnz initchlp2
-010187 AF                  A   167    			xor a
-010188 328014FF            A   168    			ld (hw_audio_registers+80h),a		01018C C9                  A   169    			ret
-                           A   170    						
-                           A   171    ;----------------------------------------------
-                           A   172    
-01018D AF                  A   173    long_samp	xor a
-01018E 32 8B 04 01         A   174    			ld (buffer),a
-                           A   175    				
-010192 21 6B 04 01         A   176    			ld hl,filename						                           A   177    			prose_call kr_open_file
-01019D C0                  A   178    			ret nz
-                           A   179    			
-01019E 0E00                A   180    			ld c,0
-0101A0 112C0000            A   181    			ld de,44
-                           A   182    			prose_call kr_set_file_pointer
-                           A   183    
-0101AB 0E00                A   184    			ld c,0								0101AD 11000002            A   185    			ld de,20000h
-                           A   186    			prose_call kr_set_load_length
-                           A   187    			 
-0101B8 210000C0            A   188    			ld hl,vram_b_addr					                           A   189    			prose_call kr_read_file				0101C3 C0                  A   190    			ret nz
-0101C4 210000C0            A   191    			ld hl,vram_b_addr
-0101C8 CD 40 03 01         A   192    			call convert_samples				0101CC 210000C1            A   193    			ld hl,vram_b_addr+10000h
-0101D0 CD 40 03 01         A   194    			call convert_samples				                           A   195    						
-0101D4 2A 8C 04 01         A   196    			ld hl,(samp_len_lo)					0101D8 3A 8F 04 01         A   197    			ld a,(samp_len_hi)
-0101DC 0600                A   198    			ld b,0
-0101DE 11000002            A   199    			ld de,20000h
-0101E2 AF                  A   200    			xor a
-0101E3 ED52                A   201    			sbc hl,de
-0101E5 98                  A   202    			sbc a,b
-0101E6 22 8C 04 01         A   203    			ld (samp_len_lo),hl
-0101EA 32 8F 04 01         A   204    			ld (samp_len_hi),a
-                           A   205    			
-0101EE 3EFF                A   206    			ld a,0ffh
-0101F0 328014FF            A   207    			ld (hw_audio_registers+80h),a
-0101F4 DD210014 FF         A   208    			ld ix,hw_audio_registers			0101F9 0608                A   209    			ld b,chans
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  11
+                           A   158    			
+01014B 210000C0            A   159    			ld hl,vram_b_addr					01014F CD 81 03 01         A   160    			call convert_samples
+010153 210000C1            A   161    			ld hl,vram_b_addr+10000h			010157 CD 81 03 01         A   162    			call convert_samples
+                           A   163    
+01015B 3EFF                A   164    			ld a,0ffh							01015D 328014FF            A   165    			ld (hw_audio_registers+80h),a		010161 DD210014 FF         A   166    			ld ix,hw_audio_registers			010166 0608                A   167    			ld b,chans
+010168 110000C0            A   168    initchlp1	ld de,vram_b_addr
+01016C DD1F00              A   169    			ld (ix+00h),de						01016F ED5B CD 04 01       A   170    			ld de,(samp_len_lo)
+010174 DD1F04              A   171    			ld (ix+04h),de						010177 ED5B D7 04 01       A   172    			ld de,(frequency_constant)
+01017C DD1F08              A   173    			ld (ix+08h),de						01017F DD360C40            A   174    			ld (ix+0ch),40h						010183 DD360E00            A   175    			ld (ix+0eh),0
+010187 DD360F03            A   176    			ld (ix+0fh),011b					01018B ED3210              A   177    			lea ix,ix+16
+01018E 10 D8               A   178    			djnz initchlp1
+010190 AF                  A   179    			xor a
+010191 328014FF            A   180    			ld (hw_audio_registers+80h),a		                           A   181    
+010195 CD 63 03 01         A   182    			call wait_audio_swap				                           A   183    
+010199 3EFF                A   184    			ld a,0ffh
+01019B 328014FF            A   185    			ld (hw_audio_registers+80h),a		01019F DD210014 FF         A   186    			ld ix,hw_audio_registers			0101A4 0608                A   187    			ld b,chans
+0101A6 210000C0            A   188    initchlp2	ld hl,vram_b_addr
+0101AA ED5B CD 04 01       A   189    			ld de,(samp_len_lo)					0101AF 19                  A   190    			add hl,de
+0101B0 2B                  A   191    			dec hl
+0101B1 DD2F00              A   192    			ld (ix+00h),hl						0101B4 11010000            A   193    			ld de,1
+0101B8 DD1F04              A   194    			ld (ix+04h),de						0101BB DD360E00            A   195    			ld (ix+0eh),0
+0101BF DD360F00            A   196    			ld (ix+0fh),000b					0101C3 ED3210              A   197    			lea ix,ix+16
+0101C6 10 DE               A   198    			djnz initchlp2
+0101C8 AF                  A   199    			xor a
+0101C9 328014FF            A   200    			ld (hw_audio_registers+80h),a		0101CD C9                  A   201    			ret
+                           A   202    						
+                           A   203    ;----------------------------------------------
+                           A   204    
+0101CE AF                  A   205    long_samp	xor a
+0101CF 32 CC 04 01         A   206    			ld (buffer),a
+                           A   207    				
+0101D3 21 AC 04 01         A   208    			ld hl,filename						                           A   209    			prose_call kr_open_file
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  11
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-0101FB 110000C0            A   210    initchlp3	ld de,vram_b_addr
-0101FF DD1F00              A   211    			ld (ix+00h),de						010202 11000001            A   212    			ld de,65536
-010206 DD1F04              A   213    			ld (ix+04h),de						010209 ED5B 96 04 01       A   214    			ld de,(frequency_constant)
-01020E DD1F08              A   215    			ld (ix+08h),de						010211 DD360C40            A   216    			ld (ix+0ch),40h						010215 DD360E00            A   217    			ld (ix+0eh),0
-010219 DD360F03            A   218    			ld (ix+0fh),011b					01021D ED3210              A   219    			lea ix,ix+16
-010220 10 D9               A   220    			djnz initchlp3
-010222 AF                  A   221    			xor a
-010223 328014FF            A   222    			ld (hw_audio_registers+80h),a		                           A   223    			
-010227 CD 22 03 01         A   224    			call wait_audio_swap				                           A   225    			
-01022B 3EFF                A   226    			ld a,0ffh
-01022D 328014FF            A   227    			ld (hw_audio_registers+80h),a
-010231 DD210014 FF         A   228    			ld ix,hw_audio_registers			010236 0608                A   229    			ld b,chans
-010238 110000C1            A   230    initchlp4	ld de,vram_b_addr+65536
-01023C DD1F00              A   231    			ld (ix+00h),de						01023F 11000001            A   232    			ld de,65536
-010243 DD1F04              A   233    			ld (ix+04h),de						010246 DD360E00            A   234    			ld (ix+0eh),0
-01024A DD360F02            A   235    			ld (ix+0fh),010b					01024E ED3210              A   236    			lea ix,ix+16
-010251 10 E5               A   237    			djnz initchlp4
-010253 AF                  A   238    			xor a
-010254 328014FF            A   239    			ld (hw_audio_registers+80h),a		                           A   240    			
-010258 CD 22 03 01         A   241    ls_loop		call wait_audio_swap				01025C C2 1C 03 01         A   242    			jp nz,quit
-                           A   243    			
-010260 0E00                A   244    			ld c,0								010262 11000001            A   245    			ld de,10000h
-                           A   246    			prose_call kr_set_load_length
-                           A   247    
-01026D 210000C0            A   248    			ld hl,vram_b_addr					010271 3A 8B 04 01         A   249    			ld a,(buffer)
-010275 B7                  A   250    			or a
-010276 28 04               A   251    			jr z,load_buf0
-010278 210000C1            A   252    			ld hl,vram_b_addr+10000h
-                           A   253    			
-01027C E5                  A   254    load_buf0	push hl
-                           A   255    			prose_call kr_read_file				010284 E1                  A   256    			pop hl
-010285 F5                  A   257    			push af
-010286 CD 40 03 01         A   258    			call convert_samples
-01028A F1                  A   259    			pop af
-01028B 20 26               A   260    			jr nz,last_load						                           A   261    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  12
+0101DE C0                  A   210    			ret nz
+                           A   211    			
+0101DF 0E00                A   212    			ld c,0
+0101E1 112C0000            A   213    			ld de,44
+                           A   214    			prose_call kr_set_file_pointer
+                           A   215    
+0101EC 0E00                A   216    			ld c,0								0101EE 11000002            A   217    			ld de,20000h
+                           A   218    			prose_call kr_set_load_length
+                           A   219    			 
+0101F9 210000C0            A   220    			ld hl,vram_b_addr					                           A   221    			prose_call kr_read_file				010204 C0                  A   222    			ret nz
+010205 210000C0            A   223    			ld hl,vram_b_addr
+010209 CD 81 03 01         A   224    			call convert_samples				01020D 210000C1            A   225    			ld hl,vram_b_addr+10000h
+010211 CD 81 03 01         A   226    			call convert_samples				                           A   227    						
+010215 2A CD 04 01         A   228    			ld hl,(samp_len_lo)					010219 3A D0 04 01         A   229    			ld a,(samp_len_hi)
+01021D 0600                A   230    			ld b,0
+01021F 11000002            A   231    			ld de,20000h
+010223 AF                  A   232    			xor a
+010224 ED52                A   233    			sbc hl,de
+010226 98                  A   234    			sbc a,b
+010227 22 CD 04 01         A   235    			ld (samp_len_lo),hl
+01022B 32 D0 04 01         A   236    			ld (samp_len_hi),a
+                           A   237    			
+01022F 3EFF                A   238    			ld a,0ffh
+010231 328014FF            A   239    			ld (hw_audio_registers+80h),a
+010235 DD210014 FF         A   240    			ld ix,hw_audio_registers			01023A 0608                A   241    			ld b,chans
+01023C 110000C0            A   242    initchlp3	ld de,vram_b_addr
+010240 DD1F00              A   243    			ld (ix+00h),de						010243 11000001            A   244    			ld de,65536
+010247 DD1F04              A   245    			ld (ix+04h),de						01024A ED5B D7 04 01       A   246    			ld de,(frequency_constant)
+01024F DD1F08              A   247    			ld (ix+08h),de						010252 DD360C40            A   248    			ld (ix+0ch),40h						010256 DD360E00            A   249    			ld (ix+0eh),0
+01025A DD360F03            A   250    			ld (ix+0fh),011b					01025E ED3210              A   251    			lea ix,ix+16
+010261 10 D9               A   252    			djnz initchlp3
+010263 AF                  A   253    			xor a
+010264 328014FF            A   254    			ld (hw_audio_registers+80h),a		                           A   255    			
+010268 CD 63 03 01         A   256    			call wait_audio_swap				                           A   257    			
+01026C 3EFF                A   258    			ld a,0ffh
+01026E 328014FF            A   259    			ld (hw_audio_registers+80h),a
+010272 DD210014 FF         A   260    			ld ix,hw_audio_registers			010277 0608                A   261    			ld b,chans
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  12
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-01028D 2A 8C 04 01         A   262    			ld hl,(samp_len_lo)					010291 3A 8F 04 01         A   263    			ld a,(samp_len_hi)
-010295 0600                A   264    			ld b,0
-010297 11000001            A   265    			ld de,10000h
-01029B AF                  A   266    			xor a
-01029C ED52                A   267    			sbc hl,de
-01029E 98                  A   268    			sbc a,b
-01029F 22 8C 04 01         A   269    			ld (samp_len_lo),hl
-0102A3 32 8F 04 01         A   270    			ld (samp_len_hi),a
-                           A   271    			
-0102A7 3A 8B 04 01         A   272    			ld a,(buffer)
-0102AB EE01                A   273    			xor 1
-0102AD 32 8B 04 01         A   274    			ld (buffer),a						0102B1 18 A5               A   275    			jr ls_loop
-                           A   276    					
-                           A   277    
-0102B3 DD210014 FF         A   278    last_load	ld ix,hw_audio_registers			0102B8 0608                A   279    			ld b,chans
-0102BA 3EFF                A   280    			ld a,0ffh
-0102BC 328014FF            A   281    			ld (hw_audio_registers+80h),a		0102C0 ED5B 8C 04 01       A   282    initchlp5	ld de,(samp_len_lo)
-0102C5 DD1F04              A   283    			ld (ix+04h),de						0102C8 DD360F02            A   284    			ld (ix+0fh),010b					0102CC ED3210              A   285    			lea ix,ix+16
-0102CF 10 EF               A   286    			djnz initchlp5
-0102D1 AF                  A   287    			xor a
-0102D2 328014FF            A   288    			ld (hw_audio_registers+80h),a		                           A   289    			
-0102D6 CD 22 03 01         A   290    es_loop		call wait_audio_swap
-0102DA C2 1C 03 01         A   291    			jp nz,quit
-                           A   292    							
-0102DE 210000C0            A   293    			ld hl,vram_b_addr					0102E2 3A 8B 04 01         A   294    			ld a,(buffer)
-0102E6 B7                  A   295    			or a
-0102E7 28 04               A   296    			jr z,zero_buf0
-0102E9 210000C1            A   297    			ld hl,vram_b_addr+10000h
-0102ED 3600                A   298    zero_buf0	ld (hl),0h
-                           A   299    
-0102EF 3EFF                A   300    			ld a,0ffh
-0102F1 328014FF            A   301    			ld (hw_audio_registers+80h),a
-0102F5 DD210014 FF         A   302    			ld ix,hw_audio_registers			0102FA 0608                A   303    			ld b,chans
-0102FC DD2F00              A   304    initchlp6	ld (ix+00h),hl						0102FF 11010000            A   305    			ld de,1
-010303 DD1F04              A   306    			ld (ix+04h),de						010306 DD360E00            A   307    			ld (ix+0eh),0
-01030A DD360F00            A   308    			ld (ix+0fh),000b					01030E ED3210              A   309    			lea ix,ix+16
-010311 10 E9               A   310    			djnz initchlp6
-010313 AF                  A   311    			xor a
-010314 328014FF            A   312    			ld (hw_audio_registers+80h),a		                           A   313    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  13
+010279 110000C1            A   262    initchlp4	ld de,vram_b_addr+65536
+01027D DD1F00              A   263    			ld (ix+00h),de						010280 11000001            A   264    			ld de,65536
+010284 DD1F04              A   265    			ld (ix+04h),de						010287 DD360E00            A   266    			ld (ix+0eh),0
+01028B DD360F02            A   267    			ld (ix+0fh),010b					01028F ED3210              A   268    			lea ix,ix+16
+010292 10 E5               A   269    			djnz initchlp4
+010294 AF                  A   270    			xor a
+010295 328014FF            A   271    			ld (hw_audio_registers+80h),a		                           A   272    			
+010299 CD 63 03 01         A   273    ls_loop		call wait_audio_swap				01029D C2 5D 03 01         A   274    			jp nz,quit
+                           A   275    			
+0102A1 0E00                A   276    			ld c,0								0102A3 11000001            A   277    			ld de,10000h
+                           A   278    			prose_call kr_set_load_length
+                           A   279    
+0102AE 210000C0            A   280    			ld hl,vram_b_addr					0102B2 3A CC 04 01         A   281    			ld a,(buffer)
+0102B6 B7                  A   282    			or a
+0102B7 28 04               A   283    			jr z,load_buf0
+0102B9 210000C1            A   284    			ld hl,vram_b_addr+10000h
+                           A   285    			
+0102BD E5                  A   286    load_buf0	push hl
+                           A   287    			prose_call kr_read_file				0102C5 E1                  A   288    			pop hl
+0102C6 F5                  A   289    			push af
+0102C7 CD 81 03 01         A   290    			call convert_samples
+0102CB F1                  A   291    			pop af
+0102CC 20 26               A   292    			jr nz,last_load						                           A   293    			
+0102CE 2A CD 04 01         A   294    			ld hl,(samp_len_lo)					0102D2 3A D0 04 01         A   295    			ld a,(samp_len_hi)
+0102D6 0600                A   296    			ld b,0
+0102D8 11000001            A   297    			ld de,10000h
+0102DC AF                  A   298    			xor a
+0102DD ED52                A   299    			sbc hl,de
+0102DF 98                  A   300    			sbc a,b
+0102E0 22 CD 04 01         A   301    			ld (samp_len_lo),hl
+0102E4 32 D0 04 01         A   302    			ld (samp_len_hi),a
+                           A   303    			
+0102E8 3A CC 04 01         A   304    			ld a,(buffer)
+0102EC EE01                A   305    			xor 1
+0102EE 32 CC 04 01         A   306    			ld (buffer),a						0102F2 18 A5               A   307    			jr ls_loop
+                           A   308    					
+                           A   309    
+0102F4 DD210014 FF         A   310    last_load	ld ix,hw_audio_registers			0102F9 0608                A   311    			ld b,chans
+0102FB 3EFF                A   312    			ld a,0ffh
+0102FD 328014FF            A   313    			ld (hw_audio_registers+80h),a		Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  13
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-010318 CD 22 03 01         A   314    			call wait_audio_swap
-                           A   315    			
-01031C CD 4B 03 01         A   316    quit		call silence_all_channels
-010320 AF                  A   317    			xor a
-010321 C9                  A   318    			ret
-                           A   319    
-                           A   320    
-                           A   321    ;----------------------------------------------
-                           A   322    
-010322                     A   323    wait_audio_swap
-                           A   324    
-010322 AF                  A   325    			xor a
-010323 ED3908              A   326    			out0 (port_selector),a
-                           A   327    			
-010326 320E14FF            A   328    			ld (hw_audio_registers+0eh),a		                           A   329    
-01032A                     A   330    was_lp		prose_call kr_get_key				010331 FE76                A   331    			cp 76h
-010333 20 02               A   332    			jr nz,nwasquit
-010335 B7                  A   333    			or a
-010336 C9                  A   334    			ret
-                           A   335    			
-010337 ED3801              A   336    nwasquit	in0 a,(port_hw_flags)				01033A CB77                A   337    			bit 6,a
-01033C 28 EC               A   338    			jr z,was_lp
-01033E AF                  A   339    			xor a
-01033F C9                  A   340    			ret
-                           A   341    			
-                           A   342    
-                           A   343    ;----------------------------------------------
-                           A   344    
-010340                     A   345    convert_samples
-                           A   346    
-                           A   347    ; set HL to start address of samples in VRAM_B
-                           A   348    
-010340 7E                  A   349    cslp			ld a,(hl)
-010341 D680                A   350    				sub 80h
-010343 77                  A   351    				ld (hl),a
-010344 2C                  A   352    				inc l
-010345 20 F9               A   353    				jr nz,cslp
-010347 24                  A   354    				inc h
-010348 20 F6               A   355    				jr nz,cslp
-01034A C9                  A   356    				ret
-                           A   357    
-                           A   358    
-                           A   359    ;----------------------------------------------
-                           A   360    
-01034B                     A   361    silence_all_channels
-                           A   362    
-01034B 3EFF                A   363    				ld a,0ffh
-01034D 328014FF            A   364    				ld (hw_audio_registers+80h),a	                           A   365    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  14
+010301 ED5B CD 04 01       A   314    initchlp5	ld de,(samp_len_lo)
+010306 DD1F04              A   315    			ld (ix+04h),de						010309 DD360F02            A   316    			ld (ix+0fh),010b					01030D ED3210              A   317    			lea ix,ix+16
+010310 10 EF               A   318    			djnz initchlp5
+010312 AF                  A   319    			xor a
+010313 328014FF            A   320    			ld (hw_audio_registers+80h),a		                           A   321    			
+010317 CD 63 03 01         A   322    es_loop		call wait_audio_swap
+01031B C2 5D 03 01         A   323    			jp nz,quit
+                           A   324    							
+01031F 210000C0            A   325    			ld hl,vram_b_addr					010323 3A CC 04 01         A   326    			ld a,(buffer)
+010327 B7                  A   327    			or a
+010328 28 04               A   328    			jr z,zero_buf0
+01032A 210000C1            A   329    			ld hl,vram_b_addr+10000h
+01032E 3600                A   330    zero_buf0	ld (hl),0h
+                           A   331    
+010330 3EFF                A   332    			ld a,0ffh
+010332 328014FF            A   333    			ld (hw_audio_registers+80h),a
+010336 DD210014 FF         A   334    			ld ix,hw_audio_registers			01033B 0608                A   335    			ld b,chans
+01033D DD2F00              A   336    initchlp6	ld (ix+00h),hl						010340 11010000            A   337    			ld de,1
+010344 DD1F04              A   338    			ld (ix+04h),de						010347 DD360E00            A   339    			ld (ix+0eh),0
+01034B DD360F00            A   340    			ld (ix+0fh),000b					01034F ED3210              A   341    			lea ix,ix+16
+010352 10 E9               A   342    			djnz initchlp6
+010354 AF                  A   343    			xor a
+010355 328014FF            A   344    			ld (hw_audio_registers+80h),a		                           A   345    
+010359 CD 63 03 01         A   346    			call wait_audio_swap
+                           A   347    			
+01035D CD 8C 03 01         A   348    quit		call silence_all_channels
+010361 AF                  A   349    			xor a
+010362 C9                  A   350    			ret
+                           A   351    
+                           A   352    
+                           A   353    ;----------------------------------------------
+                           A   354    
+010363                     A   355    wait_audio_swap
+                           A   356    
+010363 AF                  A   357    			xor a
+010364 ED3908              A   358    			out0 (port_selector),a
+                           A   359    			
+010367 320E14FF            A   360    			ld (hw_audio_registers+0eh),a		                           A   361    
+01036B                     A   362    was_lp		prose_call kr_get_key				010372 FE76                A   363    			cp 76h
+010374 20 02               A   364    			jr nz,nwasquit
+010376 B7                  A   365    			or a
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  14
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-010351 DD210014 FF         A   366    				ld ix,hw_audio_registers		010356 0608                A   367    				ld b,8
-010358 11000000            A   368    				ld de,0
-01035C DD360F00            A   369    novol_lp		ld (ix+0fh),0					010360 DD360C00            A   370    				ld (ix+0ch),0					010364 ED3210              A   371    				lea ix,ix+16
-010367 10 F3               A   372    				djnz novol_lp
-                           A   373    
-010369 AF                  A   374    				xor a
-01036A 328014FF            A   375    				ld (hw_audio_registers+80h),a	01036E C9                  A   376    				ret
-                           A   377    
-                           A   378    ;----------------------------------------------
-                           A   379    
-01036F 21 04 04 01         A   380    show_use		ld hl,use_txt
-                           A   381    
-010373                     A   382    msg_exit		prose_call kr_print_string
-01037A AF                  A   383    				xor a
-01037B C9                  A   384    				ret
-                           A   385    
-01037C 21 8E 03 01         A   386    notwav			ld hl,notwav_txt
-010380 18 F1               A   387    				jr msg_exit
-                           A   388    				
-010382 21 AF 03 01         A   389    badwavtype		ld hl,badwav_txt
-010386 18 EB               A   390    				jr msg_exit
-                           A   391    
-010388 21 D9 03 01         A   392    sampratebad		ld hl,samprate_txt
-01038C 18 E5               A   393    				jr msg_exit	
+010377 C9                  A   366    			ret
+                           A   367    			
+010378 ED3801              A   368    nwasquit	in0 a,(port_hw_flags)				01037B CB77                A   369    			bit 6,a
+01037D 28 EC               A   370    			jr z,was_lp
+01037F AF                  A   371    			xor a
+010380 C9                  A   372    			ret
+                           A   373    			
+                           A   374    
+                           A   375    ;----------------------------------------------
+                           A   376    
+010381                     A   377    convert_samples
+                           A   378    
+                           A   379    ; set HL to start address of samples in VRAM_B
+                           A   380    
+010381 7E                  A   381    cslp			ld a,(hl)
+010382 D680                A   382    				sub 80h
+010384 77                  A   383    				ld (hl),a
+010385 2C                  A   384    				inc l
+010386 20 F9               A   385    				jr nz,cslp
+010388 24                  A   386    				inc h
+010389 20 F6               A   387    				jr nz,cslp
+01038B C9                  A   388    				ret
+                           A   389    
+                           A   390    
+                           A   391    ;----------------------------------------------
+                           A   392    
+01038C                     A   393    silence_all_channels
                            A   394    
-                           A   395    ;----------------------------------------------
-                           A   396    
-01038E 4572726F 72202D20   A   397    notwav_txt		db "Error - Not a .wav format f
-010396 4E6F7420 61202E77 
-01039E 61762066 6F726D61 
-0103A6 74206669 6C65210B 
-0103AE 00 
-                           A   398    
-0103AF 4572726F 72202D20   A   399    badwav_txt		db "Error - Wav file is not a p
-0103B7 57617620 66696C65 
-0103BF 20697320 6E6F7420 
-0103C7 6120706C 61796162 
-0103CF 6C652074 79706521 
-0103D7 0B00 
-                           A   400    
-0103D9 4572726F 72202D20   A   401    samprate_txt	db "Error - Wav file sample rat
-0103E1 57617620 66696C65 
-0103E9 2073616D 706C6520 
-0103F1 72617465 20697320 
-0103F9 746F6F20 68696768 
-010401 210B00 
-                           A   402    
-010404 0B555345 3A20504C   A   403    use_txt			db 11,"USE: PLAYWAV [filename]"
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)26-Sep-11     18:45:04     page:  15
+01038C 3EFF                A   395    				ld a,0ffh
+01038E 328014FF            A   396    				ld (hw_audio_registers+80h),a	                           A   397    			
+010392 DD210014 FF         A   398    				ld ix,hw_audio_registers		010397 0608                A   399    				ld b,8
+010399 11000000            A   400    				ld de,0
+01039D DD360F00            A   401    novol_lp		ld (ix+0fh),0					0103A1 DD360C00            A   402    				ld (ix+0ch),0					0103A5 ED3210              A   403    				lea ix,ix+16
+0103A8 10 F3               A   404    				djnz novol_lp
+                           A   405    
+0103AA AF                  A   406    				xor a
+0103AB 328014FF            A   407    				ld (hw_audio_registers+80h),a	0103AF C9                  A   408    				ret
+                           A   409    
+                           A   410    ;----------------------------------------------
+                           A   411    
+0103B0 21 45 04 01         A   412    show_use		ld hl,use_txt
+                           A   413    
+0103B4                     A   414    msg_exit		prose_call kr_print_string
+0103BB AF                  A   415    				xor a
+0103BC C9                  A   416    				ret
+                           A   417    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  15
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
-01040C 41595741 56205B66 
-010414 696C656E 616D655D 
-01041C 0B0B 
-01041E 57617620 66696C65   A   404    				db "Wav file must be 8 bit, mon
-010426 206D7573 74206265 
-01042E 20382062 69742C20 
-010436 6D6F6E6F 2C205043 
-01043E 4D207769 74682073 
-010446 616D706C 65207261 
-01044E 7465203C 3D203438 
-010456 38323820 4B487A0B 
-01045E 00 
-                           A   405    	
-01045F 4C6F6164 696E672E   A   406    loading_txt		db "Loading...",11,0
-010467 2E2E0B00 
-                           A   407    
-01046B 00 00 00 00 00 00   A   408    filename		blkb 32,0
-010471 00 00 00 00 00 00 
-010477 00 00 00 00 00 00 
-01047D 00 00 00 00 00 00 
-010483 00 00 00 00 00 00 
-010489 00 00 
-                           A   409    
-01048B 00                  A   410    buffer			db 0
-                           A   411    
-01048C 000000              A   412    samp_len_lo		dw24 0
-01048F 0000                A   413    samp_len_hi		dw 0
-                           A   414    
-010491 00000000 00         A   415    mult32_result		db 0,0,0,0,0			;5 
-                           A   416    
-010496 000000              A   417    frequency_constant	dw24 0 		
-                           A   418    
-010499 00 00 00 00 00 00   A   419    wav_header			blkb 44,0
-01049F 00 00 00 00 00 00 
-0104A5 00 00 00 00 00 00 
-0104AB 00 00 00 00 00 00 
-0104B1 00 00 00 00 00 00 
-0104B7 00 00 00 00 00 00 
-0104BD 00 00 00 00 00 00 
-0104C3 00 00 
-                           A   420    
-                           A   421    ;----------------------------------------------
+0103BD 21 CF 03 01         A   418    notwav			ld hl,notwav_txt
+0103C1 18 F1               A   419    				jr msg_exit
+                           A   420    				
+0103C3 21 F0 03 01         A   421    badwavtype		ld hl,badwav_txt
+0103C7 18 EB               A   422    				jr msg_exit
+                           A   423    
+0103C9 21 1A 04 01         A   424    sampratebad		ld hl,samprate_txt
+0103CD 18 E5               A   425    				jr msg_exit	
+                           A   426    
+                           A   427    ;----------------------------------------------
+                           A   428    
+0103CF 4572726F 72202D20   A   429    notwav_txt		db "Error - Not a .wav format f
+0103D7 4E6F7420 61202E77 
+0103DF 61762066 6F726D61 
+0103E7 74206669 6C65210B 
+0103EF 00 
+                           A   430    
+0103F0 4572726F 72202D20   A   431    badwav_txt		db "Error - Wav file is not a p
+0103F8 57617620 66696C65 
+010400 20697320 6E6F7420 
+010408 6120706C 61796162 
+010410 6C652074 79706521 
+010418 0B00 
+                           A   432    
+01041A 4572726F 72202D20   A   433    samprate_txt	db "Error - Wav file sample rat
+010422 57617620 66696C65 
+01042A 2073616D 706C6520 
+010432 72617465 20697320 
+01043A 746F6F20 68696768 
+010442 210B00 
+                           A   434    
+010445 0B555345 3A20504C   A   435    use_txt			db 11,"USE: PLAYWAV [filename]"
+01044D 41595741 56205B66 
+010455 696C656E 616D655D 
+01045D 0B0B 
+01045F 57617620 66696C65   A   436    				db "Wav file must be 8 bit, mon
+010467 206D7573 74206265 
+01046F 20382062 69742C20 
+010477 6D6F6E6F 2C205043 
+01047F 4D207769 74682073 
+010487 616D706C 65207261 
+01048F 7465203C 3D203438 
+010497 38323820 4B487A0B 
+01049F 00 
+                           A   437    	
+0104A0 4C6F6164 696E672E   A   438    loading_txt		db "Loading...",11,0
+0104A8 2E2E0B00 
+                           A   439    
+0104AC 00 00 00 00 00 00   A   440    filename		blkb 32,0
+0104B2 00 00 00 00 00 00 
+0104B8 00 00 00 00 00 00 
+0104BE 00 00 00 00 00 00 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)28-Sep-11     16:32:44     page:  16
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\EXTERN~1\playwav\src\playwav.asm
+0104C4 00 00 00 00 00 00 
+0104CA 00 00 
+                           A   441    
+0104CC 00                  A   442    buffer			db 0
+                           A   443    
+0104CD 000000              A   444    samp_len_lo		dw24 0
+0104D0 0000                A   445    samp_len_hi		dw 0
+                           A   446    
+0104D2 00000000 00         A   447    mult32_result		db 0,0,0,0,0			;5 
+                           A   448    
+0104D7 000000              A   449    frequency_constant	dw24 0 		
+                           A   450    
+0104DA 00 00 00 00 00 00   A   451    wav_header			blkb 44,0
+0104E0 00 00 00 00 00 00 
+0104E6 00 00 00 00 00 00 
+0104EC 00 00 00 00 00 00 
+0104F2 00 00 00 00 00 00 
+0104F8 00 00 00 00 00 00 
+0104FE 00 00 00 00 00 00 
+010504 00 00 
+                           A   452    
+                           A   453    ;----------------------------------------------
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 778
+Lines Assembled: 810
