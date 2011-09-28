@@ -1,5 +1,5 @@
 
-; Command: "Playwav [filename]" -plays .wav files - v1.00 By Phil 2011
+; Command: "Playwav [filename]" -plays .wav files - v1.01 By Phil 2011
 ;
 ; Any sample size supported
 ; wav file must be 8 bit / mono / unsigned 
@@ -13,13 +13,40 @@ ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
 
 			include	'PROSE_header.asm'
+			
+			
+;------------------------------------------------------------------------------------------------
 
-;-----------------------------------------------------------------------------------------
+			push hl
+			ld a,kr_get_volume_info		;store original vol/dir
+			call.lil prose_kernal
+			ld (orig_volume),a
+			ld a,kr_get_dir_cluster
+			call.lil prose_kernal
+			ld (orig_dir_cluster),de
+ 			pop hl
 			
 			call my_prog
-			jp.lil prose_return
 			
-;-----------------------------------------------------------------------------------------
+			push af						;restore original vol/dir
+			ld a,(orig_volume)
+			ld e,a
+			ld a,kr_change_volume
+			call.lil prose_kernal
+			ld de,(orig_dir_cluster)
+			ld a,kr_set_dir_cluster
+			call.lil prose_kernal
+			pop af
+			jp.lil prose_return
+
+
+orig_volume			db 0
+orig_dir_cluster	dw24 0
+
+;------------------------------------------------------------------------------------------------
+; App starts here..
+;------------------------------------------------------------------------------------------------
+
 
 chans equ 8								; number of channels to play sound on 1 - 8
 
@@ -27,7 +54,12 @@ my_prog		ld a,(hl)					; examine argument text, if 0, show command usage
 			or a			
 			jp z,show_use
 			
-			ld de,filename				; copy args to working filename string
+			ld e,0
+			ld a,kr_parse_path
+			call.lil prose_kernal
+			ret nz
+			
+			ld de,filename				; copy filename part of args to working filename string
 			ld b,16
 fnclp		ld a,(hl)
 			or a
