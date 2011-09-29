@@ -20,7 +20,7 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 3ch
+prose_version			equ 3dh
 amoeba_version_required	equ 10ah
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -3801,7 +3801,7 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 
 	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
-	include		'prose_fat16_code_v09.asm'
+	include		'prose_fat16_code_v0A.asm'
 
 ;-----------------------------------------------------------------------------------------------
 ; OS Data 

@@ -2,11 +2,14 @@
 Current version
 ---------------
 
-03C 27-09-2011  : Changed audio code for AMOEBA v10A
+03D [29-09-2011] : Bugfix: kr_write_file previously appended bad data.
 
 ------------------------------------------------------------------------------------------
 Previous releases:
 ------------------------------------------------------------------------------------------
+
+03C		: Changed audio code for AMOEBA v10A
+
 
 
 03B		: FORMAT command can now format volumes as well as entire disks.
