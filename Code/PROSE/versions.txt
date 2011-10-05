@@ -1,12 +1,16 @@
+[04-10-2011]
 
 Current version
 ---------------
 
-03D [29-09-2011] : Bugfix: kr_write_file previously appended bad data.
+03E 		: Adjustment to the sprite pointer coordinates for AMOEBA v10B
 
 ------------------------------------------------------------------------------------------
 Previous releases:
 ------------------------------------------------------------------------------------------
+
+03D		: Bugfix: kr_write_file previously appended bad data on some occasions.
+
 
 03C		: Changed audio code for AMOEBA v10A
 
