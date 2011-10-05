@@ -9,7 +9,7 @@ EG: To list the current contents of the EEPROM slots, enter:
 FPGACFG L
 
 
-To write a new config to a slot enter:
+To write a new FPGA config to a slot enter:
 
 FPGACFH W x filename
 
@@ -30,15 +30,26 @@ If all is well, the slot can be made the default power on slot with:
 
 FPGACFG B x
 
+ where x is the relevent slot number.
 
 
-The power-on boot slot can also be set manually with the following procedure:
+Manual configuration
+====================
+
+The power-on boot slot can be set manually with the following procedure:
 
 Press and hold the reset button and switch on the EZ80P. Release the reset
 button and the green LED will flash rapidly. Press and release the reset button
-again - the system enters slot selection mode. 
+again - the system enters slot selection mode.  The red LED now flashes x number
+of times to indicate the slot which is to be made active. Press and release the
+reset button following indication of the desired slot - the relevant slot will
+be made active and the system will reconfigure from that slot. 
 
-The red LED now flashes x number of times to indicate the slot which is to be
-made active. Press and release the reset button following indication of the
-desired slot - the relevant slot will be made active and the system will
-reconfigure from that slot. 
+
+A config file can be sent via the EZ80P's JTAG port (using appropriate
+cable and software). Press and hold the reset button then switch on the EZ80P.
+Release the reset button and the green LED will flash rapidly - commence the
+JTAG configuration at this point.  Note: The FPGA's JTAG port is always active
+so a config file can actually be sent at any time, however if the method described
+is not used the eZ80 CPU will not be automatically reset until the reset button
+is pressed after configuration completes.
