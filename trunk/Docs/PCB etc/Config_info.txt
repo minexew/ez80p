@@ -3,7 +3,7 @@
 JTAG config mode
 ----------------
 
-Press and hold the reset button and switch the power on. Release the reset button
+Press and hold the reset button then switch on the EZ80P. Release the reset button
 and the green LED will flash rapidly until the FPGA has been configured via the
 JTAG pins. Note: The FPGA's JTAG port is always active so a config file can
 be sent at any time, however the eZ80 CPU will not be automatically reset unless
@@ -13,12 +13,14 @@ the reset button is pressed after JTAG transfer is complete.
 Manual config slot selection
 ----------------------------
 
-Press and hold the reset button and switch the power on then release the reset
-button (same as entering JTAG mode). Whilst the green LED is flashing rapidly,
-press and release the reset button again - the system enters slot selection mode.
-The red LED now flashes 1 to 7 times to indicate the slot to be made active.
-Press and release the reset button following the desired slot - the relevant
-slot will be made active and the system will reconfigure from that slot.
+Press and hold the reset button then switch on the EZ80P. Release the reset
+button and the green LED will flash rapidly. Press and release the reset button
+again - the system enters slot selection mode. 
+
+The red LED now flashes x number of times to indicate the slot which is to be
+made active. Press and release the reset button following indication of the
+desired slot - the relevant slot will be made active and the system will
+reconfigure from that slot. 
 
 
 Other LED codes
