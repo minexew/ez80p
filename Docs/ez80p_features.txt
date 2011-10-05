@@ -1,5 +1,6 @@
-EZ80P: A completely open source 8-bit computer project based on the Zilog EZ80L92 CPU
-and a Spartan 3 FPGA. Created by Phil Ruston 2010-2011.
+
+EZ80P: An original, open source 8-bit computer project based on a
+Zilog EZ80L92 CPU and Xilinx Spartan 3 FPGA. Created by Phil Ruston 2010-2011.
 
 EZ80P Features:
 ---------------
@@ -60,7 +61,7 @@ Video Output: VGA 60Hz
 Bitmap chunky mode: 640x480, 320x480, 640x240, 320x240 in 16 or 256 colours
 Tile map mode     : 640x480, 320x480, 640x240, 320x240 in 256 colours
 Text mode         : 80x60, 40x60, 80x30, 40x30 in 16 colours
-Sprites           : 640x480, 256 colours (32 x 16 pixels wide, any height)
+Sprites           : 256 colours, 16 pixels wide / any height, 38 sprites per scanline.
 
 
 Audio: 8 sound channels (4 to left side, 4 to right side) plays 8-bit signed samples
