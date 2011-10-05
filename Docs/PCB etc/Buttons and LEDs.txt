@@ -1,0 +1,49 @@
+
+In boxed EZ80Ps, the rightmost red button at the back is connected to FPGA
+pin 2 and GND, this is used for the NMI / freezer input under PROSE.
+
+V1.1 EZ80P:
+
+The red button at the back on the left is the reset button (see following details).
+The red button on the front is a soft-power switch.
+
+V1.3 EZ80P:
+
+The red button at the front is the reset button.
+The black latching button at the back is the power button.
+
+On all systems there is an onboard reset button (and power button on the v1.1)
+
+
+Reset button
+------------
+
+During normal operation (green LED on steady) pressing this button simply resets
+the EZ80 CPU (note the FPGA does not reconfigure).
+
+If the reset button is held whilst the power is switched on the system enters
+JTAG config mode (green LED flashes rapidly). A .bit file can be downloaded
+at this time. When sucessfully received the CPU is reset and the system starts.
+
+(Note: The FPGA's JTAG port is always active so a config file can actually
+be sent at any time, however the eZ80 CPU will not be automatically reset.)
+
+When the green LED is flashing rapidly (JTAG mode) the boot slot can also be
+manually set: Once in this mode, press and release the reset button again and
+the system will enter slot selection mode.  The red LED now flashes x number of
+times to indicate the slot which is to be made active. Press and release the
+reset button following indication of the desired slot - the slot will be made
+active and the system will reconfigure from it.
+
+
+Other LED activity
+------------------
+
+If the green LED flashes slowly on power up (about once per second) it means the
+FPGA did not accept the config file sent from the EEPROM. It will be necessary
+to change the active slot to one containing a valid config file. (JTAG mode
+can be entered by pressing the reset button at this point, the system doesn't need
+to be powered off).
+
+
+When the status LED is red with yellow pulses: system is Writing to EEPROM. 
