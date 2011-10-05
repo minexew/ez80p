@@ -1,0 +1,58 @@
+
+Simple graphics convertors. These are Windows programs made with
+the free version of Purebasic (www.purebasic.com). Purebasic is
+available for other platforms -  source code is provided to aid
+in the porting of these apps.
+
+
+Source images for these utils must be 256 colour, uncompressed .bmp
+files.
+
+
+"bmp_to_raw chunky"
+-------------------
+
+The source image is simply scanned in its entirity from left to right,
+top to bottom, a pixel at a time. Each pixel outputs one byte.
+
+
+
+"bmp_to_8x8_tiles"
+------------------
+
+The source image is scanned in 8x8 blocks from left to right, top to bottom.
+So tile block 0 starts at (0,0) block 1 at (8,0)  block 2 at (16,0) etc
+
+
+
+"bmp_to_amoeba_sprites"
+-----------------------
+
+The source picture is scanned in 16 pixel-wide columns from top to
+bottom, left to right. Each column scan can be terminated when all 16
+pixels on a line match a certain value, this value is prompted for when
+the program runs.
+
+
+
+"bmp_to_prose_font"
+-------------------
+
+The picture is scanned in the same way as the 8x8 tile convertor
+however, only the first byte of every tile row is written. The bytes
+written are single bitplane representations of the 8 source pixels on a
+row IE: Leftmost source pixel = bit 7, rightmost source pixel = bit 0
+(any non-zero source pixel byte counts as a set bit)
+
+
+
+About the palette data
+-----------------------
+
+The original 24 bit platte colours from the .bmp file are by default
+scaled down to 12 bit, padded with 4 zero bits at 15:12 (0000:R4:G4:B4)
+and saved as little endian words. You can also save the original
+unscaled palette in 3 byte groups (Red, Green, Blue..) if you wish.
+
+
+
