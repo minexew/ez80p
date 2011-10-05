@@ -48,9 +48,11 @@ hwsc_default_hw_settings
 
 hwsc_reset_sprites	xor a
 					ld (sprite_control),a			; Disable sprites globally
+					ld a,4
+					ld (sprite_gen_stop_pos),a		; use 32 registers
 					
 					ld hl,hw_sprite_registers		; also zero all registers
-					ld bc,8*32
+					ld bc,2048
 					xor a
 					call os_bchl_memfill
 					ret
@@ -65,7 +67,7 @@ hwsc_update_pointer_sprite
 					ret z
 
 					push ix
-					ld ix,hw_sprite_registers+(31*8)	; use last sprite resource
+					ld ix,hw_sprite_registers+(31*8)	; use sprite 31 for pointer
 					ld hl,(mouse_abs_x)
 					ld bc,x_display_offset
 					add hl,bc

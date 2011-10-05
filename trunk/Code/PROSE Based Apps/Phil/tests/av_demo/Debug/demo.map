@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Tue Sep 27 16:59:38 2011
+DATE:      Wed Oct 05 12:14:29 2011
 PROCESSOR: assembler
 FILES:     .\demo.obj             
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:04BF1C    3bf1dh
+ROM                   C:010000    C:04BF22    3bf23h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:04BF1C    3bf1dh
+CODE               absolute data          C:010000    C:04BF22    3bf23h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\av_demo\src\demo.asm (File: demo.obj) Version: 1:0 09/27/2011 16:59:33
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\av_demo\src\demo.asm (File: demo.obj) Version: 1:0 10/05/2011 12:14:25
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:04BF1C    3bf1dh
+    Segment: CODE                              C:010000    C:04BF22    3bf23h
 
 EXTERNAL DEFINITIONS:
 =====================

@@ -20,8 +20,8 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 3dh
-amoeba_version_required	equ 10ah
+prose_version			equ 3eh
+amoeba_version_required	equ 10bh
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
 stack_size				equ 512

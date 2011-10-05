@@ -1,8 +1,8 @@
-; test tilemap mode with audio + sprites - Requires AMOEBA v10A+
+; test tilemap mode with audio + sprites - Requires AMOEBA v10B+
 
 ;----------------------------------------------------------------------------------------------
 
-amoeba_version_req	equ	010ah			; (0 = dont care about HW version)
+amoeba_version_req	equ	010bh			; (0 = dont care about HW version)
 prose_version_req	equ 001eh			; (0 = dont care about OS version)
 ADL_mode			equ 1				; 0 if user program is Z80 mode type, 1 if not
 load_location		equ 10000h			; anywhere in system ram
@@ -145,8 +145,6 @@ skip
 			ld (ix+11h),0						; set x hardware scroll position
 			ld (ix+12h),0						; set y hw scroll position
 			
-			ld a,98
-			ld (right_border_position),a		; mask the rightmost 8 pixels
 			
 ;---- Set up Sprites ----------------------------------------------------------------------------
 			
@@ -196,6 +194,12 @@ zpix2		ld (de),a
 			ld a,1
 			ld (video_control+3),a				; use palette 1 for sprites
 			
+			ld a,6									
+			ld (video_control+7),a				;use up to 48 sprite registers
+
+			ld a,98
+			ld (right_border_position),a		; mask the rightmost 8 pixels
+
 ;----Set up timer for 50Hz-----------------------------------------------------------------------
 			
 			ld de,655							; set count to 655 ticks (50Hz)
@@ -341,7 +345,7 @@ makecoords	ld hl,0
 			ld bc,spr_sine_table
 			add hl,bc
 			ld hl,(hl)
-			ld bc,400
+			ld bc,256+320
 			add hl,bc
 			ld (ix),l
 			ld (ix+1),h
@@ -352,7 +356,7 @@ makecoords	ld hl,0
 			ld bc,spr_sine_table
 			add hl,bc
 			ld hl,(hl)
-			ld bc,240
+			ld bc,512+192
 			add hl,bc
 			ld (ix+2),l
 			ld (ix+3),h

@@ -13,7 +13,7 @@ prose_kernal 		equ os_location + 20h
 
 ; Add to sprite locations to position a 0,0 sprite at the top/left pixel of the display
 
-x_display_offset	equ 09ah
-y_display_offset	equ 025h
+x_display_offset	equ 0100h		;for AMOEBA v10B
+y_display_offset	equ 0200h		;for AMOEBA v10B
 
 ;--------------------------------------------------------------------------------------
