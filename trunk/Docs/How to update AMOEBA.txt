@@ -1,0 +1,44 @@
+
+How to update AMOEBA on the EZ80P:
+==================================
+
+Under PROSE, use the command: FPGACFG [command] (parameters)
+
+EG: To list the current contents of the EEPROM slots, enter:
+
+FPGACFG L
+
+
+To write a new config to a slot enter:
+
+FPGACFH W x filename
+
+ where "x" is the slot you wish to overwrite and "filename" is the
+ name of xilinx .bin file to be written (if no filename is supplied
+ you are prompted to download the .bin file via the serial link).
+
+
+Once a new config file has been written, you should test it before
+making it the power-on default boot slot. To do so, enter:
+
+FPGACFG C x
+
+ where x is the relevent slot number.
+
+
+If all is well, the slot can be made the default power on slot with:
+
+FPGACFG B x
+
+
+
+The power-on boot slot can also be set manually with the following procedure:
+
+Press and hold the reset button and switch on the EZ80P. Release the reset
+button and the green LED will flash rapidly. Press and release the reset button
+again - the system enters slot selection mode. 
+
+The red LED now flashes x number of times to indicate the slot which is to be
+made active. Press and release the reset button following indication of the
+desired slot - the relevant slot will be made active and the system will
+reconfigure from that slot. 
