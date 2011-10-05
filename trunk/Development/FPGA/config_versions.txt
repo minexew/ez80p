@@ -2,6 +2,9 @@
 AMOEBA for EZ80P Version info:
 -------------------------------
 
+V10B - Updated the sprite system with many new features. Coordinate origins changed
+       so breaks compatibility with previous versions of AMOEBA.
+
 V10A - Altered Sound System, allows IRQ based on looping channels etc. Registers
        etc changed so incompatible with previous versions of AMOEBA.
 
