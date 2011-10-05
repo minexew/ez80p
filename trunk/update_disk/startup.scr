@@ -7,9 +7,9 @@ pen 6
 fpgacfg l
 pen 7
 envers
-if AMOEBA = 010A UPDATED
+if AMOEBA = 010B UPDATED
 echo " "
-echo "Enter 'FPGACFG W [x] AMOEBA0A.BIN', where [x] is a free slot number."
+echo "Enter 'FPGACFG W [x] AMOEBA0B.BIN', where [x] is a free slot number."
 echo " "
 echo "Then enter 'FPGACFG C [x]' to reboot / test"
 echo " "
@@ -21,8 +21,8 @@ pen 4
 echo "*** The latest version of AMOEBA is running! ***"
 pen 7
 echo " "
-echo "Enter 'FPGACFG B [x]' to make it the power on default"
-echo "(where [x] is it's slot number)"
+echo "Enter 'FPGACFG B [x]' to make it the power-on boot"
+echo "slot (where [x] is its slot number)"
 echo " "
 echo "You can then swap to the latest PROSE disk and reboot."
 echo " "
