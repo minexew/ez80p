@@ -3,7 +3,7 @@ You only need to use this update disk to update AMOEBA if you
 have old versions of AMOEBA/PROSE and encounter incompatibilities.
 
 This disk contains old versions of PROSE / FPGACFG which should run
-on any version of AMOEBA. In general try the FPGACFG.EZP command
+on any version of AMOEBA. In general, try the FPGACFG.EZP command
 direct from your normal PROSE disk first.
 
 EG:-
