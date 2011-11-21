@@ -11,7 +11,7 @@ FPGACFG L
 
 To write a new FPGA config to a slot enter:
 
-FPGACFH W x filename
+FPGACFG W x filename
 
  where "x" is the slot you wish to overwrite and "filename" is the
  name of xilinx .bin file to be written (if no filename is supplied
@@ -26,17 +26,17 @@ FPGACFG C x
  where x is the relevent slot number.
 
 
-If all is well, the slot can be made the default power on slot with:
+If all is well, the slot can be made the default power-on boot config with:
 
 FPGACFG B x
 
  where x is the relevent slot number.
 
 
-Manual configuration
-====================
+Manually setting the boot slot
+==============================
 
-The power-on boot slot can be set manually with the following procedure:
+The power-on boot config slot can be selected manually with the following procedure:
 
 Press and hold the reset button and switch on the EZ80P. Release the reset
 button and the green LED will flash rapidly. Press and release the reset button
@@ -45,6 +45,8 @@ of times to indicate the slot which is to be made active. Press and release the
 reset button following indication of the desired slot - the relevant slot will
 be made active and the system will reconfigure from that slot. 
 
+JTAG mode
+=========
 
 A config file can be sent via the EZ80P's JTAG port (using appropriate
 cable and software). Press and hold the reset button then switch on the EZ80P.
