@@ -1,7 +1,9 @@
-[04-10-2011]
+[21-11-2011]
 
 Current version
 ---------------
+
+03F 		: FAT16 Routines filepointer bugfix (v.0B)
 
 03E 		: Adjustment to the sprite pointer coordinates for AMOEBA v10B
 

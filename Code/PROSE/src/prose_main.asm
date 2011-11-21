@@ -20,7 +20,7 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 3eh
+prose_version			equ 3fh
 amoeba_version_required	equ 10bh
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -3801,7 +3801,7 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 
 	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
-	include		'prose_fat16_code_v0A.asm'
+	include		'prose_fat16_code_v0B.asm'
 
 ;-----------------------------------------------------------------------------------------------
 ; OS Data 
@@ -3816,7 +3816,7 @@ default_pointer_height equ 20
 
 	include		'default_pointer_packed.asm'		; Default mouse pointer image
 
-default_pointer_colours	db 1,2						;offset from colour 0, number of colours 
+default_pointer_colours	db 1,2						; offset from colour 0, number of colours 
 						dw 000h,0fffh
 
 ;================================================================================================
