@@ -67,54 +67,56 @@ eZ80P header pin-outs
 (# = 5 volt tolerant)
 
 
-16 Pin Header*
---------------
+16 Pin Header - "VRAM_A" in AMOEBA *
+------------------------------------
 
-1  - SRAM_bus_B A17 (FPGA pin 120)
-2  - SRAM_bus_B A18 (FPGA pin 119)
-3  - SRAM_bus_B A15 (FPGA pin 123)
-4  - SRAM_bus_B A16 (FPGA pin 122)
-5  - SRAM_bus_B D7  (FPGA pin 125)
-6  - SRAM_bus_B OE  (FPGA pin 124)
-7  - SRAM_bus_B D5  (FPGA pin 128)
-8  - SRAM_bus_B D6  (FPGA pin 126)
-9  - SRAM_bus_B A14 (FPGA pin 131)
-10 - SRAM_bus_B D4  (FPGA pin 130)
-11 - SRAM_bus_B A12 (FPGA pin 133)
-12 - SRAM_bus_B A13 (FPGA pin 132)
-13 - SRAM_bus_B A10 (FPGA pin 137)
-14 - SRAM_bus_B A11 (FPGA pin 135)
+1  - SRAM_bus_A A17 (FPGA pin 120)
+2  - SRAM_bus_A A18 (FPGA pin 119)
+3  - SRAM_bus_A A15 (FPGA pin 123)
+4  - SRAM_bus_A A16 (FPGA pin 122)
+5  - SRAM_bus_A D7  (FPGA pin 125)
+6  - SRAM_bus_A OE  (FPGA pin 124)
+7  - SRAM_bus_A D5  (FPGA pin 128)
+8  - SRAM_bus_A D6  (FPGA pin 126)
+9  - SRAM_bus_A A14 (FPGA pin 131)
+10 - SRAM_bus_A D4  (FPGA pin 130)
+11 - SRAM_bus_A A12 (FPGA pin 133)
+12 - SRAM_bus_A A13 (FPGA pin 132)
+13 - SRAM_bus_A A10 (FPGA pin 137)
+14 - SRAM_bus_A A11 (FPGA pin 135)
 15 - GND
 16 - Vcc (3.3v)
 
 
-20 pin header*
---------------
+20 pin header- "VRAM_A" in AMOEBA *
+-----------------------------------
 
-1  -  SRAM_bus_B A0  (FPGA pin 138)
-2  -  SRAM_bus_B A1  (FPGA pin 139)
-3  -  SRAM_bus_B A2  (FPGA pin 140)
-4  -  SRAM_bus_B A3  (FPGA pin 141)
-5  -  SRAM_bus_B A4  (FPGA pin 143)
-6  -  SRAM_bus_B /CS (FPGA pin 144)
-7  -  SRAM_bus_B D0  (FPGA pin 146)
-8  -  SRAM_bus_B D1  (FPGA pin 147)
+1  -  SRAM_bus_A A0  (FPGA pin 138)
+2  -  SRAM_bus_A A1  (FPGA pin 139)
+3  -  SRAM_bus_A A2  (FPGA pin 140)
+4  -  SRAM_bus_A A3  (FPGA pin 141)
+5  -  SRAM_bus_A A4  (FPGA pin 143)
+6  -  SRAM_bus_A /CS (FPGA pin 144)
+7  -  SRAM_bus_A D0  (FPGA pin 146)
+8  -  SRAM_bus_A D1  (FPGA pin 147)
 9  -  Vcc (3.3v) 
 10 -  Vcc (3.3v)
 11 -  Gnd
 12 -  Gnd
-13 -  SRAM_bus_B A8 (FPGA pin 149)
-14 -  SRAM_bus_B A9 (FPGA pin 148)
-15 -  SRAM_bus_B A6 (FPGA pin 152)
-16 -  SRAM_bus_B A7 (FPGA pin 150) 
-17 -  SRAM_bus_B WR (FPGA pin 155) 
-18 -  SRAM_bus_B A5 (FPGA pin 154)
-19 -  SRAM_bus_B D2 (FPGA pin 162)
-20 -  SRAM_bus_B D3 (FPGA pin 156)
+13 -  SRAM_bus_A A8 (FPGA pin 149)
+14 -  SRAM_bus_A A9 (FPGA pin 148)
+15 -  SRAM_bus_A A6 (FPGA pin 152)
+16 -  SRAM_bus_A A7 (FPGA pin 150) 
+17 -  SRAM_bus_A WR (FPGA pin 155) 
+18 -  SRAM_bus_A A5 (FPGA pin 154)
+19 -  SRAM_bus_A D2 (FPGA pin 162)
+20 -  SRAM_bus_A D3 (FPGA pin 156)
 
 
-* In alternative configs, these pins can be used as general purpose FPGA IO lines
-  as long as "SRAM_bus_B /CS" (FPGA pin 144) is pulled high (keeping the SRAM IC offline) 
+* These pins can be used for VRAM_A expansion, by using spare IO#1 as a /CS line.
+
+* In alternative configs, the pins can be used as general purpose FPGA IO lines
+  as long as "SRAM_bus_A /CS" (FPGA pin 144) is pulled high (keeping the SRAM IC offline) 
 
 
 
