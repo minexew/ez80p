@@ -1,15 +1,17 @@
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   1
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   1
 
 
 PC     Object              I  Line    Source 
-                           A     1    
-                           A     2    ;----------------------------------------------
+                           A     1    ; Simple memory test - tests entire VRAM A and 
+                           A     2    ; the free system RAM (approx 11000h-7FC00h)
                            A     3    
-       00000000            A     4    amoeba_version_req	equ	0				; 0 = d
-       00000021            A     5    prose_version_req	equ 21h				; 0 = d
-       00000001            A     6    ADL_mode			equ 1				; 0 if 
-       00010000            A     7    load_location		equ 10000h			; anywh
-                           A     8    
+                           A     4    ;----------------------------------------------
+                           A     5    
+       00000000            A     6    amoeba_version_req	equ	0				; 0 = d
+       00000021            A     7    prose_version_req	equ 21h				; 0 = d
+       00000001            A     8    ADL_mode			equ 1				; 0 if 
+       00010000            A     9    load_location		equ 10000h			; anywh
+                           A    10    
                            B     0    			include	'PROSE_header.asm'
                            B     1    
                            B     2    ;----------------------------------------------
@@ -52,12 +54,12 @@ PC     Object              I  Line    Source
        000000AE            C    35    CS2_LBR			equ 0aeh			;eZ80 wait 
        000000AF            C    36    CS2_UBR			equ 0afh
        000000B0            C    37    CS2_CTL			equ 0b0h
-       000000B1            C    38    CS3_LBR			equ 0b1h			;eZ80 wait 
-       000000B2            C    39    CS3_UBR			equ 0b2h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   2
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   2
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_equates.asm
+       000000B1            C    38    CS3_LBR			equ 0b1h			;eZ80 wait 
+       000000B2            C    39    CS3_UBR			equ 0b2h
        000000B3            C    40    CS3_CTL			equ 0b3h
                            C    41    
        00000080            C    42    TMR0_CTL		equ 080h			;timer 0 eq
@@ -100,46 +102,48 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\ez80_cpu_eq
        00000007            C    13    port_ps2_ctrl			equ 007h
        00000008            C    14    port_selector			equ 008h
        00000006            C    15    port_mouse_data			equ 006h
-       00000009            C    16    port_clear_flags		equ 009h
-                           C    17    
-       00000000            C    18    sdc_power				equ 0		;(port_sd_c
-       00000001            C    19    sdc_cs					equ 1		;(port_sd_c
-       00000002            C    20    sdc_speed				equ 2 		;(port_sd_c
-                           C    21    
-       00000004            C    22    sdc_serializer_busy		equ 4 		;(port_hw_f
-       00000005            C    23    vrt						equ 5		;(port_hw_f
-                           C    24    
-                           C    25    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   3
+       00000009            C    16    port_clear_flags			equ 009h
+       0000000A            C    17    port_hw_enable			equ 00ah
+                           C    18    
+       00000000            C    19    sdc_power				equ 0		;(port_sd_c
+       00000001            C    20    sdc_cs					equ 1		;(port_sd_c
+       00000002            C    21    sdc_speed				equ 2 		;(port_sd_c
+                           C    22    
+       00000004            C    23    sdc_serializer_busy		equ 4 		;(port_hw_f
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   3
 
 
 PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hardware_equates.asm
-                           C    26    ;-- Memory locations --------------------------
-                           C    27    
-       00000000            C    28    sysram_addr				equ 0000000h
-       00800000            C    29    vram_a_addr				equ 0800000h
-       00C00000            C    30    vram_b_addr				equ 0c00000h
-                           C    31    
-                           C    32    ;-- Hardware registers ------------------------
-                           C    33    
-       00FF0000            C    34    hw_palette				equ 0ff0000h
-       00FF0800            C    35    hw_sprite_registers		equ 0ff0800h
-       00FF1000            C    36    hw_video_parameters		equ 0ff1000h
-       00FF1400            C    37    hw_audio_registers		equ 0ff1400h
-       00FF1800            C    38    hw_video_settings		equ 0ff1800h
-                           C    39    
-       00FF1000            C    40    tilemap_parameters		equ hw_video_parameters
-       00FF1020            C    41    bitmap_parameters		equ hw_video_parameters
-                           C    42    
-       00FF1800            C    43    video_control			equ hw_video_settings+0
-       00FF1801            C    44    sprite_control			equ hw_video_settings+0
-       00FF1802            C    45    bgnd_palette_select		equ hw_video_settings+0
-       00FF1803            C    46    sprite_palette_select	equ hw_video_settings+0
-       00FF1804            C    47    right_border_position	equ hw_video_settings+0
-       00FF1805            C    48    irq_line_lo				equ hw_video_settings+0
-       00FF1806            C    49    irq_line_hi				equ hw_video_settings+0
-                           C    50    
-                           C    51    ;----------------------------------------------
+       00000005            C    24    vrt						equ 5		;(port_hw_f
+                           C    25    
+                           C    26    
+                           C    27    ;-- Memory locations --------------------------
+                           C    28    
+       00000000            C    29    sysram_addr				equ 0000000h
+       00800000            C    30    vram_a_addr				equ 0800000h
+       00C00000            C    31    vram_b_addr				equ 0c00000h
+                           C    32    
+                           C    33    ;-- Hardware registers ------------------------
+                           C    34    
+       00FF0000            C    35    hw_palette				equ 0ff0000h
+       00FF0800            C    36    hw_sprite_registers		equ 0ff0800h
+       00FF1000            C    37    hw_video_parameters		equ 0ff1000h
+       00FF1400            C    38    hw_audio_registers		equ 0ff1400h
+       00FF1800            C    39    hw_video_settings		equ 0ff1800h
+                           C    40    
+       00FF1000            C    41    tilemap_parameters		equ hw_video_parameters
+       00FF1020            C    42    bitmap_parameters		equ hw_video_parameters
+                           C    43    
+       00FF1800            C    44    video_control			equ hw_video_settings+0
+       00FF1801            C    45    sprite_control			equ hw_video_settings+0
+       00FF1802            C    46    bgnd_palette_select		equ hw_video_settings+0
+       00FF1803            C    47    sprite_palette_select	equ hw_video_settings+0
+       00FF1804            C    48    right_border_position	equ hw_video_settings+0
+       00FF1805            C    49    irq_line_lo				equ hw_video_settings+0
+       00FF1806            C    50    irq_line_hi				equ hw_video_settings+0
+       00FF1807            C    51    sprite_gen_stop_pos		equ hw_video_settings+0
+                           C    52    
+                           C    53    ;----------------------------------------------
                            B     7    
                            C     0    include "prose_kernal_labels.asm"
                            C     1    ;--------- PROSE Kernal Routine labels --------
@@ -162,14 +166,14 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\amoeba_hard
                            C    18    
        0000000C            C    19    kr_set_file_pointer				equ 0ch
        0000000D            C    20    kr_set_load_length				equ 0dh
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   4
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
        0000000E            C    21    kr_read_file					equ 0eh
                            C    22    
        0000000F            C    23    kr_erase_file					equ 0fh
        00000010            C    24    kr_rename_file					equ 10h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   4
-
-
-PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
        00000011            C    25    kr_create_file					equ 11h
        00000012            C    26    kr_write_file					equ 12h
        00000013            C    27    kr_get_total_sectors			equ 13h
@@ -218,14 +222,14 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
        00000036            C    70    kr_init_mouse					equ 36h 	; n
                            C    71    
        00000037            C    72    kr_get_mouse_position			equ 37h
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   5
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
                            C    73    
        00000038            C    74    kr_get_mouse_motion				equ 38h
        00000038            C    75    kr_get_mouse_counters			equ 38h		;pr
                            C    76    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   5
-
-
-PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kernal_labels.asm
        00000039            C    77    kr_time_delay					equ 39h
        0000003A            C    78    kr_compare_strings				equ 3ah
        0000003B            C    79    kr_hex_byte_to_ascii			equ 3bh
@@ -274,22 +278,22 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\prose_kerna
                            C     3    
        00000A00            C     4    os_location			equ 0a00h
                            C     5    
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   6
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\misc_system_equates.asm
        00000A14            C     6    prose_return 		equ os_location + 14h
        00000A18            C     7    prose_relativize_hl	equ os_location + 18h
        00000A1C            C     8    prose_relative_call	equ os_location + 1ch
                            C     9    
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   6
-
-
-PC     Object              I  Line    Source ..\..\..\..\..\Includes\misc_system_equates.asm
        00000A20            C    10    prose_kernal 		equ os_location + 20h
                            C    11    
                            C    12    ;----------------------------------------------
                            C    13    
                            C    14    ; Add to sprite locations to position a 0,0 spr
                            C    15    
-       0000009A            C    16    x_display_offset	equ 09ah
-       00000025            C    17    y_display_offset	equ 025h
+       00000100            C    16    x_display_offset	equ 0100h		;for AMOEBA
+       00000200            C    17    y_display_offset	equ 0200h		;for AMOEBA
                            C    18    
                            C    19    ;----------------------------------------------
                            B    11    
@@ -330,14 +334,14 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\misc_system
                            B    46    mbase_offset equ load_location & 0ff0000h
                            B    47    
                            B    48    		ld a,load_location/65536	; Additiona
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   7
+
+
+PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
                            B    49    		ld MB,a						; Set MBASE
                            B    50    		jp.sis go_z80_mode			; switches 
                            B    51    
                            B    52    go_z80_mode
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   7
-
-
-PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_header.asm
                            B    53    
                            B    54    		.assume ADL = 0
                            B    55    
@@ -345,248 +349,249 @@ PC     Object              I  Line    Source ..\..\..\..\..\Includes\PROSE_heade
                            B    57    	
                            B    58    ;----------------------------------------------
                            B    59    	
-                           A    10    
-                           A    11    ;----------------------------------------------
                            A    12    
-010010 21 9A 01 01         A    13    			ld hl,app_msg
-010014 3E25                A    14    			ld a,kr_print_string
-010016 5BCD200A 00         A    15    			call.lil prose_kernal
-                           A    16    
+                           A    13    ;----------------------------------------------
+                           A    14    
+010010 21 95 01 01         A    15    			ld hl,app_msg
+                           A    16    			prose_call kr_print_string
                            A    17    
-01001B 21 FB 01 01         A    18    mt_loop		ld hl,sysram_txt
-01001F 3E25                A    19    			ld a,kr_print_string
-010021 5BCD200A 00         A    20    			call.lil prose_kernal			
-010026 21 5F 02 01         A    21    			ld hl,free_mem
-01002A 01 A1 FC 06         A    22    			ld bc,7ff00h-free_mem			;do
-01002E CD D8 00 01         A    23    			call test_mem
-010032 C2 A1 00 01         A    24    			jp nz,fail
-                           A    25    			
-010036 CD B0 00 01         A    26    			call save_font
-01003A 21 18 02 01         A    27    			ld hl,vrama_txt
-01003E 3E25                A    28    			ld a,kr_print_string
-010040 5BCD200A 00         A    29    			call.lil prose_kernal	
-010045 21000080            A    30    			ld hl,vram_a_addr
-010049 01000008            A    31    			ld bc,80000h
-01004D CD D8 00 01         A    32    			call test_mem
-010051 F5                  A    33    			push af
-010052 CD C4 00 01         A    34    			call restore_font
-010056 3E26                A    35    			ld a,kr_clear_screen
-010058 5BCD200A 00         A    36    			call.lil prose_kernal
-01005D F1                  A    37    			pop af
-01005E C2 A1 00 01         A    38    			jp nz,fail
-                           A    39    			
-010062 21 2A 02 01         A    40    			ld hl,vramb_txt
-010066 3E25                A    41    			ld a,kr_print_string
-010068 5BCD200A 00         A    42    			call.lil prose_kernal	
-01006D 210000C0            A    43    			ld hl,vram_b_addr
-010071 01000008            A    44    			ld bc,80000h
-010075 CD D8 00 01         A    45    			call test_mem
-010079 C2 A1 00 01         A    46    			jp nz,fail
-                           A    47    			
-01007D 3A 5E 02 01         A    48    			ld a,(passes)
-010081 3C                  A    49    			inc a
-010082 32 5E 02 01         A    50    			ld (passes),a
-010086 21 4A 02 01         A    51    			ld hl,pass_count_txt
-01008A 5F                  A    52    			ld e,a
-01008B 3E3B                A    53    			ld a,kr_hex_byte_to_ascii
-01008D 5BCD200A 00         A    54    			call.lil prose_kernal
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   8
+01001B 21 31 02 01         A    18    mt_loop		ld hl,sysram_txt
+                           A    19    			prose_call kr_print_string	
+                           A    20    			
+                           A    21    			prose_call kr_get_ram_top		;Ge
+01002D 01 A2 02 01         A    22    			ld bc,free_mem					;IE
+010031 AF                  A    23    			xor a
+010032 ED42                A    24    			sbc hl,bc
+010034 E5                  A    25    			push hl
+010035 C1                  A    26    			pop bc
+010036 21 A2 02 01         A    27    			ld hl,free_mem
+01003A CD D3 00 01         A    28    			call test_mem
+01003E C2 A6 00 01         A    29    			jp nz,fail
+                           A    30    			
+010042 21 4E 02 01         A    31    			ld hl,vrama_txt
+                           A    32    			prose_call kr_print_string	
+01004D CD B5 00 01         A    33    			call save_vram
+010051 21000080            A    34    			ld hl,vram_a_addr
+010055 01000008            A    35    			ld bc,80000h
+010059 CD D3 00 01         A    36    			call test_mem
+01005D F5                  A    37    			push af
+01005E CD C4 00 01         A    38    			call restore_vram
+010062 F1                  A    39    			pop af
+010063 C2 A6 00 01         A    40    			jp nz,fail
+                           A    41    			
+010067 21 64 02 01         A    42    			ld hl,vramb_txt
+                           A    43    			prose_call kr_print_string
+010072 210000C0            A    44    			ld hl,vram_b_addr
+010076 01000008            A    45    			ld bc,80000h
+01007A CD D3 00 01         A    46    			call test_mem
+01007E C2 A6 00 01         A    47    			jp nz,fail
+                           A    48    			
+010082 3A A1 02 01         A    49    			ld a,(passes)
+010086 3C                  A    50    			inc a
+010087 32 A1 02 01         A    51    			ld (passes),a
+01008B 21 8C 02 01         A    52    			ld hl,pass_count_txt
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   8
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm
-010092 21 3C 02 01         A    55    			ld hl,passes_txt
-010096 3E25                A    56    			ld a,kr_print_string
-010098 5BCD200A 00         A    57    			call.lil prose_kernal
-                           A    58    
-01009D C3 1B 00 01         A    59    			jp mt_loop
-                           A    60    
-                           A    61    ;----------------------------------------------
-                           A    62    
-0100A1 21 4F 02 01         A    63    fail		ld hl,fail_txt
-0100A5 3E25                A    64    			ld a,kr_print_string
-0100A7 5BCD200A 00         A    65    			call.lil prose_kernal
-0100AC C3 AC 00 01         A    66    stop_here	jp stop_here
-                           A    67    			
-                           A    68    ;----------------------------------------------
-                           A    69    
-0100B0 3E40                A    70    save_font	ld a,kr_get_font_info
-0100B2 5BCD200A 00         A    71    			call.lil prose_kernal
-0100B7 DD2706              A    72    			ld hl,(ix+6)
-0100BA DD0709              A    73    			ld bc,(ix+9)
-0100BD 11 5F 02 01         A    74    			ld de,free_mem
-0100C1 EDB0                A    75    			ldir
-0100C3 C9                  A    76    			ret
-                           A    77    			
-0100C4                     A    78    restore_font
-                           A    79    	
-0100C4 3E40                A    80    			ld a,kr_get_font_info
-0100C6 5BCD200A 00         A    81    			call.lil prose_kernal
-0100CB 21 5F 02 01         A    82    			ld hl,free_mem
-0100CF DD0709              A    83    			ld bc,(ix+9)
-0100D2 DD1706              A    84    			ld de,(ix+6)
-0100D5 EDB0                A    85    			ldir
-0100D7 C9                  A    86    			ret
-                           A    87    
-                           A    88    ;----------------------------------------------
-                           A    89    
-0100D8                     A    90    test_mem
-0100D8 1E00                A    91    			ld e,0								0100DA CD 60 01 01         A    92    			call fill_test
-0100DE C0                  A    93    			ret nz
-0100DF 1EFF                A    94    			ld e,255
-0100E1 CD 60 01 01         A    95    			call fill_test
-0100E5 C0                  A    96    			ret nz
-0100E6 1E01                A    97    			ld e,1h
-0100E8 CD 60 01 01         A    98    			call fill_test
-0100EC C0                  A    99    			ret nz
-0100ED 1E02                A   100    			ld e,2h
-0100EF CD 60 01 01         A   101    			call fill_test
-0100F3 C0                  A   102    			ret nz
-0100F4 1E04                A   103    			ld e,4h
-0100F6 CD 60 01 01         A   104    			call fill_test
-0100FA C0                  A   105    			ret nz
-0100FB 1E08                A   106    			ld e,8h
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:   9
+01008F 5F                  A    53    			ld e,a
+                           A    54    			prose_call kr_hex_byte_to_ascii
+010097 21 7A 02 01         A    55    			ld hl,passes_txt
+                           A    56    			prose_call kr_print_string
+                           A    57    			
+0100A2 C3 1B 00 01         A    58    			jp mt_loop
+                           A    59    
+                           A    60    ;----------------------------------------------
+                           A    61    
+0100A6 21 92 02 01         A    62    fail		ld hl,fail_txt
+                           A    63    			prose_call kr_print_string
+0100B1 C3 B1 00 01         A    64    stop_here	jp stop_here
+                           A    65    			
+                           A    66    ;----------------------------------------------
+                           A    67    
+0100B5 21000080            A    68    save_vram	ld hl,vram_a_addr				;cr
+0100B9 01000001            A    69    			ld bc,10000h					;(f
+0100BD 11 A2 02 01         A    70    			ld de,free_mem
+0100C1 EDB0                A    71    			ldir
+0100C3 C9                  A    72    			ret
+                           A    73    			
+0100C4                     A    74    restore_vram
+                           A    75    	
+0100C4 21 A2 02 01         A    76    			ld hl,free_mem					;re
+0100C8 01000001            A    77    			ld bc,10000h
+0100CC 11000080            A    78    			ld de,vram_a_addr
+0100D0 EDB0                A    79    			ldir
+0100D2 C9                  A    80    			ret
+                           A    81    
+                           A    82    ;----------------------------------------------
+                           A    83    
+0100D3                     A    84    test_mem
+0100D3 1E00                A    85    			ld e,0								0100D5 CD 5B 01 01         A    86    			call fill_test
+0100D9 C0                  A    87    			ret nz
+0100DA 1EFF                A    88    			ld e,255
+0100DC CD 5B 01 01         A    89    			call fill_test
+0100E0 C0                  A    90    			ret nz
+0100E1 1E01                A    91    			ld e,1h
+0100E3 CD 5B 01 01         A    92    			call fill_test
+0100E7 C0                  A    93    			ret nz
+0100E8 1E02                A    94    			ld e,2h
+0100EA CD 5B 01 01         A    95    			call fill_test
+0100EE C0                  A    96    			ret nz
+0100EF 1E04                A    97    			ld e,4h
+0100F1 CD 5B 01 01         A    98    			call fill_test
+0100F5 C0                  A    99    			ret nz
+0100F6 1E08                A   100    			ld e,8h
+0100F8 CD 5B 01 01         A   101    			call fill_test
+0100FC C0                  A   102    			ret nz
+0100FD 1E10                A   103    			ld e,10h
+0100FF CD 5B 01 01         A   104    			call fill_test
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:   9
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm
-0100FD CD 60 01 01         A   107    			call fill_test
-010101 C0                  A   108    			ret nz
-010102 1E10                A   109    			ld e,10h
-010104 CD 60 01 01         A   110    			call fill_test
-010108 C0                  A   111    			ret nz
-010109 1E20                A   112    			ld e,20h
-01010B CD 60 01 01         A   113    			call fill_test
-01010F C0                  A   114    			ret nz
-010110 1E40                A   115    			ld e,40h
-010112 CD 60 01 01         A   116    			call fill_test
-010116 C0                  A   117    			ret nz
-010117 1E80                A   118    			ld e,80h
-010119 CD 60 01 01         A   119    			call fill_test
-01011D C0                  A   120    			ret nz
-                           A   121    			
-                           A   122    
-01011E ED5B 58 02 01       A   123    			ld de,(my_seed)
-010123 ED53 5B 02 01       A   124    			ld (seed),de
-010128 E5                  A   125    			push hl
-010129 C5                  A   126    			push bc
-01012A CD 7A 01 01         A   127    rt1			call rand16							01012E 3A 5C 02 01         A   128    			ld a,(seed+1)
-010132 77                  A   129    			ld (hl),a
-010133 EDA1                A   130    			cpi
-010135 EA 2A 01 01         A   131    			jp pe,rt1
-010139 C1                  A   132    			pop bc
-01013A E1                  A   133    			pop hl
-                           A   134    
-01013B ED5B 58 02 01       A   135    			ld de,(my_seed)
-010140 ED53 5B 02 01       A   136    			ld (seed),de
-010145 CD 7A 01 01         A   137    rt2			call rand16
-010149 3A 5C 02 01         A   138    			ld a,(seed+1)
-01014D EDA1                A   139    			cpi
-01014F C0                  A   140    			ret nz
-010150 EA 45 01 01         A   141    			jp pe,rt2
-                           A   142    			
-010154 ED5B 5B 02 01       A   143    			ld de,(seed)
-010159 ED53 58 02 01       A   144    			ld (my_seed),de
-01015E AF                  A   145    			xor a
-01015F C9                  A   146    			ret
-                           A   147    			
-                           A   148    ;----------------------------------------------
-                           A   149    			
-                           A   150    			
-010160 E5                  A   151    fill_test	push hl
-010161 C5                  A   152    			push bc
-010162 73                  A   153    mt1			ld (hl),e
-010163 EDA1                A   154    			cpi								;us
-010165 EA 62 01 01         A   155    			jp pe,mt1
-010169 C1                  A   156    			pop bc
-01016A E1                  A   157    			pop hl
-                           A   158    			
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:  10
+010103 C0                  A   105    			ret nz
+010104 1E20                A   106    			ld e,20h
+010106 CD 5B 01 01         A   107    			call fill_test
+01010A C0                  A   108    			ret nz
+01010B 1E40                A   109    			ld e,40h
+01010D CD 5B 01 01         A   110    			call fill_test
+010111 C0                  A   111    			ret nz
+010112 1E80                A   112    			ld e,80h
+010114 CD 5B 01 01         A   113    			call fill_test
+010118 C0                  A   114    			ret nz
+                           A   115    			
+                           A   116    
+010119 ED5B 9B 02 01       A   117    			ld de,(my_seed)
+01011E ED53 9E 02 01       A   118    			ld (seed),de
+010123 E5                  A   119    			push hl
+010124 C5                  A   120    			push bc
+010125 CD 75 01 01         A   121    rt1			call rand16							010129 3A 9F 02 01         A   122    			ld a,(seed+1)
+01012D 77                  A   123    			ld (hl),a
+01012E EDA1                A   124    			cpi
+010130 EA 25 01 01         A   125    			jp pe,rt1
+010134 C1                  A   126    			pop bc
+010135 E1                  A   127    			pop hl
+                           A   128    
+010136 ED5B 9B 02 01       A   129    			ld de,(my_seed)
+01013B ED53 9E 02 01       A   130    			ld (seed),de
+010140 CD 75 01 01         A   131    rt2			call rand16
+010144 3A 9F 02 01         A   132    			ld a,(seed+1)
+010148 EDA1                A   133    			cpi
+01014A C0                  A   134    			ret nz
+01014B EA 40 01 01         A   135    			jp pe,rt2
+                           A   136    			
+01014F ED5B 9E 02 01       A   137    			ld de,(seed)
+010154 ED53 9B 02 01       A   138    			ld (my_seed),de
+010159 AF                  A   139    			xor a
+01015A C9                  A   140    			ret
+                           A   141    			
+                           A   142    ;----------------------------------------------
+                           A   143    			
+                           A   144    			
+01015B E5                  A   145    fill_test	push hl
+01015C C5                  A   146    			push bc
+01015D 73                  A   147    mt1			ld (hl),e
+01015E EDA1                A   148    			cpi								;us
+010160 EA 5D 01 01         A   149    			jp pe,mt1
+010164 C1                  A   150    			pop bc
+010165 E1                  A   151    			pop hl
+                           A   152    			
+010166 E5                  A   153    			push hl
+010167 C5                  A   154    			push bc
+010168 7B                  A   155    			ld a,e
+010169 EDA1                A   156    mt2			cpi
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:  10
 
 
 PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm
-01016B E5                  A   159    			push hl
-01016C C5                  A   160    			push bc
-01016D 7B                  A   161    			ld a,e
-01016E EDA1                A   162    mt2			cpi
-010170 20 05               A   163    			jr nz,bad
-010172 EA 6E 01 01         A   164    			jp pe,mt2
-010176 AF                  A   165    			xor a
-010177 C1                  A   166    bad			pop bc
-010178 E1                  A   167    			pop hl
-010179 C9                  A   168    			ret
-                           A   169    			
-                           A   170    
-                           A   171    ;----------------------------------------------
-                           A   172    
-                           A   173    
-01017A E5                  A   174    rand16		push hl
-01017B ED5B 5B 02 01       A   175    			ld	de,(seed)		
-010180 7A                  A   176    			ld	a,d
-010181 63                  A   177    			ld	h,e
-010182 2EFD                A   178    			ld	l,253
-010184 B7                  A   179    			or	a
-010185 ED52                A   180    			sbc	hl,de
-010187 DE00                A   181    			sbc	a,0
-010189 ED52                A   182    			sbc	hl,de
-01018B 1600                A   183    			ld	d,0
-01018D 9A                  A   184    			sbc	a,d
-01018E 5F                  A   185    			ld	e,a
-01018F ED52                A   186    			sbc	hl,de
-010191 30 01               A   187    			jr	nc,rand
-010193 23                  A   188    			inc	hl
-010194 22 5B 02 01         A   189    rand		ld	(seed),hl		
-010198 E1                  A   190    			pop hl
-010199 C9                  A   191    			ret
-                           A   192    	
-                           A   193    ;----------------------------------------------
-                           A   194    
-01019A 0B4D656D 6F727920   A   195    app_msg			db 11,"Memory test v0.01",11
-0101A2 74657374 2076302E 
-0101AA 30310B 
-0101AD 2D2D2D2D 2D2D2D2D   A   196    				db "-----------------",11,11
-0101B5 2D2D2D2D 2D2D2D2D 
-0101BD 2D0B0B 
-0101C0 28476172 62616765   A   197    				db "(Garbage will appear on scr
-0101C8 2077696C 6C206170 
-0101D0 70656172 206F6E20 
-0101D8 73637265 656E2077 
-0101E0 68696C73 74205652 
-0101E8 414D2041 20697320 
-0101F0 74657374 65642E29 
-0101F8 0B0B00 
+01016B 20 05               A   157    			jr nz,bad
+01016D EA 69 01 01         A   158    			jp pe,mt2
+010171 AF                  A   159    			xor a
+010172 C1                  A   160    bad			pop bc
+010173 E1                  A   161    			pop hl
+010174 C9                  A   162    			ret
+                           A   163    			
+                           A   164    
+                           A   165    ;----------------------------------------------
+                           A   166    
+                           A   167    
+010175 E5                  A   168    rand16		push hl
+010176 ED5B 9E 02 01       A   169    			ld	de,(seed)		
+01017B 7A                  A   170    			ld	a,d
+01017C 63                  A   171    			ld	h,e
+01017D 2EFD                A   172    			ld	l,253
+01017F B7                  A   173    			or	a
+010180 ED52                A   174    			sbc	hl,de
+010182 DE00                A   175    			sbc	a,0
+010184 ED52                A   176    			sbc	hl,de
+010186 1600                A   177    			ld	d,0
+010188 9A                  A   178    			sbc	a,d
+010189 5F                  A   179    			ld	e,a
+01018A ED52                A   180    			sbc	hl,de
+01018C 30 01               A   181    			jr	nc,rand
+01018E 23                  A   182    			inc	hl
+01018F 22 9E 02 01         A   183    rand		ld	(seed),hl		
+010193 E1                  A   184    			pop hl
+010194 C9                  A   185    			ret
+                           A   186    	
+                           A   187    ;----------------------------------------------
+                           A   188    
+010195 0B4D656D 6F727920   A   189    app_msg			db 11,"Memory test v0.02",11
+01019D 74657374 2076302E 
+0101A5 30320B 
+0101A8 2D2D2D2D 2D2D2D2D   A   190    				db "-----------------",11,11
+0101B0 2D2D2D2D 2D2D2D2D 
+0101B8 2D0B0B 
+0101BB 4E6F7465 733A0B0B   A   191    				db "Notes:",11,11
+0101C3 2A204761 72626167   A   192    				db "* Garbage will appear on sc
+0101CB 65207769 6C6C2061 
+0101D3 70706561 72206F6E 
+0101DB 20736372 65656E20 
+0101E3 7768696C 73742056 
+0101EB 52414D20 41206973 
+0101F3 20746573 7465642E 
+0101FB 0B 
+0101FC 2A204120 73797374   A   193    				db "* A system reset is require
+010204 656D2072 65736574 
+01020C 20697320 72657175 
+010214 69726564 20746F20 
+01021C 71756974 20746869 
+Zilog eZ80 Macro Assembler Version 4.1 (10060805)21-Nov-11     17:44:20     page:  11
+
+
+PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm
+010224 73207072 6F677261 
+01022C 6D2E0B0B 00 
+                           A   194    				
+010231 54657374 696E6720   A   195    sysram_txt		db "Testing (free) System RAM..
+010239 28667265 65292053 
+010241 79737465 6D205241 
+010249 4D2E2E0B 00 
+01024E 4F4B2C20 54657374   A   196    vrama_txt		db "OK, Testing VRAM A..",11,0
+010256 696E6720 5652414D 
+01025E 20412E2E 0B00 
+010264 4F4B2C20 54657374   A   197    vramb_txt		db "OK, Testing VRAM B..",11,0
+01026C 696E6720 5652414D 
+010274 20422E2E 0B00 
                            A   198    
-0101FB 54657374 696E6720   A   199    sysram_txt		db "Testing (free) System RAM..
-Zilog eZ80 Macro Assembler Version 4.1 (10060805)10-Sep-11     13:16:45     page:  11
-
-
-PC     Object              I  Line    Source E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm
-010203 28667265 65292053 
-01020B 79737465 6D205241 
-010213 4D2E2E0B 00 
-010218 54657374 696E6720   A   200    vrama_txt		db "Testing VRAM A..",11,0
-010220 5652414D 20412E2E 
-010228 0B00 
-01022A 54657374 696E6720   A   201    vramb_txt		db "Testing VRAM B..",11,0
-010232 5652414D 20422E2E 
-01023A 0B00 
-                           A   202    
-01023C 0B506173 7320636F   A   203    passes_txt		db 11,"Pass count: $"
-010244 756E743A 2024 
-01024A 78780B0B 00         A   204    pass_count_txt	db "xx",11,11,0
-                           A   205    
-01024F 4661696C 6564210B   A   206    fail_txt		db "Failed!",11,0
-010257 00 
-                           A   207    
-010258 563412              A   208    my_seed			dw24 123456h
-01025B 000000              A   209    seed			dw24 0
+01027A 0B4F4B2C 20506173   A   199    passes_txt		db 11,"OK, Pass count: $"
+010282 7320636F 756E743A 
+01028A 2024 
+01028C 78780B0B 0B00       A   200    pass_count_txt	db "xx",11,11,11,0
+                           A   201    
+010292 4661696C 6564210B   A   202    fail_txt		db "Failed!",11,0
+01029A 00 
+                           A   203    
+01029B 563412              A   204    my_seed			dw24 123456h
+01029E 000000              A   205    seed			dw24 0
+                           A   206    
+0102A1 00                  A   207    passes			db 0
+                           A   208    
+0102A2 00                  A   209    free_mem		db 0		; dont put anything
                            A   210    
-01025E 00                  A   211    passes			db 0
-                           A   212    
-01025F 00                  A   213    free_mem		db 0		; dont put anything
-                           A   214    
-                           A   215    ;----------------------------------------------
+                           A   211    ;----------------------------------------------
 
 
 Errors: 0
 Warnings: 0
-Lines Assembled: 526
+Lines Assembled: 548

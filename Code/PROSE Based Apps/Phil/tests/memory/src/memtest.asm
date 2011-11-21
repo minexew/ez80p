@@ -1,3 +1,5 @@
+; Simple memory test - tests entire VRAM A and VRAM B, but only tests
+; the free system RAM (approx 11000h-7FC00h)
 
 ;----------------------------------------------------------------------------------------------
 
@@ -11,35 +13,34 @@ load_location		equ 10000h			; anywhere in system ram
 ;---------------------------------------------------------------------------------------------
 
 			ld hl,app_msg
-			ld a,kr_print_string
-			call.lil prose_kernal
-
+			prose_call kr_print_string
 
 mt_loop		ld hl,sysram_txt
-			ld a,kr_print_string
-			call.lil prose_kernal			
+			prose_call kr_print_string	
+			
+			prose_call kr_get_ram_top		;Get top of sysram in HL
+			ld bc,free_mem					;IE: last address used by this program.
+			xor a
+			sbc hl,bc
+			push hl
+			pop bc
 			ld hl,free_mem
-			ld bc,7ff00h-free_mem			;dont overwrite stack
 			call test_mem
 			jp nz,fail
 			
-			call save_font
 			ld hl,vrama_txt
-			ld a,kr_print_string
-			call.lil prose_kernal	
+			prose_call kr_print_string	
+			call save_vram
 			ld hl,vram_a_addr
 			ld bc,80000h
 			call test_mem
 			push af
-			call restore_font
-			ld a,kr_clear_screen
-			call.lil prose_kernal
+			call restore_vram
 			pop af
 			jp nz,fail
 			
 			ld hl,vramb_txt
-			ld a,kr_print_string
-			call.lil prose_kernal	
+			prose_call kr_print_string
 			ld hl,vram_b_addr
 			ld bc,80000h
 			call test_mem
@@ -50,38 +51,31 @@ mt_loop		ld hl,sysram_txt
 			ld (passes),a
 			ld hl,pass_count_txt
 			ld e,a
-			ld a,kr_hex_byte_to_ascii
-			call.lil prose_kernal
+			prose_call kr_hex_byte_to_ascii
 			ld hl,passes_txt
-			ld a,kr_print_string
-			call.lil prose_kernal
-
+			prose_call kr_print_string
+			
 			jp mt_loop
 
 ;---------------------------------------------------------------------------------------------
 
 fail		ld hl,fail_txt
-			ld a,kr_print_string
-			call.lil prose_kernal
+			prose_call kr_print_string
 stop_here	jp stop_here
 			
 ;---------------------------------------------------------------------------------------------
 
-save_font	ld a,kr_get_font_info
-			call.lil prose_kernal
-			ld hl,(ix+6)
-			ld bc,(ix+9)
+save_vram	ld hl,vram_a_addr				;crudely, save first 64KB of VRAM to SysRAM
+			ld bc,10000h					;(font and charmap)
 			ld de,free_mem
 			ldir
 			ret
 			
-restore_font
+restore_vram
 	
-			ld a,kr_get_font_info
-			call.lil prose_kernal
-			ld hl,free_mem
-			ld bc,(ix+9)
-			ld de,(ix+6)
+			ld hl,free_mem					;restore VRAM from sysRAM
+			ld bc,10000h
+			ld de,vram_a_addr
 			ldir
 			ret
 
@@ -192,16 +186,18 @@ rand		ld	(seed),hl
 	
 ;---------------------------------------------------------------------------------------------
 
-app_msg			db 11,"Memory test v0.01",11
+app_msg			db 11,"Memory test v0.02",11
 				db "-----------------",11,11
-				db "(Garbage will appear on screen whilst VRAM A is tested.)",11,11,0
-
+				db "Notes:",11,11
+				db "* Garbage will appear on screen whilst VRAM A is tested.",11
+				db "* A system reset is required to quit this program.",11,11,0
+				
 sysram_txt		db "Testing (free) System RAM..",11,0
-vrama_txt		db "Testing VRAM A..",11,0
-vramb_txt		db "Testing VRAM B..",11,0
+vrama_txt		db "OK, Testing VRAM A..",11,0
+vramb_txt		db "OK, Testing VRAM B..",11,0
 
-passes_txt		db 11,"Pass count: $"
-pass_count_txt	db "xx",11,11,0
+passes_txt		db 11,"OK, Pass count: $"
+pass_count_txt	db "xx",11,11,11,0
 
 fail_txt		db "Failed!",11,0
 

@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Sat Sep 10 13:16:47 2011
+DATE:      Mon Nov 21 17:44:21 2011
 PROCESSOR: assembler
 FILES:     .\memtest.obj          
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:010000    C:01025F      260h
+ROM                   C:010000    C:0102A2      2a3h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:010000    C:01025F      260h
+CODE               absolute data          C:010000    C:0102A2      2a3h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm (File: memtest.obj) Version: 1:0 09/10/2011 13:16:45
+Module: E:\MY_OWN~1\Coding\ez80p\Code\PROSEB~1\Phil\tests\memory\src\memtest.asm (File: memtest.obj) Version: 1:0 11/21/2011 17:44:20
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:010000    C:01025F      260h
+    Segment: CODE                              C:010000    C:0102A2      2a3h
 
 EXTERNAL DEFINITIONS:
 =====================
