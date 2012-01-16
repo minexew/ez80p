@@ -1,50 +1,50 @@
 ;-----------------------------------------------------------------------
-;"set" - set an environment variable v0.02
+;"set" - set an environment variable v0.03
 ;
-; Command should be in format: SET BLAH = SOMETHING or SET BLAH = "THIS THAT"
+; Command should be in format:
 ;
+; SET BLAH = SOMETHING
+; SET BLAH = "THIS THAT"
+; SET BLAH + (if numeric) to increment 24 bit value
+; SET BLAH - ("        ") to decrement 24 bit value
+; SET BLAH # to delete envar
 ;-----------------------------------------------------------------------
 
-os_cmd_set		ld a,(hl)					; if no args, just show envars list
+new_val		equ scratch_pad
+value_loc	equ scratch_pad+3
+arg_name	equ scratch_pad+6
+
+os_cmd_set		ld a,(hl)						; if no args, just show envars list
 				or a
 				jr z,show_envars
 		
-				ld de,scratch_pad+3			; parse args
-evsalp1			ld a,(hl)
-				ld (de),a
-				or a
-				jr z,set_bad_args
-				cp '='
-				jr z,ev_goteq
-				cp ' '
-				jr z,set_fequ
-				inc hl
-				inc de
-				jr evsalp1
-
-set_fequ		inc hl						; find the equals sign
-				ld a,(hl)
-				or a
-				jr z,set_bad_args
-				cp '='
-				jr nz,set_fequ
-				
-ev_goteq		inc hl
-				call os_scan_for_non_space		;at equals, skip to next arg
-				jr z,set_bad_args
-				
+				ld de,arg_name					; copy name to scratch pad
+				call os_copy_ascii_run
 				xor a
 				ld (de),a
 				inc de
-				ld (scratch_pad),de				;address of value
+				ld (value_loc),de
 				
+				call os_scan_for_non_space
+				jr z,set_bad_args
+				ld a,(hl)
+				cp '+'
+				jr z,set_inc
+				cp '-'
+				jr z,set_dec
+				cp '#'
+				jr z,del_env
+				cp '='
+				jr nz,set_bad_args
+							
+				call os_next_arg				; find arg value 
+				jr z,set_bad_args
 				ld a,(hl)
 				ld c,0
-				cp 022h						
+				cp 022h							; is it in quotes?		
 				jr nz,set_noquotes
 				inc c
 				inc hl
-
 set_noquotes	ld a,(hl)
 				ld (de),a
 				bit 0,c
@@ -62,8 +62,8 @@ set_igsp		or a
 evsadone2		xor a
 				ld (de),a
 				
-				ld hl,scratch_pad+3
-				ld de,(scratch_pad)
+				ld hl,arg_name
+				ld de,(value_loc)
 				call os_set_envar
 				ret
 
@@ -71,6 +71,47 @@ set_bad_args	ld a,82h
 				or a
 				ret
 				
+
+del_env			ld hl,arg_name				
+				call os_delete_envar
+				ret
+			
+
+set_dec			call incdec_pre
+				ret nz
+				dec de
+				call incdec_post
+				ret
+				
+set_inc			call incdec_pre
+				ret nz
+				inc de
+				call incdec_post
+				ret
+				
+incdec_pre		ld hl,arg_name				
+				call os_get_envar
+				ret nz
+				ex de,hl
+				call ascii_to_hexword		;get original value of envar in de
+				ret
+								
+incdec_post		ld (new_val),de				;the envar must be remade in case it was originally fewer digits
+				ld b,3
+				ld de,new_val+2				;most signficant byte of value
+				ld hl,(value_loc)
+				call n_hexbytes_to_ascii
+				ld (hl),0
+				ld hl,arg_name				;name of envar
+				push hl
+				call os_delete_envar
+				pop hl
+				ld de,(value_loc)
+				call os_set_envar
+				ret
+			
+			
+
 
 show_envars		ld hl,envar_list
 				
@@ -91,5 +132,5 @@ set_fnl			inc hl
 				
 set_done		xor a
 				ret
-								
+							
 ;-----------------------------------------------------------------------------------------------

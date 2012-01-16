@@ -1,15 +1,27 @@
-[21-11-2011]
+[15-01-2011]
 
 Current version
 ---------------
+
+040             : Fileystem converts filenames to uppercase (FAT16 in Windows does
+                  not allow straightforward lowercase filenames)
+
+		: Programmable Function keys F1-f9 in UI (Fx.CMD files)
+
+		: Page up/down keys in UI
+
+		: Script improvements: Numerics, indirect, GOTO instruction etc
+		
+		: Set command improved: inc/dec and remove envar
+
+------------------------------------------------------------------------------------------
+Previous releases:
+------------------------------------------------------------------------------------------
 
 03F 		: FAT16 Routines filepointer bugfix (v.0B)
 
 03E 		: Adjustment to the sprite pointer coordinates for AMOEBA v10B
 
-------------------------------------------------------------------------------------------
-Previous releases:
-------------------------------------------------------------------------------------------
 
 03D		: Bugfix: kr_write_file previously appended bad data on some occasions.
 

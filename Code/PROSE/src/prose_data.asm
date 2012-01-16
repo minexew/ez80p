@@ -132,6 +132,8 @@ pmq_txt					db "This will overwrite protected RAM. Continue (y/n)? ",11,0
 envar_out_n_txt			db "OUTxx",0
 path_txt				db "PATH",0
 chvol_txt				db "VOLx: ",0
+goto_txt				db "GOTO ",0
+val_txt					db "VAL ",0
 
 ;------------------------------------------------------------------------------------------------
 ; Packed text section
@@ -535,10 +537,11 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 							db 0bdh,01ah,0								;$30 Unsupported device
 							db 01ah,062h,0b3h,0							;$31 Device not detected
 							db 01ah,07ch,0								;$32 Device error
-							db 081h,07ch,0								;$33 Script error
+							db 0a1h,07ch,0								;$33 Script error
 							db 0c8h,0c9h,050h,0							;$34 Cannot allocate memory
 							db 0cah,050h,08bh,0							;$35 Allocated RAM protected
 							db 0b8h,050h,08bh,0							;$36 Video RAM protected
+							db 0c0h,062h,063h,0							;$37 Envar not found
 							
 							db 0ffh										;END MARKER
 
@@ -546,7 +549,7 @@ none_found_msg				db 097h,0a6h,063h,0							;$29 None Found
 
 kernal_error_code_translation
 
-					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h, 033h,01fh,034h	    ; begins at $80
+					db 24h,2dh,2eh,14h, 08h,11h,0fh,2ah, 02fh,030h,031h,032h, 033h,01fh,034h,037h    ; begins at $80
 					
 fs_error_code_translation
 
@@ -563,7 +566,15 @@ include	'UK_keymap.asm'
 unshifted_keymap equ keymap+00h
 shifted_keymap   equ keymap+62h
 alted_keymap	 equ keymap+c4h
-	
+
+;--------------------------------------------------------------------------------------------
+
+function_key_list	db 05h,06h,04h,0ch,03h,0bh,83h,0ah,01h	;scancodes for F1->F9
+		
+fkey_filename		db "Fx.CMD",0
+
+keymaps_txt			db "KEYMAPS",0
+
 ;---------------------------------------------------------------------------------------------
 
 ui_index				db 0				; user input routine
@@ -803,6 +814,7 @@ script_file_offset		dw24 0
 script_length			dw24 0
 
 script_flags			db 0
+if_condition			db 0
 
 path_parse_loc			dw24 0
 
