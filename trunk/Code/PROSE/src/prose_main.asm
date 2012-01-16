@@ -20,7 +20,7 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 3fh
+prose_version			equ 40h
 amoeba_version_required	equ 10bh
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now
@@ -276,13 +276,28 @@ os_ntlft		cp 074h								; arrow key moving cursor right?
 				ld (hl),0							; wrapped around
 				jr os_main_loop
 
-os_ntrig		ld hl,cursor_y
+os_ntrig		ld hl,cursor_y			
+				cp 07dh								; pressed page up?
+				jr nz,os_not_pgup
+				xor a
+				ld (cursor_x),a
+				jr os_cyzero
+
+os_not_pgup		cp 07ah								; pressed page down?
+				jr nz,os_not_pgdwn
+				xor a
+				ld (cursor_x),a
+				ld a,(charmap_rows)
+				dec a
+				jr os_cxzsd
+
+os_not_pgdwn	ld hl,cursor_y
 				cp 075h								; arrow key moving cursor up?
 				jr nz,os_ntup
 				dec (hl)
 				bit 7,(hl)
 				jr z,os_main_loop
-				ld (hl),0							; top limit reached
+os_cyzero		ld (hl),0							; top limit reached
 				jr os_main_loop
 
 os_ntup			cp 072h
@@ -292,7 +307,7 @@ os_ntup			cp 072h
 				cp (hl)
 				jr nz,os_main_loop
 				dec a
-				ld (hl),a							; bottom limit reached, scroll the screen
+os_cxzsd		ld (hl),a							; bottom limit reached, scroll the screen
 				call hwsc_scroll_up
 				jr os_main_loop
 
@@ -314,7 +329,57 @@ os_nodel		cp 066h								; backspace pressed?
 os_chrbk		call hwsc_chars_left				; b = x position of source char
 				jp os_main_loop
 
-os_nbksp		cp 05ah								; pressed enter?
+
+
+os_nbksp		ld hl,function_key_list				; pressed F1-F9?
+				ld b,9
+tst_fkey		cp (hl)
+				jr nz,nxtfkey
+				ld a,03ah
+				sub b
+				ld (fkey_filename+1),a
+				
+				call cache_dir_block				; note current dir
+				call os_check_volume_format
+				jr nz,nofkstr						; make sure disk is available
+				ld hl,fkey_filename
+				call os_find_file					; look for file called Fx.CMD (where x if relevent f-key)
+				jr z,fkey_gfn
+				
+				call os_root_dir
+				ld hl,keymaps_txt					; not found, try to change to "keymaps" dir
+				call os_change_dir
+				jr nz,nofkstr						; if envar doesnt exist, quit
+				ld hl,fkey_filename
+				call os_find_file					; if Fx.CMD file doesnt exist here either quit
+				jr nz,nofkstr	
+fkey_gfn		xor a								; OK, found key file!
+				ld de,max_buffer_chars	
+				call os_set_load_length				; limit load size
+				ld hl,commandstring		
+				push hl
+				ld bc,max_buffer_chars				; clear command string
+				ld a,' '
+				call os_bchl_memfill
+				pop hl
+				push hl
+				call os_read_bytes_from_file		; load text string
+				pop hl
+				jr z,fkey_ok 
+				cp 0cch								; dont care if we tried to load bytes beyond EOF
+				jr nz,nofkstr
+fkey_ok			call os_print_string				; show the command
+				call restore_dir_block				; go back to original dir
+				jp os_got_cmd_str					; treat string as an entered command
+nofkstr			call restore_dir_block		
+				jp os_main_loop						; no key file - back to main loop
+
+nxtfkey			inc hl
+				djnz tst_fkey
+
+
+
+not_fkey		cp 05ah								; pressed enter?
 				jp z,os_enter_pressed
 	
 				ld a,(current_asciicode)			; not a direction, bkspace, del or enter. 
@@ -356,7 +421,7 @@ os_enter_pressed
 	
 				call hwsc_charline_to_command_string	
 
-				xor a
+os_got_cmd_str	xor a
 				ld (cursor_x),a						; home the cursor at the left
 				ld hl,cursor_y						; move cursor down a line
 				inc (hl)
@@ -3012,7 +3077,7 @@ env_fname		call os_count_chars					; count characters at HL to 0, count in BC
 env_cname		lea de,ix+1
 				ld a,(de)
 				cp 0ffh
-				jr z,env_bad
+				jr z,unknown_env
 				push bc
 				ld b,c
 				call os_compare_strings
@@ -3032,6 +3097,10 @@ env_nomatch		inc ix								; look for following zero byte
 				or a
 				jr z,env_cname
 				jr env_nomatch
+
+unknown_env		ld a,8fh							; ZF not set and "unkown envar" error msg returned)
+				or a
+				ret
 
 env_bad			ld a,82h							; ZF not set (and "bad data" error) = Didnt find envar
 				or a
@@ -3801,7 +3870,7 @@ driver_table		dw24 sd_card_driver	; Storage Device Driver #0
 
 	include		'prose_keyboard_routines.asm'		; general OS-level code
 	include		'prose_serial_routines.asm'
-	include		'prose_fat16_code_v0B.asm'
+	include		'prose_fat16_code_v0C.asm'
 
 ;-----------------------------------------------------------------------------------------------
 ; OS Data 
