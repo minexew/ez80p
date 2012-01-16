@@ -356,19 +356,29 @@ tst_fkey		cp (hl)
 fkey_gfn		xor a								; OK, found key file!
 				ld de,max_buffer_chars	
 				call os_set_load_length				; limit load size
-				ld hl,commandstring		
-				push hl
-				ld bc,max_buffer_chars				; clear command string
-				ld a,' '
-				call os_bchl_memfill
-				pop hl
-				push hl
+				
+				ld hl,scratch_pad
 				call os_read_bytes_from_file		; load text string
-				pop hl
 				jr z,fkey_ok 
 				cp 0cch								; dont care if we tried to load bytes beyond EOF
 				jr nz,nofkstr
-fkey_ok			call os_print_string				; show the command
+fkey_ok			ld b,max_buffer_chars				; copy line to commandstring..
+				ld hl,scratch_pad
+				ld de,commandstring
+cfcmdlp			ld a,(hl)
+				cp 20h
+				jr c,fkeycmddone
+				ld (de),a
+				inc hl
+				inc de
+				djnz cfcmdlp
+				jr fkeycmdready
+fkeycmddone		ld a,' '							; fill rest of command string with spaces
+				ld (de),a
+				inc de
+				djnz fkeycmddone
+fkeycmdready	ld hl,commandstring
+				call os_print_string				; show the command
 				call restore_dir_block				; go back to original dir
 				jp os_got_cmd_str					; treat string as an entered command
 nofkstr			call restore_dir_block		
