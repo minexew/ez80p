@@ -1,0 +1,8 @@
+echo "test script 10"
+input "number 1" num1
+input "number 2" num2
+if val num1 <> num2 goto diff
+echo "Same"
+end
+[diff]
+echo "Different"
