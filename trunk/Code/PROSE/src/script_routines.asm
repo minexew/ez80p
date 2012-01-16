@@ -98,7 +98,17 @@ do_exec_if		ld hl,commandstring				;move to envar name following "IF"
 				call os_next_arg
 				jr z,script_error				;give up if encountered zero (didn't find name)
 				
-				ld de,if_name_txt
+				ld ix,script_flags
+				res scr_numeric_comp,(ix)		;is it "VAL " ? - if so set numeric comparison flag 
+				ld de,val_txt
+				ld b,4
+				call os_compare_strings
+				jr nz,not_val
+				set scr_numeric_comp,(ix)
+				call os_next_arg
+				jr z,script_error
+				
+not_val			ld de,if_name_txt
 				ld b,max_if_chars
 				call os_copy_ascii_run			;save envar name string (argument 1)
 				xor a
@@ -129,37 +139,32 @@ got_ifcond		ld a,b
 				call os_next_arg				;look for string following the condition
 				jr z,script_error
 				
-				ld ix,script_flags
-				res scr_numeric_comp,(ix)		;is it "VAL " ? - if so set numeric comparison flag 
-				ld de,val_txt
-				ld b,4
-				call os_compare_strings
-				jr nz,not_val
-				set scr_numeric_comp,(ix)
-				call os_next_arg
-				jr z,script_error
-				
-not_val			ld de,if_value_txt				;copy the the envar value string
 				ld b,max_if_chars
-				call os_copy_ascii_run
-				xor a
-				ld (de),a
-
-				ld de,if_value_txt
-				ld a,(de)						;is arg2 in brackets? If so, the string is an envar name
-				cp '('							;and we must look up its "value" instead of taking it from 
-				jr nz,if_arg2_done				;direct the commands string
-scr_ev2lp		ld a,(de)						;replace the closing bracket with a zero
+				ld de,if_value_txt				;hl @ compare string
+				ld a,(hl)
+				cp 22h							;is the compare string in quotes?
+				jr nz,ifa2nq					;if so copy the string between the quotes
+iffq2			inc hl
+				ld a,(hl)
 				or a
 				jr z,script_error
-				cp ')'
-				jr z,got_if_ev2
-				inc de
-				jr scr_ev2lp
-got_if_ev2		xor a
+				cp 22h
+				jr z,ifctq2
 				ld (de),a
-				push hl							;now look up the name (skipping the opening bracket)
-				ld hl,if_value_txt+1
+				inc de
+				djnz iffq2
+ifctq2			xor a
+				ld (de),a
+				call os_scan_for_space
+				or a
+				jr z,script_error
+				jr if_arg2_done
+				
+ifa2nq			call os_copy_ascii_run			;no quotes, this is another Envar name
+				xor a
+				ld (de),a
+				push hl							;now look up the envar's contents
+				ld hl,if_value_txt
 				call os_get_envar
 				ex de,hl
 				jr z,scr_ev2ok
@@ -200,18 +205,20 @@ doesnt_exist	ld a,(if_condition)
 
 not_an_exist_test
 
-				bit scr_numeric_comp,(ix)
+				ld hl,script_flags
+				bit scr_numeric_comp,(hl)
 				jr z,not_numeric_if				; is this a numeric comparison?
+				
 				ld hl,if_name_txt
-				call os_get_envar
+				call os_get_envar				; DE points to contents on return
 				ret nz
 				ex de,hl			
 				call ascii_to_hexword			; yes, convert strings to hex_numbers (if possible)
-				ret nz
+				ret nz							; DE = value of first arg
 				push de
 				ld hl,if_value_txt
-				call ascii_to_hexword
-				pop hl
+				call ascii_to_hexword			; get value of second arg in DE
+				pop hl							; get value of first arg in HL
 				ret nz
 				ld a,(if_condition)
 				ld b,a
