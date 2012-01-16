@@ -1,0 +1,12 @@
+echo "Test script 9"
+input "Enter a number" num1
+input "Enter another number" num2
+if val num1 > num2 BIGGER
+if val num1 < num2 SMALLER
+echo "The numbers are the same"
+end
+[SMALLER]
+echo "The first number is smaller than the second"
+end
+[BIGGER]
+echo "The first number is bigger than the second"
