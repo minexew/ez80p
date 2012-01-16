@@ -1,0 +1,9 @@
+echo "This is PROSE test script 2"
+echo ""
+echo "The dir will be changed within the script."
+echo "If the file 'chfight.ezp' is in vol0:games/chfight"
+echo "its file info will be shown in the envars.."
+
+cd vol0:games/chfight
+fi chfight.ezp #
+set

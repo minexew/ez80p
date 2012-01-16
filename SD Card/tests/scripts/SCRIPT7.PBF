@@ -1,0 +1,7 @@
+ECHO "THIS IS PROSE TEST SCRIPT 7"
+
+set loops = 0
+[loop]
+echo "looping 10 times"
+set loops +
+if val loops < "a" goto loop

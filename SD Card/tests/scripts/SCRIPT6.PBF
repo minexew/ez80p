@@ -1,0 +1,21 @@
+ECHO "THIS IS PROSE TEST SCRIPT 6"
+
+input "Enter a number and I'll compare it with 5" number
+
+if val number > "5" goto bigger
+if val number < "5" goto smaller
+
+echo "The number is equal to 5"
+
+end
+
+[bigger]
+
+echo "The number is bigger than 5"
+
+end
+
+[smaller]
+
+echo "The number is smaller than 5"
+

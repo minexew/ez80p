@@ -1,0 +1,9 @@
+ECHO "THIS IS PROSE TEST SCRIPT 8"
+
+input "Enter a name:" name1
+input "Enter another name:" name2
+if name1 = name2 goto same
+echo "The two names are different"
+end
+[same]
+echo "The two names are the same"
