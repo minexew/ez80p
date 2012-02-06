@@ -33,7 +33,7 @@
  -------------------------
 
 
-All inputs are pulled up to 3.3v or 5v (selected by jumper) via 10K resistors
+All inputs are pulled up to 3.3v or 5v (selected by onboard jumper) via 10K resistors
 
 
 
