@@ -2,7 +2,7 @@
 <html><head>
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>kernal routines</title></head>
 <body>
-PROSE KERNAL ROUTINES (last updated 06-09-2011 for PROSE v3B)<br>
+PROSE KERNAL ROUTINES (last updated 01-12-2012 for PROSE v41)<br>
 <br>
 To
 call a PROSE kernal routine, load register A with the routine label,
@@ -1189,7 +1189,7 @@ sound:<br>
 &nbsp;Bit 2 = channel 2<br>
 &nbsp;etc etc<br>
 <br>
-<br>
+<span style="text-decoration: underline;">Notes:</span><br><br>Make sure the audio hardware is enabled or no sound will be heard.<br><br>Enabling audio hardware: <br><br>ld a,81h<br>out0 (port_hw_enable),a&nbsp;&nbsp;&nbsp; <br><br>
 <hr style="width: 100%; height: 2px;"><br>
 <br>
 <br>
