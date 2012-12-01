@@ -1,8 +1,11 @@
 ;-----------------------------------------------------------------------------------------
-;"Sound" - Play a section of Audio RAM v1.00
+;"Sound" - Play a section of Audio RAM v1.01
 ;-----------------------------------------------------------------------------------------
 
-os_cmd_sound	ld de,0ffffh						;defaults
+os_cmd_sound	ld a,81h
+				out0 (port_hw_enable),a				;make sure audio system is enabled
+
+				ld de,0ffffh						;defaults
 				ld (aud_per),de
 				ld a,64
 				ld (aud_vol),a

@@ -20,7 +20,7 @@
 	
 ;----------------------------------------------------------------------
 
-prose_version			equ 40h
+prose_version			equ 41h
 amoeba_version_required	equ 10bh
 
 sysram_size				equ 080000h			;assume unexpanded 512KB for now

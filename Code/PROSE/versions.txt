@@ -1,7 +1,14 @@
-[15-01-2011]
+[01-12-2012]
 
 Current version
 ---------------
+
+041             : SOUND command hopefully fixed: Was occasionally not initialzing sounds correctly
+
+------------------------------------------------------------------------------------------
+Previous releases:
+------------------------------------------------------------------------------------------
+
 
 040             : Fileystem converts filenames to uppercase (FAT16 in Windows does
                   not allow straightforward lowercase filenames)
@@ -14,9 +21,6 @@ Current version
 		
 		: Set command improved: inc/dec and remove envar
 
-------------------------------------------------------------------------------------------
-Previous releases:
-------------------------------------------------------------------------------------------
 
 03F 		: FAT16 Routines filepointer bugfix (v.0B)
 
