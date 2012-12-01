@@ -107,7 +107,7 @@ kernal_table
 ; Non-packed Text Strings
 ;-------------------------------------------------------------------------------------------
 
-welcome_message			db "PROSE for EZ80P by Phil Ruston 2011",11,11,0
+welcome_message			db "PROSE for EZ80P by Phil Ruston 2012",11,11,0
 storage_txt				db "Drives:",11,0
 startup_script_fn		db "STARTUP.PBF",0
 os_hex_prefix_txt		db "$",0

@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Mon Jan 16 19:24:30 2012
+DATE:      Sat Dec 01 23:06:48 2012
 PROCESSOR: assembler
 FILES:     .\prose_main.obj
 
@@ -63,7 +63,7 @@ SPACE ALLOCATION:
 
 Space              Base        Top         Size
 ------------------ ----------- ----------- ---------
-ROM                   C:000A00    C:007350     6951h
+ROM                   C:000A00    C:007355     6956h
 
 
 SEGMENTS WITHIN SPACE:
@@ -71,16 +71,16 @@ SEGMENTS WITHIN SPACE:
 
 ROM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-CODE               absolute data          C:000A00    C:007350     6951h
+CODE               absolute data          C:000A00    C:007355     6956h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm (File: prose_main.obj) Version: 1:0 01/16/2012 19:24:27
+Module: E:\My_Own_Files\Coding\ez80p\Code\PROSE\src\prose_main.asm (File: prose_main.obj) Version: 1:0 12/01/2012 23:06:46
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              C:000A00    C:007350     6951h
+    Segment: CODE                              C:000A00    C:007355     6956h
 
 EXTERNAL DEFINITIONS:
 =====================

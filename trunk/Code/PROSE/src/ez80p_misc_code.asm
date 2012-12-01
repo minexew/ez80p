@@ -1,5 +1,5 @@
 ;----------------------------------
-;Misc eZ80p specific routines v0.06
+;Misc eZ80p specific routines v0.07
 ;----------------------------------
 
 hwsc_default_hw_settings
@@ -682,8 +682,6 @@ hwsc_play_audio
 
 ; set C register to set channels wave is to play on
 
-				ld a,81h
-				out0 (port_hw_enable),a					;make sure audio system is enabled
 				
 				push hl
 				push hl
@@ -711,20 +709,25 @@ audchanloop		srl c
 				ld (ix+0ch),a							;volume
 				
 				xor a
-				ld (ix+0eh),a
+				ld (ix+0eh),a							;clear swap flag
 				
 				ld a,011b
 				ld (ix+0fh),a							;restart channel and swap on loop
+				
+				ld a,8
+				sub a,b
+				out0 (port_selector),a					;select this (affected) channel for loop flag read
 				
 not_this_chan	lea ix,ix+10h			
 				djnz audchanloop
 						
 				xor a
-				ld (hw_audio_registers+80h),a			;unlock channels
+				ld (hw_audio_registers+80h),a			;unlock all channels
 				
-				ld de,5
-				call hwsc_time_delay
-				
+wait_aud_start	in0 a,(port_hw_flags)					;wait for an affected channel to begin playing
+				bit 6,a
+				jr z,wait_aud_start
+
 				ld a,l
 				ld (hw_audio_registers+80h),a			;lock the applicable channels
 				
@@ -740,7 +743,7 @@ audchanloop2	srl l
 				ld (ix+4h),de							;loop length
 								
 				xor a
-				ld (ix+0eh),a
+				ld (ix+0eh),a							;clear swap flag
 				
 				ld a,000b
 				ld (ix+0fh),a							;dont restart channel and dont swap on loop
@@ -749,24 +752,9 @@ not_this_chan2	lea ix,ix+10h
 				djnz audchanloop2
 						
 				xor a
-				ld (hw_audio_registers+80h),a
+				ld (hw_audio_registers+80h),a			;unlock all channels
 				
 				pop hl
-				ret
-
-
-;-----------------------------------------------------------------------------------------------
-
-audio_reg_wait	
-
-				ld a,1
-				ld (hw_audio_registers+3),a			; enable playback / clear audio register status flag
-				
-wait_audreg		in0 a,(port_hw_flags)				; wait for audio hardware to finish reading registers
-				and 040h
-				jr z,wait_audreg				
-				xor a
-				ret
 				ret
 
 
@@ -775,7 +763,14 @@ wait_audreg		in0 a,(port_hw_flags)				; wait for audio hardware to finish readin
 hwsc_disable_audio
 
 				ld a,01h
-				out0 (port_hw_enable),a					
+				out0 (port_hw_enable),a			    ; disable entire sound system		
+				
+				ld ix,hw_audio_registers		    ; also mute all channels' volume
+				ld b,8
+chvolszero_lp	ld (ix+0ch),0
+				lea ix,ix+10h
+				djnz chvolszero_lp
+				
 				xor a
 				ret
 				
